@@ -8,7 +8,6 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="description" content="今晚必中888 - 智能选号">
-<!-- 修改：确保苹果主屏幕标题显示为“今晚必中888” -->
 <meta name="apple-mobile-web-app-title" content="今晚必中888">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -50,25 +49,21 @@
 --bet-active-bg: #fffaf0;
 --bet-active-border: #ed8936;
 --bet-active-text: #c05621;
+--bet-sold-bg: #c05621;
+--bet-sold-text: #ffffff;
 }
-/* 修改：HTML和Body强制禁止缩放 */
-html, body {
-overflow-x: hidden;
-width: 100%;
-height: 100%;
-}
+html, body { overflow-x: hidden; width: 100%; height: 100%; }
 body {
 font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 background-color: var(--bg-color);
 background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%233182ce' fill-opacity='0.05'%3E%3Ccircle cx='15' cy='15' r='8'/%3E%3Ccircle cx='45' cy='45' r='8'/%3E%3Cpath d='M30 5 L35 15 L25 15 Z'/%3E%3Ctext x='30' y='35' font-family='Arial' font-size='10' text-anchor='middle' fill='%232d3748' fill-opacity='0.05'%3E7%3C/text%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
 color: var(--text-main);
-/* 修改：增加顶部 padding 防止 iPhone 14 等设备遮挡标题 */
 margin: 0;
 padding: 15px 10px 10px 10px;
 padding-bottom: calc(10px + var(--safe-area-bottom));
 display: flex; flex-direction: column; align-items: center; min-height: 100vh;
 -webkit-tap-highlight-color: transparent;
-touch-action: manipulation; /* 禁止双击缩放 */
+touch-action: manipulation;
 background-attachment: fixed;
 overscroll-behavior: none;
 user-select: none;
@@ -125,7 +120,6 @@ box-shadow: 0 4px 15px rgba(0,0,0,0.05); position: relative;
 .row-label { font-family: var(--font-art-mao); font-size: var(--label-font-size); font-weight: bold; margin-right: 4px; flex-shrink: 0; line-height: 1; padding-top: 1px; white-space: nowrap; }
 .row-label.select-label { color: var(--label-select-color); text-shadow: var(--label-select-glow); }
 .row-label.kill-label { color: var(--label-kill-color); text-shadow: var(--label-kill-glow); }
-/* --- 1. 通用基础按钮 (字头/五行/尾数) --- */
 .filter-btn {
 width: var(--btn-size); height: var(--btn-size); border: 1px solid var(--btn-border); border-radius: 6px;
 display: flex; align-items: center; justify-content: center; cursor: pointer;
@@ -135,7 +129,6 @@ color: var(--btn-text);
 text-shadow: none; user-select: none; box-shadow: var(--btn-shadow); -webkit-user-select: none; flex-shrink: 0;
 }
 .filter-btn:hover { filter: brightness(0.98); }
-/* 选中状态（凹陷） */
 .filter-btn.active {
 background: var(--btn-active-bg) !important;
 color: var(--btn-active-text) !important;
@@ -145,7 +138,6 @@ border-color: #a0aec0 !important;
 }
 #head-wuxing-controls .filter-btn, #tail-controls .filter-btn,
 #kill-head-wuxing-controls .filter-btn, #kill-tail-controls .filter-btn { font-size: 0.75rem !important; font-weight: 700 !important; }
-/* --- 2. 波色按钮 (.wave-btn) --- */
 .wave-btn {
 width: var(--btn-size); height: var(--btn-size);
 border-radius: 6px;
@@ -160,7 +152,6 @@ font-weight: 800 !important;
 border-width: 1px;
 border-style: solid;
 }
-/* 波色按钮 - 默认状态 (凸起) */
 .wave-btn[data-type="red"] {
 background: #FFF0F3 !important;
 border-color: #FFC2D1 !important;
@@ -179,7 +170,6 @@ border-color: #A7F3D0 !important;
 color: #38a169 !important;
 box-shadow: 0 2px 0 #A7F3D0, 0 3px 4px rgba(56, 161, 105, 0.1) !important;
 }
-/* 波色按钮 - 选中状态 (凹陷) */
 .wave-btn.wave-active {
 background: #e2e8f0 !important;
 color: #000000 !important;
@@ -192,7 +182,6 @@ text-shadow: none !important;
 transform: translateY(2px);
 filter: brightness(0.95);
 }
-/* --- 3. 生肖按钮 --- */
 .zodiac-btn {
 width: 100%; aspect-ratio: 1; border: 1px solid var(--btn-border); font-weight: 900; font-size: 0.95rem;
 display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 10px; position: relative;
@@ -204,14 +193,12 @@ transition: all 0.1s; color: var(--btn-text); user-select: none; -webkit-user-se
 .zodiac-btn[data-color="red"]::after { background: var(--active-red-start); }
 .zodiac-btn[data-color="blue"]::after { background: var(--deep-blue-start); }
 .zodiac-btn[data-color="green"]::after { background: var(--active-green-start); }
-/* 生肖选中状态 (凹陷) */
 .zodiac-btn.is-active-zodiac {
 background: var(--btn-active-bg) !important; color: #000 !important;
 box-shadow: var(--btn-active-shadow); transform: var(--btn-active-transform);
 border-color: #a0aec0; text-shadow: none; font-weight: 900;
 }
 .zodiac-btn:active:not(.is-active-zodiac) { transform: var(--btn-active-transform); box-shadow: var(--btn-active-shadow); }
-/* --- 4. 随机特码按钮 --- */
 .random-btn-style {
 background: linear-gradient(145deg, var(--random-btn-start), var(--random-btn-end)) !important; color: #fff !important;
 border: 2px solid #B8860B !important; text-shadow: 0 1px 2px rgba(0,0,0,0.3) !important;
@@ -221,7 +208,6 @@ box-shadow: 0 2px 0 #B8860B, 0 4px 6px rgba(255, 165, 0, 0.4) !important; animat
 .random-btn-style.running { animation: pulse-fast 0.2s infinite !important; filter: brightness(1.3) !important; }
 @keyframes pulse-random { 0% { filter: brightness(1); transform: scale(1); } 50% { filter: brightness(1.15); transform: scale(1.05); } 100% { filter: brightness(1); transform: scale(1); } }
 @keyframes pulse-fast { 0% { transform: scale(1); filter: brightness(1.2); } 50% { transform: scale(1.1); filter: brightness(1.5); } 100% { transform: scale(1); filter: brightness(1.2); } }
-/* 输入框区域新样式 (嵌入选号框内) */
 .input-area-container {
 width: 100%;
 margin: 8px 0 0 0;
@@ -258,7 +244,6 @@ font-size: 0.65rem; line-height: 1.1;
 .bg-blue { background-color: var(--base-blue-dim); }
 .bg-green { background-color: var(--base-green-dim); }
 .bg-action { background: linear-gradient(145deg, var(--action-btn-start), var(--action-btn-end)); }
-/* 只有添加 is-active 类时才变亮 */
 .num-btn.is-active { filter: grayscale(0%) brightness(1.1); opacity: 1; transform: scale(1.3); z-index: 20; animation: pulse-glow 2s infinite; box-shadow: 0 0 15px currentColor, 0 0 30px rgba(255,255,255,0.3), inset 0 0 0 2px rgba(255,255,255,0.5); background-image: none; }
 .bg-blue.is-active { background: linear-gradient(145deg, var(--deep-blue-start), var(--deep-blue-end)); color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.3); }
 .bg-red.is-active { background: linear-gradient(145deg, var(--active-red-start), var(--active-red-end)); color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.3); }
@@ -290,14 +275,12 @@ animation: special-breath 1.5s ease-in-out infinite; border: 2px solid #FFF;
 .undo-btn-grid { grid-row: 7; grid-column: 1 / span 2; }
 .random-btn-grid { grid-row: 7; grid-column: 6 / span 2; }
 .redo-btn-grid { grid-row: 7; grid-column: 11 / span 2; }
-/* ================= 结果卡片与买号区样式 ================= */
 .result-card {
 background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
 border: 1px solid rgba(255, 255, 255, 0.6); box-shadow: 0 8px 32px rgba(0,0,0,0.08); border-radius: 12px;
 padding: 10px; width: 100%; max-width: 500px; box-sizing: border-box; margin-top: 6px; position: relative; z-index: 2;
 }
 .input-group { margin-bottom: 8px; display: flex; gap: 4px; align-items: center; }
-/* 修改：选号区输入框高度强制与0字头一致 (28px) */
 .smart-input {
 flex: 1;
 padding: 0 8px;
@@ -318,13 +301,8 @@ text-align: left;
 display: flex;
 align-items: center;
 }
-.smart-input::placeholder {
-color: #a0aec0;
-text-align: left;
-font-size: 0.7rem;
-}
+.smart-input::placeholder { color: #a0aec0; text-align: left; font-size: 0.7rem; }
 .smart-input:focus { border-color: var(--deep-blue-start); box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.2); }
-/* 修改：确定键高度强制与0字头一致 (28px) */
 .confirm-btn {
 width: var(--btn-size);
 height: var(--btn-size);
@@ -346,8 +324,16 @@ user-select: none;
 }
 .confirm-btn:active { transform: translateY(3px); box-shadow: 0 0 0 rgba(0,0,0,0.2); }
 .input-hint { font-size: 0.55rem; color: #718096; margin-top: 2px; text-align: right; }
-.result-box-title { font-size: 0.85rem; font-weight: 800; color: #4a5568; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; white-space: nowrap; }
-/* 修改：胶囊只显示数字 */
+.result-box-title {
+font-size: 0.85rem;
+font-weight: 800;
+color: #4a5568;
+margin-bottom: 4px;
+display: flex;
+align-items: center;
+gap: 6px;
+white-space: nowrap;
+}
 .count-badge {
 background: #000000;
 color: #ffffff;
@@ -360,8 +346,8 @@ display: inline-block;
 min-width: 1.2em;
 text-align: center;
 line-height: 1.2;
+white-space: nowrap;
 }
-/* 修改：结果文本区域样式，支持多列布局 */
 .result-text {
 font-family: "Courier New", Courier, monospace;
 font-size: 0.9rem;
@@ -383,75 +369,58 @@ display: flex;
 flex-direction: column;
 gap: 4px;
 }
-.result-column {
-display: flex;
-flex-wrap: wrap;
-gap: 4px;
-align-items: center;
-}
-.result-col-label {
-font-size: 0.75rem;
-color: #718096;
-font-weight: 800;
-margin-right: 4px;
-white-space: nowrap;
-}
+.result-column { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+.result-col-label { font-size: 0.75rem; color: #718096; font-weight: 800; margin-right: 4px; white-space: nowrap; }
 .result-num-betting {
-background-color: var(--bet-active-bg) !important;
-border: 1px solid var(--bet-active-border);
-color: var(--bet-active-text) !important;
-padding: 0 3px;
-border-radius: 4px;
-font-weight: 900;
-cursor: pointer;
-box-shadow: 0 0 5px rgba(237, 137, 54, 0.3);
+background-color: #fffaf0 !important;
+border: 1px solid #ed8936 !important;
+color: #c05621 !important;
+padding: 0 4px !important;
+border-radius: 4px !important;
+font-weight: 900 !important;
+cursor: pointer !important;
+box-shadow: 0 0 5px rgba(237, 137, 54, 0.3) !important;
+display: inline-block !important;
+line-height: 1.4 !important;
+}
+.result-num-sold {
+background-color: #c05621 !important;
+color: #ffffff !important;
+border: 1px solid #9c4221 !important;
+padding: 0 4px !important;
+border-radius: 4px !important;
+font-weight: 900 !important;
+cursor: pointer !important;
+box-shadow: 0 0 5px rgba(192, 86, 33, 0.4) !important;
+display: inline-block !important;
+line-height: 1.4 !important;
 }
 .res-red { color: var(--res-red); } .res-blue { color: var(--res-blue); } .res-green { color: var(--res-green); } .res-prefix { color: #4a5568; }
-/* 修改：待购区样式 - 移除外框，直接嵌入，左对齐 */
-.bet-action-area {
-margin-bottom: 8px;
-display: flex;
-flex-direction: column;
-gap: 6px;
-padding-left: 0;
-}
-.bet-input-row {
-display: flex;
-gap: 6px;
-align-items: center;
-width: 100%;
-}
-/* 修改：待购号码显示框 - 字体样式与已选号码框一致，高度强制与金额栏一致 */
+.bet-action-area { margin-bottom: 8px; display: flex; flex-direction: column; gap: 6px; padding-left: 0; }
+.bet-input-row { display: flex; gap: 6px; align-items: center; width: 100%; }
 .bet-nums-display {
 flex: 2;
-background: rgba(248, 249, 250, 0.8); /* 与result-text背景一致 */
+background: rgba(248, 249, 250, 0.8);
 border: 1px solid #e2e8f0;
 border-radius: 6px;
-padding: 0 8px; /* 调整padding以适应固定高度 */
-font-family: "Courier New", Courier, monospace; /* 强制字体一致 */
-font-size: 0.9rem; /* 强制字号一致 */
-font-weight: 700; /* 强制粗细一致 */
-color: #2d3748; /* 强制颜色一致 */
+padding: 0 8px;
+font-family: "Courier New", Courier, monospace;
+font-size: 0.9rem;
+font-weight: 700;
+color: inherit;
 overflow: hidden;
 text-overflow: ellipsis;
 white-space: nowrap;
-height: 28px; /* 【关键修改】高度强制与金额栏和字头按钮一致 */
-line-height: 28px; /* 行高设为与高度一致以垂直居中 */
+height: 28px;
+line-height: 28px;
 box-sizing: border-box;
 display: flex;
 align-items: center;
 }
-/* 新增乘号样式 */
-.bet-multiply-sign {
-font-size: 1.2rem;
-font-weight: 900;
-color: #718096;
-flex-shrink: 0;
-padding: 0 2px;
-}
-/* 修改：金额输入框高度 */
+.bet-sep { color: #2d3748; margin: 0 1px; }
+.bet-multiply-sign { font-size: 1.2rem; font-weight: 900; color: #718096; flex-shrink: 0; padding: 0 2px; }
 .bet-amount-input {
-width: 50px;
+width: 70px;
 padding: 4px 2px;
 border: 1px solid var(--input-border);
 border-radius: 4px;
@@ -462,9 +431,14 @@ outline: none;
 height: 28px;
 line-height: 20px;
 box-sizing: border-box;
+-moz-appearance: textfield;
+}
+.bet-amount-input::-webkit-outer-spin-button,
+.bet-amount-input::-webkit-inner-spin-button {
+-webkit-appearance: none;
+margin: 0;
 }
 .bet-amount-input:focus { border-color: var(--action-btn-start); }
-/* 修改：确定键高度调窄，与金额框对齐 */
 .bet-confirm-btn {
 flex: 0 0 auto;
 width: 40px;
@@ -493,12 +467,7 @@ cursor: default;
 transform: none;
 box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
 }
-/* 新增：买号结果栏 - 移出框外，无图标，格式同已选号码 */
-.bet-result-container {
-margin-top: 8px;
-display: block;
-}
-/* 修改：买号结果标题栏布局 - 无图标，格式同已选号码 */
+.bet-result-container { margin-top: 8px; display: block; }
 .bet-result-header {
 font-size: 0.85rem;
 font-weight: 800;
@@ -510,7 +479,6 @@ gap: 6px;
 flex-wrap: wrap;
 padding-left: 0;
 }
-/* 新增：黑色横向胶囊 (样式与count-badge一致) */
 .bet-count-badge {
 background: #000000;
 color: #ffffff;
@@ -525,14 +493,7 @@ text-align: center;
 line-height: 1.2;
 white-space: nowrap;
 }
-/* 新增：总金额显示 */
-.bet-total-amount {
-font-size: 0.85rem;
-font-weight: 800;
-color: #c05621;
-white-space: nowrap;
-}
-/* 新增：买号结果框 - 与已选号码框样式完全一致 */
+.bet-total-amount { font-size: 0.85rem; font-weight: 800; color: #c05621; white-space: nowrap; }
 .bet-result-box {
 font-family: "Courier New", Courier, monospace;
 font-size: 0.9rem;
@@ -554,13 +515,7 @@ display: flex;
 flex-direction: column;
 gap: 4px;
 }
-.bet-result-items {
-display: flex;
-flex-wrap: wrap;
-gap: 6px;
-padding-left: 0;
-}
-/* 修改：移除边框和背景，只保留文字颜色，字体与已选号码一致 */
+.bet-result-items { display: flex; flex-wrap: wrap; gap: 6px; padding-left: 0; }
 .bet-result-item {
 border-radius: 4px;
 padding: 2px 4px;
@@ -574,17 +529,9 @@ gap: 4px;
 cursor: default;
 transition: none;
 }
-.bet-result-item .num-tag {
-font-weight: 900;
-}
-.bet-result-item .amt-tag {
-font-size: 0.8rem;
-color: #718096;
-font-weight: 600;
-}
-.bet-result-item.canceling {
-color: #c53030;
-}
+.bet-result-item .num-tag { font-weight: 900; }
+.bet-result-item .amt-tag { font-size: 0.8rem; color: #718096; font-weight: 600; }
+.bet-result-item.canceling { color: #c53030; }
 .action-btns { display: flex; gap: 4px; margin-bottom: 8px; }
 .action-btn { flex: 1; padding: 8px; border: none; border-radius: 6px; font-size: 0.8rem; font-weight: 800; cursor: pointer; color: #fff; transition: all 0.1s; box-shadow: 0 3px 0 rgba(0,0,0,0.2); position: relative; top: 0; user-select: none; -webkit-user-select: none; }
 .action-btn:active { top: 3px; box-shadow: 0 0 0 rgba(0,0,0,0.2); }
@@ -601,11 +548,9 @@ color: #c53030;
 .log-container::-webkit-scrollbar { width: 4px; }
 .log-container::-webkit-scrollbar-track { background: rgba(237, 242, 247, 0.5); }
 .log-container::-webkit-scrollbar-thumb { background: #cbd5e0; }
-/* 修改：重置按钮样式 - 移动到操作记录行 */
 .reset-btn-log {
-/* 使用与原重置按钮相同的样式，但应用在日志行 */
 height: var(--btn-size);
-padding: 0 12px; /* 保持长度 */
+padding: 0 12px;
 border: 1px solid var(--btn-border);
 border-radius: 6px;
 display: flex;
@@ -615,8 +560,8 @@ cursor: pointer;
 transition: all 0.15s ease;
 white-space: nowrap;
 position: relative;
-background: linear-gradient(145deg, #fff5f5, #fed7d7); /* 红色渐变底 */
-color: #c53030; /* 深红文字 */
+background: linear-gradient(145deg, #fff5f5, #fed7d7);
+color: #c53030;
 font-size: 0.75rem !important;
 font-weight: 700 !important;
 text-shadow: none;
@@ -624,7 +569,7 @@ user-select: none;
 box-shadow: var(--btn-shadow);
 -webkit-user-select: none;
 flex-shrink: 0;
-margin-left: auto; /* 推到最右边 */
+margin-left: auto;
 }
 .reset-btn-log:hover { filter: brightness(0.95); }
 .reset-btn-log:active {
@@ -634,7 +579,6 @@ box-shadow: var(--btn-active-shadow) !important;
 transform: var(--btn-active-transform);
 border-color: #a0aec0 !important;
 }
-/* 新增：小复制按钮样式 */
 .small-copy-btn {
 background: linear-gradient(145deg, var(--deep-blue-start), var(--deep-blue-end));
 color: white;
@@ -648,10 +592,7 @@ box-shadow: 0 2px 0 rgba(0,0,0,0.2);
 transition: all 0.1s;
 margin-left: 4px;
 }
-.small-copy-btn:active {
-transform: translateY(2px);
-box-shadow: none;
-}
+.small-copy-btn:active { transform: translateY(2px); box-shadow: none; }
 </style>
 </head>
 <body>
@@ -662,30 +603,24 @@ box-shadow: none;
 <div class="decor-row decor-right"><span class="decor-element de-1 coin-icon"></span><span class="decor-element de-2 bar-icon"></span><span class="decor-element de-3 ingot-icon"></span></div>
 </h2>
 <div class="filter-section">
-<!-- 选号区 -->
 <div class="control-box">
 <div class="box-header select-mode">选号</div>
-<!-- 修改：重置按钮已从此处移除，移至下方操作记录行 -->
 <div class="control-row" id="head-wuxing-controls">
 <span class="row-label select-label">头</span>
-<!-- 按钮由JS生成 -->
 </div>
 <div class="control-row" id="select-parity-controls"><span class="row-label select-label">波</span></div>
 <div class="control-row" id="tail-controls"><span class="row-label select-label">尾</span></div>
-<!-- 移动到此处的输入框 -->
 <div class="input-area-container">
 <div class="input-group" style="margin-bottom:0;">
-<input type="tel" id="smartInput" class="smart-input" placeholder="请输入或粘贴号码" autocomplete="off" inputmode="numeric">
+<input type="text" id="smartInput" class="smart-input" placeholder="请输入或粘贴号码/生肖" autocomplete="off" inputmode="numeric">
 <button class="confirm-btn" id="confirmBtn" onclick="handleConfirm()">✔️</button>
 </div>
 <div class="input-hint" style="text-align:left; margin-top:4px;">支持空格/逗号/点号分隔，按确定键点亮并清空</div>
 </div>
 </div>
-<!-- 杀号区 -->
 <div class="control-box">
 <div class="box-header kill-mode">杀号</div>
 <div class="control-row" id="kill-head-wuxing-controls"><span class="row-label kill-label">头</span></div>
-<!-- 杀号区波按钮容器 -->
 <div class="control-row" id="kill-parity-controls"><span class="row-label kill-label">波</span></div>
 <div class="control-row" id="kill-tail-controls"><span class="row-label kill-label">尾</span></div>
 </div>
@@ -694,13 +629,10 @@ box-shadow: none;
 <div class="result-card">
 <div class="result-box-title">
 <span>已选号码</span>
-<span class="count-badge" id="countBadge">0</span>
-<span>个</span>
-<!-- 新增：已选号码复制按钮 -->
+<span class="count-badge" id="countBadge">0个</span>
 <button class="small-copy-btn" onclick="copySelectedNumbers()">复制</button>
 </div>
 <div class="result-text" id="resultDisplay">暂无选择</div>
-<!-- 待购操作区 - 修改：移除外框，直接嵌入，左对齐 -->
 <div class="bet-action-area" id="betActionArea">
 <div class="bet-input-row">
 <div class="bet-nums-display" id="betNumsDisplay">暂无待购号码</div>
@@ -709,52 +641,66 @@ box-shadow: none;
 <button class="bet-confirm-btn" id="betConfirmBtn" onclick="confirmBet()">确定</button>
 </div>
 </div>
-<!-- 新增：买号结果栏 - 移出框外，无图标，格式同已选号码 -->
 <div class="bet-result-container" id="betResultContainer">
 <div class="bet-result-header">
 <span>买号结果</span>
-<!-- 新增：黑色横向胶囊 -->
 <span class="bet-count-badge" id="betCountBadge">0个</span>
-<!-- 新增：总金额 -->
 <span class="bet-total-amount" id="betTotalAmount">共 0 元</span>
-<!-- 新增：买号结果复制按钮 -->
 <button class="small-copy-btn" onclick="copyBetResults()">复制</button>
 </div>
-<!-- 新增：买号结果框，样式与已选号码框一致 -->
 <div class="bet-result-box" id="betResultBox">
 <div class="bet-result-items" id="betResultItems"></div>
 </div>
 </div>
-<!-- 修改：操作记录行 - 移除清空，添加重置按钮 -->
 <div style="font-size: 0.65rem; font-weight: 700; color: #4a5568; margin-bottom: 2px; display:flex; justify-content:space-between; align-items:center;">
 <span>📜 操作记录</span>
-<!-- 重置按钮移动到这里 -->
 <button class="reset-btn-log" onclick="handleReset()">全部重置</button>
 </div>
 <div class="log-container" id="logContainer"><div class="log-item" style="color:#718096; justify-content:center;">暂无记录</div></div>
 </div>
 <div class="toast" id="toast">操作成功</div>
 <script>
-// Service Worker 注册
+/**
+ * Service Worker 注册
+ * 用于离线缓存应用资源
+ */
 if ('serviceWorker' in navigator) {
 const CACHE_VERSION = 'v71-final-fix';
 const CACHE_NAME = `lucky888-${CACHE_VERSION}`;
 const swCode = `const CACHE_NAME='${CACHE_NAME}';self.addEventListener('install',e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE_NAME).then(c=>c.addAll(['./'])));});self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==CACHE_NAME).map(x=>caches.delete(x)))));self.clients.claim();});self.addEventListener('fetch',e=>{e.respondWith(fetch(e.request).catch(()=>caches.match(e.request)));});`;
 try { navigator.serviceWorker.register(URL.createObjectURL(new Blob([swCode], {type: 'application/javascript'}))).catch(console.error); } catch(e) {}
 }
-// 图标生成 - 强制显示"中"
+
+/**
+ * 生成动态图标 SVG (红色背景，白色“中”字)
+ */
 function generateIconSvg(text) {
+// 红色背景 #D90429, 白色文字
 const svgContent = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="#D90429"/><text x="50" y="68" font-family="'ZCOOL XiaoWei', serif" font-size="56" font-weight="900" fill="white" text-anchor="middle" style="filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.4));">${text}</text></svg>`;
 return 'data:image/svg+xml,' + encodeURIComponent(svgContent);
 }
-// 强制使用"中"字
+
+// 初始化图标和 Manifest
 const iconUrl = generateIconSvg("中");
 document.getElementById('dynamic-favicon').setAttribute('href', iconUrl);
 document.getElementById('dynamic-app-icon').setAttribute('href', iconUrl);
-// 修改：short_name 改为 "今晚必中888"，确保主屏幕显示正确
-const manifestData = {"name":"今晚必中888","short_name":"今晚必中888","start_url":".","display":"standalone","background_color":"#eef2f5","theme_color":"#D90429","orientation":"portrait","icons":[{"src": iconUrl,"sizes":"192x192","type":"image/svg+xml"},{"src": iconUrl,"sizes":"512x512","type":"image/svg+xml"}]};
+
+const manifestData = {
+"name":"今晚必中888",
+"short_name":"今晚必中888",
+"start_url":".",
+"display":"standalone",
+"background_color":"#eef2f5",
+"theme_color":"#D90429",
+"orientation":"portrait",
+"icons":[
+{"src": iconUrl,"sizes":"192x192","type":"image/svg+xml"},
+{"src": iconUrl,"sizes":"512x512","type":"image/svg+xml"}
+]
+};
 document.querySelector('#manifest-placeholder').setAttribute('href', URL.createObjectURL(new Blob([JSON.stringify(manifestData)], {type: 'application/json'})));
-// 基础数据
+
+// ================= 基础数据定义 =================
 const zodiacs = ["鼠", "牛", "虎", "兔", "龙", "蛇", "马", "羊", "猴", "鸡", "狗", "猪"];
 const zodiacColors = ['red', 'blue', 'green', 'red', 'blue', 'green', 'red', 'blue', 'green', 'red', 'blue', 'green'];
 const redGroup = new Set([7, 2, 1, 12, 8, 19, 18, 13, 24, 23, 30, 29, 35, 34, 40, 46, 45]);
@@ -765,18 +711,18 @@ const numToWuxing = {};
 const wuxingChars = { gold: '金', wood: '木', water: '水', fire: '火', earth: '土' };
 for (const [type, nums] of Object.entries(wuxingGroups)) nums.forEach(n => numToWuxing[n] = type);
 const customGridRows = [[7, 6, 5, 4, 3, 2, 1, 12, 11, 10, 9, 8], [19, 18, 17, 16, 15, 14, 13, 24, 23, 22, 21, 20], [31, 30, 29, 28, 27, 26, 25, 36, 35, 34, 33, 32], [43, 42, 41, 40, 39, 38, 37, 48, 47, 46, 45, 44], [null, null, null, null, null, null, 49, null, null, null, null, null]];
-// 状态变量
+
+// ================= 状态变量 =================
 let selectedNumbers = new Set();
 let manuallySelected = new Set();
 let specialNumbersSet = new Set();
 let isRandomRunning = false;
 let bettingNumbers = new Set();
-// 修改：存储买号结果 { num: amount }
-let betResults = {};
-// 撤销/恢复栈
+let betResults = {}; 
 let undoStack = [];
 let redoStack = [];
-// 工具函数
+
+// ================= 工具函数 =================
 function vibrate(pattern = 15) { if (navigator.vibrate) navigator.vibrate(pattern); }
 function fmtNum(n) { return n < 10 ? '0' + n : '' + n; }
 function showToast(msg, duration = 3000) {
@@ -794,24 +740,28 @@ div.innerHTML = `<span><span class="log-time">${timeStr}</span><span class="log-
 container.prepend(div);
 if (container.children.length > 15) container.removeChild(container.lastChild);
 }
-// 修改：清空功能已从界面移除，此处保留函数供内部逻辑可能的调用，但不再暴露给用户
-function clearLogs() {
-// 仅作为内部辅助，如果确实需要清空历史记录可调用，但UI上已无按钮
-vibrate(30);
-document.getElementById('logContainer').innerHTML = '<div class="log-item" style="color:#718096; justify-content:center;">暂无记录</div>';
-}
+
+// ================= 数据持久化 (增强版) =================
 function save_data() {
 const data = {
 selected: Array.from(selectedNumbers),
 manual: Array.from(manuallySelected),
 special: Array.from(specialNumbersSet),
-bets: betResults
+bets: betResults,
+undo: undoStack,
+redo: redoStack
 };
+try {
 localStorage.setItem('lucky666_data_v21', JSON.stringify(data));
+} catch(e) {
+console.error("Save failed", e);
 }
+}
+
 function load_data() {
 let raw = localStorage.getItem('lucky666_data_v21');
 if (!raw) {
+// 尝试兼容旧版本
 raw = localStorage.getItem('lucky666_data_v20');
 if(raw) {
 try {
@@ -819,7 +769,7 @@ const d = JSON.parse(raw);
 selectedNumbers = new Set(d.selected || []);
 manuallySelected = new Set(d.manual || []);
 specialNumbersSet = new Set(d.special || []);
-save_data();
+save_data(); // 升级存储格式
 return;
 } catch(e){}
 }
@@ -835,11 +785,16 @@ betResults = d.bets;
 } else {
 betResults = {};
 }
+// 加载撤销/恢复栈
+if(Array.isArray(d.undo)) undoStack = d.undo;
+if(Array.isArray(d.redo)) redoStack = d.redo;
 } catch(e) {
 betResults = {};
+undoStack = [];
+redoStack = [];
 }
 }
-// 核心逻辑：获取组内号码
+
 function getGroupNumbers(type, value) {
 const nums = [];
 for (let i = 1; i <= 49; i++) {
@@ -868,7 +823,8 @@ if (type === 'tail') return value + "尾";
 if (type === 'parity') { const [color, parity] = value.split('-'); const cMap = {red:'红', blue:'蓝', green:'绿'}; const pMap = {odd:'单', even:'双'}; return cMap[color] + pMap[parity]; }
 return type + value;
 }
-// ==================== 撤销与恢复逻辑 (独立分开) ====================
+
+// ==================== 撤销与恢复逻辑 ====================
 function performUndo() {
 if (undoStack.length === 0) {
 showToast("ℹ️ 没有可撤销的操作");
@@ -886,47 +842,34 @@ vibrate(20);
 save_data();
 if (lastAction.type === 'bet_confirm') {
 lastAction.numbers.forEach(n => {
-if(betResults[n] !== undefined) {
-delete betResults[n];
-}
+if(betResults[n] !== undefined) { delete betResults[n]; }
 bettingNumbers.delete(n);
 });
 showToast(`已撤销购买 ${lastAction.label}`);
 addLog("undo", `撤销购买 ${lastAction.label}`);
 } else if (lastAction.type === 'bet_cancel') {
-lastAction.numbers.forEach(n => {
-betResults[n] = lastAction.amount;
-});
+lastAction.numbers.forEach(n => { betResults[n] = lastAction.amount; });
 showToast(`已恢复购买 ${lastAction.label}`);
 addLog("undo", `恢复购买 ${lastAction.label}`);
 } else {
 if (lastAction.wasAdded) {
 lastAction.numbers.forEach(n => {
-selectedNumbers.delete(n);
-manuallySelected.delete(n);
-specialNumbersSet.delete(n);
-if(betResults[n] !== undefined) {
-delete betResults[n];
-}
+selectedNumbers.delete(n); manuallySelected.delete(n); specialNumbersSet.delete(n);
+if(betResults[n] !== undefined) delete betResults[n];
 bettingNumbers.delete(n);
 });
 if (lastAction.numbers.length === 1) {
-const numStr = fmtNum(lastAction.numbers[0]);
-showToast(`已撤销选中的${numStr}`);
-addLog("undo", `撤销选中 ${numStr}`);
+showToast(`已撤销选中的${fmtNum(lastAction.numbers[0])}`);
+addLog("undo", `撤销选中 ${fmtNum(lastAction.numbers[0])}`);
 } else {
 showToast(`已撤销点亮的${lastAction.label}`);
 addLog("undo", `撤销点亮 ${lastAction.label}`);
 }
 } else {
-lastAction.numbers.forEach(n => {
-selectedNumbers.add(n);
-manuallySelected.add(n);
-});
+lastAction.numbers.forEach(n => { selectedNumbers.add(n); manuallySelected.add(n); });
 if (lastAction.numbers.length === 1) {
-const numStr = fmtNum(lastAction.numbers[0]);
-showToast(`已撤销取消的${numStr}`);
-addLog("undo", `撤销取消 ${numStr}`);
+showToast(`已撤销取消的${fmtNum(lastAction.numbers[0])}`);
+addLog("undo", `撤销取消 ${fmtNum(lastAction.numbers[0])}`);
 } else {
 showToast(`已恢复杀掉的${lastAction.label}`);
 addLog("undo", `恢复杀掉 ${lastAction.label}`);
@@ -935,6 +878,7 @@ addLog("undo", `恢复杀掉 ${lastAction.label}`);
 }
 updateAllStates(false);
 }
+
 function performRedo() {
 if (redoStack.length === 0) {
 showToast("ℹ️ 没有可恢复的操作");
@@ -951,43 +895,32 @@ amount: lastUndo.amount
 vibrate(20);
 save_data();
 if (lastUndo.type === 'bet_confirm') {
-lastUndo.numbers.forEach(n => {
-betResults[n] = lastUndo.amount;
-});
+lastUndo.numbers.forEach(n => { betResults[n] = lastUndo.amount; });
 showToast(`已恢复购买 ${lastUndo.label}`);
 addLog("redo", `恢复购买 ${lastUndo.label}`);
 } else if (lastUndo.type === 'bet_cancel') {
-lastUndo.numbers.forEach(n => {
-if(betResults[n] !== undefined) delete betResults[n];
-});
+lastUndo.numbers.forEach(n => { if(betResults[n] !== undefined) delete betResults[n]; });
 showToast(`已再次取消购买 ${lastUndo.label}`);
 addLog("redo", `再次取消购买 ${lastUndo.label}`);
 } else {
 if (lastUndo.wasAdded) {
-lastUndo.numbers.forEach(n => {
-selectedNumbers.add(n);
-manuallySelected.add(n);
-});
+lastUndo.numbers.forEach(n => { selectedNumbers.add(n); manuallySelected.add(n); });
 if (lastUndo.numbers.length === 1) {
-const numStr = fmtNum(lastUndo.numbers[0]);
-showToast(`已重新选中${numStr}`);
-addLog("redo", `恢复选中 ${numStr}`);
+showToast(`已重新选中${fmtNum(lastUndo.numbers[0])}`);
+addLog("redo", `恢复选中 ${fmtNum(lastUndo.numbers[0])}`);
 } else {
 showToast(`已重新点亮${lastUndo.label}`);
 addLog("redo", `恢复点亮 ${lastUndo.label}`);
 }
 } else {
 lastUndo.numbers.forEach(n => {
-selectedNumbers.delete(n);
-manuallySelected.delete(n);
-specialNumbersSet.delete(n);
+selectedNumbers.delete(n); manuallySelected.delete(n); specialNumbersSet.delete(n);
 if(betResults[n] !== undefined) delete betResults[n];
 bettingNumbers.delete(n);
 });
 if (lastUndo.numbers.length === 1) {
-const numStr = fmtNum(lastUndo.numbers[0]);
-showToast(`已重新取消${numStr}`);
-addLog("redo", `再次取消 ${numStr}`);
+showToast(`已重新取消${fmtNum(lastUndo.numbers[0])}`);
+addLog("redo", `再次取消 ${fmtNum(lastUndo.numbers[0])}`);
 } else {
 showToast(`已重新杀掉${lastUndo.label}`);
 addLog("redo", `再次杀掉 ${lastUndo.label}`);
@@ -996,17 +929,15 @@ addLog("redo", `再次杀掉 ${lastUndo.label}`);
 }
 updateAllStates(false);
 }
+
 function recordAction(type, label, numbers, wasAdded, amount = 0) {
 redoStack = [];
-undoStack.push({
-type: type,
-label: label,
-numbers: [...numbers],
-wasAdded: wasAdded,
-amount: amount
-});
+undoStack.push({ type: type, label: label, numbers: [...numbers], wasAdded: wasAdded, amount: amount });
 if (undoStack.length > 20) undoStack.shift();
+save_data(); // 每次操作立即保存
 }
+
+// ================= 业务逻辑处理 =================
 function handleWaveSelect(color, parity, btnElement) {
 vibrate(20);
 const val = `${color}-${parity}`;
@@ -1014,13 +945,9 @@ const groupNums = getGroupNumbers('parity', val);
 const label = getGroupLabel('parity', val);
 if (groupNums.length === 0) return;
 const allSelected = groupNums.every(n => selectedNumbers.has(n));
-if (allSelected) {
-showToast(`✅ 当前${label}已全选`);
-return;
-}
+if (allSelected) { showToast(`✅ 当前${label}已全选`); return; }
 const newNums = groupNums.filter(n => !selectedNumbers.has(n));
 recordAction('batch_select', label, newNums, true);
-save_data();
 groupNums.forEach(n => { selectedNumbers.add(n); manuallySelected.add(n); });
 addLog("select", `选中所有${label}`);
 showToast(`✅ 选中所有${label}`);
@@ -1033,40 +960,28 @@ const groupNums = getGroupNumbers('parity', val);
 const label = getGroupLabel('parity', val);
 if (groupNums.length === 0) return;
 const allKilled = !groupNums.some(n => selectedNumbers.has(n));
-if (allKilled) {
-showToast(`❌ 当前${label}已全杀`);
-return;
-}
+if (allKilled) { showToast(`❌ 当前${label}已全杀`); return; }
 const removedNums = groupNums.filter(n => selectedNumbers.has(n));
 recordAction('batch_kill', label, removedNums, false);
-save_data();
 let killedCount = 0;
 groupNums.forEach(n => {
 if (selectedNumbers.has(n)) {
-selectedNumbers.delete(n);
-manuallySelected.delete(n);
-specialNumbersSet.delete(n);
+selectedNumbers.delete(n); manuallySelected.delete(n); specialNumbersSet.delete(n);
 if(betResults[n] !== undefined) delete betResults[n];
 bettingNumbers.delete(n);
 killedCount++;
 }
 });
-if (killedCount > 0) {
-addLog("select", `已杀所有${label}`); showToast(`❌ 已杀所有${label}`);
-}
+if (killedCount > 0) { addLog("select", `已杀所有${label}`); showToast(`❌ 已杀所有${label}`); }
 updateAllStates(false);
 }
 function handleSelectBatch(groupNums, label, btnElement) {
 vibrate(20);
 if (groupNums.length === 0) return;
 const allSelected = groupNums.every(n => selectedNumbers.has(n));
-if (allSelected) {
-showToast(`✅ 当前${label}已全选`);
-return;
-}
+if (allSelected) { showToast(`✅ 当前${label}已全选`); return; }
 const newNums = groupNums.filter(n => !selectedNumbers.has(n));
 recordAction('batch_select', label, newNums, true);
-save_data();
 groupNums.forEach(n => { selectedNumbers.add(n); manuallySelected.add(n); });
 addLog("select", `选中所有${label}`);
 showToast(`✅ 选中所有${label}`);
@@ -1081,11 +996,8 @@ if (hasAnySelected) {
 const toRemove = groupNums.filter(n => selectedNumbers.has(n));
 if (toRemove.length === 0) return;
 recordAction('batch_kill', label, toRemove, false);
-save_data();
 toRemove.forEach(n => {
-selectedNumbers.delete(n);
-manuallySelected.delete(n);
-specialNumbersSet.delete(n);
+selectedNumbers.delete(n); manuallySelected.delete(n); specialNumbersSet.delete(n);
 if(betResults[n] !== undefined) delete betResults[n];
 bettingNumbers.delete(n);
 });
@@ -1093,13 +1005,9 @@ addLog("select", `取消${label}选中`);
 showToast(`❌ 已取消${label}选中`);
 } else {
 const allSelected = groupNums.every(n => selectedNumbers.has(n));
-if (allSelected) {
-showToast(`✅ 当前${label}已全选`);
-return;
-}
+if (allSelected) { showToast(`✅ 当前${label}已全选`); return; }
 const newNums = groupNums.filter(n => !selectedNumbers.has(n));
 recordAction('batch_select', label, newNums, true);
-save_data();
 groupNums.forEach(n => { selectedNumbers.add(n); manuallySelected.add(n); });
 addLog("select", `选中所有${label}`);
 showToast(`✅ 选中所有${label}`);
@@ -1110,30 +1018,23 @@ function handleKillBatch(groupNums, label, btnElement) {
 vibrate(20);
 if (groupNums.length === 0) return;
 const allKilled = !groupNums.some(n => selectedNumbers.has(n));
-if (allKilled) {
-showToast(`❌ 当前${label}已全杀`);
-return;
-}
+if (allKilled) { showToast(`❌ 当前${label}已全杀`); return; }
 const removedNums = groupNums.filter(n => selectedNumbers.has(n));
 recordAction('batch_kill', label, removedNums, false);
-save_data();
 let killedCount = 0;
 groupNums.forEach(n => {
 if (selectedNumbers.has(n)) {
-selectedNumbers.delete(n);
-manuallySelected.delete(n);
-specialNumbersSet.delete(n);
+selectedNumbers.delete(n); manuallySelected.delete(n); specialNumbersSet.delete(n);
 if(betResults[n] !== undefined) delete betResults[n];
 bettingNumbers.delete(n);
 killedCount++;
 }
 });
-if (killedCount > 0) {
-addLog("select", `已杀所有${label}`); showToast(`❌ 已杀所有${label}`);
-}
+if (killedCount > 0) { addLog("select", `已杀所有${label}`); showToast(`❌ 已杀所有${label}`); }
 updateAllStates(false);
 }
-// 【独立】渲染控制按钮 - 选号区
+
+// ================= 渲染逻辑 =================
 function renderSelectControls() {
 const headContainer = document.getElementById('head-wuxing-controls');
 const tailContainer = document.getElementById('tail-controls');
@@ -1149,17 +1050,13 @@ const btn = document.createElement('button'); btn.className = 'filter-btn'; btn.
 btn.onclick = function() { const nums = getGroupNumbers('wuxing', item.key); handleSelectBatch(nums, item.label+'行', this); };
 headContainer.appendChild(btn);
 });
-// 注意：重置按钮已移至操作记录行，此处不再添加
 const createWaveBtn = (text, color, parity, isKill = false) => {
 const btn = document.createElement('button');
 btn.className = 'wave-btn';
 btn.textContent = text;
 btn.dataset.type = color;
-if (isKill) {
-btn.onclick = function() { handleWaveKill(color, parity, this); };
-} else {
-btn.onclick = function() { handleWaveSelect(color, parity, this); };
-}
+if (isKill) { btn.onclick = function() { handleWaveKill(color, parity, this); }; }
+else { btn.onclick = function() { handleWaveSelect(color, parity, this); }; }
 return btn;
 };
 parityContainer.appendChild(createWaveBtn('红单', 'red', 'odd', false));
@@ -1174,7 +1071,6 @@ btn.onclick = function() { const nums = getGroupNumbers('tail', i.toString()); h
 tailContainer.appendChild(btn);
 }
 }
-// 【独立】渲染控制按钮 - 杀号区
 function renderKillControls() {
 const headContainer = document.getElementById('kill-head-wuxing-controls');
 const tailContainer = document.getElementById('kill-tail-controls');
@@ -1185,11 +1081,8 @@ const btn = document.createElement('button');
 btn.className = 'wave-btn';
 btn.textContent = text;
 btn.dataset.type = color;
-if (isKill) {
-btn.onclick = function() { handleWaveKill(color, parity, this); };
-} else {
-btn.onclick = function() { handleWaveSelect(color, parity, this); };
-}
+if (isKill) { btn.onclick = function() { handleWaveKill(color, parity, this); }; }
+else { btn.onclick = function() { handleWaveSelect(color, parity, this); }; }
 return btn;
 };
 parityContainer.appendChild(createWaveBtn('红单', 'red', 'odd', true));
@@ -1214,7 +1107,6 @@ btn.onclick = function() { const nums = getGroupNumbers('tail', i.toString()); h
 tailContainer.appendChild(btn);
 }
 }
-// 【独立】更新号码球状态
 function updateNumberBalls() {
 document.querySelectorAll('.num-btn').forEach(btn => {
 const num = parseInt(btn.dataset.num);
@@ -1226,7 +1118,6 @@ if (isSpecial && isSelected) { btn.classList.add('is-special'); } else { btn.cla
 }
 });
 }
-// 【独立】更新生肖按钮状态
 function updateZodiacButtons() {
 zodiacs.forEach((z, index) => {
 const colNumbers = [];
@@ -1238,7 +1129,6 @@ if (hasAnySelected) b.classList.add('is-active-zodiac'); else b.classList.remove
 });
 });
 }
-// 【核心修改】更新过滤按钮状态
 function updateFilterButtons() {
 document.querySelectorAll('#head-wuxing-controls .filter-btn, #tail-controls .filter-btn').forEach(btn => {
 const txt = btn.textContent;
@@ -1293,7 +1183,6 @@ updateResultText();
 renderBetResults();
 updateBetActionArea();
 }
-// 【核心修改】结果展示逻辑
 function getColorClass(num) {
 if (redGroup.has(num)) return 'res-red';
 if (greenGroup.has(num)) return 'res-green';
@@ -1303,15 +1192,8 @@ return '';
 function handleResultNumClick(num) {
 if (!selectedNumbers.has(num)) return;
 vibrate(10);
-if (betResults[num] !== undefined) {
-cancelBet(num);
-return;
-}
-if (bettingNumbers.has(num)) {
-bettingNumbers.delete(num);
-} else {
-bettingNumbers.add(num);
-}
+if (betResults[num] !== undefined) { cancelBet(num); return; }
+if (bettingNumbers.has(num)) { bettingNumbers.delete(num); } else { bettingNumbers.add(num); }
 updateBetActionArea();
 updateResultText();
 }
@@ -1321,7 +1203,6 @@ vibrate(20);
 const numStr = fmtNum(num);
 const amount = betResults[num];
 recordAction('bet_cancel', numStr, [num], false, amount);
-save_data();
 delete betResults[num];
 bettingNumbers.delete(num);
 showToast(`🗑️ 已取消 ${numStr} 的购买`);
@@ -1337,6 +1218,10 @@ area.style.display = 'flex';
 if (bettingNumbers.size === 0) {
 display.textContent = "暂无待购号码";
 display.style.color = "#a0aec0";
+display.style.fontSize = "0.8rem";
+display.style.fontFamily = "'Courier New', monospace";
+display.style.fontWeight = "700";
+display.innerHTML = "暂无待购号码";
 input.value = "";
 btn.textContent = "确定";
 btn.classList.remove('confirmed');
@@ -1344,44 +1229,38 @@ btn.disabled = false;
 btn.onclick = confirmBet;
 return;
 }
-const sortedNums = Array.from(bettingNumbers).sort((a,b)=>a-b).map(fmtNum);
-display.textContent = sortedNums.join('.');
-display.style.color = "#2d3748";
+const sortedNums = Array.from(bettingNumbers).sort((a,b)=>a-b);
+let htmlParts = [];
+sortedNums.forEach((n, index) => {
+const colorClass = getColorClass(n);
+htmlParts.push(`<span class="${colorClass}">${fmtNum(n)}</span>`);
+if (index < sortedNums.length - 1) { htmlParts.push(`<span class="bet-sep">.</span>`); }
+});
+display.innerHTML = htmlParts.join('');
+display.style.color = "inherit";
+display.style.fontSize = "0.9rem";
+display.style.fontFamily = "'Courier New', Courier, monospace";
+display.style.fontWeight = "700";
 btn.textContent = "确定";
 btn.classList.remove('confirmed');
 btn.disabled = false;
 btn.onclick = confirmBet;
 }
 function confirmBet() {
-// 【新增验证】检查是否有待购号码
-if (bettingNumbers.size === 0) {
-showToast("⚠️ 请选择待购号码");
-vibrate(30);
-return;
-}
-
+if (bettingNumbers.size === 0) { showToast("⚠️ 请选择待购号码"); vibrate(30); return; }
 const input = document.getElementById('betAmountInput');
 const amount = parseInt(input.value);
-if (isNaN(amount) || amount <= 0) {
-showToast("⚠️ 金额必须是大于0的整数");
-vibrate(30);
-input.focus();
-return;
-}
+if (isNaN(amount) || amount <= 0) { showToast("⚠️ 金额必须是大于0的整数"); vibrate(30); input.focus(); return; }
 const nums = Array.from(bettingNumbers).sort((a,b)=>a-b);
 const label = nums.map(fmtNum).join('.');
 recordAction('bet_confirm', label, nums, true, amount);
-save_data();
-nums.forEach(n => {
-betResults[n] = amount;
-});
+nums.forEach(n => { betResults[n] = amount; });
 bettingNumbers.clear();
 input.value = "";
 updateAllStates(false);
 showToast(`✅ 已下单：${nums.length}个号码，各${amount}块`);
 addLog("bet", `买入 ${label}. @ ${amount}块`);
 const btn = document.getElementById('betConfirmBtn');
-// 修改：不再显示"已确定"文字，仅通过CSS表现按下效果
 btn.classList.add('confirmed');
 btn.disabled = true;
 btn.onclick = null;
@@ -1391,7 +1270,6 @@ btn.disabled = false;
 btn.onclick = confirmBet;
 }, 1000);
 }
-// 【核心修改】渲染买号结果 - 添加颜色
 function renderBetResults() {
 const container = document.getElementById('betResultContainer');
 const itemsDiv = document.getElementById('betResultItems');
@@ -1405,7 +1283,6 @@ totalAmountSpan.textContent = `共 ${totalMoney} 元`;
 container.style.display = 'block';
 itemsDiv.innerHTML = '';
 if (keys.length === 0) {
-// 空状态显示提示，保持框体存在，左对齐
 itemsDiv.innerHTML = '<div style="width:100%; text-align:left; color:#a0aec0; font-size:0.8rem; padding:4px; font-family:\'Courier New\', monospace; font-weight:700;">暂无买号记录</div>';
 return;
 }
@@ -1423,7 +1300,6 @@ item.className = 'bet-result-item';
 let displayHtml = "";
 if (nums.length === 1) {
 const colorClass = getColorClass(nums[0]);
-// 字体颜色继承父级，号码部分加颜色类
 displayHtml = `<span class="${colorClass}" style="font-weight:900;">${numStrs[0]}</span><span class="amt-tag">买${amt}块</span>`;
 } else {
 let numParts = [];
@@ -1442,13 +1318,12 @@ function updateResultText() {
 const resultDiv = document.getElementById('resultDisplay');
 const countBadge = document.getElementById('countBadge');
 const count = selectedNumbers.size;
-countBadge.textContent = count;
+countBadge.textContent = count + '个';
 if (count === 0) {
-// 修改：样式与"暂无买号记录"一致
 resultDiv.textContent = "暂无选择";
 resultDiv.style.color = "#a0aec0";
 resultDiv.style.fontFamily = "'Courier New', Courier, monospace";
-resultDiv.style.fontSize = "0.9rem";
+resultDiv.style.fontSize = "0.8rem";
 resultDiv.style.fontWeight = "700";
 resultDiv.style.textAlign = "left";
 return;
@@ -1467,12 +1342,11 @@ let html = "";
 const createNumSpan = (num) => {
 const colorClass = getColorClass(num);
 const isBetting = bettingNumbers.has(num);
-const isBought = betResults[num] !== undefined;
+const isBought = betResults.hasOwnProperty(num);
 let className = colorClass;
 let onClick = `handleResultNumClick(${num})`;
-if (isBetting || isBought) {
-className += ' result-num-betting';
-}
+if (isBought) { className = 'result-num-sold'; }
+else if (isBetting) { className = 'result-num-betting'; }
 return `<span class="${className}" onclick="${onClick}" style="cursor:pointer;" title="${isBought ? '已购买 (点击取消)' : (isBetting ? '待购买' : '点击加入待买')}">${fmtNum(num)}</span>`;
 };
 if (normalOdd.length > 0) {
@@ -1487,12 +1361,9 @@ if (specialOnly.length > 0) {
 const parts = specialOnly.map(createNumSpan);
 html += `<div class="result-column"><span class="result-col-label">特码:</span> ${parts.join('<span style="color:#000000">.</span>')}</div>`;
 }
-if (html === "") {
-html = "暂无选择";
-}
+if (html === "") { html = "暂无选择"; }
 resultDiv.innerHTML = html;
 }
-// 网格渲染
 function renderGrid() {
 const grid = document.getElementById('grid'); grid.innerHTML = '';
 zodiacs.forEach((z, index) => {
@@ -1510,8 +1381,12 @@ grid.appendChild(btn);
 });
 customGridRows.forEach(row => {
 row.forEach(num => {
-if (num === null) { const spacer = document.createElement('div'); spacer.style.visibility = 'hidden'; spacer.style.pointerEvents = 'none'; grid.appendChild(spacer); }
-else {
+if (num === null) {
+const spacer = document.createElement('div');
+spacer.style.visibility = 'hidden';
+spacer.style.pointerEvents = 'none';
+grid.appendChild(spacer);
+} else {
 const btn = document.createElement('button');
 const colorClass = getColorClass(num).replace('res-', 'bg-');
 btn.className = `num-btn ${colorClass}`;
@@ -1546,18 +1421,13 @@ const wasSelected = selectedNumbers.has(num);
 const numStr = fmtNum(num);
 const actionDesc = wasSelected ? `取消选中 ${numStr}` : `选中 ${numStr}`;
 recordAction('single', numStr, [num], !wasSelected);
-save_data();
 if (wasSelected) {
-selectedNumbers.delete(num);
-manuallySelected.delete(num);
-specialNumbersSet.delete(num);
+selectedNumbers.delete(num); manuallySelected.delete(num); specialNumbersSet.delete(num);
 if(betResults[num] !== undefined) delete betResults[num];
 bettingNumbers.delete(num);
 addLog("select", actionDesc);
-}
-else {
-selectedNumbers.add(num);
-manuallySelected.add(num);
+} else {
+selectedNumbers.add(num); manuallySelected.add(num);
 addLog("select", actionDesc);
 }
 updateAllStates(true);
@@ -1574,72 +1444,50 @@ processInput(text);
 input.value = ''; input.blur();
 }
 function processInput(text) {
-// 修改：提取数字和生肖汉字
 const digitMatches = text.match(/\d+/g);
 const validNumbers = [];
 if (digitMatches) {
 digitMatches.forEach(m => { let n = parseInt(m, 10); if (n >= 1 && n <= 49 && !validNumbers.includes(n)) validNumbers.push(n); });
 }
-// 处理生肖汉字
 const zodiacMap = { "鼠":0, "牛":1, "虎":2, "兔":3, "龙":4, "蛇":5, "马":6, "羊":7, "猴":8, "鸡":9, "狗":10, "猪":11 };
 for (let char of text) {
 if (zodiacMap.hasOwnProperty(char)) {
 const index = zodiacMap[char];
 const nums = getGroupNumbers('zodiac', index.toString());
-nums.forEach(n => {
-if (!validNumbers.includes(n)) validNumbers.push(n);
-});
+nums.forEach(n => { if (!validNumbers.includes(n)) validNumbers.push(n); });
 }
 }
 if (validNumbers.length > 0) {
-save_data(); let changed = false;
+let changed = false;
 const newNums = [];
 const alreadySelectedNums = [];
 validNumbers.forEach(n => {
-if (selectedNumbers.has(n)) {
-alreadySelectedNums.push(n);
-} else {
-selectedNumbers.add(n);
-manuallySelected.add(n);
-changed = true;
-newNums.push(n);
-}
+if (selectedNumbers.has(n)) { alreadySelectedNums.push(n); }
+else { selectedNumbers.add(n); manuallySelected.add(n); changed = true; newNums.push(n); }
 });
 if (changed) {
-if (newNums.length === 1) {
-recordAction('single', fmtNum(newNums[0]), newNums, true);
-} else {
-recordAction('batch_input', `${newNums.length}个号码`, newNums, true);
-}
+if (newNums.length === 1) { recordAction('single', fmtNum(newNums[0]), newNums, true); }
+else { recordAction('batch_input', `${newNums.length}个号码`, newNums, true); }
 updateAllStates(true);
 addLog("input", `批量选中 ${validNumbers.length} 个号`);
 vibrate(30);
-// 重点：优化提示逻辑，明确区分新选中和已选中
 let msg = `✅ 已点亮 ${newNums.map(fmtNum).join('.')}`;
-if (alreadySelectedNums.length > 0) {
-msg += ` (${alreadySelectedNums.map(fmtNum).join('.')}) 已被选中`;
-}
+if (alreadySelectedNums.length > 0) { msg += ` (${alreadySelectedNums.map(fmtNum).join('.')}) 已被选中`; }
 showToast(msg);
-}
-else {
-// 全部都已选中
+} else {
 showToast(`ℹ️ 这些号码 (${validNumbers.map(fmtNum).join('.')}) 已选中`);
 }
-} else { showToast("⚠️ 无有效号码 (1-49) 或生肖"); }
+} else {
+showToast("⚠️ 无有效号码 (1-49) 或生肖");
+}
 }
 function randomSpecialNumber() {
 if (isRandomRunning) return;
 if (selectedNumbers.size === 0) { showToast("⚠️ 暂无选中的号码"); return; }
 const allSelectedAreSpecial = Array.from(selectedNumbers).every(n => specialNumbersSet.has(n));
-if (allSelectedAreSpecial) {
-showToast("🎉 所有号码已是特码");
-return;
-}
+if (allSelectedAreSpecial) { showToast("🎉 所有号码已是特码"); return; }
 let availableNumbers = Array.from(selectedNumbers).filter(n => !specialNumbersSet.has(n));
-if (availableNumbers.length === 0) {
-showToast("⚠️ 无可用号码进行随机");
-return;
-}
+if (availableNumbers.length === 0) { showToast("⚠️ 无可用号码进行随机"); return; }
 isRandomRunning = true;
 const randomBtn = document.querySelector('.random-btn-grid');
 randomBtn.classList.add('running'); randomBtn.disabled = true;
@@ -1664,16 +1512,14 @@ document.querySelectorAll('.num-btn.gold-highlight').forEach(btn => btn.classLis
 const finalBtn = document.querySelector(`.num-btn[data-num="${finalNum}"]`);
 if (finalBtn) finalBtn.classList.add('is-special');
 updateAllStates(true);
-save_data();
 const randomBtn = document.querySelector('.random-btn-grid');
 randomBtn.classList.remove('running'); randomBtn.disabled = false; isRandomRunning = false;
-vibrate([50, 50, 50, 50, 50]); showToast(`🌟 新增特码：${fmtNum(finalNum)}`); addLog("random", `新增特码 ${fmtNum(finalNum)}`);
+vibrate([50, 50, 50, 50, 50]);
+showToast(`🌟 新增特码：${fmtNum(finalNum)}`);
+addLog("random", `新增特码 ${fmtNum(finalNum)}`);
 }
 function copySelectedNumbers() {
-if (selectedNumbers.size === 0) {
-showToast("⚠️ 暂无已选号码");
-return;
-}
+if (selectedNumbers.size === 0) { showToast("⚠️ 暂无已选号码"); return; }
 const sortedNums = Array.from(selectedNumbers).sort((a,b)=>a-b).map(fmtNum);
 const textToCopy = sortedNums.join('.');
 vibrate([30, 50, 30]);
@@ -1692,11 +1538,7 @@ showToast("✅ 已复制已选号码");
 }
 function copyBetResults() {
 const keys = Object.keys(betResults).map(Number);
-if (keys.length === 0) {
-showToast("⚠️ 无买号结果可复制");
-return;
-}
-// 【新增逻辑】检查是否有已选号码未购买
+if (keys.length === 0) { showToast("⚠️ 无买号结果可复制"); return; }
 const selectedArr = Array.from(selectedNumbers);
 if (selectedArr.length > 0) {
 const unbought = selectedArr.filter(n => !betResults.hasOwnProperty(n));
@@ -1716,11 +1558,8 @@ amountGroups[amt].push(num);
 });
 Object.keys(amountGroups).sort((a,b)=>a-b).forEach(amt => {
 const nums = amountGroups[amt].sort((a,b)=>a-b).map(fmtNum);
-if (nums.length === 1) {
-textToCopy.push(`${nums[0]}买${amt}块`);
-} else {
-textToCopy.push(`${nums.join('.')}.各${amt}块`);
-}
+if (nums.length === 1) { textToCopy.push(`${nums[0]}买${amt}块`); }
+else { textToCopy.push(`${nums.join('.')}.各${amt}块`); }
 });
 const cleanText = textToCopy.join(', ');
 if (!cleanText) { showToast("无内容"); return; }
@@ -1749,6 +1588,8 @@ betResults = {};
 undoStack = [];
 redoStack = [];
 document.getElementById('smartInput').value = '';
+const logContainer = document.getElementById('logContainer');
+logContainer.innerHTML = '<div class="log-item" style="color:#718096; justify-content:center;">暂无记录</div>';
 save_data();
 renderBetResults();
 updateAllStates(true);
@@ -1759,21 +1600,19 @@ addLog("clear", "重置全部");
 function init() {
 renderSelectControls();
 renderKillControls();
-load_data();
+load_data(); // 加载数据（包括撤销栈）
 renderGrid();
 updateAllStates(true);
 setupInputListener();
 addLog("system", "启动就绪");
 }
 init();
-// 新增：防止双击缩放的 JS 补丁
 let lastTouchEnd = 0;
 document.addEventListener('touchend', function (event) {
 const now = (Date.now());
 if (now - lastTouchEnd <= 300) event.preventDefault();
 lastTouchEnd = now;
 }, false);
-// 禁止手势缩放
 document.addEventListener('gesturestart', function(event) {
 event.preventDefault();
 });
