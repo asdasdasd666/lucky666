@@ -61,15 +61,20 @@ body {
 font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 background-color: var(--bg-color);
 background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%233182ce' fill-opacity='0.05'%3E%3Ccircle cx='15' cy='15' r='8'/%3E%3Ccircle cx='45' cy='45' r='8'/%3E%3Cpath d='M30 5 L35 15 L25 15 Z'/%3E%3Ctext x='30' y='35' font-family='Arial' font-size='10' text-anchor='middle' fill='%232d3748' fill-opacity='0.05'%3E7%3C/text%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-color: var(--text-main); margin: 0; padding: 10px; padding-bottom: calc(10px + var(--safe-area-bottom));
+color: var(--text-main); 
+/* 修改：增加顶部 padding 防止 iPhone 14 等设备遮挡标题 */
+margin: 0; 
+padding: 15px 10px 10px 10px; 
+padding-bottom: calc(10px + var(--safe-area-bottom));
 display: flex; flex-direction: column; align-items: center; min-height: 100vh;
--webkit-tap-highlight-color: transparent; 
+-webkit-tap-highlight-color: transparent;
 touch-action: manipulation; /* 禁止双击缩放 */
 background-attachment: fixed;
-overscroll-behavior: none; 
-user-select: none; 
+overscroll-behavior: none;
+user-select: none;
 -webkit-user-select: none;
 position: relative;
+box-sizing: border-box;
 }
 .title-spacer { height: 1.6rem; width: 100%; display: block; }
 h2 {
@@ -600,7 +605,7 @@ color: #c53030;
 .reset-btn-log {
 /* 使用与原重置按钮相同的样式，但应用在日志行 */
 height: var(--btn-size);
-padding: 0 12px;
+padding: 0 12px; /* 保持长度 */
 border: 1px solid var(--btn-border);
 border-radius: 6px;
 display: flex;
@@ -724,7 +729,7 @@ box-shadow: none;
 <div style="font-size: 0.65rem; font-weight: 700; color: #4a5568; margin-bottom: 2px; display:flex; justify-content:space-between; align-items:center;">
 <span>📜 操作记录</span>
 <!-- 重置按钮移动到这里 -->
-<button class="reset-btn-log" onclick="handleReset()">重置</button>
+<button class="reset-btn-log" onclick="handleReset()">全部重置</button>
 </div>
 <div class="log-container" id="logContainer"><div class="log-item" style="color:#718096; justify-content:center;">暂无记录</div></div>
 </div>
@@ -749,7 +754,6 @@ document.getElementById('dynamic-app-icon').setAttribute('href', iconUrl);
 // 修改：short_name 改为 "中"，确保主屏幕显示正确
 const manifestData = {"name":"今晚必中888","short_name":"中","start_url":".","display":"standalone","background_color":"#eef2f5","theme_color":"#D90429","orientation":"portrait","icons":[{"src": iconUrl,"sizes":"192x192","type":"image/svg+xml"},{"src": iconUrl,"sizes":"512x512","type":"image/svg+xml"}]};
 document.querySelector('#manifest-placeholder').setAttribute('href', URL.createObjectURL(new Blob([JSON.stringify(manifestData)], {type: 'application/json'})));
-
 // 基础数据
 const zodiacs = ["鼠", "牛", "虎", "兔", "龙", "蛇", "马", "羊", "猴", "鸡", "狗", "猪"];
 const zodiacColors = ['red', 'blue', 'green', 'red', 'blue', 'green', 'red', 'blue', 'green', 'red', 'blue', 'green'];
@@ -791,10 +795,10 @@ container.prepend(div);
 if (container.children.length > 15) container.removeChild(container.lastChild);
 }
 // 修改：清空功能已从界面移除，此处保留函数供内部逻辑可能的调用，但不再暴露给用户
-function clearLogs() { 
-    // 仅作为内部辅助，如果确实需要清空历史记录可调用，但UI上已无按钮
-    vibrate(30); 
-    document.getElementById('logContainer').innerHTML = '<div class="log-item" style="color:#718096; justify-content:center;">暂无记录</div>'; 
+function clearLogs() {
+// 仅作为内部辅助，如果确实需要清空历史记录可调用，但UI上已无按钮
+vibrate(30);
+document.getElementById('logContainer').innerHTML = '<div class="log-item" style="color:#718096; justify-content:center;">暂无记录</div>';
 }
 function save_data() {
 const data = {
@@ -1370,12 +1374,11 @@ updateAllStates(false);
 showToast(`✅ 已下单：${nums.length}个号码，各${amount}块`);
 addLog("bet", `买入 ${label}. @ ${amount}块`);
 const btn = document.getElementById('betConfirmBtn');
-btn.textContent = '已确定';
+// 修改：不再显示"已确定"文字，仅通过CSS表现按下效果
 btn.classList.add('confirmed');
 btn.disabled = true;
 btn.onclick = null;
 setTimeout(() => {
-btn.textContent = '确定';
 btn.classList.remove('confirmed');
 btn.disabled = false;
 btn.onclick = confirmBet;
@@ -1395,8 +1398,8 @@ totalAmountSpan.textContent = `共 ${totalMoney} 元`;
 container.style.display = 'block';
 itemsDiv.innerHTML = '';
 if (keys.length === 0) {
-// 空状态显示提示，保持框体存在
-itemsDiv.innerHTML = '<div style="width:100%; text-align:center; color:#a0aec0; font-size:0.8rem; padding:4px;">暂无买号记录</div>';
+// 空状态显示提示，保持框体存在，左对齐
+itemsDiv.innerHTML = '<div style="width:100%; text-align:left; color:#a0aec0; font-size:0.8rem; padding:4px; font-family:\'Courier New\', monospace; font-weight:700;">暂无买号记录</div>';
 return;
 }
 const amountGroups = {};
@@ -1434,11 +1437,20 @@ const countBadge = document.getElementById('countBadge');
 const count = selectedNumbers.size;
 countBadge.textContent = count;
 if (count === 0) {
+// 修改：样式与"暂无买号记录"一致
 resultDiv.textContent = "暂无选择";
-resultDiv.style.color = "#718096";
+resultDiv.style.color = "#a0aec0";
+resultDiv.style.fontFamily = "'Courier New', Courier, monospace";
+resultDiv.style.fontSize = "0.9rem";
+resultDiv.style.fontWeight = "700";
+resultDiv.style.textAlign = "left";
 return;
 }
 resultDiv.style.color = "#2d3748";
+resultDiv.style.fontFamily = "'Courier New', Courier, monospace";
+resultDiv.style.fontSize = "0.9rem";
+resultDiv.style.fontWeight = "700";
+resultDiv.style.textAlign = "left";
 const allSelected = Array.from(selectedNumbers).sort((a, b) => a - b);
 const specialOnly = allSelected.filter(n => specialNumbersSet.has(n));
 const normalOnly = allSelected.filter(n => !specialNumbersSet.has(n));
@@ -1555,11 +1567,25 @@ processInput(text);
 input.value = ''; input.blur();
 }
 function processInput(text) {
-// 修改：只提取数字，过滤其他所有字符
-const matches = text.match(/\d+/g);
-if (!matches) { showToast("⚠️ 未识别到有效数字"); return; }
+// 修改：提取数字和生肖汉字
+const digitMatches = text.match(/\d+/g);
 const validNumbers = [];
-matches.forEach(m => { let n = parseInt(m, 10); if (n >= 1 && n <= 49 && !validNumbers.includes(n)) validNumbers.push(n); });
+if (digitMatches) {
+digitMatches.forEach(m => { let n = parseInt(m, 10); if (n >= 1 && n <= 49 && !validNumbers.includes(n)) validNumbers.push(n); });
+}
+
+// 处理生肖汉字
+const zodiacMap = { "鼠":0, "牛":1, "虎":2, "兔":3, "龙":4, "蛇":5, "马":6, "羊":7, "猴":8, "鸡":9, "狗":10, "猪":11 };
+for (let char of text) {
+if (zodiacMap.hasOwnProperty(char)) {
+const index = zodiacMap[char];
+const nums = getGroupNumbers('zodiac', index.toString());
+nums.forEach(n => {
+if (!validNumbers.includes(n)) validNumbers.push(n);
+});
+}
+}
+
 if (validNumbers.length > 0) {
 save_data(); let changed = false;
 const newNums = [];
@@ -1594,7 +1620,7 @@ else {
 // 全部都已选中
 showToast(`ℹ️ 这些号码 (${validNumbers.map(fmtNum).join('.')}) 已选中`);
 }
-} else { showToast("⚠️ 无有效号码 (1-49)"); }
+} else { showToast("⚠️ 无有效号码 (1-49) 或生肖"); }
 }
 function randomSpecialNumber() {
 if (isRandomRunning) return;
@@ -1665,7 +1691,6 @@ if (keys.length === 0) {
 showToast("⚠️ 无买号结果可复制");
 return;
 }
-
 // 【新增逻辑】检查是否有已选号码未购买
 const selectedArr = Array.from(selectedNumbers);
 if (selectedArr.length > 0) {
@@ -1677,7 +1702,6 @@ vibrate([30, 30, 30]);
 return;
 }
 }
-
 let textToCopy = [];
 const amountGroups = {};
 keys.forEach(num => {
@@ -1710,7 +1734,7 @@ showToast("✅ 已复制买号结果");
 });
 }
 function handleReset() {
-if(confirm("⚠️ 确定重置？\n这将清空所有选号、买号记录以及撤销/恢复历史，且无法恢复！")) {
+if(confirm("⚠️ 确定全部重置？\n这将清空所有选号、买号记录以及撤销/恢复历史，且无法恢复！")) {
 vibrate([50, 50, 50]);
 selectedNumbers.clear();
 manuallySelected.clear();
@@ -1737,7 +1761,6 @@ setupInputListener();
 addLog("system", "启动就绪");
 }
 init();
-
 // 新增：防止双击缩放的 JS 补丁
 let lastTouchEnd = 0;
 document.addEventListener('touchend', function (event) {
