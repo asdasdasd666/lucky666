@@ -462,10 +462,10 @@ align-items: center;
 justify-content: center;
 }
 /* 修改：去掉按下后的灰色效果/位移 */
-.bet-confirm-btn:active { 
-    /* transform: translateY(2px);  Removed */
-    /* box-shadow: none; Removed */
-    filter: brightness(0.95); /* 仅轻微变暗，保持位置 */
+.bet-confirm-btn:active {
+/* transform: translateY(2px);  Removed */
+/* box-shadow: none; Removed */
+filter: brightness(0.95); /* 仅轻微变暗，保持位置 */
 }
 .bet-confirm-btn.confirmed {
 background: linear-gradient(145deg, #e2e8f0, #cbd5e0) !important;
@@ -648,7 +648,8 @@ margin-left: 4px;
 <div class="bet-input-row">
 <div class="bet-nums-display" id="betNumsDisplay">暂无待购号码</div>
 <span class="bet-multiply-sign">×</span>
-<input type="number" id="betAmountInput" class="bet-amount-input" placeholder="金额" min="1" value="">
+<!-- 修改：添加 focus 事件拦截逻辑 -->
+<input type="number" id="betAmountInput" class="bet-amount-input" placeholder="金额" min="1" value="" onfocus="checkBetFocus()">
 <button class="bet-confirm-btn" id="betConfirmBtn" onclick="confirmBet()">确定</button>
 </div>
 </div>
@@ -1246,10 +1247,10 @@ btn.onclick = confirmBet;
 }
 function confirmBet() {
 // 修改：增加未选择号码时的提示
-if (bettingNumbers.size === 0) { 
-    showToast("⚠️ 请先选择待购号码"); 
-    vibrate(30); 
-    return; 
+if (bettingNumbers.size === 0) {
+showToast("⚠️ 请先选择待购号码");
+vibrate(30);
+return;
 }
 const input = document.getElementById('betAmountInput');
 const amount = parseInt(input.value);
@@ -1620,6 +1621,19 @@ lastTouchEnd = now;
 document.addEventListener('gesturestart', function(event) {
 event.preventDefault();
 });
+
+// ================= 新增：金额输入框聚焦拦截逻辑 =================
+function checkBetFocus() {
+    if (bettingNumbers.size === 0) {
+        // 如果没有待购号码，阻止聚焦
+        const input = document.getElementById('betAmountInput');
+        input.blur(); // 立即失去焦点
+        showToast("⚠️ 请先选择待购号码");
+        vibrate(30);
+        return false;
+    }
+    return true;
+}
 </script>
 </body>
 </html>
