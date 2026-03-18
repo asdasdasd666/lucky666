@@ -348,6 +348,7 @@ text-align: center;
 line-height: 1.2;
 white-space: nowrap;
 }
+/* 修改：禁止在结果区选中文本 */
 .result-text {
 font-family: "Courier New", Courier, monospace;
 font-size: 0.9rem;
@@ -362,9 +363,10 @@ min-height: 40px;
 word-break: break-all;
 font-weight: 700;
 white-space: normal;
-user-select: text !important;
--webkit-user-select: text !important;
-cursor: text;
+/* 强制禁止选中 */
+user-select: none !important;
+-webkit-user-select: none !important;
+cursor: default;
 display: flex;
 flex-direction: column;
 gap: 4px;
@@ -459,7 +461,12 @@ display: flex;
 align-items: center;
 justify-content: center;
 }
-.bet-confirm-btn:active { transform: translateY(2px); box-shadow: none; }
+/* 修改：去掉按下后的灰色效果/位移 */
+.bet-confirm-btn:active { 
+    /* transform: translateY(2px);  Removed */
+    /* box-shadow: none; Removed */
+    filter: brightness(0.95); /* 仅轻微变暗，保持位置 */
+}
 .bet-confirm-btn.confirmed {
 background: linear-gradient(145deg, #e2e8f0, #cbd5e0) !important;
 color: #1a202c !important;
@@ -494,6 +501,7 @@ line-height: 1.2;
 white-space: nowrap;
 }
 .bet-total-amount { font-size: 0.85rem; font-weight: 800; color: #c05621; white-space: nowrap; }
+/* 修改：禁止在买号结果区选中文本 */
 .bet-result-box {
 font-family: "Courier New", Courier, monospace;
 font-size: 0.9rem;
@@ -508,9 +516,10 @@ min-height: 40px;
 word-break: break-all;
 font-weight: 700;
 white-space: normal;
-user-select: text !important;
--webkit-user-select: text !important;
-cursor: text;
+/* 强制禁止选中 */
+user-select: none !important;
+-webkit-user-select: none !important;
+cursor: default;
 display: flex;
 flex-direction: column;
 gap: 4px;
@@ -612,7 +621,8 @@ margin-left: 4px;
 <div class="control-row" id="tail-controls"><span class="row-label select-label">尾</span></div>
 <div class="input-area-container">
 <div class="input-group" style="margin-bottom:0;">
-<input type="text" id="smartInput" class="smart-input" placeholder="请输入或粘贴号码/生肖" autocomplete="off" inputmode="numeric">
+<!-- 修改：移除 inputmode="numeric"，保留 text 以尝试调用中文键盘 -->
+<input type="text" id="smartInput" class="smart-input" placeholder="请输入或粘贴号码/生肖" autocomplete="off" inputmode="text" lang="zh-CN">
 <button class="confirm-btn" id="confirmBtn" onclick="handleConfirm()">✔️</button>
 </div>
 <div class="input-hint" style="text-align:left; margin-top:4px;">支持空格/逗号/点号分隔，按确定键点亮并清空</div>
@@ -632,7 +642,8 @@ margin-left: 4px;
 <span class="count-badge" id="countBadge">0个</span>
 <button class="small-copy-btn" onclick="copySelectedNumbers()">复制</button>
 </div>
-<div class="result-text" id="resultDisplay">暂无选择</div>
+<!-- 修改：添加禁止右键和拖拽事件 -->
+<div class="result-text" id="resultDisplay" oncontextmenu="return false;" ondragstart="return false;">暂无已选号码</div>
 <div class="bet-action-area" id="betActionArea">
 <div class="bet-input-row">
 <div class="bet-nums-display" id="betNumsDisplay">暂无待购号码</div>
@@ -648,7 +659,8 @@ margin-left: 4px;
 <span class="bet-total-amount" id="betTotalAmount">共 0 元</span>
 <button class="small-copy-btn" onclick="copyBetResults()">复制</button>
 </div>
-<div class="bet-result-box" id="betResultBox">
+<!-- 修改：添加禁止右键和拖拽事件 -->
+<div class="bet-result-box" id="betResultBox" oncontextmenu="return false;" ondragstart="return false;">
 <div class="bet-result-items" id="betResultItems"></div>
 </div>
 </div>
@@ -661,30 +673,27 @@ margin-left: 4px;
 <div class="toast" id="toast">操作成功</div>
 <script>
 /**
- * Service Worker 注册
- * 用于离线缓存应用资源
- */
+* Service Worker 注册
+* 用于离线缓存应用资源
+*/
 if ('serviceWorker' in navigator) {
 const CACHE_VERSION = 'v71-final-fix';
 const CACHE_NAME = `lucky888-${CACHE_VERSION}`;
 const swCode = `const CACHE_NAME='${CACHE_NAME}';self.addEventListener('install',e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE_NAME).then(c=>c.addAll(['./'])));});self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==CACHE_NAME).map(x=>caches.delete(x)))));self.clients.claim();});self.addEventListener('fetch',e=>{e.respondWith(fetch(e.request).catch(()=>caches.match(e.request)));});`;
 try { navigator.serviceWorker.register(URL.createObjectURL(new Blob([swCode], {type: 'application/javascript'}))).catch(console.error); } catch(e) {}
 }
-
 /**
- * 生成动态图标 SVG (红色背景，白色“中”字)
- */
+* 生成动态图标 SVG (红色背景，白色“中”字)
+*/
 function generateIconSvg(text) {
 // 红色背景 #D90429, 白色文字
 const svgContent = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="#D90429"/><text x="50" y="68" font-family="'ZCOOL XiaoWei', serif" font-size="56" font-weight="900" fill="white" text-anchor="middle" style="filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.4));">${text}</text></svg>`;
 return 'data:image/svg+xml,' + encodeURIComponent(svgContent);
 }
-
 // 初始化图标和 Manifest
 const iconUrl = generateIconSvg("中");
 document.getElementById('dynamic-favicon').setAttribute('href', iconUrl);
 document.getElementById('dynamic-app-icon').setAttribute('href', iconUrl);
-
 const manifestData = {
 "name":"今晚必中888",
 "short_name":"今晚必中888",
@@ -699,7 +708,6 @@ const manifestData = {
 ]
 };
 document.querySelector('#manifest-placeholder').setAttribute('href', URL.createObjectURL(new Blob([JSON.stringify(manifestData)], {type: 'application/json'})));
-
 // ================= 基础数据定义 =================
 const zodiacs = ["鼠", "牛", "虎", "兔", "龙", "蛇", "马", "羊", "猴", "鸡", "狗", "猪"];
 const zodiacColors = ['red', 'blue', 'green', 'red', 'blue', 'green', 'red', 'blue', 'green', 'red', 'blue', 'green'];
@@ -711,17 +719,15 @@ const numToWuxing = {};
 const wuxingChars = { gold: '金', wood: '木', water: '水', fire: '火', earth: '土' };
 for (const [type, nums] of Object.entries(wuxingGroups)) nums.forEach(n => numToWuxing[n] = type);
 const customGridRows = [[7, 6, 5, 4, 3, 2, 1, 12, 11, 10, 9, 8], [19, 18, 17, 16, 15, 14, 13, 24, 23, 22, 21, 20], [31, 30, 29, 28, 27, 26, 25, 36, 35, 34, 33, 32], [43, 42, 41, 40, 39, 38, 37, 48, 47, 46, 45, 44], [null, null, null, null, null, null, 49, null, null, null, null, null]];
-
 // ================= 状态变量 =================
 let selectedNumbers = new Set();
 let manuallySelected = new Set();
 let specialNumbersSet = new Set();
 let isRandomRunning = false;
 let bettingNumbers = new Set();
-let betResults = {}; 
+let betResults = {};
 let undoStack = [];
 let redoStack = [];
-
 // ================= 工具函数 =================
 function vibrate(pattern = 15) { if (navigator.vibrate) navigator.vibrate(pattern); }
 function fmtNum(n) { return n < 10 ? '0' + n : '' + n; }
@@ -740,7 +746,6 @@ div.innerHTML = `<span><span class="log-time">${timeStr}</span><span class="log-
 container.prepend(div);
 if (container.children.length > 15) container.removeChild(container.lastChild);
 }
-
 // ================= 数据持久化 (增强版) =================
 function save_data() {
 const data = {
@@ -757,7 +762,6 @@ localStorage.setItem('lucky666_data_v21', JSON.stringify(data));
 console.error("Save failed", e);
 }
 }
-
 function load_data() {
 let raw = localStorage.getItem('lucky666_data_v21');
 if (!raw) {
@@ -794,7 +798,6 @@ undoStack = [];
 redoStack = [];
 }
 }
-
 function getGroupNumbers(type, value) {
 const nums = [];
 for (let i = 1; i <= 49; i++) {
@@ -823,7 +826,6 @@ if (type === 'tail') return value + "尾";
 if (type === 'parity') { const [color, parity] = value.split('-'); const cMap = {red:'红', blue:'蓝', green:'绿'}; const pMap = {odd:'单', even:'双'}; return cMap[color] + pMap[parity]; }
 return type + value;
 }
-
 // ==================== 撤销与恢复逻辑 ====================
 function performUndo() {
 if (undoStack.length === 0) {
@@ -878,7 +880,6 @@ addLog("undo", `恢复杀掉 ${lastAction.label}`);
 }
 updateAllStates(false);
 }
-
 function performRedo() {
 if (redoStack.length === 0) {
 showToast("ℹ️ 没有可恢复的操作");
@@ -929,14 +930,12 @@ addLog("redo", `再次杀掉 ${lastUndo.label}`);
 }
 updateAllStates(false);
 }
-
 function recordAction(type, label, numbers, wasAdded, amount = 0) {
 redoStack = [];
 undoStack.push({ type: type, label: label, numbers: [...numbers], wasAdded: wasAdded, amount: amount });
 if (undoStack.length > 20) undoStack.shift();
 save_data(); // 每次操作立即保存
 }
-
 // ================= 业务逻辑处理 =================
 function handleWaveSelect(color, parity, btnElement) {
 vibrate(20);
@@ -1033,7 +1032,6 @@ killedCount++;
 if (killedCount > 0) { addLog("select", `已杀所有${label}`); showToast(`❌ 已杀所有${label}`); }
 updateAllStates(false);
 }
-
 // ================= 渲染逻辑 =================
 function renderSelectControls() {
 const headContainer = document.getElementById('head-wuxing-controls');
@@ -1247,7 +1245,12 @@ btn.disabled = false;
 btn.onclick = confirmBet;
 }
 function confirmBet() {
-if (bettingNumbers.size === 0) { showToast("⚠️ 请选择待购号码"); vibrate(30); return; }
+// 修改：增加未选择号码时的提示
+if (bettingNumbers.size === 0) { 
+    showToast("⚠️ 请先选择待购号码"); 
+    vibrate(30); 
+    return; 
+}
 const input = document.getElementById('betAmountInput');
 const amount = parseInt(input.value);
 if (isNaN(amount) || amount <= 0) { showToast("⚠️ 金额必须是大于0的整数"); vibrate(30); input.focus(); return; }
@@ -1320,7 +1323,8 @@ const countBadge = document.getElementById('countBadge');
 const count = selectedNumbers.size;
 countBadge.textContent = count + '个';
 if (count === 0) {
-resultDiv.textContent = "暂无选择";
+// 修改：文案改为“暂无已选号码”
+resultDiv.textContent = "暂无已选号码";
 resultDiv.style.color = "#a0aec0";
 resultDiv.style.fontFamily = "'Courier New', Courier, monospace";
 resultDiv.style.fontSize = "0.8rem";
@@ -1361,7 +1365,7 @@ if (specialOnly.length > 0) {
 const parts = specialOnly.map(createNumSpan);
 html += `<div class="result-column"><span class="result-col-label">特码:</span> ${parts.join('<span style="color:#000000">.</span>')}</div>`;
 }
-if (html === "") { html = "暂无选择"; }
+if (html === "") { html = "暂无已选号码"; }
 resultDiv.innerHTML = html;
 }
 function renderGrid() {
