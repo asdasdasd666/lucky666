@@ -30,7 +30,10 @@
 --btn-active-shadow: inset 0 2px 4px rgba(0,0,0,0.15);
 --btn-active-transform: translateY(2px);
 --btn-text: #1a202c;
+--safe-area-top: env(safe-area-inset-top, 0px);
 --safe-area-bottom: env(safe-area-inset-bottom, 20px);
+--safe-area-left: env(safe-area-inset-left, 0px);
+--safe-area-right: env(safe-area-inset-right, 0px);
 --input-bg: #ffffff; --input-border: #cbd5e0;
 --confirm-btn-bg: #22c55e; --confirm-btn-active: #15803d;
 --label-select-color: #2c5282; --label-select-glow: 0 0 6px rgba(44, 82, 130, 0.3);
@@ -59,8 +62,10 @@ background-color: var(--bg-color);
 background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%233182ce' fill-opacity='0.05'%3E%3Ccircle cx='15' cy='15' r='8'/%3E%3Ccircle cx='45' cy='45' r='8'/%3E%3Cpath d='M30 5 L35 15 L25 15 Z'/%3E%3Ctext x='30' y='35' font-family='Arial' font-size='10' text-anchor='middle' fill='%232d3748' fill-opacity='0.05'%3E7%3C/text%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
 color: var(--text-main);
 margin: 0;
-padding: 15px 10px 10px 10px;
-padding-bottom: calc(10px + var(--safe-area-bottom));
+padding-top: max(15px, var(--safe-area-top));
+padding-bottom: max(15px, var(--safe-area-bottom));
+padding-left: max(10px, var(--safe-area-left));
+padding-right: max(10px, var(--safe-area-right));
 display: flex; flex-direction: column; align-items: center; min-height: 100vh;
 -webkit-tap-highlight-color: transparent;
 touch-action: manipulation;
@@ -90,21 +95,9 @@ white-space: nowrap;
 display: flex;
 align-items: center;
 justify-content: center;
-gap: 10px;
 position: relative;
 }
-.decor-row { display: flex; flex-direction: row; align-items: center; gap: 6px; }
-.decor-element { width: 24px; height: 24px; display: inline-block; animation: float-coin 3s ease-in-out infinite; }
-.decor-row .de-1 { animation-delay: 0s; } .decor-row .de-2 { animation-delay: 0.5s; } .decor-row .de-3 { animation-delay: 1s; }
-.bag-icon, .ingot-icon, .coin-icon, .bar-icon {
--webkit-mask-size: contain; mask-size: contain; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
-background: linear-gradient(135deg, #FFD700, #FDB931); box-shadow: 0 2px 5px rgba(255, 215, 0, 0.4);
-}
-.bag-icon { -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'%3E%3Cpath d='M12 2C9.5 2 7.5 3.5 7.5 5.5C7.5 6.5 8 7.4 8.8 8C6.5 9.2 5 11.5 5 14V19C5 20.1 5.9 21 7 21H17C18.1 21 19 20.1 19 19V14C19 11.5 17.5 9.2 15.2 8C16 7.4 16.5 6.5 16.5 5.5C16.5 3.5 14.5 2 12 2ZM12 4C13.4 4 14.5 4.7 14.5 5.5C14.5 6.3 13.4 7 12 7C10.6 7 9.5 6.3 9.5 5.5C9.5 4.7 10.6 4 12 4ZM17 19H7V14C7 12.3 8.3 11 10 11H14C15.7 11 17 12.3 17 14V19Z'/%3E%3C/svg%3E"); }
-.ingot-icon { -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'%3E%3Cpath d='M2 12C2 12 4 8 12 8C20 8 22 12 22 12C22 12 20 16 12 16C4 16 2 12 2 12ZM12 5C6 5 2 8 2 8V14C2 14 4 18 12 18C20 18 22 14 22 14V8C22 8 18 5 12 5ZM12 10C13.1 10 14 10.9 14 12C14 13.1 13.1 14 12 14C10.9 14 10 13.1 10 12C10 10.9 10.9 10 12 10Z'/%3E%3C/svg%3E"); }
-.coin-icon { -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'%3E%3Ccircle cx='12' cy='12' r='10' stroke='black' stroke-width='2' fill='none'/%3E%3Ctext x='12' y='16' font-size='14' text-anchor='middle' font-weight='bold' fill='black'%3E$%3C/text%3E%3C/svg%3E"); }
-.bar-icon { -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'%3E%3Cpath d='M4 6L2 18H22L20 6H4ZM6 8H18L19.5 16H4.5L6 8Z'/%3E%3C/svg%3E"); }
-@keyframes float-coin { 0%, 100% { transform: translateY(0) rotate(-5deg) scale(1); } 50% { transform: translateY(-4px) rotate(5deg) scale(1.1); } }
+
 @keyframes shine { to { background-position: 200% center; } }
 .filter-section { margin: 0 0 10px 0; width: 100%; max-width: 500px; box-sizing: border-box; position: relative; z-index: 2; display: flex; flex-direction: column; gap: 8px; }
 .control-box {
@@ -228,7 +221,6 @@ width: 100%; max-width: 500px; margin-bottom: 10px; box-sizing: border-box; alig
 position: relative; z-index: 2; background: rgba(255, 255, 255, 0.5); backdrop-filter: blur(4px);
 -webkit-backdrop-filter: blur(4px); border-radius: 12px; border: 1px solid rgba(255,255,255,0.7); box-shadow: 0 4px 15px rgba(0,0,0,0.05);
 }
-/* 【重要】号码球代码区域 - 严禁修改 */
 .num-btn, .action-grid-btn {
 width: 100%; aspect-ratio: 1; border: none; color: #fff; font-weight: 800;
 display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer;
@@ -369,24 +361,10 @@ justify-content: center;
 white-space: nowrap;
 height: 24px;
 }
-.batch-select-btn.green {
-background-color: var(--res-green);
-color: #fff;
-}
-.batch-select-btn.orange {
-background-color: var(--action-btn-start);
-color: #fff;
-}
-.batch-select-btn.grey {
-background-color: #cbd5e0;
-color: #718096;
-cursor: not-allowed;
-box-shadow: none;
-}
-.batch-select-btn:active:not(.grey) {
-transform: translateY(1px);
-box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-}
+.batch-select-btn.green { background-color: var(--res-green); color: #fff; }
+.batch-select-btn.orange { background-color: var(--action-btn-start); color: #fff; }
+.batch-select-btn.grey { background-color: #cbd5e0; color: #718096; cursor: not-allowed; box-shadow: none; }
+.batch-select-btn:active:not(.grey) { transform: translateY(1px); box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
 .result-text {
 font-family: "Courier New", Courier, monospace;
 font-size: 0.9rem;
@@ -408,55 +386,57 @@ display: flex;
 flex-direction: column;
 gap: 4px;
 }
-/* 【关键修改】实现换行后号码与首行号码严格垂直对齐 */
 .result-column {
 display: flex;
 flex-wrap: wrap;
-gap: 4px;
-align-items: flex-start; /* 改为顶部对齐，防止单行时标签被拉伸 */
-/* 1. 给容器左侧留出标签宽度的空白，这样换行后的内容会自动从这个空白后开始 */
+gap: 8px; /* 间距已加倍：从 4px 改为 8px */
+align-items: flex-start;
 padding-left: 3.2rem;
 position: relative;
-min-height: 1.5em; /* 保证即使空行也有高度 */
+min-height: 1.5em;
 }
 .result-col-label {
 font-size: 0.75rem;
 color: #718096;
 font-weight: 800;
 white-space: nowrap;
-/* 2. 绝对定位，让标签浮在留出的空白处，不占用文档流空间 */
 position: absolute;
 left: 0;
-top: 0; /* 移除垂直居中，固定在顶部 */
-/* 固定宽度，确保右侧对齐线一致 */
+top: 0;
 width: 2.8rem;
 text-align: right;
 }
+/* 修改后的待购样式：原字体颜色 + 橙色圆框 */
 .result-num-betting {
-background-color: #fffaf0 !important;
-border: 1px solid #ed8936 !important;
-color: #c05621 !important;
-padding: 0 4px !important;
-border-radius: 4px !important;
+color: inherit !important; /* 继承父级或具体波色的颜色 */
+border: 2px solid var(--action-btn-start) !important; /* 橙色圆框 */
+background-color: transparent !important; /* 透明背景 */
+padding: 0 2px !important;
+border-radius: 50% !important; /* 圆形 */
 font-weight: 900 !important;
 cursor: pointer !important;
-box-shadow: 0 0 5px rgba(237, 137, 54, 0.3) !important;
 display: inline-block !important;
 line-height: 1.4 !important;
+min-width: 1.2em;
+text-align: center;
 }
+/* 修改后的已购样式：对应底色 + 白色字体 */
 .result-num-sold {
-background-color: var(--res-green) !important;
-color: #ffffff !important;
-border: 1px solid #2f855a !important;
+color: #ffffff !important; /* 白色字体 */
 padding: 0 4px !important;
-border-radius: 4px !important;
+border-radius: 50% !important; /* 圆形 */
 font-weight: 900 !important;
 cursor: pointer !important;
-box-shadow: 0 0 5px rgba(56, 161, 105, 0.4) !important;
 display: inline-block !important;
 line-height: 1.4 !important;
+box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
 }
-.res-red { color: var(--res-red); } .res-blue { color: var(--res-blue); } .res-green { color: var(--res-green); } .res-prefix { color: #4a5568; }
+/* 波色辅助类，用于已购状态的背景 */
+.res-red { color: var(--res-red); }
+.res-blue { color: var(--res-blue); }
+.res-green { color: var(--res-green); }
+.res-prefix { color: #4a5568; }
+
 .bet-action-area { margin-bottom: 8px; display: flex; flex-direction: column; gap: 6px; padding-left: 0; }
 .bet-input-row { display: flex; gap: 6px; align-items: center; width: 100%; }
 .bet-nums-display {
@@ -686,7 +666,6 @@ margin-left: 4px;
 <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
 <span>已选号码</span>
 <span class="count-badge" id="countBadge">0个</span>
-<!-- 【修复】移除了 onclick 属性，统一由 JS 管理事件 -->
 <button id="selectAllBetBtn" class="batch-select-btn grey">全选</button>
 </div>
 <button class="small-copy-btn" onclick="copySelectedNumbers()">复制</button>
@@ -1052,10 +1031,8 @@ showToast(`✅ 已全选`);
 updateAllStates(false);
 }
 }
-// 【修复】核心逻辑：批量选中待购
 function handleBatchSelectBet() {
 const btn = document.getElementById('selectAllBetBtn');
-// 如果按钮是灰色，直接提示（虽然理论上灰色按钮不会触发此函数，但作为双重保险）
 if (btn.classList.contains('grey')) {
 if (selectedNumbers.size === 0) {
 showToast("⚠️ 暂无已选号码");
@@ -1067,7 +1044,6 @@ return;
 const allSelectedArr = Array.from(selectedNumbers);
 let numsToAdd = [];
 if (btn.classList.contains('orange')) {
-// 橙色状态：剩余全选 (只选未购买的)
 numsToAdd = allSelectedArr.filter(n => !betResults.hasOwnProperty(n));
 if (numsToAdd.length === 0) {
 showToast("ℹ️ 所有号码已选完");
@@ -1075,14 +1051,12 @@ updateBatchSelectButton();
 return;
 }
 } else {
-// 绿色状态：全选 (选所有已选号码中未待购且未购买的)
 numsToAdd = allSelectedArr.filter(n => !bettingNumbers.has(n) && !betResults.hasOwnProperty(n));
 if (numsToAdd.length === 0) {
 showToast("ℹ️ 这些号码已在待购或已购列表中");
 return;
 }
 }
-// 执行添加
 numsToAdd.forEach(n => {
 bettingNumbers.add(n);
 });
@@ -1091,36 +1065,27 @@ showToast(`✅ 已添加 ${numsToAdd.length} 个号码到待购`);
 addLog("select", `批量加入待购 ${numsToAdd.length}个`);
 updateAllStates(false);
 }
-// 【修复】统一在此处管理按钮状态和点击事件，彻底解决冲突
 function updateBatchSelectButton() {
 const btn = document.getElementById('selectAllBetBtn');
 const totalSelected = selectedNumbers.size;
 const selectedBoughtCount = Array.from(selectedNumbers).filter(n => betResults.hasOwnProperty(n)).length;
-// 重置类名
 btn.className = 'batch-select-btn';
-// 清除旧的事件监听器（通过赋值为 null 或重新赋值 onclick）
 btn.onclick = null;
 if (totalSelected === 0) {
-// 场景1：无号码 -> 灰色
 btn.classList.add('grey');
 btn.textContent = '全选';
 btn.onclick = function() { showToast("⚠️ 暂无已选号码"); };
 } else if (selectedBoughtCount === totalSelected) {
-// 场景4：所有已选号码都购买了 -> 灰色 "已选完"
 btn.classList.add('grey');
 btn.textContent = '已选完';
 btn.onclick = function() { showToast("ℹ️ 所有号码已选完"); };
 } else if (selectedBoughtCount > 0 && selectedBoughtCount < totalSelected) {
-// 场景3：部分购买 -> 橙色 "剩余全选"
 btn.classList.add('orange');
 btn.textContent = '剩余全选';
-// 绑定核心逻辑
 btn.onclick = handleBatchSelectBet;
 } else {
-// 场景2：有号码但未购买 -> 绿色 "全选"
 btn.classList.add('green');
 btn.textContent = '全选';
-// 绑定核心逻辑
 btn.onclick = handleBatchSelectBet;
 }
 }
@@ -1307,7 +1272,7 @@ updateFilterButtons();
 updateResultText();
 renderBetResults();
 updateBetActionArea();
-updateBatchSelectButton(); // 更新新增的按钮状态
+updateBatchSelectButton();
 }
 function getColorClass(num) {
 if (redGroup.has(num)) return 'res-red';
@@ -1458,21 +1423,41 @@ const isBetting = bettingNumbers.has(num);
 const isBought = betResults.hasOwnProperty(num);
 let className = colorClass;
 let onClick = `handleResultNumClick(${num})`;
-if (isBought) { className = 'result-num-sold'; }
-else if (isBetting) { className = 'result-num-betting'; }
-return `<span class="${className}" onclick="${onClick}" style="cursor:pointer;" title="${isBought ? '已购买 (点击取消)' : (isBetting ? '待购买' : '点击加入待买')}">${fmtNum(num)}</span>`;
+let styleOverride = "";
+
+if (isBought) {
+// 已购：对应底色 + 白色字体
+className = `result-num-sold ${colorClass}`;
+// 动态设置背景色
+if (colorClass === 'res-red') styleOverride = "background-color: var(--res-red);";
+else if (colorClass === 'res-blue') styleOverride = "background-color: var(--res-blue);";
+else if (colorClass === 'res-green') styleOverride = "background-color: var(--res-green);";
+} else if (isBetting) {
+// 待购：原字体颜色 + 橙色圆框
+className = `result-num-betting ${colorClass}`;
+styleOverride = ""; // 颜色由 res-red/blue/green 继承
+} else {
+// 普通选中：仅文字颜色
+className = colorClass;
+}
+
+return `<span class="${className}" onclick="${onClick}" style="${styleOverride} cursor:pointer;" title="${isBought ? '已购买 (点击取消)' : (isBetting ? '待购买' : '点击加入待买')}">${fmtNum(num)}</span>`;
 };
+
 if (normalOdd.length > 0) {
 const parts = normalOdd.map(createNumSpan);
-html += `<div class="result-column"><span class="result-col-label">单号:</span> ${parts.join('<span style="color:#000000">.</span>')}</div>`;
+// 移除了中间的 "." 连接符
+html += `<div class="result-column"><span class="result-col-label">单号:</span> ${parts.join('')}</div>`;
 }
 if (normalEven.length > 0) {
 const parts = normalEven.map(createNumSpan);
-html += `<div class="result-column"><span class="result-col-label">双号:</span> ${parts.join('<span style="color:#000000">.</span>')}</div>`;
+// 移除了中间的 "." 连接符
+html += `<div class="result-column"><span class="result-col-label">双号:</span> ${parts.join('')}</div>`;
 }
 if (specialOnly.length > 0) {
 const parts = specialOnly.map(createNumSpan);
-html += `<div class="result-column"><span class="result-col-label">特码:</span> ${parts.join('<span style="color:#000000">.</span>')}</div>`;
+// 移除了中间的 "." 连接符
+html += `<div class="result-column"><span class="result-col-label">特码:</span> ${parts.join('')}</div>`;
 }
 if (html === "") { html = "暂无已选号码"; }
 resultDiv.innerHTML = html;
