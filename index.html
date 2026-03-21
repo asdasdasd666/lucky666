@@ -52,8 +52,8 @@
 --bet-active-text: #c05621;
 --bet-sold-bg: #c05621;
 --bet-sold-text: #ffffff;
-/* 【关键修改】间距缩短至原来的 1/8 (原默认约 1.8em, 之前改为 0.45em, 现再减半为 0.225em) */
---grid-gap-val: 0.225em;
+/* 定义统一的网格间距变量，方便同步 */
+--grid-gap-val: 1.4em;
 }
 html, body { overflow-x: hidden; width: 100%; height: 100%; }
 body {
@@ -336,7 +336,8 @@ height: 24px;
 .batch-select-btn.orange { background-color: var(--action-btn-start); color: #fff; }
 .batch-select-btn.grey { background-color: #cbd5e0; color: #718096; cursor: not-allowed; box-shadow: none; }
 .batch-select-btn:active:not(.grey) { transform: translateY(1px); box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
-/* --- 核心修改区域：已选号码 --- */
+
+/* --- 核心修改区域开始 --- */
 .result-text {
 font-family: "Courier New", Courier, monospace;
 font-size: 0.9rem;
@@ -356,22 +357,26 @@ user-select: none !important;
 cursor: default;
 display: flex;
 flex-direction: column;
-gap: 0;
+gap: 0; /* 关键修改：移除原有的 4px 间距，避免干扰 */
 }
+
 .result-column {
 display: grid;
 grid-template-columns: repeat(auto-fill, minmax(1.8em, 1fr));
-gap: var(--grid-gap-val); /* 横向间距 (已缩小) */
+gap: var(--grid-gap-val); /* 使用变量统一控制行列间距 */
 align-items: center;
 padding-left: 3.2rem;
 position: relative;
 min-height: 1.5em;
-margin-bottom: 0;
+margin-bottom: 0; /* 初始化 */
 }
+
+/* 关键修复：给除了最后一个之外的所有列添加底部间距，使其等于 grid gap */
 .result-column:not(:last-child) {
-margin-bottom: var(--grid-gap-val); /* 纵向间距 (已缩小) */
+margin-bottom: var(--grid-gap-val);
 }
 /* --- 核心修改区域结束 --- */
+
 .result-col-label {
 font-size: 0.75rem;
 color: #718096;
@@ -383,6 +388,7 @@ top: 0;
 width: 2.8rem;
 text-align: right;
 }
+/* 待购样式 */
 .result-num-betting {
 color: inherit !important;
 border: 2px solid var(--action-btn-start) !important;
@@ -396,6 +402,7 @@ line-height: 1.4 !important;
 min-width: 1.2em;
 text-align: center;
 }
+/* 已购样式 (通用) */
 .result-num-sold {
 color: #ffffff !important;
 padding: 0 !important;
@@ -412,6 +419,7 @@ min-width: 1.8em;
 height: 1.8em;
 font-size: 0.9em;
 }
+/* --- 波色辅助类 --- */
 .res-red { color: var(--res-red); }
 .res-blue { color: var(--res-blue); }
 .res-green { color: var(--res-green); }
@@ -516,7 +524,6 @@ line-height: 1.2;
 white-space: nowrap;
 }
 .bet-total-amount { font-size: 0.85rem; font-weight: 800; color: #c05621; white-space: nowrap; }
-/* --- 核心修改区域：买号结果 --- */
 .bet-result-box {
 font-family: "Courier New", Courier, monospace;
 font-size: 0.9rem;
@@ -534,13 +541,11 @@ white-space: normal;
 user-select: none !important;
 -webkit-user-select: none !important;
 cursor: default;
-display: block;
+display: flex;
+flex-direction: column;
+gap: 4px;
 }
-.bet-result-items {
-display: block;
-padding-left: 0;
-margin: 0;
-}
+.bet-result-items { display: flex; flex-wrap: wrap; gap: 6px; padding-left: 0; }
 .bet-result-item {
 border-radius: 4px;
 padding: 2px 4px;
@@ -550,27 +555,12 @@ font-weight: 700;
 color: #2d3748;
 display: flex;
 align-items: center;
-gap: 8px;
+gap: 4px;
 cursor: default;
 transition: none;
-margin-bottom: var(--grid-gap-val); /* 纵向间距 (已缩小) */
-width: 100%;
-box-sizing: border-box;
 }
-.bet-result-item:last-child {
-margin-bottom: 0;
-}
-/* 内部号码容器：使用 Grid 控制横向间距 */
-.bet-result-item > span:first-child {
-display: grid;
-grid-template-columns: repeat(auto-fill, minmax(1.8em, 1fr));
-gap: var(--grid-gap-val); /* 横向间距 (已缩小) */
-align-items: center;
-flex: 1;
-}
-/* --- 核心修改区域结束 --- */
 .bet-result-item .num-tag { font-weight: 900; }
-.bet-result-item .amt-tag { font-size: 0.8rem; color: #718096; font-weight: 600; white-space: nowrap; }
+.bet-result-item .amt-tag { font-size: 0.8rem; color: #718096; font-weight: 600; }
 .bet-result-item.canceling { color: #c53030; }
 .action-btns { display: flex; gap: 4px; margin-bottom: 8px; }
 .action-btn { flex: 1; padding: 8px; border: none; border-radius: 6px; font-size: 0.8rem; font-weight: 800; cursor: pointer; color: #fff; transition: all 0.1s; box-shadow: 0 3px 0 rgba(0,0,0,0.2); position: relative; top: 0; user-select: none; -webkit-user-select: none; }
@@ -1301,14 +1291,14 @@ const input = document.getElementById('betAmountInput');
 const amount = parseInt(input.value);
 if (isNaN(amount) || amount <= 0) { showToast("⚠️ 金额必须是大于0的整数"); vibrate(30); input.focus(); return; }
 const nums = Array.from(bettingNumbers).sort((a,b)=>a-b);
-const label = nums.map(fmtNum).join(' ');
+const label = nums.map(fmtNum).join('.');
 recordAction('bet_confirm', label, nums, true, amount);
 nums.forEach(n => { betResults[n] = amount; });
 bettingNumbers.clear();
 input.value = "";
 updateAllStates(false);
 showToast(`✅ 已下单：${nums.length}个号码，各${amount}块`);
-addLog("bet", `买入 ${label} @ ${amount}块`);
+addLog("bet", `买入 ${label}. @ ${amount}块`);
 }
 function renderBetResults() {
 const container = document.getElementById('betResultContainer');
@@ -1340,16 +1330,15 @@ item.className = 'bet-result-item';
 let displayHtml = "";
 if (nums.length === 1) {
 const colorClass = getColorClass(nums[0]);
-// 单个号码也放入 span 以便 CSS 统一控制
-displayHtml = `<span><span class="result-num-sold ${colorClass}">${numStrs[0]}</span></span><span class="amt-tag">买${amt}块</span>`;
+displayHtml = `<span class="result-num-sold ${colorClass}">${numStrs[0]}</span><span class="amt-tag">买${amt}块</span>`;
 } else {
 let numParts = [];
 nums.forEach(n => {
 const cClass = getColorClass(n);
 numParts.push(`<span class="result-num-sold ${cClass}">${fmtNum(n)}</span>`);
 });
-// 号码之间不再插入 "." 分隔符，依靠 CSS grid gap 产生间距
-displayHtml = `<span>${numParts.join('')}</span><span class="amt-tag">各${amt}块</span>`;
+const separator = '<span class="amt-tag" style="margin:0 2px;">.</span>';
+displayHtml = `<span>${numParts.join(separator)}</span><span class="amt-tag">各${amt}块</span>`;
 }
 item.innerHTML = displayHtml;
 itemsDiv.appendChild(item);
@@ -1569,10 +1558,7 @@ amountGroups[amt].push(num);
 Object.keys(amountGroups).sort((a,b)=>a-b).forEach(amt => {
 const nums = amountGroups[amt].sort((a,b)=>a-b).map(fmtNum);
 if (nums.length === 1) { textToCopy.push(`${nums[0]}买${amt}块`); }
-else {
-// 复制时也去掉号码间的 "."，改用空格
-textToCopy.push(`${nums.join(' ')} 各${amt}块`);
-}
+else { textToCopy.push(`${nums.join('.')}.各${amt}块`); }
 });
 const cleanText = textToCopy.join(', ');
 if (!cleanText) { showToast("无内容"); return; }
