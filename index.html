@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>好运连连 - 修复冲突版</title>
+<title>好运连连 - 修复背景色</title>
 <meta name="theme-color" content="#D90429">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -97,7 +97,6 @@ align-items: center;
 justify-content: center;
 position: relative;
 }
-
 @keyframes shine { to { background-position: 200% center; } }
 .filter-section { margin: 0 0 10px 0; width: 100%; max-width: 500px; box-sizing: border-box; position: relative; z-index: 2; display: flex; flex-direction: column; gap: 8px; }
 .control-box {
@@ -389,7 +388,7 @@ gap: 4px;
 .result-column {
 display: flex;
 flex-wrap: wrap;
-gap: 8px; /* 间距已加倍：从 4px 改为 8px */
+gap: 1.4em; 
 align-items: flex-start;
 padding-left: 3.2rem;
 position: relative;
@@ -406,13 +405,13 @@ top: 0;
 width: 2.8rem;
 text-align: right;
 }
-/* 修改后的待购样式：原字体颜色 + 橙色圆框 */
+/* 待购样式 */
 .result-num-betting {
-color: inherit !important; /* 继承父级或具体波色的颜色 */
-border: 2px solid var(--action-btn-start) !important; /* 橙色圆框 */
-background-color: transparent !important; /* 透明背景 */
+color: inherit !important;
+border: 2px solid var(--action-btn-start) !important;
+background-color: transparent !important;
 padding: 0 2px !important;
-border-radius: 50% !important; /* 圆形 */
+border-radius: 50% !important;
 font-weight: 900 !important;
 cursor: pointer !important;
 display: inline-block !important;
@@ -420,21 +419,35 @@ line-height: 1.4 !important;
 min-width: 1.2em;
 text-align: center;
 }
-/* 修改后的已购样式：对应底色 + 白色字体 */
+/* 已购样式 (通用) */
 .result-num-sold {
-color: #ffffff !important; /* 白色字体 */
-padding: 0 4px !important;
-border-radius: 50% !important; /* 圆形 */
+color: #ffffff !important;
+padding: 0 !important;
+border-radius: 50% !important;
 font-weight: 900 !important;
 cursor: pointer !important;
-display: inline-block !important;
-line-height: 1.4 !important;
+display: inline-flex !important;
+align-items: center;
+justify-content: center;
+line-height: 1 !important;
 box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
+aspect-ratio: 1 / 1; 
+min-width: 1.8em; 
+height: 1.8em; 
+font-size: 0.9em;
 }
-/* 波色辅助类，用于已购状态的背景 */
+
+/* --- 关键修复：波色辅助类 --- */
+/* 默认情况下，这些类只设置文字颜色（用于普通文本或未购买状态） */
 .res-red { color: var(--res-red); }
 .res-blue { color: var(--res-blue); }
 .res-green { color: var(--res-green); }
+
+/* 但当它们与 .result-num-sold 一起使用时，强制设置背景色，并保证文字为白色 */
+.result-num-sold.res-red { background-color: var(--res-red); color: #ffffff !important; }
+.result-num-sold.res-blue { background-color: var(--res-blue); color: #ffffff !important; }
+.result-num-sold.res-green { background-color: var(--res-green); color: #ffffff !important; }
+
 .res-prefix { color: #4a5568; }
 
 .bet-action-area { margin-bottom: 8px; display: flex; flex-direction: column; gap: 6px; padding-left: 0; }
@@ -572,6 +585,7 @@ transition: none;
 .bet-result-item .num-tag { font-weight: 900; }
 .bet-result-item .amt-tag { font-size: 0.8rem; color: #718096; font-weight: 600; }
 .bet-result-item.canceling { color: #c53030; }
+
 .action-btns { display: flex; gap: 4px; margin-bottom: 8px; }
 .action-btn { flex: 1; padding: 8px; border: none; border-radius: 6px; font-size: 0.8rem; font-weight: 800; cursor: pointer; color: #fff; transition: all 0.1s; box-shadow: 0 3px 0 rgba(0,0,0,0.2); position: relative; top: 0; user-select: none; -webkit-user-select: none; }
 .action-btn:active { top: 3px; box-shadow: 0 0 0 rgba(0,0,0,0.2); }
@@ -704,7 +718,7 @@ margin-left: 4px;
 * Service Worker 注册
 */
 if ('serviceWorker' in navigator) {
-const CACHE_VERSION = 'v76-fix-conflict';
+const CACHE_VERSION = 'v77-fix-bg';
 const CACHE_NAME = `lucky888-${CACHE_VERSION}`;
 const swCode = `const CACHE_NAME='${CACHE_NAME}';self.addEventListener('install',e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE_NAME).then(c=>c.addAll(['./'])));});self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==CACHE_NAME).map(x=>caches.delete(x)))));self.clients.claim();});self.addEventListener('fetch',e=>{e.respondWith(fetch(e.request).catch(()=>caches.match(e.request)));});`;
 try { navigator.serviceWorker.register(URL.createObjectURL(new Blob([swCode], {type: 'application/javascript'}))).catch(console.error); } catch(e) {}
@@ -1378,14 +1392,16 @@ item.className = 'bet-result-item';
 let displayHtml = "";
 if (nums.length === 1) {
 const colorClass = getColorClass(nums[0]);
-displayHtml = `<span class="${colorClass}" style="font-weight:900;">${numStrs[0]}</span><span class="amt-tag">买${amt}块</span>`;
+// 修复：移除内联 style，完全依赖 CSS 类组合 (.result-num-sold + .res-red/blue/green)
+displayHtml = `<span class="result-num-sold ${colorClass}">${numStrs[0]}</span><span class="amt-tag">买${amt}块</span>`;
 } else {
 let numParts = [];
 nums.forEach(n => {
 const cClass = getColorClass(n);
-numParts.push(`<span class="${cClass}" style="font-weight:900;">${fmtNum(n)}</span>`);
+// 修复：移除内联 style，完全依赖 CSS 类组合
+numParts.push(`<span class="result-num-sold ${cClass}">${fmtNum(n)}</span>`);
 });
-const separator = '<span class="amt-tag">.</span>';
+const separator = '<span class="amt-tag" style="margin:0 2px;">.</span>';
 displayHtml = `<span>${numParts.join(separator)}</span><span class="amt-tag">各${amt}块</span>`;
 }
 item.innerHTML = displayHtml;
@@ -1424,39 +1440,26 @@ const isBought = betResults.hasOwnProperty(num);
 let className = colorClass;
 let onClick = `handleResultNumClick(${num})`;
 let styleOverride = "";
-
 if (isBought) {
-// 已购：对应底色 + 白色字体
 className = `result-num-sold ${colorClass}`;
-// 动态设置背景色
-if (colorClass === 'res-red') styleOverride = "background-color: var(--res-red);";
-else if (colorClass === 'res-blue') styleOverride = "background-color: var(--res-blue);";
-else if (colorClass === 'res-green') styleOverride = "background-color: var(--res-green);";
+// 移除内联 style，依赖 CSS
 } else if (isBetting) {
-// 待购：原字体颜色 + 橙色圆框
 className = `result-num-betting ${colorClass}`;
-styleOverride = ""; // 颜色由 res-red/blue/green 继承
 } else {
-// 普通选中：仅文字颜色
 className = colorClass;
 }
-
 return `<span class="${className}" onclick="${onClick}" style="${styleOverride} cursor:pointer;" title="${isBought ? '已购买 (点击取消)' : (isBetting ? '待购买' : '点击加入待买')}">${fmtNum(num)}</span>`;
 };
-
 if (normalOdd.length > 0) {
 const parts = normalOdd.map(createNumSpan);
-// 移除了中间的 "." 连接符
 html += `<div class="result-column"><span class="result-col-label">单号:</span> ${parts.join('')}</div>`;
 }
 if (normalEven.length > 0) {
 const parts = normalEven.map(createNumSpan);
-// 移除了中间的 "." 连接符
 html += `<div class="result-column"><span class="result-col-label">双号:</span> ${parts.join('')}</div>`;
 }
 if (specialOnly.length > 0) {
 const parts = specialOnly.map(createNumSpan);
-// 移除了中间的 "." 连接符
 html += `<div class="result-column"><span class="result-col-label">特码:</span> ${parts.join('')}</div>`;
 }
 if (html === "") { html = "暂无已选号码"; }
