@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>好运连连 - 纯净版</title>
+<title>好运连连 - 终极修复版</title>
 <meta name="theme-color" content="#D90429">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -52,8 +52,6 @@
 --bet-active-text: #c05621;
 --bet-sold-bg: #c05621;
 --bet-sold-text: #ffffff;
-/* 定义统一的网格间距变量，方便同步 */
---grid-gap-val: 1.4em;
 }
 html, body { overflow-x: hidden; width: 100%; height: 100%; }
 body {
@@ -230,18 +228,18 @@ font-size: 0.65rem; line-height: 1.1;
 .bg-blue { background-color: var(--base-blue-dim); }
 .bg-green { background-color: var(--base-green-dim); }
 .bg-action { background: linear-gradient(145deg, var(--action-btn-start), var(--action-btn-end)); }
-.bg-reset { background: linear-gradient(145deg, #fc8181, #c53030); }
+.bg-reset { background: linear-gradient(145deg, #e53e3e, #fc8181); }
 .num-btn.is-active { filter: grayscale(0%) brightness(1.1); opacity: 1; transform: scale(1.3); z-index: 20; animation: pulse-glow 2s infinite; box-shadow: 0 0 15px currentColor, 0 0 30px rgba(255,255,255,0.3), inset 0 0 0 2px rgba(255,255,255,0.5); background-image: none; }
 .bg-blue.is-active { background: linear-gradient(145deg, var(--deep-blue-start), var(--deep-blue-end)); color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.3); }
 .bg-red.is-active { background: linear-gradient(145deg, var(--active-red-start), var(--active-red-end)); color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.3); }
 .bg-green.is-active { background: linear-gradient(145deg, var(--active-green-start), var(--active-green-end)); color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.3); }
-@keyframes pulse-glow { 0% { filter: grayscale(0%) brightness(1.1); } 50% { filter: grayscale(0%) brightness(1.2); } 100% { filter: grayscale(0%) brightness(1.1); } }
 .action-grid-btn { filter: grayscale(0%) brightness(1.0); opacity: 1; z-index: 10; box-shadow: 0 3px 5px rgba(0,0,0,0.2), inset 0 -2px 4px rgba(0,0,0,0.1); flex-direction: column; transform: scale(1); animation: none; border-radius: 8px; aspect-ratio: auto; height: 100%; min-height: 32px; font-size: 0.75rem; line-height: 1.1; grid-column: span 2; font-weight: 900; }
 .action-grid-btn:active { transform: scale(0.95); box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
 .btn-text { display: block; margin-top: 2px; opacity: 1; font-weight: 900; text-shadow: 0 1px 1px rgba(0,0,0,0.2); }
-.undo-btn-grid { grid-row: 7; grid-column: 1 / span 2; }
-.reset-btn-grid { grid-row: 7; grid-column: 6 / span 2; }
-.redo-btn-grid { grid-row: 7; grid-column: 11 / span 2; }
+@keyframes pulse-glow { 0% { filter: grayscale(0%) brightness(1.1); } 50% { filter: grayscale(0%) brightness(1.2); } 100% { filter: grayscale(0%) brightness(1.1); } }
+.undo-btn-grid { grid-row: 8; grid-column: 1 / span 2; }
+.reset-btn-grid { grid-row: 8; grid-column: 6 / span 2; }
+.redo-btn-grid { grid-row: 8; grid-column: 11 / span 2; }
 .result-card {
 background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
 border: 1px solid rgba(255, 255, 255, 0.6); box-shadow: 0 8px 32px rgba(0,0,0,0.08); border-radius: 12px;
@@ -336,8 +334,6 @@ height: 24px;
 .batch-select-btn.orange { background-color: var(--action-btn-start); color: #fff; }
 .batch-select-btn.grey { background-color: #cbd5e0; color: #718096; cursor: not-allowed; box-shadow: none; }
 .batch-select-btn:active:not(.grey) { transform: translateY(1px); box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
-
-/* --- 核心修改区域开始 --- */
 .result-text {
 font-family: "Courier New", Courier, monospace;
 font-size: 0.9rem;
@@ -357,26 +353,17 @@ user-select: none !important;
 cursor: default;
 display: flex;
 flex-direction: column;
-gap: 0; /* 关键修改：移除原有的 4px 间距，避免干扰 */
+gap: 4px;
 }
-
 .result-column {
-display: grid;
-grid-template-columns: repeat(auto-fill, minmax(1.8em, 1fr));
-gap: var(--grid-gap-val); /* 使用变量统一控制行列间距 */
-align-items: center;
+display: flex;
+flex-wrap: wrap;
+gap: 1.4em;
+align-items: flex-start;
 padding-left: 3.2rem;
 position: relative;
 min-height: 1.5em;
-margin-bottom: 0; /* 初始化 */
 }
-
-/* 关键修复：给除了最后一个之外的所有列添加底部间距，使其等于 grid gap */
-.result-column:not(:last-child) {
-margin-bottom: var(--grid-gap-val);
-}
-/* --- 核心修改区域结束 --- */
-
 .result-col-label {
 font-size: 0.75rem;
 color: #718096;
@@ -388,7 +375,6 @@ top: 0;
 width: 2.8rem;
 text-align: right;
 }
-/* 待购样式 */
 .result-num-betting {
 color: inherit !important;
 border: 2px solid var(--action-btn-start) !important;
@@ -402,7 +388,6 @@ line-height: 1.4 !important;
 min-width: 1.2em;
 text-align: center;
 }
-/* 已购样式 (通用) */
 .result-num-sold {
 color: #ffffff !important;
 padding: 0 !important;
@@ -419,13 +404,9 @@ min-width: 1.8em;
 height: 1.8em;
 font-size: 0.9em;
 }
-/* --- 波色辅助类 --- */
 .res-red { color: var(--res-red); }
 .res-blue { color: var(--res-blue); }
 .res-green { color: var(--res-green); }
-.result-num-sold.res-red { background-color: var(--res-red); color: #ffffff !important; }
-.result-num-sold.res-blue { background-color: var(--res-blue); color: #ffffff !important; }
-.result-num-sold.res-green { background-color: var(--res-green); color: #ffffff !important; }
 .res-prefix { color: #4a5568; }
 .bet-action-area { margin-bottom: 8px; display: flex; flex-direction: column; gap: 6px; padding-left: 0; }
 .bet-input-row { display: flex; gap: 6px; align-items: center; width: 100%; }
@@ -572,7 +553,7 @@ transition: none;
 .log-item:last-child { border-bottom: none; }
 .log-time { color: #718096; font-size: 0.55rem; margin-right: 4px; }
 .log-action { font-weight: 600; }
-.log-action.select { color: #2b6cb0; } .log-action.input { color: #d69e2e; } .log-action.clear { color: #c53030; } .log-action.undo { color: #718096; } .log-action.redo { color: #2b6cb0; }
+.log-action.select { color: #2b6cb0; } .log-action.input { color: #d69e2e; } .log-action.clear { color: #c53030; } .log-action.random { color: #d69e2e; } .log-action.undo { color: #718096; } .log-action.redo { color: #2b6cb0; }
 .toast { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.9); background: rgba(26, 32, 44, 0.95); color: #fff; padding: 10px 20px; border-radius: 50px; display: none; z-index: 1000; font-size: 0.8rem; font-weight: 600; box-shadow: 0 10px 25px rgba(0,0,0,0.3); opacity: 0; transition: all 0.3s; pointer-events: none; white-space: nowrap; max-width: 90%; text-align: center; }
 .toast.show { display: block; opacity: 1; transform: translate(-50%, -50%) scale(1); }
 .log-container::-webkit-scrollbar { width: 4px; }
@@ -653,7 +634,6 @@ margin-left: 4px;
 </div>
 <div style="font-size: 0.65rem; font-weight: 700; color: #4a5568; margin-bottom: 2px; display:flex; justify-content:space-between; align-items:center;">
 <span>📜 操作记录</span>
-<!-- 重置按钮已移除至此 -->
 </div>
 <div class="log-container" id="logContainer"><div class="log-item" style="color:#718096; justify-content:center;">暂无记录</div></div>
 </div>
@@ -663,7 +643,7 @@ margin-left: 4px;
 * Service Worker 注册
 */
 if ('serviceWorker' in navigator) {
-const CACHE_VERSION = 'v79-reset-pos';
+const CACHE_VERSION = 'v76-fix-conflict-ultimate';
 const CACHE_NAME = `lucky888-${CACHE_VERSION}`;
 const swCode = `const CACHE_NAME='${CACHE_NAME}';self.addEventListener('install',e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE_NAME).then(c=>c.addAll(['./'])));});self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==CACHE_NAME).map(x=>caches.delete(x)))));self.clients.claim();});self.addEventListener('fetch',e=>{e.respondWith(fetch(e.request).catch(()=>caches.match(e.request)));});`;
 try { navigator.serviceWorker.register(URL.createObjectURL(new Blob([swCode], {type: 'application/javascript'}))).catch(console.error); } catch(e) {}
@@ -750,6 +730,29 @@ manuallySelected = new Set(d.manual || []);
 if(d.bets && typeof d.bets === 'object') { betResults = d.bets; } else { betResults = {}; }
 if(Array.isArray(d.undo)) undoStack = d.undo;
 if(Array.isArray(d.redo)) redoStack = d.redo;
+save_data();
+return;
+} catch(e){}
+}
+raw = localStorage.getItem('lucky666_data_v23');
+if(raw) {
+try {
+const d = JSON.parse(raw);
+selectedNumbers = new Set(d.selected || []);
+manuallySelected = new Set(d.manual || []);
+if(d.bets && typeof d.bets === 'object') { betResults = d.bets; } else { betResults = {}; }
+if(Array.isArray(d.undo)) undoStack = d.undo;
+if(Array.isArray(d.redo)) redoStack = d.redo;
+save_data();
+return;
+} catch(e){}
+}
+raw = localStorage.getItem('lucky666_data_v22');
+if(raw) {
+try {
+const d = JSON.parse(raw);
+selectedNumbers = new Set(d.selected || []);
+manuallySelected = new Set(d.manual || []);
 save_data();
 return;
 } catch(e){}
@@ -985,6 +988,8 @@ showToast(`✅ 已全选`);
 updateAllStates(false);
 }
 }
+
+// ================= 【终极修正】全选/取消剩余全选逻辑 =================
 function handleBatchSelectBet() {
 const btn = document.getElementById('selectAllBetBtn');
 if (btn.classList.contains('grey')) {
@@ -995,21 +1000,33 @@ showToast("ℹ️ 所有号码已选完");
 }
 return;
 }
+
 const allSelectedArr = Array.from(selectedNumbers);
-let numsToAdd = [];
+
+// 如果是橙色按钮（取消剩余全选模式）
 if (btn.classList.contains('orange')) {
-numsToAdd = allSelectedArr.filter(n => !betResults.hasOwnProperty(n));
-if (numsToAdd.length === 0) {
-showToast("ℹ️ 所有号码已选完");
-updateBatchSelectButton();
+// 找出所有在待购栏中且属于已选号码（且未购买）的号码
+const numsToRemove = allSelectedArr.filter(n => !betResults.hasOwnProperty(n) && bettingNumbers.has(n));
+if (numsToRemove.length === 0) {
+showToast("ℹ️ 待购栏中没有可取消的号码");
 return;
 }
-} else {
-numsToAdd = allSelectedArr.filter(n => !bettingNumbers.has(n) && !betResults.hasOwnProperty(n));
+// 从待购栏移除
+numsToRemove.forEach(n => {
+bettingNumbers.delete(n);
+});
+vibrate(30);
+showToast(`✅ 已取消 ${numsToRemove.length} 个号码的待购状态`);
+addLog("select", `批量取消待购 ${numsToRemove.length}个`);
+updateAllStates(false);
+}
+// 绿色按钮（剩余全选模式）
+else {
+// 找出所有已选、未购买、且当前不在待购栏的号码
+const numsToAdd = allSelectedArr.filter(n => !betResults.hasOwnProperty(n) && !bettingNumbers.has(n));
 if (numsToAdd.length === 0) {
 showToast("ℹ️ 这些号码已在待购或已购列表中");
 return;
-}
 }
 numsToAdd.forEach(n => {
 bettingNumbers.add(n);
@@ -1019,30 +1036,68 @@ showToast(`✅ 已添加 ${numsToAdd.length} 个号码到待购`);
 addLog("select", `批量加入待购 ${numsToAdd.length}个`);
 updateAllStates(false);
 }
+}
+
 function updateBatchSelectButton() {
 const btn = document.getElementById('selectAllBetBtn');
 const totalSelected = selectedNumbers.size;
-const selectedBoughtCount = Array.from(selectedNumbers).filter(n => betResults.hasOwnProperty(n)).length;
+
+// 【关键步骤 1】数据清洗：确保 bettingNumbers 中绝对不包含已购买的号码
+// 防止因为历史状态残留导致逻辑判断错误
+for (const num of bettingNumbers) {
+    if (betResults.hasOwnProperty(num)) {
+        bettingNumbers.delete(num);
+    }
+}
+
+// 【关键步骤 2】显式查找“漏网之鱼”
+// 定义：已选 AND 未购买 AND 不在待购栏
+let hasMissing = false;
+let missingCount = 0;
+let inBettingCount = 0;
+let notBoughtCount = 0;
+
+for (const num of selectedNumbers) {
+    // 跳过已购买的
+    if (betResults.hasOwnProperty(num)) continue;
+    
+    notBoughtCount++; // 这是一个未购买的已选号码
+    
+    if (bettingNumbers.has(num)) {
+        inBettingCount++;
+    } else {
+        hasMissing = true;
+        missingCount++;
+    }
+}
+
 btn.className = 'batch-select-btn';
 btn.onclick = null;
+
 if (totalSelected === 0) {
-btn.classList.add('grey');
-btn.textContent = '全选';
-btn.onclick = function() { showToast("⚠️ 暂无已选号码"); };
-} else if (selectedBoughtCount === totalSelected) {
-btn.classList.add('grey');
-btn.textContent = '已选完';
-btn.onclick = function() { showToast("ℹ️ 所有号码已选完"); };
-} else if (selectedBoughtCount > 0 && selectedBoughtCount < totalSelected) {
-btn.classList.add('orange');
-btn.textContent = '剩余全选';
-btn.onclick = handleBatchSelectBet;
+    // 情况 0: 没有已选号码
+    btn.classList.add('grey');
+    btn.textContent = '全选';
+    btn.onclick = function() { showToast("⚠️ 暂无已选号码"); };
+} else if (notBoughtCount === 0) {
+    // 情况 1: 所有已选号码都已经购买了 (没有“未购买”的号码了)
+    btn.classList.add('grey');
+    btn.textContent = '已选完';
+    btn.onclick = function() { showToast("ℹ️ 所有号码已选完"); };
+} else if (!hasMissing && inBettingCount > 0) {
+    // 情况 2 (橙色): 有未购买的号码，且所有未购买的号码都在待购栏里 (missingCount === 0)
+    btn.classList.add('orange');
+    btn.textContent = '取消全选';
+    btn.onclick = handleBatchSelectBet;
 } else {
-btn.classList.add('green');
-btn.textContent = '全选';
-btn.onclick = handleBatchSelectBet;
+    // 情况 3 (绿色): 只要有至少一个“未购买且不在待购栏”的号码 (hasMissing === true)
+    // 无论已购号码有多少，无论其他状态如何，只要有一个漏网之鱼，就是绿色！
+    btn.classList.add('green');
+    btn.textContent = '全选';
+    btn.onclick = handleBatchSelectBet;
 }
 }
+
 // ================= 渲染逻辑 =================
 function renderSelectControls() {
 const headContainer = document.getElementById('head-wuxing-controls');
@@ -1239,6 +1294,7 @@ if (betResults[num] !== undefined) { cancelBet(num); return; }
 if (bettingNumbers.has(num)) { bettingNumbers.delete(num); } else { bettingNumbers.add(num); }
 updateBetActionArea();
 updateResultText();
+updateBatchSelectButton();
 }
 function cancelBet(num) {
 if(!betResults[num]) return;
@@ -1330,14 +1386,14 @@ item.className = 'bet-result-item';
 let displayHtml = "";
 if (nums.length === 1) {
 const colorClass = getColorClass(nums[0]);
-displayHtml = `<span class="result-num-sold ${colorClass}">${numStrs[0]}</span><span class="amt-tag">买${amt}块</span>`;
+displayHtml = `<span class="${colorClass}" style="font-weight:900;">${numStrs[0]}</span><span class="amt-tag">买${amt}块</span>`;
 } else {
 let numParts = [];
 nums.forEach(n => {
 const cClass = getColorClass(n);
-numParts.push(`<span class="result-num-sold ${cClass}">${fmtNum(n)}</span>`);
+numParts.push(`<span class="${cClass}" style="font-weight:900;">${fmtNum(n)}</span>`);
 });
-const separator = '<span class="amt-tag" style="margin:0 2px;">.</span>';
+const separator = '<span class="amt-tag">.</span>';
 displayHtml = `<span>${numParts.join(separator)}</span><span class="amt-tag">各${amt}块</span>`;
 }
 item.innerHTML = displayHtml;
@@ -1376,8 +1432,12 @@ let onClick = `handleResultNumClick(${num})`;
 let styleOverride = "";
 if (isBought) {
 className = `result-num-sold ${colorClass}`;
+if (colorClass === 'res-red') styleOverride = "background-color: var(--res-red);";
+else if (colorClass === 'res-blue') styleOverride = "background-color: var(--res-blue);";
+else if (colorClass === 'res-green') styleOverride = "background-color: var(--res-green);";
 } else if (isBetting) {
 className = `result-num-betting ${colorClass}`;
+styleOverride = "";
 } else {
 className = colorClass;
 }
@@ -1434,7 +1494,6 @@ undoBtn.className = 'action-grid-btn bg-action undo-btn-grid';
 undoBtn.innerHTML = '<span class="btn-text">撤销</span>';
 undoBtn.onclick = () => { performUndo(); };
 grid.appendChild(undoBtn);
-// 重置按钮移动到此处 (原随机特码位置)
 const resetBtn = document.createElement('button');
 resetBtn.className = 'action-grid-btn bg-reset reset-btn-grid';
 resetBtn.innerHTML = '<span class="btn-text">全部重置</span>';
