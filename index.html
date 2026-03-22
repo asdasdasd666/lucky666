@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>好运连连 - 终极修复版</title>
+<title>好运连连 - 间距统一版</title>
 <meta name="theme-color" content="#D90429">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -334,10 +334,11 @@ height: 24px;
 .batch-select-btn.orange { background-color: var(--action-btn-start); color: #fff; }
 .batch-select-btn.grey { background-color: #cbd5e0; color: #718096; cursor: not-allowed; box-shadow: none; }
 .batch-select-btn:active:not(.grey) { transform: translateY(1px); box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+/* 【修改点】已选号码区域样式调整 */
 .result-text {
 font-family: "Courier New", Courier, monospace;
 font-size: 0.9rem;
-line-height: 1.5;
+line-height: 1.25;
 color: #2d3748;
 background: rgba(248, 249, 250, 0.8);
 padding: 8px;
@@ -353,12 +354,14 @@ user-select: none !important;
 cursor: default;
 display: flex;
 flex-direction: column;
-gap: 4px;
+/* 【修改】纵向间距调整为与横向一致 (0.7em) */
+gap: 0.7em;
 }
 .result-column {
 display: flex;
 flex-wrap: wrap;
-gap: 1.4em;
+/* 横向间距 */
+gap: 0.7em;
 align-items: flex-start;
 padding-left: 3.2rem;
 position: relative;
@@ -999,46 +1002,38 @@ showToast("ℹ️ 所有号码已选完");
 }
 return;
 }
-
 const allSelectedArr = Array.from(selectedNumbers);
-
 // 如果是橙色按钮（取消模式：取消全选 或 取消剩余全选）
 if (btn.classList.contains('orange')) {
 // 找出所有在待购栏中且属于已选号码（且未购买）的号码
 // 逻辑：已选 AND 未购买 AND 在待购栏
 const numsToRemove = allSelectedArr.filter(n => !betResults.hasOwnProperty(n) && bettingNumbers.has(n));
-    
 if (numsToRemove.length === 0) {
 showToast("ℹ️ 待购栏中没有可取消的号码");
 return;
 }
-    
 // 从待购栏移除
 numsToRemove.forEach(n => {
 bettingNumbers.delete(n);
 });
-    
 vibrate(30);
 const actionName = btn.textContent.includes('剩余') ? '取消剩余全选' : '取消全选';
 showToast(`✅ ${actionName}`);
 addLog("select", `${actionName}`);
 updateAllStates(false);
-} 
+}
 // 绿色按钮（全选模式：全选 或 剩余全选）
 else {
 // 找出所有已选、未购买、且当前不在待购栏的号码
 // 逻辑：已选 AND 未购买 AND 不在待购栏
 const numsToAdd = allSelectedArr.filter(n => !betResults.hasOwnProperty(n) && !bettingNumbers.has(n));
-    
 if (numsToAdd.length === 0) {
 showToast("ℹ️ 这些号码已在待购或已购列表中");
 return;
 }
-    
 numsToAdd.forEach(n => {
 bettingNumbers.add(n);
 });
-    
 vibrate(30);
 const actionName = btn.textContent.includes('剩余') ? '剩余全选' : '全选';
 showToast(`✅ ${actionName} (${numsToAdd.length}个)`);
@@ -1046,46 +1041,37 @@ addLog("select", `${actionName}`);
 updateAllStates(false);
 }
 }
-
 function updateBatchSelectButton() {
 const btn = document.getElementById('selectAllBetBtn');
 const totalSelected = selectedNumbers.size;
-
 // 【关键步骤 1】数据清洗：确保 bettingNumbers 中绝对不包含已购买的号码
 for (const num of bettingNumbers) {
 if (betResults.hasOwnProperty(num)) {
 bettingNumbers.delete(num);
 }
 }
-
 // 【关键步骤 2】显式查找状态
 // 定义集合：
 // A = 已选号码
 // B = 已买号码 (betResults keys)
 // C = 待购号码 (bettingNumbers)
 // 目标集合 T = A - B (已选但未买的号码)
-
 let notBoughtCount = 0; // T 的数量
 let missingCount = 0;   // T 中不在 C 的数量 (漏网之鱼)
 let inBettingCount = 0; // T 中在 C 的数量
-
 for (const num of selectedNumbers) {
 // 跳过已购买的
 if (betResults.hasOwnProperty(num)) continue;
-    
 notBoughtCount++; // 这是一个未购买的已选号码 (属于 T)
-    
 if (bettingNumbers.has(num)) {
 inBettingCount++; // 在待购栏
 } else {
 missingCount++; // 不在待购栏 (漏网之鱼)
 }
 }
-
 // 重置按钮样式
 btn.className = 'batch-select-btn';
 btn.onclick = null;
-
 if (totalSelected === 0) {
 // 情况 0: 没有已选号码 -> 灰色 "无号码" (显示文字由下方统一处理，这里设默认)
 btn.classList.add('grey');
@@ -1115,7 +1101,6 @@ btn.onclick = handleBatchSelectBet;
 }
 }
 }
-
 // ================= 渲染逻辑 =================
 function renderSelectControls() {
 const headContainer = document.getElementById('head-wuxing-controls');
@@ -1448,17 +1433,30 @@ const isBought = betResults.hasOwnProperty(num);
 let className = colorClass;
 let onClick = `handleResultNumClick(${num})`;
 let styleOverride = "";
+
+// 【核心修改逻辑开始】
+// 1. 如果已购买：显示白色文字 + 彩色背景圆圈 (result-num-sold)
 if (isBought) {
 className = `result-num-sold ${colorClass}`;
 if (colorClass === 'res-red') styleOverride = "background-color: var(--res-red);";
 else if (colorClass === 'res-blue') styleOverride = "background-color: var(--res-blue);";
 else if (colorClass === 'res-green') styleOverride = "background-color: var(--res-green);";
-} else if (isBetting) {
+} 
+// 2. 如果待购买：显示继承色（即波色） + 橙色边框圆圈 (result-num-betting)
+else if (isBetting) {
 className = `result-num-betting ${colorClass}`;
 styleOverride = "";
-} else {
-className = colorClass;
+} 
+// 3. 【重点修改】如果只是普通已选（未买、未待购）：
+//    - 保持原有的波色字体颜色 (通过 className = colorClass 实现)
+//    - 不添加任何圆圈背景或边框 (不应用 result-num-sold 或 result-num-betting)
+//    - 样式完全由 CSS 中的 .res-red/.res-blue/.res-green 控制
+else {
+className = colorClass; 
+styleOverride = ""; 
 }
+// 【核心修改逻辑结束】
+
 return `<span class="${className}" onclick="${onClick}" style="${styleOverride} cursor:pointer;" title="${isBought ? '已购买 (点击取消)' : (isBetting ? '待购买' : '点击加入待买')}">${fmtNum(num)}</span>`;
 };
 if (normalOdd.length > 0) {
@@ -1612,13 +1610,14 @@ document.body.removeChild(ta);
 showToast("✅ 已复制已选号码");
 });
 }
-
-// ================= 【修改】复制买号结果逻辑 =================
+// ================= 【核心修改】买号结果复制逻辑 =================
 function copyBetResults() {
 const keys = Object.keys(betResults).map(Number);
-if (keys.length === 0) { showToast("⚠️ 无买号结果可复制"); return; }
-
-// 安全校验：如果有已选号码但未购买，则阻止复制
+if (keys.length === 0) {
+showToast("⚠️ 无买号结果可复制");
+return;
+}
+// 检查是否有已选但未买的号码
 const selectedArr = Array.from(selectedNumbers);
 if (selectedArr.length > 0) {
 const unbought = selectedArr.filter(n => !betResults.hasOwnProperty(n));
@@ -1629,30 +1628,49 @@ vibrate([30, 30, 30]);
 return;
 }
 }
-
-// 核心修改：格式化为 "新奥01.02.03..."
-// 1. 获取所有已购买号码并排序
-const sortedNums = keys.sort((a,b)=>a-b).map(fmtNum);
-// 2. 拼接字符串，前缀为 "新奥"
-const textToCopy = "新奥" + sortedNums.join('.');
-
-if (!textToCopy || textToCopy === "新奥") { showToast("无内容"); return; }
-
+let textParts = [];
+const amountGroups = {};
+// 1. 分组：将相同金额的号码归为一组
+keys.forEach(num => {
+const amt = betResults[num];
+if (!amountGroups[amt]) amountGroups[amt] = [];
+amountGroups[amt].push(num);
+});
+// 2. 格式化每一组
+// 按金额从小到大排序
+Object.keys(amountGroups).sort((a,b) => parseInt(a) - parseInt(b)).forEach(amt => {
+const nums = amountGroups[amt].sort((a,b) => a - b); // 号码从小到大
+const formattedNums = nums.map(fmtNum); // 转为 "01", "02" 格式
+if (nums.length === 1) {
+// 单个号码格式：06买5块
+textParts.push(`${formattedNums[0]}买${amt}块`);
+} else {
+// 多个号码格式：01.02.03.各1块
+textParts.push(`${formattedNums.join('.')}各${amt}块`);
+}
+});
+// 3. 拼接最终字符串，前面加 "新奥"，中间用 ", " 连接
+const finalText = "新奥" + textParts.join(', ');
+if (!finalText || finalText === "新奥") {
+showToast("无内容");
+return;
+}
 vibrate([30, 50, 30]);
-navigator.clipboard.writeText(textToCopy).then(() => {
-showToast("✅ 已复制买号结果 (新奥...)");
+// 执行复制
+navigator.clipboard.writeText(finalText).then(() => {
+showToast("✅ 已复制: " + finalText);
 addLog("system", "复制买号结果");
 }).catch(() => {
+// 降级方案
 const ta = document.createElement('textarea');
-ta.value = textToCopy;
+ta.value = finalText;
 document.body.appendChild(ta);
 ta.select();
 document.execCommand('copy');
 document.body.removeChild(ta);
-showToast("✅ 已复制买号结果 (新奥...)");
+showToast("✅ 已复制: " + finalText);
 });
 }
-
 function handleReset() {
 if(confirm("⚠️ 确定全部重置？\n这将清空所有选号、买号记录以及撤销/恢复历史，且无法恢复！")) {
 vibrate([50, 50, 50]);
