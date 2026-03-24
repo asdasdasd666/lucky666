@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>好运连连 - 间距统一版</title>
+<title>好运连连 - 连续文本流版</title>
 <meta name="theme-color" content="#D90429">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -52,7 +52,18 @@
 --bet-active-text: #c05621;
 --bet-sold-bg: #c05621;
 --bet-sold-text: #ffffff;
+
+/* 胶囊参数 */
+--badge-height: 24px;
+--badge-font-size: 0.75rem;
+--badge-padding-y: 0px;
+--badge-padding-x: 8px;
+--visual-fix-offset: 0.2px;
+
+/* 列表数字固定尺寸参数 */
+--list-num-size: 1.6em; 
 }
+
 html, body { overflow-x: hidden; width: 100%; height: 100%; }
 body {
 font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -301,44 +312,60 @@ white-space: nowrap;
 justify-content: space-between;
 flex-wrap: wrap;
 }
-.count-badge {
-background: #000000;
-color: #ffffff;
-font-weight: 900;
-padding: 2px 8px;
-border-radius: 50px;
-font-size: 0.9rem;
-box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-display: inline-block;
-min-width: 1.2em;
-text-align: center;
-line-height: 1.2;
-white-space: nowrap;
+
+/* 胶囊样式 */
+.count-badge,
+.bet-count-badge,
+.batch-select-btn,
+.small-copy-btn {
+    font-weight: 900;
+    padding: var(--badge-padding-y) var(--badge-padding-x);
+    border-radius: 50px;
+    font-size: var(--badge-font-size);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.2em;
+    text-align: center;
+    line-height: 1; 
+    white-space: nowrap;
+    height: var(--badge-height);
+    box-sizing: border-box;
+    vertical-align: middle; 
+    transform: translateY(var(--visual-fix-offset));
+    will-change: transform;
 }
+.count-badge { background: #000000; color: #ffffff; }
+.bet-count-badge { background: #000000; color: #ffffff; }
 .batch-select-btn {
-border: none;
-border-radius: 50px;
-padding: 2px 10px;
-font-size: 0.75rem;
-font-weight: 800;
-cursor: pointer;
-transition: all 0.2s;
-box-shadow: 0 2px 4px rgba(0,0,0,0.15);
-display: inline-flex;
-align-items: center;
-justify-content: center;
-white-space: nowrap;
-height: 24px;
+    background-color: #cbd5e0; 
+    color: #718096;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+    border: none;
 }
 .batch-select-btn.green { background-color: var(--res-green); color: #fff; }
 .batch-select-btn.orange { background-color: var(--action-btn-start); color: #fff; }
 .batch-select-btn.grey { background-color: #cbd5e0; color: #718096; cursor: not-allowed; box-shadow: none; }
 .batch-select-btn:active:not(.grey) { transform: translateY(1px); box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
-/* 【修改点】已选号码区域样式调整 */
+.small-copy-btn {
+    background: linear-gradient(145deg, var(--deep-blue-start), var(--deep-blue-end));
+    color: white;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    transition: all 0.1s;
+    margin-left: 4px;
+}
+.small-copy-btn:active { transform: translateY(2px); box-shadow: none; }
+
+/* 已选号码区域样式 */
 .result-text {
 font-family: "Courier New", Courier, monospace;
 font-size: 0.9rem;
-line-height: 1.25;
+line-height: 1.4;
 color: #2d3748;
 background: rgba(248, 249, 250, 0.8);
 padding: 8px;
@@ -354,18 +381,16 @@ user-select: none !important;
 cursor: default;
 display: flex;
 flex-direction: column;
-/* 【修改】纵向间距调整为与横向一致 (0.7em) */
-gap: 0.7em;
+gap: 0.8em;
 }
 .result-column {
 display: flex;
 flex-wrap: wrap;
-/* 横向间距 */
-gap: 0.7em;
-align-items: flex-start;
+gap: 0.6em;
+align-items: center;
 padding-left: 3.2rem;
 position: relative;
-min-height: 1.5em;
+min-height: 1.6em; 
 }
 .result-col-label {
 font-size: 0.75rem;
@@ -378,38 +403,65 @@ top: 0;
 width: 2.8rem;
 text-align: right;
 }
+
+/* 【核心修复】通用数字基类：强制固定尺寸，禁止任何变换 */
+.list-num-base {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: var(--list-num-size) !important;
+    height: var(--list-num-size) !important;
+    font-size: 0.9em !important; 
+    line-height: 1 !important;
+    font-weight: 900 !important;
+    cursor: pointer !important;
+    border-radius: 4px !important; 
+    
+    transform: none !important;
+    transform: scale(1) !important;
+    transition: none !important;
+    animation: none !important;
+    will-change: auto !important;
+    padding: 0 !important;
+    margin: 0 1px !important; 
+    box-sizing: border-box !important;
+    text-align: center !important;
+    vertical-align: middle !important;
+}
+
+.result-num-selected {
+    background-color: transparent !important;
+    color: inherit !important; 
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 4px !important; 
+}
+
 .result-num-betting {
-color: inherit !important;
-border: 2px solid var(--action-btn-start) !important;
-background-color: transparent !important;
-padding: 0 2px !important;
-border-radius: 50% !important;
-font-weight: 900 !important;
-cursor: pointer !important;
-display: inline-block !important;
-line-height: 1.4 !important;
-min-width: 1.2em;
-text-align: center;
+    background-color: transparent !important;
+    color: inherit !important;
+    border: 2px solid var(--action-btn-start) !important; 
+    border-radius: 50% !important; 
+    box-shadow: none !important;
+    padding: 0 !important;
+    line-height: 1 !important;
 }
+
 .result-num-sold {
-color: #ffffff !important;
-padding: 0 !important;
-border-radius: 50% !important;
-font-weight: 900 !important;
-cursor: pointer !important;
-display: inline-flex !important;
-align-items: center;
-justify-content: center;
-line-height: 1 !important;
-box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
-aspect-ratio: 1 / 1;
-min-width: 1.8em;
-height: 1.8em;
-font-size: 0.9em;
+    color: #ffffff !important;
+    border: none !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
+    border-radius: 50% !important; 
 }
-.res-red { color: var(--res-red); }
-.res-blue { color: var(--res-blue); }
-.res-green { color: var(--res-green); }
+
+.text-red { color: var(--res-red) !important; }
+.text-blue { color: var(--res-blue) !important; }
+.text-green { color: var(--res-green) !important; }
+
+.bg-red-solid { background-color: var(--res-red) !important; }
+.bg-blue-solid { background-color: var(--res-blue) !important; }
+.bg-green-solid { background-color: var(--res-green) !important; }
+
 .res-prefix { color: #4a5568; }
 .bet-action-area { margin-bottom: 8px; display: flex; flex-direction: column; gap: 6px; padding-left: 0; }
 .bet-input-row { display: flex; gap: 6px; align-items: center; width: 100%; }
@@ -454,11 +506,14 @@ box-sizing: border-box;
 margin: 0;
 }
 .bet-amount-input:focus { border-color: var(--action-btn-start); }
+
 .bet-confirm-btn {
-width: 35px;
+width: auto; 
+min-width: 80px; 
+padding: 0 16px; 
 height: 28px;
 border: none;
-border-radius: 6px;
+border-radius: 50px; 
 background: linear-gradient(145deg, var(--confirm-btn-bg), var(--confirm-btn-active));
 color: white;
 font-size: 0.85rem;
@@ -472,13 +527,13 @@ transition: all 0.1s;
 flex-shrink: 0;
 user-select: none;
 -webkit-user-select: none;
-padding: 0;
 }
 .bet-confirm-btn:active {
 transform: translateY(3px);
 box-shadow: 0 0 0 rgba(0,0,0,0.2);
 background: var(--confirm-btn-active);
 }
+
 .bet-result-container { margin-top: 8px; display: block; }
 .bet-result-header {
 font-size: 0.85rem;
@@ -493,20 +548,7 @@ padding-left: 0;
 justify-content: space-between;
 width: 100%;
 }
-.bet-count-badge {
-background: #000000;
-color: #ffffff;
-font-weight: 900;
-padding: 2px 8px;
-border-radius: 50px;
-font-size: 0.9rem;
-box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-display: inline-block;
-min-width: 1.2em;
-text-align: center;
-line-height: 1.2;
-white-space: nowrap;
-}
+
 .bet-total-amount { font-size: 0.85rem; font-weight: 800; color: #c05621; white-space: nowrap; }
 .bet-result-box {
 font-family: "Courier New", Courier, monospace;
@@ -525,27 +567,23 @@ white-space: normal;
 user-select: none !important;
 -webkit-user-select: none !important;
 cursor: default;
-display: flex;
-flex-direction: column;
-gap: 4px;
+/* 关键修改：作为文本流容器 */
+display: block; 
 }
-.bet-result-items { display: flex; flex-wrap: wrap; gap: 6px; padding-left: 0; }
-.bet-result-item {
-border-radius: 4px;
-padding: 2px 4px;
-font-family: "Courier New", Courier, monospace;
-font-size: 0.9rem;
-font-weight: 700;
-color: #2d3748;
-display: flex;
-align-items: center;
-gap: 4px;
-cursor: default;
-transition: none;
+
+/* 【修改点】移除独立条目样式，改为纯文本流 */
+.bet-result-items { 
+    display: inline; /* 关键：让内容像文字一样流动 */
+    width: 100%;
+    line-height: 1.6; /* 增加行高，防止换行时太挤 */
 }
-.bet-result-item .num-tag { font-weight: 900; }
-.bet-result-item .amt-tag { font-size: 0.8rem; color: #718096; font-weight: 600; }
-.bet-result-item.canceling { color: #c53030; }
+/* 不再需要 bet-result-item 的块级样式，因为它将被移除 */
+
+.text-red { color: var(--res-red) !important; }
+.text-blue { color: var(--res-blue) !important; }
+.text-green { color: var(--res-green) !important; }
+.amt-tag { font-size: 0.8rem; color: #718096; font-weight: 600; white-space: nowrap; margin-left: 2px; }
+
 .action-btns { display: flex; gap: 4px; margin-bottom: 8px; }
 .action-btn { flex: 1; padding: 8px; border: none; border-radius: 6px; font-size: 0.8rem; font-weight: 800; cursor: pointer; color: #fff; transition: all 0.1s; box-shadow: 0 3px 0 rgba(0,0,0,0.2); position: relative; top: 0; user-select: none; -webkit-user-select: none; }
 .action-btn:active { top: 3px; box-shadow: 0 0 0 rgba(0,0,0,0.2); }
@@ -562,20 +600,7 @@ transition: none;
 .log-container::-webkit-scrollbar { width: 4px; }
 .log-container::-webkit-scrollbar-track { background: rgba(237, 242, 247, 0.5); }
 .log-container::-webkit-scrollbar-thumb { background: #cbd5e0; }
-.small-copy-btn {
-background: linear-gradient(145deg, var(--deep-blue-start), var(--deep-blue-end));
-color: white;
-border: none;
-border-radius: 4px;
-padding: 2px 8px;
-font-size: 0.75rem;
-font-weight: 700;
-cursor: pointer;
-box-shadow: 0 2px 0 rgba(0,0,0,0.2);
-transition: all 0.1s;
-margin-left: 4px;
-}
-.small-copy-btn:active { transform: translateY(2px); box-shadow: none; }
+
 </style>
 </head>
 <body>
@@ -632,6 +657,7 @@ margin-left: 4px;
 <button class="small-copy-btn" onclick="copyBetResults()">复制</button>
 </div>
 <div class="bet-result-box" id="betResultBox" oncontextmenu="return false;" ondragstart="return false;">
+<!-- 这里将直接填充文本流，不再有子 div -->
 <div class="bet-result-items" id="betResultItems"></div>
 </div>
 </div>
@@ -646,7 +672,7 @@ margin-left: 4px;
 * Service Worker 注册
 */
 if ('serviceWorker' in navigator) {
-const CACHE_VERSION = 'v76-fix-conflict-ultimate';
+const CACHE_VERSION = 'v88-flow-text';
 const CACHE_NAME = `lucky888-${CACHE_VERSION}`;
 const swCode = `const CACHE_NAME='${CACHE_NAME}';self.addEventListener('install',e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE_NAME).then(c=>c.addAll(['./'])));});self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==CACHE_NAME).map(x=>caches.delete(x)))));self.clients.claim();});self.addEventListener('fetch',e=>{e.respondWith(fetch(e.request).catch(()=>caches.match(e.request)));});`;
 try { navigator.serviceWorker.register(URL.createObjectURL(new Blob([swCode], {type: 'application/javascript'}))).catch(console.error); } catch(e) {}
@@ -1003,16 +1029,12 @@ showToast("ℹ️ 所有号码已选完");
 return;
 }
 const allSelectedArr = Array.from(selectedNumbers);
-// 如果是橙色按钮（取消模式：取消全选 或 取消剩余全选）
 if (btn.classList.contains('orange')) {
-// 找出所有在待购栏中且属于已选号码（且未购买）的号码
-// 逻辑：已选 AND 未购买 AND 在待购栏
 const numsToRemove = allSelectedArr.filter(n => !betResults.hasOwnProperty(n) && bettingNumbers.has(n));
 if (numsToRemove.length === 0) {
 showToast("ℹ️ 待购栏中没有可取消的号码");
 return;
 }
-// 从待购栏移除
 numsToRemove.forEach(n => {
 bettingNumbers.delete(n);
 });
@@ -1022,10 +1044,7 @@ showToast(`✅ ${actionName}`);
 addLog("select", `${actionName}`);
 updateAllStates(false);
 }
-// 绿色按钮（全选模式：全选 或 剩余全选）
 else {
-// 找出所有已选、未购买、且当前不在待购栏的号码
-// 逻辑：已选 AND 未购买 AND 不在待购栏
 const numsToAdd = allSelectedArr.filter(n => !betResults.hasOwnProperty(n) && !bettingNumbers.has(n));
 if (numsToAdd.length === 0) {
 showToast("ℹ️ 这些号码已在待购或已购列表中");
@@ -1044,56 +1063,40 @@ updateAllStates(false);
 function updateBatchSelectButton() {
 const btn = document.getElementById('selectAllBetBtn');
 const totalSelected = selectedNumbers.size;
-// 【关键步骤 1】数据清洗：确保 bettingNumbers 中绝对不包含已购买的号码
 for (const num of bettingNumbers) {
 if (betResults.hasOwnProperty(num)) {
 bettingNumbers.delete(num);
 }
 }
-// 【关键步骤 2】显式查找状态
-// 定义集合：
-// A = 已选号码
-// B = 已买号码 (betResults keys)
-// C = 待购号码 (bettingNumbers)
-// 目标集合 T = A - B (已选但未买的号码)
-let notBoughtCount = 0; // T 的数量
-let missingCount = 0;   // T 中不在 C 的数量 (漏网之鱼)
-let inBettingCount = 0; // T 中在 C 的数量
+let notBoughtCount = 0; 
+let missingCount = 0;   
+let inBettingCount = 0; 
 for (const num of selectedNumbers) {
-// 跳过已购买的
 if (betResults.hasOwnProperty(num)) continue;
-notBoughtCount++; // 这是一个未购买的已选号码 (属于 T)
+notBoughtCount++; 
 if (bettingNumbers.has(num)) {
-inBettingCount++; // 在待购栏
+inBettingCount++; 
 } else {
-missingCount++; // 不在待购栏 (漏网之鱼)
+missingCount++; 
 }
 }
-// 重置按钮样式
 btn.className = 'batch-select-btn';
 btn.onclick = null;
 if (totalSelected === 0) {
-// 情况 0: 没有已选号码 -> 灰色 "无号码" (显示文字由下方统一处理，这里设默认)
 btn.classList.add('grey');
 btn.textContent = '无号码';
 btn.onclick = function() { showToast("⚠️ 暂无已选号码"); };
 } else if (notBoughtCount === 0) {
-// 情况 1: 所有已选号码都已经购买了 (T 为空) -> 灰色 "已选完"
 btn.classList.add('grey');
 btn.textContent = '已选完';
 btn.onclick = function() { showToast("ℹ️ 所有号码已选完"); };
 } else {
-// 还有未购买的号码 (T 不为空)
 if (missingCount === 0 && inBettingCount > 0) {
-// 情况 2: 所有未购买的号码都在待购栏里 (没有漏网之鱼) -> 橙色 "取消全选" / "取消剩余全选"
-// 区分文案：如果已买号码存在，说明是"剩余"场景；如果已买号码不存在，说明是"全"场景
 const hasBoughtNumbers = Object.keys(betResults).length > 0;
 btn.classList.add('orange');
 btn.textContent = hasBoughtNumbers ? '取消剩余全选' : '取消全选';
 btn.onclick = handleBatchSelectBet;
 } else {
-// 情况 3: 只要有至少一个"未购买且不在待购栏"的号码 (missingCount > 0) -> 绿色
-// 区分文案：如果已买号码存在，说明是"剩余"场景；如果已买号码不存在，说明是"全"场景
 const hasBoughtNumbers = Object.keys(betResults).length > 0;
 btn.classList.add('green');
 btn.textContent = hasBoughtNumbers ? '剩余全选' : '全选';
@@ -1348,7 +1351,7 @@ return;
 }
 const input = document.getElementById('betAmountInput');
 const amount = parseInt(input.value);
-if (isNaN(amount) || amount <= 0) { showToast("⚠️ 金额必须是大于0的整数"); vibrate(30); input.focus(); return; }
+if (isNaN(amount) || amount <= 0) { showToast("⚠️ 金额必须是大于 0 的整数"); vibrate(30); input.focus(); return; }
 const nums = Array.from(bettingNumbers).sort((a,b)=>a-b);
 const label = nums.map(fmtNum).join('.');
 recordAction('bet_confirm', label, nums, true, amount);
@@ -1359,6 +1362,8 @@ updateAllStates(false);
 showToast(`✅ 已下单：${nums.length}个号码，各${amount}块`);
 addLog("bet", `买入 ${label}. @ ${amount}块`);
 }
+
+// ================= 【核心修改】买号结果渲染逻辑 - 连续文本流版 =================
 function renderBetResults() {
 const container = document.getElementById('betResultContainer');
 const itemsDiv = document.getElementById('betResultItems');
@@ -1370,39 +1375,61 @@ const totalMoney = keys.reduce((sum, num) => sum + (betResults[num] || 0), 0);
 countBadge.textContent = totalCount + '个';
 totalAmountSpan.textContent = `共 ${totalMoney} 元`;
 container.style.display = 'block';
-itemsDiv.innerHTML = '';
+itemsDiv.innerHTML = ''; // 清空
 if (keys.length === 0) {
-itemsDiv.innerHTML = '<div style="width:100%; text-align:left; color:#a0aec0; font-size:0.8rem; padding:4px; font-family:\'Courier New\', monospace; font-weight:700;">暂无买号记录</div>';
+itemsDiv.innerHTML = '<span style="color:#a0aec0; font-size:0.8rem; font-family:\'Courier New\', monospace; font-weight:700;">暂无买号记录</span>';
 return;
 }
+
+// 1. 按金额分组
 const amountGroups = {};
 keys.forEach(num => {
 const amt = betResults[num];
 if (!amountGroups[amt]) amountGroups[amt] = [];
 amountGroups[amt].push(num);
 });
-Object.keys(amountGroups).sort((a,b)=>a-b).forEach(amt => {
-const nums = amountGroups[amt].sort((a,b)=>a-b);
-const numStrs = nums.map(fmtNum);
-const item = document.createElement('div');
-item.className = 'bet-result-item';
-let displayHtml = "";
-if (nums.length === 1) {
-const colorClass = getColorClass(nums[0]);
-displayHtml = `<span class="${colorClass}" style="font-weight:900;">${numStrs[0]}</span><span class="amt-tag">买${amt}块</span>`;
-} else {
-let numParts = [];
-nums.forEach(n => {
-const cClass = getColorClass(n);
-numParts.push(`<span class="${cClass}" style="font-weight:900;">${fmtNum(n)}</span>`);
+
+// 2. 构建连续 HTML 字符串
+let fullHtml = '';
+// 按金额从小到大排序
+const sortedAmounts = Object.keys(amountGroups).sort((a,b)=>parseInt(a)-parseInt(b));
+
+sortedAmounts.forEach((amt, index) => {
+    const nums = amountGroups[amt].sort((a,b)=>a-b);
+    
+    // 如果不是第一组，前面加一个空格分隔（可选，为了美观）
+    if (index > 0) {
+        fullHtml += '&nbsp;&nbsp;'; 
+    }
+
+    if (nums.length === 1) {
+        // 单个号码：07 买 10 块
+        const colorClass = getColorClass(nums[0]);
+        fullHtml += `<span class="${colorClass}" style="font-weight:900;">${fmtNum(nums[0])}</span><span class="amt-tag">买${amt}块</span>`;
+    } else {
+        // 多个号码：构建连续流
+        for (let i = 0; i < nums.length; i++) {
+            const n = nums[i];
+            const cClass = getColorClass(n);
+            const numSpan = `<span class="${cClass}" style="font-weight:900;">${fmtNum(n)}</span>`;
+            
+            if (i === nums.length - 1) {
+                // 最后一个数字：后面直接跟“各 X 块”，不加点号
+                fullHtml += numSpan;
+            } else {
+                // 中间的数字：后面加点号
+                fullHtml += numSpan + '<span class="amt-tag" style="color:#2d3748; margin:0 1px;">.</span>';
+            }
+        }
+        // 将“各 X 块”紧接在最后
+        fullHtml += `<span class="amt-tag">各${amt}块</span>`;
+    }
 });
-const separator = '<span class="amt-tag">.</span>';
-displayHtml = `<span>${numParts.join(separator)}</span><span class="amt-tag">各${amt}块</span>`;
+
+// 3. 一次性写入
+itemsDiv.innerHTML = fullHtml;
 }
-item.innerHTML = displayHtml;
-itemsDiv.appendChild(item);
-});
-}
+
 function updateResultText() {
 const resultDiv = document.getElementById('resultDisplay');
 const countBadge = document.getElementById('countBadge');
@@ -1426,46 +1453,44 @@ const allSelected = Array.from(selectedNumbers).sort((a, b) => a - b);
 const normalOdd = allSelected.filter(n => n % 2 !== 0);
 const normalEven = allSelected.filter(n => n % 2 === 0);
 let html = "";
+
 const createNumSpan = (num) => {
-const colorClass = getColorClass(num);
-const isBetting = bettingNumbers.has(num);
-const isBought = betResults.hasOwnProperty(num);
-let className = colorClass;
-let onClick = `handleResultNumClick(${num})`;
-let styleOverride = "";
-
-// 【核心修改逻辑开始】
-// 1. 如果已购买：显示白色文字 + 彩色背景圆圈 (result-num-sold)
-if (isBought) {
-className = `result-num-sold ${colorClass}`;
-if (colorClass === 'res-red') styleOverride = "background-color: var(--res-red);";
-else if (colorClass === 'res-blue') styleOverride = "background-color: var(--res-blue);";
-else if (colorClass === 'res-green') styleOverride = "background-color: var(--res-green);";
-} 
-// 2. 如果待购买：显示继承色（即波色） + 橙色边框圆圈 (result-num-betting)
-else if (isBetting) {
-className = `result-num-betting ${colorClass}`;
-styleOverride = "";
-} 
-// 3. 【重点修改】如果只是普通已选（未买、未待购）：
-//    - 保持原有的波色字体颜色 (通过 className = colorClass 实现)
-//    - 不添加任何圆圈背景或边框 (不应用 result-num-sold 或 result-num-betting)
-//    - 样式完全由 CSS 中的 .res-red/.res-blue/.res-green 控制
-else {
-className = colorClass; 
-styleOverride = ""; 
-}
-// 【核心修改逻辑结束】
-
-return `<span class="${className}" onclick="${onClick}" style="${styleOverride} cursor:pointer;" title="${isBought ? '已购买 (点击取消)' : (isBetting ? '待购买' : '点击加入待买')}">${fmtNum(num)}</span>`;
+    const baseColor = getColorClass(num); 
+    const isBetting = bettingNumbers.has(num);
+    const isBought = betResults.hasOwnProperty(num);
+    
+    let classes = "list-num-base";
+    
+    if (isBought) {
+        classes += " result-num-sold";
+        if (baseColor === 'res-red') classes += " bg-red-solid";
+        else if (baseColor === 'res-blue') classes += " bg-blue-solid";
+        else if (baseColor === 'res-green') classes += " bg-green-solid";
+    } else if (isBetting) {
+        classes += " result-num-betting";
+        if (baseColor === 'res-red') classes += " text-red";
+        else if (baseColor === 'res-blue') classes += " text-blue";
+        else if (baseColor === 'res-green') classes += " text-green";
+    } else {
+        classes += " result-num-selected";
+        if (baseColor === 'res-red') classes += " text-red";
+        else if (baseColor === 'res-blue') classes += " text-blue";
+        else if (baseColor === 'res-green') classes += " text-green";
+    }
+    
+    const onClick = `handleResultNumClick(${num})`;
+    const title = isBought ? '已购买 (点击取消)' : (isBetting ? '待购买' : '点击加入待买');
+    
+    return `<span class="${classes}" onclick="${onClick}" title="${title}">${fmtNum(num)}</span>`;
 };
+
 if (normalOdd.length > 0) {
-const parts = normalOdd.map(createNumSpan);
-html += `<div class="result-column"><span class="result-col-label">单号:</span> ${parts.join('')}</div>`;
+    const parts = normalOdd.map(createNumSpan);
+    html += `<div class="result-column"><span class="result-col-label">单号:</span> ${parts.join('')}</div>`;
 }
 if (normalEven.length > 0) {
-const parts = normalEven.map(createNumSpan);
-html += `<div class="result-column"><span class="result-col-label">双号:</span> ${parts.join('')}</div>`;
+    const parts = normalEven.map(createNumSpan);
+    html += `<div class="result-column"><span class="result-col-label">双号:</span> ${parts.join('')}</div>`;
 }
 if (html === "") { html = "暂无已选号码"; }
 resultDiv.innerHTML = html;
@@ -1610,14 +1635,12 @@ document.body.removeChild(ta);
 showToast("✅ 已复制已选号码");
 });
 }
-// ================= 【核心修改】买号结果复制逻辑 =================
 function copyBetResults() {
 const keys = Object.keys(betResults).map(Number);
 if (keys.length === 0) {
 showToast("⚠️ 无买号结果可复制");
 return;
 }
-// 检查是否有已选但未买的号码
 const selectedArr = Array.from(selectedNumbers);
 if (selectedArr.length > 0) {
 const unbought = selectedArr.filter(n => !betResults.hasOwnProperty(n));
@@ -1630,45 +1653,37 @@ return;
 }
 let textParts = [];
 const amountGroups = {};
-// 1. 分组：将相同金额的号码归为一组
 keys.forEach(num => {
 const amt = betResults[num];
 if (!amountGroups[amt]) amountGroups[amt] = [];
 amountGroups[amt].push(num);
 });
-// 2. 格式化每一组
-// 按金额从小到大排序
 Object.keys(amountGroups).sort((a,b) => parseInt(a) - parseInt(b)).forEach(amt => {
-const nums = amountGroups[amt].sort((a,b) => a - b); // 号码从小到大
-const formattedNums = nums.map(fmtNum); // 转为 "01", "02" 格式
+const nums = amountGroups[amt].sort((a,b) => a - b); 
+const formattedNums = nums.map(fmtNum); 
 if (nums.length === 1) {
-// 单个号码格式：06买5块
 textParts.push(`${formattedNums[0]}买${amt}块`);
 } else {
-// 多个号码格式：01.02.03.各1块
 textParts.push(`${formattedNums.join('.')}各${amt}块`);
 }
 });
-// 3. 拼接最终字符串，前面加 "新奥"，中间用 ", " 连接
 const finalText = "新奥" + textParts.join(', ');
 if (!finalText || finalText === "新奥") {
 showToast("无内容");
 return;
 }
 vibrate([30, 50, 30]);
-// 执行复制
 navigator.clipboard.writeText(finalText).then(() => {
-showToast("✅ 已复制: " + finalText);
+showToast("✅ 已复制： " + finalText);
 addLog("system", "复制买号结果");
 }).catch(() => {
-// 降级方案
 const ta = document.createElement('textarea');
 ta.value = finalText;
 document.body.appendChild(ta);
 ta.select();
 document.execCommand('copy');
 document.body.removeChild(ta);
-showToast("✅ 已复制: " + finalText);
+showToast("✅ 已复制： " + finalText);
 });
 }
 function handleReset() {
