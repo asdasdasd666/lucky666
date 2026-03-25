@@ -299,69 +299,61 @@ user-select: none;
 padding: 0 2px;
 }
 .confirm-btn:active { transform: translateY(3px); box-shadow: 0 0 0 rgba(0,0,0,0.2); }
-
-/* ================= 增强圆形统计按钮的3D凸起/凹陷效果 ================= */
-
-/* 基础样式：保持原有尺寸和圆角，增强默认凸起感 */
+/* ================= 增强圆形统计按钮的 3D 凸起/凹陷效果 (已修复圆形显示) ================= */
 .sphere-btn-base {
-    width: var(--hist-num-size);
-    height: var(--hist-num-size);
-    border-radius: 50%;
-    border: none;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.1s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.1s ease;
-    flex-shrink: 0;
-    user-select: none;
-    -webkit-user-select: none;
-    position: relative;
-    font-size: 0.75rem;
-    font-weight: 900;
-    line-height: 1;
-    text-shadow: 0 1px 1px rgba(0,0,0,0.3);
-    color: #ffffff;
-    
-    /* 默认凸起状态 */
-    box-shadow: 
-        0 4px 6px rgba(0, 0, 0, 0.25),
-        0 1px 3px rgba(0, 0, 0, 0.15),
-        inset 0 1px 2px rgba(255, 255, 255, 0.6),
-        inset 0 -2px 3px rgba(0, 0, 0, 0.1);
-    
-    transform: translateY(0);
-    -webkit-tap-highlight-color: transparent;
+width: var(--hist-num-size);
+height: var(--hist-num-size);
+/* 【关键修改】强制正圆，防止手机上被压扁 */
+border-radius: 50% !important;
+aspect-ratio: 1 !important;
+border: none;
+cursor: pointer;
+display: flex !important; /* 强制 flex 以居中对齐 */
+align-items: center;
+justify-content: center;
+transition: all 0.1s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.1s ease;
+flex-shrink: 0;
+user-select: none;
+-webkit-user-select: none;
+position: relative;
+font-size: 0.75rem;
+font-weight: 900;
+line-height: 1; /* 确保行高不干扰垂直居中 */
+text-shadow: 0 1px 1px rgba(0,0,0,0.3);
+color: #ffffff;
+/* 默认凸起状态 */
+box-shadow:
+0 4px 6px rgba(0, 0, 0, 0.25),
+0 1px 3px rgba(0, 0, 0, 0.15),
+inset 0 1px 2px rgba(255, 255, 255, 0.6),
+inset 0 -2px 3px rgba(0, 0, 0, 0.1);
+transform: translateY(0);
+-webkit-tap-highlight-color: transparent;
 }
-
 /* 按下/非激活状态：凹陷效果 */
 .sphere-btn-base.is-pressed {
-    box-shadow: 
-        inset 0 3px 6px rgba(0, 0, 0, 0.4),
-        inset 0 1px 2px rgba(0, 0, 0, 0.2);
-    
-    transform: translateY(2px) scale(0.98);
-    filter: brightness(0.9);
-    text-shadow: 0 1px 0 rgba(255,255,255,0.2);
+box-shadow:
+inset 0 3px 6px rgba(0, 0, 0, 0.4),
+inset 0 1px 2px rgba(0, 0, 0, 0.2);
+transform: translateY(2px) scale(0.98);
+filter: brightness(0.9);
+text-shadow: 0 1px 0 rgba(255,255,255,0.2);
 }
-
 /* 鼠标悬停时的微调 */
 .sphere-btn-base:not(.is-pressed):hover {
-    transform: translateY(-1px);
-    box-shadow: 
-        0 5px 8px rgba(0, 0, 0, 0.25),
-        0 2px 4px rgba(0, 0, 0, 0.15),
-        inset 0 1px 2px rgba(255, 255, 255, 0.7),
-        inset 0 -2px 3px rgba(0, 0, 0, 0.1);
+transform: translateY(-1px);
+box-shadow:
+0 5px 8px rgba(0, 0, 0, 0.25),
+0 2px 4px rgba(0, 0, 0, 0.15),
+inset 0 1px 2px rgba(255, 255, 255, 0.7),
+inset 0 -2px 3px rgba(0, 0, 0, 0.1);
 }
-
 /* 文字颜色逻辑类 */
 .sphere-btn-base.count-btn.light-text { color: #2d3748; text-shadow: 0 1px 0 rgba(255,255,255,0.6); }
 .sphere-btn-base.count-btn.dark-text { color: #ffffff; text-shadow: 0 1px 2px rgba(0,0,0,0.4); }
 .sphere-btn-base.is-pressed.light-text { text-shadow: 0 1px 0 rgba(255,255,255,0.3); }
 .sphere-btn-base.is-pressed.dark-text { text-shadow: 0 1px 1px rgba(0,0,0,0.5); }
 /* ================= 结束 ================= */
-
 .history-log-box {
 margin-top: 8px;
 background: rgba(255, 255, 255, 0.6);
@@ -435,10 +427,20 @@ font-weight: 900;
 color: #ffffff;
 text-shadow: 0 1px 2px rgba(0,0,0,0.4);
 box-shadow: 0 2px 4px rgba(0,0,0,0.2), inset 0 1px 2px rgba(255,255,255,0.3);
-cursor: default;
+cursor: pointer; /* 改为指针表示可点击 */
 user-select: none;
 vertical-align: middle;
 line-height: 1;
+/* 新增：为金色描边做准备 */
+border: 2px solid transparent;
+transition: border-color 0.2s, box-shadow 0.2s, transform 0.1s;
+}
+/* 高亮状态样式 */
+.history-num-item.highlighted {
+border-color: #FFD700 !important;
+box-shadow: 0 0 8px #FFD700, inset 0 1px 2px rgba(255,255,255,0.3) !important;
+transform: scale(1.1);
+z-index: 10;
 }
 .hist-red { background: linear-gradient(145deg, var(--active-red-start), var(--active-red-end)); }
 .hist-blue { background: linear-gradient(145deg, var(--deep-blue-start), var(--deep-blue-end)); }
@@ -763,7 +765,7 @@ line-height: 1.6;
 <div class="result-box-title">
 <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
 <span>已选号码</span>
-<span class="count-badge" id="countBadge">0个</span>
+<span class="count-badge" id="countBadge">0 个</span>
 <button id="selectAllBetBtn" class="batch-select-btn grey">全选</button>
 <button id="selectAllOddBtn" class="batch-select-btn grey">单号全选</button>
 <button id="selectAllEvenBtn" class="batch-select-btn grey">双号全选</button>
@@ -783,7 +785,7 @@ line-height: 1.6;
 <div class="bet-result-header">
 <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
 <span>买号结果</span>
-<span class="bet-count-badge" id="betCountBadge">0个</span>
+<span class="bet-count-badge" id="betCountBadge">0 个</span>
 <span class="bet-total-amount" id="betTotalAmount">共 0 元</span>
 </div>
 <button class="small-copy-btn" onclick="copyBetResults()">复制</button>
@@ -848,6 +850,9 @@ let betResults = {};
 let undoStack = [];
 let redoStack = [];
 let inputHistory = [];
+// 【新增】当前高亮的号码（用于金色描边功能）
+let highlightedNumber = null;
+
 // ================= 工具函数 =================
 function vibrate(pattern = 15) { if (navigator.vibrate) navigator.vibrate(pattern); }
 function fmtNum(n) { return n < 10 ? '0' + n : '' + n; }
@@ -1191,8 +1196,8 @@ return;
 }
 numsToRemove.forEach(n => bettingNumbers.delete(n));
 vibrate(30);
-showToast(`✅ 取消单号全选`);
-addLog("select", `取消单号全选`);
+showToast(`✅ 取消剩单`);
+addLog("select", `取消剩单`);
 } else {
 const numsToAdd = oddNums.filter(n => !betResults.hasOwnProperty(n) && !bettingNumbers.has(n));
 if (numsToAdd.length === 0) {
@@ -1201,8 +1206,8 @@ return;
 }
 numsToAdd.forEach(n => bettingNumbers.add(n));
 vibrate(30);
-showToast(`✅ 单号全选 (${numsToAdd.length}个)`);
-addLog("select", `单号全选`);
+showToast(`✅ 剩单全选 (${numsToAdd.length}个)`);
+addLog("select", `剩单全选`);
 }
 updateAllStates(false);
 }
@@ -1222,8 +1227,8 @@ return;
 }
 numsToRemove.forEach(n => bettingNumbers.delete(n));
 vibrate(30);
-showToast(`✅ 取消双号全选`);
-addLog("select", `取消双号全选`);
+showToast(`✅ 取消剩双`);
+addLog("select", `取消剩双`);
 } else {
 const numsToAdd = evenNums.filter(n => !betResults.hasOwnProperty(n) && !bettingNumbers.has(n));
 if (numsToAdd.length === 0) {
@@ -1232,8 +1237,8 @@ return;
 }
 numsToAdd.forEach(n => bettingNumbers.add(n));
 vibrate(30);
-showToast(`✅ 双号全选 (${numsToAdd.length}个)`);
-addLog("select", `双号全选`);
+showToast(`✅ 剩双全选 (${numsToAdd.length}个)`);
+addLog("select", `剩双全选`);
 }
 updateAllStates(false);
 }
@@ -1304,12 +1309,12 @@ oddBtn.onclick = function() { showToast("ℹ️ 所有单号已选完"); };
 if (oddMissing === 0 && oddInBetting > 0) {
 const hasBought = Object.keys(betResults).length > 0;
 oddBtn.classList.add('orange');
-oddBtn.textContent = hasBought ? '取消剩余单号' : '取消单号';
+oddBtn.textContent = hasBought ? '取消剩单' : '取消单号';
 oddBtn.onclick = handleBatchSelectOdd;
 } else {
 const hasBought = Object.keys(betResults).length > 0;
 oddBtn.classList.add('green');
-oddBtn.textContent = hasBought ? '剩余单号' : '单号全选';
+oddBtn.textContent = hasBought ? '剩单全选' : '单号全选';
 oddBtn.onclick = handleBatchSelectOdd;
 }
 }
@@ -1334,12 +1339,12 @@ evenBtn.onclick = function() { showToast("ℹ️ 所有双号已选完"); };
 if (evenMissing === 0 && evenInBetting > 0) {
 const hasBought = Object.keys(betResults).length > 0;
 evenBtn.classList.add('orange');
-evenBtn.textContent = hasBought ? '取消剩余双号' : '取消双号';
+evenBtn.textContent = hasBought ? '取消剩双' : '取消双号';
 evenBtn.onclick = handleBatchSelectEven;
 } else {
 const hasBought = Object.keys(betResults).length > 0;
 evenBtn.classList.add('green');
-evenBtn.textContent = hasBought ? '剩余双号' : '双号全选';
+evenBtn.textContent = hasBought ? '剩双全选' : '双号全选';
 evenBtn.onclick = handleBatchSelectEven;
 }
 }
@@ -1712,114 +1717,110 @@ if (frequency === 4) return { bg: 'linear-gradient(145deg, #F6AD55, #DD6B20)', t
 if (frequency === 5) return { bg: 'linear-gradient(145deg, #F687B3, #D53F8C)', text: '#ffffff', textClass: 'dark-text' };
 return { bg: 'linear-gradient(145deg, #7F9CF5, #4C51BF)', text: '#ffffff', textClass: 'dark-text' };
 }
-
 // 【新增】根据频率批量切换号码选中状态
 function toggleNumbersByFrequency(frequency) {
-    const freqMap = calculateNumberFrequencies();
-    const targetNumbers = [];
-    for (let i = 1; i <= 49; i++) {
-        if ((freqMap[i] || 0) === frequency) {
-            targetNumbers.push(i);
-        }
-    }
-
-    if (targetNumbers.length === 0) {
-        showToast(`ℹ️ 没有重复 ${frequency} 次的号码`);
-        return;
-    }
-
-    // 检查是否全部选中
-    const allSelected = targetNumbers.every(n => selectedNumbers.has(n));
-    
-    vibrate(30);
-
-    if (allSelected) {
-        // 执行熄灭
-        const label = `${frequency}次重复号`;
-        recordAction('batch_kill', label, targetNumbers, false);
-        
-        targetNumbers.forEach(n => {
-            selectedNumbers.delete(n);
-            manuallySelected.delete(n);
-            if (betResults[n] !== undefined) delete betResults[n];
-            bettingNumbers.delete(n);
-        });
-        
-        addLog("select", `熄灭重复${frequency}次的号码 (${targetNumbers.length}个)`);
-        showToast(`❌ 已熄灭重复${frequency}次的号码`);
-    } else {
-        // 执行点亮
-        const newNums = targetNumbers.filter(n => !selectedNumbers.has(n));
-        const label = `${frequency}次重复号`;
-        recordAction('batch_select', label, newNums.length > 0 ? newNums : targetNumbers, true);
-        
-        targetNumbers.forEach(n => {
-            selectedNumbers.add(n);
-            manuallySelected.add(n);
-        });
-        
-        addLog("select", `点亮重复${frequency}次的号码 (${targetNumbers.length}个)`);
-        showToast(`✅ 已点亮重复${frequency}次的号码`);
-    }
-
-    updateAllStates(false);
+const freqMap = calculateNumberFrequencies();
+const targetNumbers = [];
+for (let i = 1; i <= 49; i++) {
+if ((freqMap[i] || 0) === frequency) {
+targetNumbers.push(i);
 }
-
+}
+if (targetNumbers.length === 0) {
+showToast(`ℹ️ 没有重复 ${frequency} 次的号码`);
+return;
+}
+// 检查是否全部选中
+const allSelected = targetNumbers.every(n => selectedNumbers.has(n));
+vibrate(30);
+if (allSelected) {
+// 执行熄灭
+const label = `${frequency}次重复号`;
+recordAction('batch_kill', label, targetNumbers, false);
+targetNumbers.forEach(n => {
+selectedNumbers.delete(n);
+manuallySelected.delete(n);
+if (betResults[n] !== undefined) delete betResults[n];
+bettingNumbers.delete(n);
+});
+addLog("select", `熄灭重复${frequency}次的号码 (${targetNumbers.length}个)`);
+showToast(`❌ 已熄灭重复${frequency}次的号码`);
+} else {
+// 执行点亮
+const newNums = targetNumbers.filter(n => !selectedNumbers.has(n));
+const label = `${frequency}次重复号`;
+recordAction('batch_select', label, newNums.length > 0 ? newNums : targetNumbers, true);
+targetNumbers.forEach(n => {
+selectedNumbers.add(n);
+manuallySelected.add(n);
+});
+addLog("select", `点亮重复${frequency}次的号码 (${targetNumbers.length}个)`);
+showToast(`✅ 已点亮重复${frequency}次的号码`);
+}
+updateAllStates(false);
+}
 // 【修改】渲染频率统计按钮
 function renderFrequencyButtons() {
-    const container = document.getElementById('sphereBtnContainer');
-    container.innerHTML = '';
-    
-    const freqMap = calculateNumberFrequencies();
-    if (Object.keys(freqMap).length === 0) return;
+const container = document.getElementById('sphereBtnContainer');
+container.innerHTML = '';
+const freqMap = calculateNumberFrequencies();
+if (Object.keys(freqMap).length === 0) return;
+const freqCount = {};
+Object.values(freqMap).forEach(count => {
+freqCount[count] = (freqCount[count] || 0) + 1;
+});
+const sortedFreqs = Object.keys(freqCount).sort((a, b) => parseInt(a) - parseInt(b));
+sortedFreqs.forEach(countStr => {
+const count = parseInt(countStr);
+const numCount = freqCount[count];
+if (numCount > 0) {
+const btn = document.createElement('button');
+btn.className = 'sphere-btn-base count-btn';
+btn.textContent = numCount;
+const style = getFreqStyle(count);
+btn.style.background = style.bg;
+btn.style.color = style.text;
+if (style.textClass) btn.classList.add(style.textClass);
+btn.title = `重复${count}次的号码共${numCount}个 (点击切换选中状态)`;
+// 动态判断按钮状态
+const targetNums = [];
+for(let i=1; i<=49; i++) {
+if ((freqMap[i] || 0) === count) targetNums.push(i);
+}
+const allSelected = targetNums.every(n => selectedNumbers.has(n));
+// 如果全部选中 -> 凸起 (移除 is-pressed)
+// 如果有未选中 -> 凹陷 (添加 is-pressed)
+if (!allSelected) {
+btn.classList.add('is-pressed');
+} else {
+btn.classList.remove('is-pressed');
+}
+btn.onclick = function(e) {
+e.stopPropagation();
+toggleNumbersByFrequency(count);
+};
+container.appendChild(btn);
+}
+});
+}
+// 【新增】处理历史记录中单个号码球的点击事件
+function handleHistoryNumClick(num) {
+vibrate(15);
+const freqMap = calculateNumberFrequencies();
+const count = freqMap[num] || 0;
 
-    const freqCount = {};
-    Object.values(freqMap).forEach(count => {
-        freqCount[count] = (freqCount[count] || 0) + 1;
-    });
+// 如果点击的是当前已经高亮的号码，则取消高亮
+if (highlightedNumber === num) {
+highlightedNumber = null;
+showToast(`已取消号码 ${fmtNum(num)} 的高亮`);
+} else {
+// 否则高亮新号码
+highlightedNumber = num;
+showToast(`号码 ${fmtNum(num)} 重复出现了 ${count} 次`);
+}
 
-    const sortedFreqs = Object.keys(freqCount).sort((a, b) => parseInt(a) - parseInt(b));
-    
-    sortedFreqs.forEach(countStr => {
-        const count = parseInt(countStr);
-        const numCount = freqCount[count];
-        
-        if (numCount > 0) {
-            const btn = document.createElement('button');
-            btn.className = 'sphere-btn-base count-btn';
-            btn.textContent = numCount;
-            
-            const style = getFreqStyle(count);
-            btn.style.background = style.bg;
-            btn.style.color = style.text;
-            if (style.textClass) btn.classList.add(style.textClass);
-            
-            btn.title = `重复${count}次的号码共${numCount}个 (点击切换选中状态)`;
-
-            // 动态判断按钮状态
-            const targetNums = [];
-            for(let i=1; i<=49; i++) {
-                if ((freqMap[i] || 0) === count) targetNums.push(i);
-            }
-            
-            const allSelected = targetNums.every(n => selectedNumbers.has(n));
-            
-            // 如果全部选中 -> 凸起 (移除 is-pressed)
-            // 如果有未选中 -> 凹陷 (添加 is-pressed)
-            if (!allSelected) {
-                btn.classList.add('is-pressed');
-            } else {
-                btn.classList.remove('is-pressed');
-            }
-
-            btn.onclick = function(e) {
-                e.stopPropagation();
-                toggleNumbersByFrequency(count);
-            };
-
-            container.appendChild(btn);
-        }
-    });
+// 重新渲染历史记录以应用/移除金色描边
+renderHistoryLog();
 }
 
 function renderHistoryLog() {
@@ -1849,24 +1850,41 @@ invisibleZero.textContent = '0';
 labelContainer.appendChild(invisibleZero);
 }
 const labelText = document.createElement('span');
-labelText.textContent = `${count}码:`;
+// 使用存储的 labelPrefix (如 "1 肖" 或 "6 码")
+labelText.textContent = `${item.labelPrefix}:`;
 labelContainer.appendChild(labelText);
 const numsDiv = document.createElement('div');
 numsDiv.className = 'history-nums';
 item.sortedNumbers.forEach((n) => {
 const span = document.createElement('span');
 const freq = globalFreq[n] || 1;
-const style = getFreqStyle(freq);
+// 【修改】移除所有红、绿、蓝、橙、金等彩色背景，统一使用中性灰色
+// 不再调用 getFreqStyle(freq)，而是强制使用统一的灰色样式
+const neutralStyle = {
+bg: 'radial-gradient(circle at 30% 30%, #f7fafc 0%, #cbd5e0 40%, #a0aec0 100%)',
+text: '#4a5568',
+textClass: 'light-text'
+};
+
 span.className = `history-num-item`;
-span.style.background = style.bg;
-span.style.color = style.text;
-if(style.textClass === 'light-text') {
+// 检查是否应该高亮 (保留金色描边功能)
+if (highlightedNumber === n) {
+span.classList.add('highlighted');
+}
+span.style.background = neutralStyle.bg;
+span.style.color = neutralStyle.text;
+if(neutralStyle.textClass === 'light-text') {
 span.style.textShadow = '0 1px 0 rgba(255,255,255,0.5)';
 } else {
 span.style.textShadow = '0 1px 2px rgba(0,0,0,0.4)';
 }
 span.textContent = fmtNum(n);
-span.title = `出现 ${freq} 次`;
+span.title = `出现 ${freq} 次 (点击高亮)`;
+// 绑定点击事件
+span.onclick = function(e) {
+e.stopPropagation();
+handleHistoryNumClick(n);
+};
 numsDiv.appendChild(span);
 });
 row.appendChild(delBtn);
@@ -2046,12 +2064,17 @@ input.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefau
 }
 function handleConfirm() {
 const input = document.getElementById('smartInput');
-const text = input.value.trim();
+let text = input.value.trim();
 const prevText = input.value;
 if (!text) { showToast("⚠️ 请输入号码"); return; }
+
+// 【修改点 1】将所有中英文标点符号转换为空格
+// 匹配常见标点：. , ; : \ / 。 ， 、 ； ： 等
+text = text.replace(/[.,,;:;\\\/。.；：，、]/g, ' ');
+
 const digitMatches = text.match(/\d+/g);
 const zodiacMap = { "鼠":0, "牛":1, "虎":2, "兔":3, "龙":4, "蛇":5, "马":6, "羊":7, "猴":8, "鸡":9, "狗":10, "猪":11 };
-const cleanText = text.replace(/[\s,.]/g, '');
+const cleanText = text.replace(/[\s]/g, '');
 if (cleanText.length === 0) {
 showToast("⚠️ 请输入有效内容");
 return;
@@ -2081,18 +2104,31 @@ function processInputAndAddToHistory(text) {
 const digitMatches = text.match(/\d+/g);
 const validNumbers = [];
 const originalOrderNumbers = [];
+let digitCount = 0;
+
+// 处理数字
 if (digitMatches) {
 digitMatches.forEach(m => {
 let n = parseInt(m, 10);
 if (n >= 1 && n <= 49) {
 if (!validNumbers.includes(n)) validNumbers.push(n);
 originalOrderNumbers.push(n);
+digitCount++;
 }
 });
 }
+
 const zodiacMap = { "鼠":0, "牛":1, "虎":2, "兔":3, "龙":4, "蛇":5, "马":6, "羊":7, "猴":8, "鸡":9, "狗":10, "猪":11 };
+let zodiacCount = 0;
+let foundZodiacs = new Set();
+
+// 处理生肖
 for (let char of text) {
 if (zodiacMap.hasOwnProperty(char)) {
+if (!foundZodiacs.has(char)) {
+foundZodiacs.add(char);
+zodiacCount++;
+}
 const index = zodiacMap[char];
 const nums = getGroupNumbers('zodiac', index.toString());
 nums.forEach(n => {
@@ -2103,6 +2139,7 @@ originalOrderNumbers.push(n);
 });
 }
 }
+
 if (validNumbers.length > 0) {
 let changed = false;
 const newNums = [];
@@ -2112,12 +2149,25 @@ if (selectedNumbers.has(n)) { alreadySelectedNums.push(n); }
 else { selectedNumbers.add(n); manuallySelected.add(n); changed = true; newNums.push(n); }
 });
 const sortedNums = [...validNumbers].sort((a,b) => a-b);
+
+// 【修改点 2】智能生成标签前缀
+let labelPrefix = "";
+if (digitCount === 0 && zodiacCount > 0) {
+// 只有生肖，没有数字 -> 显示 "X 肖"
+labelPrefix = `${zodiacCount}肖`;
+} else {
+// 有数字，或者混合 -> 显示 "X 码" (总数)
+labelPrefix = `${validNumbers.length}码`;
+}
+
 inputHistory.push({
 id: Date.now(),
-rawText: text,
+rawText: text, // 保存原始带标点的文本用于恢复
 numbers: originalOrderNumbers,
-sortedNumbers: sortedNums
+sortedNumbers: sortedNums,
+labelPrefix: labelPrefix // 存储计算好的标签
 });
+
 if (changed) {
 if (newNums.length === 1) { recordAction('single', fmtNum(newNums[0]), newNums, true); }
 else { recordAction('batch_input', `${newNums.length}个号码`, newNums, true); }
@@ -2214,6 +2264,7 @@ betResults = {};
 undoStack = [];
 redoStack = [];
 inputHistory = [];
+highlightedNumber = null; // 重置高亮状态
 document.getElementById('smartInput').value = '';
 const logContainer = document.getElementById('logContainer');
 logContainer.innerHTML = '<div class="log-item" style="color:#718096; justify-content:center;">暂无记录</div>';
