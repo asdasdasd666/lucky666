@@ -1858,22 +1858,15 @@ numsDiv.className = 'history-nums';
 item.sortedNumbers.forEach((n) => {
 const span = document.createElement('span');
 const freq = globalFreq[n] || 1;
-// 【修改】移除所有红、绿、蓝、橙、金等彩色背景，统一使用中性灰色
-// 不再调用 getFreqStyle(freq)，而是强制使用统一的灰色样式
-const neutralStyle = {
-bg: 'radial-gradient(circle at 30% 30%, #f7fafc 0%, #cbd5e0 40%, #a0aec0 100%)',
-text: '#4a5568',
-textClass: 'light-text'
-};
-
+const style = getFreqStyle(freq);
 span.className = `history-num-item`;
-// 检查是否应该高亮 (保留金色描边功能)
+// 检查是否应该高亮
 if (highlightedNumber === n) {
 span.classList.add('highlighted');
 }
-span.style.background = neutralStyle.bg;
-span.style.color = neutralStyle.text;
-if(neutralStyle.textClass === 'light-text') {
+span.style.background = style.bg;
+span.style.color = style.text;
+if(style.textClass === 'light-text') {
 span.style.textShadow = '0 1px 0 rgba(255,255,255,0.5)';
 } else {
 span.style.textShadow = '0 1px 2px rgba(0,0,0,0.4)';
