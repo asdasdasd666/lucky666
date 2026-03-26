@@ -60,7 +60,7 @@
 --visual-fix-offset: 0.2px;
 /* 列表数字固定尺寸参数 */
 --list-num-size: 1.6em;
-/* 历史框数字球大小 */
+/* 历史框数字球大小 (也是尾数按钮和频率球的大小) */
 --hist-num-size: 1.5em;
 }
 html, body { overflow-x: hidden; width: 100%; height: 100%; }
@@ -295,114 +295,80 @@ user-select: none;
 padding: 0 2px;
 }
 .confirm-btn:active { transform: translateY(3px); box-shadow: 0 0 0 rgba(0,0,0,0.2); }
+
+/* 【重要修改】频率统计按钮 & 尾数按钮 通用样式：仿 iOS 图标质感，绝对居中 */
 .sphere-btn-base {
-width: var(--hist-num-size);
-height: var(--hist-num-size);
-border-radius: 50% !important;
-aspect-ratio: 1 !important;
-border: none;
-cursor: pointer;
-display: flex !important;
-align-items: center;
-justify-content: center;
-transition: all 0.1s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.1s ease;
-flex-shrink: 0;
-user-select: none;
--webkit-user-select: none;
-position: relative;
-font-size: 0.75rem;
-font-weight: 900;
-line-height: 1;
-text-shadow: 0 1px 1px rgba(0,0,0,0.3);
-color: #ffffff;
-box-shadow:
-0 4px 6px rgba(0, 0, 0, 0.25),
-0 1px 3px rgba(0, 0, 0, 0.15),
-inset 0 1px 2px rgba(255, 255, 255, 0.6),
-inset 0 -2px 3px rgba(0, 0, 0, 0.1);
-transform: translateY(0);
--webkit-tap-highlight-color: transparent;
-}
-.sphere-btn-base.is-pressed {
-box-shadow:
-inset 0 3px 6px rgba(0, 0, 0, 0.4),
-inset 0 1px 2px rgba(0, 0, 0, 0.2);
-transform: translateY(2px) scale(0.98);
-filter: brightness(0.9);
-text-shadow: 0 1px 0 rgba(255,255,255,0.2);
-}
-.sphere-btn-base:not(.is-pressed):hover {
-transform: translateY(-1px);
-box-shadow:
-0 5px 8px rgba(0, 0, 0, 0.25),
-0 2px 4px rgba(0, 0, 0, 0.15),
-inset 0 1px 2px rgba(255, 255, 255, 0.7),
-inset 0 -2px 3px rgba(0, 0, 0, 0.1);
-}
-.sphere-btn-base.count-btn.light-text { color: #2d3748; text-shadow: 0 1px 0 rgba(255,255,255,0.6); }
-.sphere-btn-base.count-btn.dark-text { color: #ffffff; text-shadow: 0 1px 2px rgba(0,0,0,0.4); }
-.sphere-btn-base.is-pressed.light-text { text-shadow: 0 1px 0 rgba(255,255,255,0.3); }
-.sphere-btn-base.is-pressed.dark-text { text-shadow: 0 1px 1px rgba(0,0,0,0.5); }
-
-/* 【修改】尾数按钮样式：强制文字居中 */
-.tail-select-btn {
-width: var(--list-num-size);
-height: var(--list-num-size);
-border-radius: 50% !important;
-aspect-ratio: 1 !important;
-border: 1px solid rgba(255,255,255,0.4);
-color: #ffffff;
-font-size: 0.9rem;
-font-weight: 900;
-display: flex !important;
-align-items: center !important;
-justify-content: center !important;
-text-align: center !important;
-cursor: pointer;
-transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-flex-shrink: 0;
-user-select: none;
--webkit-user-select: none;
-line-height: 1 !important;
-position: relative;
-box-shadow: 
-0 4px 6px rgba(0, 0, 0, 0.25),
-0 1px 3px rgba(0, 0, 0, 0.15),
-inset 0 1px 2px rgba(255, 255, 255, 0.4),
-inset 0 -2px 3px rgba(0, 0, 0, 0.1);
-transform: translateY(0);
-text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+    /* 强制 Flex 布局实现绝对居中 */
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    
+    /* 尺寸与形状：强制正圆，防止手机上变扁 */
+    width: var(--hist-num-size) !important;
+    height: var(--hist-num-size) !important;
+    min-width: var(--hist-num-size) !important;
+    min-height: var(--hist-num-size) !important;
+    border-radius: 50% !important;
+    aspect-ratio: 1 !important;
+    flex-shrink: 0 !important;
+    
+    /* 字体与颜色 */
+    font-size: 0.85rem !important; /* 稍微调大字体以匹配视觉重心 */
+    font-weight: 900 !important;
+    line-height: 1 !important;
+    padding: 0 !important;
+    margin: 0 2px !important;
+    border: none !important;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    position: relative;
+    
+    /* 核心质感：内发光 + 外部投影 */
+    box-shadow: 
+        inset 0 2px 4px rgba(255, 255, 255, 0.6), /* 顶部高光 */
+        inset 0 -2px 4px rgba(0, 0, 0, 0.1),      /* 底部阴影 */
+        0 4px 6px rgba(0, 0, 0, 0.15),            /* 外部投影 */
+        0 1px 3px rgba(0, 0, 0, 0.1);             /* 接触阴影 */
+    
+    transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    -webkit-tap-highlight-color: transparent;
 }
 
-/* 尾数按钮颜色状态类 */
-.tail-btn-red {
-background: linear-gradient(145deg, var(--active-red-start), var(--active-red-end)) !important;
-}
-.tail-btn-blue {
-background: linear-gradient(145deg, var(--deep-blue-start), var(--deep-blue-end)) !important;
-}
-.tail-btn-green {
-background: linear-gradient(145deg, var(--active-green-start), var(--active-green-end)) !important;
-}
-.tail-btn-gray {
-background: linear-gradient(145deg, #cbd5e0, #a0aec0) !important;
-color: #4a5568 !important;
-text-shadow: 0 1px 0 rgba(255,255,255,0.5) !important;
+/* 按下状态 (凹陷效果) */
+.sphere-btn-base.is-pressed,
+.sphere-btn-base.is-depressed {
+    box-shadow: 
+        inset 0 3px 6px rgba(0, 0, 0, 0.3),     /* 内部深阴影 */
+        inset 0 1px 2px rgba(0, 0, 0, 0.2);
+    transform: translateY(1px) scale(0.96);
+    filter: brightness(0.95);
 }
 
-/* 尾数按钮凹陷状态 (Active/Pressed) */
-.tail-select-btn.is-depressed {
-box-shadow: 
-inset 0 3px 6px rgba(0, 0, 0, 0.4),
-inset 0 1px 2px rgba(0, 0, 0, 0.2);
-transform: translateY(2px) scale(0.96);
-filter: brightness(0.85);
-border-color: rgba(0,0,0,0.2);
+/* 悬停状态（桌面端） */
+.sphere-btn-base:not(.is-pressed):not(.is-depressed):hover {
+    transform: translateY(-1px);
+    box-shadow: 
+        inset 0 2px 4px rgba(255, 255, 255, 0.7),
+        inset 0 -2px 4px rgba(0, 0, 0, 0.1),
+        0 6px 8px rgba(0, 0, 0, 0.15),
+        0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.tail-select-btn:active:not(.is-depressed) {
-transform: translateY(2px) scale(0.96);
-filter: brightness(0.9);
+/* 浅色文字专用阴影 (用于灰色背景) */
+.sphere-btn-base.count-btn.light-text,
+.tail-btn-gray { 
+    color: #4a5568 !important; 
+    text-shadow: 0 1px 0 rgba(255,255,255,0.8) !important; /* 白色描边效果 */
+}
+/* 深色文字专用阴影 (用于彩色背景) */
+.sphere-btn-base.count-btn.dark-text,
+.tail-btn-red,
+.tail-btn-blue,
+.tail-btn-green { 
+    color: #ffffff !important; 
+    text-shadow: 0 1px 2px rgba(0,0,0,0.4) !important; /* 黑色投影效果 */
 }
 
 .history-log-box {
@@ -515,11 +481,11 @@ justify-content: space-between;
 flex-wrap: wrap;
 }
 
-/* 待购区标题样式 (新增) */
+/* 【修改】待购区标题样式：颜色改为和买号结果一致 (#4a5568) */
 .bet-box-title {
 font-size: 0.85rem;
 font-weight: 800;
-color: #2c5282; /* 参照已选号码颜色 */
+color: #4a5568; /* 修改此处，与买号结果一致 */
 margin-bottom: 4px;
 display: flex;
 align-items: center;
@@ -649,7 +615,7 @@ width: 2.8rem;
 text-align: right;
 }
 
-/* 【修改】列表数字基础样式：强制居中 */
+/* 【重要修改】列表数字基础样式：强制绝对居中 */
 .list-num-base {
 display: inline-flex !important;
 align-items: center !important;
@@ -832,7 +798,7 @@ line-height: 1.6;
 .log-container::-webkit-scrollbar-track { background: rgba(237, 242, 247, 0.5); }
 .log-container::-webkit-scrollbar-thumb { background: #cbd5e0; }
 
-/* 【修改】暂存区样式：标签和按钮移到外部 */
+/* 【修改】暂存区样式：标签和按钮移到外部 (已选文本框下方) */
 .temp-storage-area {
 margin: 8px 0;
 padding: 8px;
@@ -956,24 +922,28 @@ cursor: default !important;
 </div>
 <button class="small-copy-btn" onclick="copySelectedNumbers()">复制</button>
 </div>
+
+<!-- 尾数按钮行 -->
 <div style="margin: 6px 0 8px 0; display: flex; align-items: center; gap: 6px; overflow-x: auto; padding: 2px;">
 <span class="row-label kill-label" style="font-size: 1rem;">尾</span>
 <div style="display: flex; gap: 4px; flex-shrink: 0;">
-<button class="tail-select-btn" id="tailBtn0" onclick="handleTailBetAction(0)">0</button>
-<button class="tail-select-btn" id="tailBtn1" onclick="handleTailBetAction(1)">1</button>
-<button class="tail-select-btn" id="tailBtn2" onclick="handleTailBetAction(2)">2</button>
-<button class="tail-select-btn" id="tailBtn3" onclick="handleTailBetAction(3)">3</button>
-<button class="tail-select-btn" id="tailBtn4" onclick="handleTailBetAction(4)">4</button>
-<button class="tail-select-btn" id="tailBtn5" onclick="handleTailBetAction(5)">5</button>
-<button class="tail-select-btn" id="tailBtn6" onclick="handleTailBetAction(6)">6</button>
-<button class="tail-select-btn" id="tailBtn7" onclick="handleTailBetAction(7)">7</button>
-<button class="tail-select-btn" id="tailBtn8" onclick="handleTailBetAction(8)">8</button>
-<button class="tail-select-btn" id="tailBtn9" onclick="handleTailBetAction(9)">9</button>
+<button class="sphere-btn-base tail-btn-gray" id="tailBtn0" onclick="handleTailBetAction(0)">0</button>
+<button class="sphere-btn-base tail-btn-gray" id="tailBtn1" onclick="handleTailBetAction(1)">1</button>
+<button class="sphere-btn-base tail-btn-gray" id="tailBtn2" onclick="handleTailBetAction(2)">2</button>
+<button class="sphere-btn-base tail-btn-gray" id="tailBtn3" onclick="handleTailBetAction(3)">3</button>
+<button class="sphere-btn-base tail-btn-gray" id="tailBtn4" onclick="handleTailBetAction(4)">4</button>
+<button class="sphere-btn-base tail-btn-gray" id="tailBtn5" onclick="handleTailBetAction(5)">5</button>
+<button class="sphere-btn-base tail-btn-gray" id="tailBtn6" onclick="handleTailBetAction(6)">6</button>
+<button class="sphere-btn-base tail-btn-gray" id="tailBtn7" onclick="handleTailBetAction(7)">7</button>
+<button class="sphere-btn-base tail-btn-gray" id="tailBtn8" onclick="handleTailBetAction(8)">8</button>
+<button class="sphere-btn-base tail-btn-gray" id="tailBtn9" onclick="handleTailBetAction(9)">9</button>
 </div>
 </div>
+
+<!-- 已选号码文本框 -->
 <div class="result-text" id="resultDisplay" oncontextmenu="return false;" ondragstart="return false;">暂无已选号码</div>
 
-<!-- 【修改】暂存号码区：标签和按钮移到外部 -->
+<!-- 【修改】暂存号码区：整体移动到已选号码文本框下面 -->
 <div class="temp-storage-area">
 <div class="temp-storage-header">
 <span>暂存号码</span>
@@ -986,7 +956,7 @@ cursor: default !important;
 </div>
 </div>
 
-<!-- 【新增】待购号码标签行 -->
+<!-- 【新增】待购号码标签行 (颜色已修改为 #4a5568) -->
 <div class="bet-box-title">
 <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
 <span>待购号码</span>
@@ -1699,8 +1669,11 @@ for (let t = 0; t <= 9; t++) {
 const btn = document.getElementById(`tailBtn${t}`);
 if (!btn) continue;
 const tailNumsInSelected = Array.from(selectedNumbers).filter(n => n % 10 === t);
+// 移除所有旧类
 btn.classList.remove('tail-btn-red', 'tail-btn-blue', 'tail-btn-green', 'tail-btn-gray', 'is-depressed');
+
 if (tailNumsInSelected.length === 0) {
+// 灰色态：无选中号码
 btn.classList.add('tail-btn-gray');
 btn.disabled = true;
 btn.style.opacity = '0.6';
@@ -1710,20 +1683,24 @@ continue;
 btn.disabled = false;
 btn.style.opacity = '1';
 btn.style.cursor = 'pointer';
+
 let redCount = 0, blueCount = 0, greenCount = 0;
 tailNumsInSelected.forEach(n => {
 if (redGroup.has(n)) redCount++;
 else if (blueGroup.has(n)) blueCount++;
 else if (greenGroup.has(n)) greenCount++;
 });
+
 let mainColor = 'gray';
 if (redCount >= blueCount && redCount >= greenCount && redCount > 0) mainColor = 'red';
 else if (blueCount >= redCount && blueCount >= greenCount && blueCount > 0) mainColor = 'blue';
 else if (greenCount > 0) mainColor = 'green';
+
 if (mainColor === 'red') btn.classList.add('tail-btn-red');
 else if (mainColor === 'blue') btn.classList.add('tail-btn-blue');
 else if (mainColor === 'green') btn.classList.add('tail-btn-green');
 else btn.classList.add('tail-btn-gray');
+
 const allBettingOrBought = tailNumsInSelected.every(n => betResults.hasOwnProperty(n) || bettingNumbers.has(n));
 if (allBettingOrBought) {
 btn.classList.add('is-depressed');
