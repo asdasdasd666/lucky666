@@ -83,10 +83,10 @@ user-select: none;
 position: relative;
 box-sizing: border-box;
 }
-/* 好运连连标题样式 - 龙苍体，中国红，描金边，发亮效果 */
+/* 好运连连标题样式 - 马善政手写体，中国红，描金边，发亮效果 */
 .lucky-title {
-    font-family: 'ZCOOL XiaoWei', serif;
-    font-size: 2.2rem;
+    font-family: 'Ma Shan Zheng', cursive, serif;
+    font-size: 2rem;
     font-weight: 900;
     text-align: center;
     color: #E53E3E;
@@ -96,10 +96,9 @@ box-sizing: border-box;
         0 0 6px #FFD700,
         1px 1px 0 #B8860B,
         2px 2px 0 #B8860B,
-        3px 3px 0 #B8860B,
         0 0 10px #E53E3E,
         0 0 20px #E53E3E;
-    letter-spacing: 4px;
+    letter-spacing: 2px;
     margin: 0 0 8px 0;
     padding-top: max(0px, var(--safe-area-top));
     width: 100%;
@@ -107,9 +106,9 @@ box-sizing: border-box;
     transform: translateZ(0);
 }
 @keyframes titleGlow {
-    0% { text-shadow: 0 0 2px #FFD700, 0 0 4px #FFD700, 0 0 6px #FFD700, 1px 1px 0 #B8860B, 2px 2px 0 #B8860B, 3px 3px 0 #B8860B, 0 0 10px #E53E3E, 0 0 20px #E53E3E; }
-    50% { text-shadow: 0 0 4px #FFD700, 0 0 8px #FFD700, 0 0 12px #FFD700, 1px 1px 0 #B8860B, 2px 2px 0 #B8860B, 3px 3px 0 #B8860B, 0 0 20px #E53E3E, 0 0 30px #E53E3E; }
-    100% { text-shadow: 0 0 2px #FFD700, 0 0 4px #FFD700, 0 0 6px #FFD700, 1px 1px 0 #B8860B, 2px 2px 0 #B8860B, 3px 3px 0 #B8860B, 0 0 10px #E53E3E, 0 0 20px #E53E3E; }
+    0% { text-shadow: 0 0 2px #FFD700, 0 0 4px #FFD700, 0 0 6px #FFD700, 1px 1px 0 #B8860B, 2px 2px 0 #B8860B, 0 0 10px #E53E3E, 0 0 20px #E53E3E; }
+    50% { text-shadow: 0 0 4px #FFD700, 0 0 8px #FFD700, 0 0 12px #FFD700, 1px 1px 0 #B8860B, 2px 2px 0 #B8860B, 0 0 20px #E53E3E, 0 0 30px #E53E3E; }
+    100% { text-shadow: 0 0 2px #FFD700, 0 0 4px #FFD700, 0 0 6px #FFD700, 1px 1px 0 #B8860B, 2px 2px 0 #B8860B, 0 0 10px #E53E3E, 0 0 20px #E53E3E; }
 }
 .filter-section { margin: 0 0 10px 0; width: 100%; max-width: 500px; box-sizing: border-box; position: relative; z-index: 2; display: flex; flex-direction: column; gap: 8px; }
 .control-box {
@@ -934,7 +933,7 @@ line-height: 1.6;
 </style>
 </head>
 <body>
-<!-- 好运连连标题 - 龙苍体，中国红，描金边，发亮效果，安全区域顶部间距 -->
+<!-- 好运连连标题 - 马善政手写体，中国红，描金边，发亮效果 -->
 <div class="lucky-title">好运连连</div>
 <div class="filter-section">
 <div class="control-box">
@@ -1080,20 +1079,20 @@ let tempStorageData = [];
 let isRandomRunning = false;
 let specialNumbersSet = new Set();
 
-// 12种中等饱和度颜色池（排除红色、橙色系）
+// 12种中等偏暗颜色池
 const freqColorPalette = [
-    "linear-gradient(145deg, #C4B5FD, #A78BFA)", // 紫色
-    "linear-gradient(145deg, #FBCFE8, #F9A8D4)", // 粉色
-    "linear-gradient(145deg, #99F6E4, #5EEAD4)", // 青色
-    "linear-gradient(145deg, #C7D2FE, #A5B4FC)", // 蓝紫色
-    "linear-gradient(145deg, #A7F3D0, #6EE7B7)", // 薄荷绿
-    "linear-gradient(145deg, #FEF9C3, #FDE047)", // 杏色
+    "linear-gradient(145deg, #C4B5FD, #A78BFA)", // 紫罗兰
+    "linear-gradient(145deg, #FBCFE8, #F9A8D4)", // 粉红
+    "linear-gradient(145deg, #99F6E4, #5EEAD4)", // 青绿
+    "linear-gradient(145deg, #C7D2FE, #A5B4FC)", // 蓝紫
+    "linear-gradient(145deg, #FECACA, #FCA5A5)", // 珊瑚
+    "linear-gradient(145deg, #A7F3D0, #6EE7B7)", // 薄荷
+    "linear-gradient(145deg, #FEF9C3, #FDE047)", // 杏黄
     "linear-gradient(145deg, #DDD6FE, #C4B5FD)", // 薰衣草
     "linear-gradient(145deg, #BAE6FD, #7DD3FC)", // 天蓝
+    "linear-gradient(145deg, #FFE4E6, #FECACA)", // 樱粉
     "linear-gradient(145deg, #D1FAE5, #A7F3D0)", // 草绿
-    "linear-gradient(145deg, #E0F2FE, #B9E6FE)", // 雾蓝
-    "linear-gradient(145deg, #CFFAFE, #A5F3FC)", // 淡青
-    "linear-gradient(145deg, #CCF0FF, #A5F3FC)"  // 青绿
+    "linear-gradient(145deg, #E0F2FE, #B9E6FE)"  // 淡蓝
 ];
 
 function vibrate(pattern = 15) { if (navigator.vibrate) navigator.vibrate(pattern); }
@@ -1794,7 +1793,6 @@ return '';
 function handleResultNumClick(num) {
 if (!selectedNumbers.has(num)) return;
 vibrate(10);
-// 已选号码文本框中的球：只做待购/取消待购，记录撤销操作
 if (betResults[num] !== undefined) { cancelBet(num); return; }
 const wasAdded = !bettingNumbers.has(num);
 const numStr = fmtNum(num);
@@ -2286,7 +2284,6 @@ updateAllStates();
 function toggleNumber(num) {
 const numStr = fmtNum(num);
 const isCurrentlySelected = selectedNumbers.has(num);
-// 网格球点击：如果点击的是特码，取消特码效果，但保留选中状态，记录撤销操作
 if (specialNumbersSet.has(num)) {
 const label = fmtNum(num);
 recordAction('special_remove', label, [num], false);
@@ -2351,7 +2348,7 @@ return;
 }
 }
 }
-const zodiacMap = { "鼠":0, "牛":1, "虎":2, "兔":3, "龙":4, "蛇":5, "马":6, "羊":7, "猴":8, "鸡":9, "狗":10, "猪":11 };
+const zodiacMap = { "鼠":0, "牛":1, "虎":2, "兔":3, "龙":4, "蛇":5, "马":6, "羊":7, "猴":8, "鸡":9, "狗":10, "猪":11, "免":3 };
 const cleanText = text.replace(/[\s]/g, '');
 if (cleanText.length === 0) {
 showToast("⚠️ 输入包含无效字符，仅支持数字和生肖");
@@ -2396,7 +2393,7 @@ digitCount++;
 }
 });
 }
-const zodiacMap = { "鼠":0, "牛":1, "虎":2, "兔":3, "龙":4, "蛇":5, "马":6, "羊":7, "猴":8, "鸡":9, "狗":10, "猪":11 };
+const zodiacMap = { "鼠":0, "牛":1, "虎":2, "兔":3, "龙":4, "蛇":5, "马":6, "羊":7, "猴":8, "鸡":9, "狗":10, "猪":11, "免":3 };
 let zodiacCount = 0;
 let foundZodiacs = new Set();
 for (let char of text) {
@@ -2712,7 +2709,6 @@ highlightedNumber = null;
 tempStorageData = [];
 specialNumbersSet.clear();
 document.getElementById('smartInput').value = '';
-// 重置时移除所有特码特效
 document.querySelectorAll('.num-btn.is-special').forEach(btn => {
 btn.classList.remove('is-special');
 });
