@@ -86,7 +86,7 @@ box-sizing: border-box;
 /* 好运连连标题样式 - 马善政手写体，中国红，描金边，发亮效果 */
 .lucky-title {
     font-family: 'Ma Shan Zheng', cursive, serif;
-    font-size: 2rem;
+    font-size: 2.5rem;
     font-weight: 900;
     text-align: center;
     color: #E53E3E;
@@ -100,7 +100,7 @@ box-sizing: border-box;
         0 0 20px #E53E3E;
     letter-spacing: 2px;
     margin: 0 0 8px 0;
-    padding-top: max(0px, var(--safe-area-top));
+    padding-top: 0;
     width: 100%;
     animation: titleGlow 1.5s ease-in-out infinite;
     transform: translateZ(0);
@@ -575,8 +575,6 @@ white-space: nowrap;
 height: var(--badge-height);
 box-sizing: border-box;
 vertical-align: middle;
-transform: translateY(var(--visual-fix-offset));
-will-change: transform;
 cursor: pointer;
 border: none;
 }
@@ -1079,20 +1077,20 @@ let tempStorageData = [];
 let isRandomRunning = false;
 let specialNumbersSet = new Set();
 
-// 12种中等偏暗颜色池
+// 12种暗色系颜色池
 const freqColorPalette = [
-    "linear-gradient(145deg, #C4B5FD, #A78BFA)", // 紫罗兰
-    "linear-gradient(145deg, #FBCFE8, #F9A8D4)", // 粉红
-    "linear-gradient(145deg, #99F6E4, #5EEAD4)", // 青绿
-    "linear-gradient(145deg, #C7D2FE, #A5B4FC)", // 蓝紫
-    "linear-gradient(145deg, #FECACA, #FCA5A5)", // 珊瑚
-    "linear-gradient(145deg, #A7F3D0, #6EE7B7)", // 薄荷
-    "linear-gradient(145deg, #FEF9C3, #FDE047)", // 杏黄
-    "linear-gradient(145deg, #DDD6FE, #C4B5FD)", // 薰衣草
-    "linear-gradient(145deg, #BAE6FD, #7DD3FC)", // 天蓝
-    "linear-gradient(145deg, #FFE4E6, #FECACA)", // 樱粉
-    "linear-gradient(145deg, #D1FAE5, #A7F3D0)", // 草绿
-    "linear-gradient(145deg, #E0F2FE, #B9E6FE)"  // 淡蓝
+    "linear-gradient(145deg, #A78BFA, #8B5CF6)", // 暗紫色
+    "linear-gradient(145deg, #F9A8D4, #EC489A)", // 暗粉色
+    "linear-gradient(145deg, #5EEAD4, #14B8A6)", // 暗青色
+    "linear-gradient(145deg, #A5B4FC, #818CF8)", // 暗蓝紫色
+    "linear-gradient(145deg, #FCA5A5, #EF4444)", // 暗珊瑚色
+    "linear-gradient(145deg, #6EE7B7, #10B981)", // 暗薄荷绿
+    "linear-gradient(145deg, #FDE047, #EAB308)", // 暗杏色
+    "linear-gradient(145deg, #C4B5FD, #A855F7)", // 暗薰衣草
+    "linear-gradient(145deg, #7DD3FC, #38BDF8)", // 暗天蓝
+    "linear-gradient(145deg, #FECACA, #F87171)", // 暗樱色
+    "linear-gradient(145deg, #A7F3D0, #2DD4BF)", // 暗草绿
+    "linear-gradient(145deg, #B9E6FE, #3B82F6)"  // 暗雾蓝
 ];
 
 function vibrate(pattern = 15) { if (navigator.vibrate) navigator.vibrate(pattern); }
@@ -1293,6 +1291,22 @@ if (btn) btn.classList.add('is-special');
 showToast(`已恢复特码 ${lastAction.label}`);
 addLog("undo", `恢复特码 ${lastAction.label}`);
 updateAllStates(false);
+} else if (lastAction.type === 'betting_add') {
+// 撤销加入待购
+lastAction.numbers.forEach(n => {
+bettingNumbers.delete(n);
+});
+showToast(`已撤销加入待购 ${lastAction.label}`);
+addLog("undo", `撤销加入待购 ${lastAction.label}`);
+updateAllStates(false);
+} else if (lastAction.type === 'betting_remove') {
+// 撤销取消待购
+lastAction.numbers.forEach(n => {
+bettingNumbers.add(n);
+});
+showToast(`已恢复待购 ${lastAction.label}`);
+addLog("undo", `恢复待购 ${lastAction.label}`);
+updateAllStates(false);
 } else {
 if (lastAction.wasAdded) {
 lastAction.numbers.forEach(n => { selectedNumbers.delete(n); manuallySelected.delete(n); if(betResults[n] !== undefined) delete betResults[n]; bettingNumbers.delete(n); });
@@ -1395,6 +1409,20 @@ if (btn) btn.classList.remove('is-special');
 });
 showToast(`已重做取消特码 ${lastUndo.label}`);
 addLog("redo", `重做取消特码 ${lastUndo.label}`);
+updateAllStates(false);
+} else if (lastUndo.type === 'betting_add') {
+lastUndo.numbers.forEach(n => {
+bettingNumbers.add(n);
+});
+showToast(`已重做加入待购 ${lastUndo.label}`);
+addLog("redo", `重做加入待购 ${lastUndo.label}`);
+updateAllStates(false);
+} else if (lastUndo.type === 'betting_remove') {
+lastUndo.numbers.forEach(n => {
+bettingNumbers.delete(n);
+});
+showToast(`已重做取消待购 ${lastUndo.label}`);
+addLog("redo", `重做取消待购 ${lastUndo.label}`);
 updateAllStates(false);
 } else {
 if (lastUndo.wasAdded) {
@@ -1798,12 +1826,12 @@ const wasAdded = !bettingNumbers.has(num);
 const numStr = fmtNum(num);
 if (wasAdded) {
 bettingNumbers.add(num);
-recordAction('single', numStr, [num], true);
+recordAction('betting_add', numStr, [num], true);
 addLog("select", `加入待购 ${numStr}`);
 showToast(`📦 已加入待购：${numStr}`);
 } else {
 bettingNumbers.delete(num);
-recordAction('single', numStr, [num], false);
+recordAction('betting_remove', numStr, [num], false);
 addLog("select", `取消待购 ${numStr}`);
 showToast(`🗑️ 已取消待购：${numStr}`);
 }
@@ -2176,12 +2204,8 @@ const baseColor = getColorClass(num);
 const isBetting = bettingNumbers.has(num);
 const isBought = betResults.hasOwnProperty(num);
 let classes = "list-num-base";
-if (isSpecial) {
-classes += " result-num-selected";
-if (baseColor === 'res-red') classes += " text-red";
-else if (baseColor === 'res-blue') classes += " text-blue";
-else if (baseColor === 'res-green') classes += " text-green";
-} else if (isBought) {
+// 已选号码文本框中的数字：不显示特码特效，只显示普通颜色和待购边框
+if (isBought) {
 classes += " result-num-sold";
 if (baseColor === 'res-red') classes += " bg-red-solid";
 else if (baseColor === 'res-blue') classes += " bg-blue-solid";
@@ -2198,7 +2222,7 @@ else if (baseColor === 'res-blue') classes += " text-blue";
 else if (baseColor === 'res-green') classes += " text-green";
 }
 const onClick = `handleResultNumClick(${num})`;
-const title = isSpecial ? '特码 (点击取消特码效果)' : (isBought ? '已购买 (点击取消)' : (isBetting ? '待购买' : '点击加入待买'));
+const title = isBought ? '已购买 (点击取消)' : (isBetting ? '待购买' : '点击加入待买');
 return `<span class="${classes}" onclick="${onClick}" title="${title}">${fmtNum(num)}</span>`;
 };
 if (normalOdd.length > 0) {
