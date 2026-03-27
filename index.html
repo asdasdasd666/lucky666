@@ -4,8 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>好运连连 - 多彩频率版</title>
+<meta name="theme-color" content="#eef2f5">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="description" content="好运连连 - 智能选号">
 <meta name="apple-mobile-web-app-title" content="好运连连">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -56,7 +57,6 @@
 --badge-font-size: 0.75rem;
 --badge-padding-y: 0px;
 --badge-padding-x: 8px;
---visual-fix-offset: 0.2px;
 /* 列表数字固定尺寸参数 */
 --list-num-size: 1.6em;
 /* 历史框数字球大小 (也是尾数按钮和频率球的大小) */
@@ -86,7 +86,7 @@ box-sizing: border-box;
 /* 好运连连标题样式 - 马善政手写体，中国红，描金边，发亮效果 */
 .lucky-title {
     font-family: 'Ma Shan Zheng', cursive, serif;
-    font-size: 2.5rem;
+    font-size: 3rem;
     font-weight: 900;
     text-align: center;
     color: #E53E3E;
@@ -1047,7 +1047,7 @@ const manifestData = {
 "start_url":".",
 "display":"standalone",
 "background_color":"#eef2f5",
-"theme_color":"#D90429",
+"theme_color":"#eef2f5",
 "orientation":"portrait",
 "icons":[
 {"src": iconUrl,"sizes":"192x192","type":"image/svg+xml"},
@@ -1073,7 +1073,7 @@ let undoStack = [];
 let redoStack = [];
 let inputHistory = [];
 let highlightedNumber = null;
-let tempStorageData = [];
+let tempStorageData = []; // 存储 { num, isSpecial }
 let isRandomRunning = false;
 let specialNumbersSet = new Set();
 
@@ -1148,6 +1148,14 @@ if(Array.isArray(d.undo)) undoStack = d.undo;
 if(Array.isArray(d.redo)) redoStack = d.redo;
 inputHistory = d.history || [];
 specialNumbersSet = new Set(d.specialSet || []);
+if(Array.isArray(d.tempData)) {
+tempStorageData = d.tempData;
+}
+renderTempStorage();
+updateTempCountBadge();
+updateTempStoreBtn();
+updateTempRestoreBtn();
+updateTempClearBtn();
 save_data();
 return;
 } catch(e){}
@@ -1164,13 +1172,13 @@ if(Array.isArray(d.redo)) redoStack = d.redo;
 if(Array.isArray(d.history)) inputHistory = d.history;
 if(Array.isArray(d.tempData)) {
 tempStorageData = d.tempData;
+}
+specialNumbersSet = new Set(d.specialSet || []);
 renderTempStorage();
 updateTempCountBadge();
 updateTempStoreBtn();
 updateTempRestoreBtn();
 updateTempClearBtn();
-}
-specialNumbersSet = new Set(d.specialSet || []);
 } catch(e) {
 betResults = {}; undoStack = []; redoStack = []; inputHistory = []; tempStorageData = []; specialNumbersSet = new Set();
 }
@@ -1292,7 +1300,6 @@ showToast(`已恢复特码 ${lastAction.label}`);
 addLog("undo", `恢复特码 ${lastAction.label}`);
 updateAllStates(false);
 } else if (lastAction.type === 'betting_add') {
-// 撤销加入待购
 lastAction.numbers.forEach(n => {
 bettingNumbers.delete(n);
 });
@@ -1300,7 +1307,6 @@ showToast(`已撤销加入待购 ${lastAction.label}`);
 addLog("undo", `撤销加入待购 ${lastAction.label}`);
 updateAllStates(false);
 } else if (lastAction.type === 'betting_remove') {
-// 撤销取消待购
 lastAction.numbers.forEach(n => {
 bettingNumbers.add(n);
 });
@@ -2204,7 +2210,6 @@ const baseColor = getColorClass(num);
 const isBetting = bettingNumbers.has(num);
 const isBought = betResults.hasOwnProperty(num);
 let classes = "list-num-base";
-// 已选号码文本框中的数字：不显示特码特效，只显示普通颜色和待购边框
 if (isBought) {
 classes += " result-num-sold";
 if (baseColor === 'res-red') classes += " bg-red-solid";
@@ -2580,7 +2585,10 @@ return;
 if (!confirm(`是否添加 ${newNums.length} 个新号码到暂存区？`)) return;
 const prevTempData = [...tempStorageData];
 newNums.forEach(n => {
-tempStorageData.push({ num: n });
+tempStorageData.push({ 
+    num: n, 
+    isSpecial: specialNumbersSet.has(n)
+});
 });
 tempStorageData.sort((a, b) => a.num - b.num);
 recordAction('temp_store', '暂存号码', [], true, 0, {
@@ -2606,12 +2614,25 @@ const currentTempData = [...tempStorageData];
 const restoredNums = [];
 const alreadySelectedHas = [];
 currentTempData.forEach(item => {
-if (selectedNumbers.has(item.num)) {
-alreadySelectedHas.push(item.num);
+const n = item.num;
+if (selectedNumbers.has(n)) {
+alreadySelectedHas.push(n);
 } else {
-selectedNumbers.add(item.num);
-manuallySelected.add(item.num);
-restoredNums.push(item.num);
+selectedNumbers.add(n);
+manuallySelected.add(n);
+restoredNums.push(n);
+}
+// 恢复特码状态
+if (item.isSpecial) {
+specialNumbersSet.add(n);
+const btn = document.querySelector(`.num-btn[data-num="${n}"]`);
+if (btn) btn.classList.add('is-special');
+} else {
+if (specialNumbersSet.has(n)) {
+specialNumbersSet.delete(n);
+const btn = document.querySelector(`.num-btn[data-num="${n}"]`);
+if (btn) btn.classList.remove('is-special');
+}
 }
 });
 recordAction('temp_restore', '恢复号码', restoredNums, true, 0, {
