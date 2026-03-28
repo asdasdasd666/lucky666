@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>好运连连 - 多彩频率版</title>
+<!-- 状态栏背景色为浅色，让时间电量显示为黑色 -->
 <meta name="theme-color" content="#eef2f5">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -86,7 +87,7 @@ box-sizing: border-box;
 /* 好运连连标题样式 - 马善政手写体，中国红，描金边，发亮效果 */
 .lucky-title {
     font-family: 'Ma Shan Zheng', cursive, serif;
-    font-size: 3rem;
+    font-size: 2.5rem;
     font-weight: 900;
     text-align: center;
     color: #E53E3E;
@@ -1073,7 +1074,7 @@ let undoStack = [];
 let redoStack = [];
 let inputHistory = [];
 let highlightedNumber = null;
-let tempStorageData = []; // 存储 { num, isSpecial }
+let tempStorageData = []; // 存储 { num, isSpecial, isBetting }
 let isRandomRunning = false;
 let specialNumbersSet = new Set();
 
@@ -2587,7 +2588,8 @@ const prevTempData = [...tempStorageData];
 newNums.forEach(n => {
 tempStorageData.push({ 
     num: n, 
-    isSpecial: specialNumbersSet.has(n)
+    isSpecial: specialNumbersSet.has(n),
+    isBetting: bettingNumbers.has(n)
 });
 });
 tempStorageData.sort((a, b) => a.num - b.num);
@@ -2622,7 +2624,6 @@ selectedNumbers.add(n);
 manuallySelected.add(n);
 restoredNums.push(n);
 }
-// 恢复特码状态
 if (item.isSpecial) {
 specialNumbersSet.add(n);
 const btn = document.querySelector(`.num-btn[data-num="${n}"]`);
@@ -2633,6 +2634,11 @@ specialNumbersSet.delete(n);
 const btn = document.querySelector(`.num-btn[data-num="${n}"]`);
 if (btn) btn.classList.remove('is-special');
 }
+}
+if (item.isBetting) {
+if (!bettingNumbers.has(n)) bettingNumbers.add(n);
+} else {
+if (bettingNumbers.has(n)) bettingNumbers.delete(n);
 }
 });
 recordAction('temp_restore', '恢复号码', restoredNums, true, 0, {
