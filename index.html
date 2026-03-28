@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>好运连连 - 多彩频率版</title>
-<!-- 状态栏背景色为浅色，让时间电量显示为黑色 -->
-<meta name="theme-color" content="#eef2f5">
+<!-- APP背景色改为中国红 -->
+<meta name="theme-color" content="#D90429">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="description" content="好运连连 - 智能选号">
@@ -87,7 +87,7 @@ box-sizing: border-box;
 /* 好运连连标题样式 - 马善政手写体，中国红，描金边，发亮效果 */
 .lucky-title {
     font-family: 'Ma Shan Zheng', cursive, serif;
-    font-size: 2.5rem;
+    font-size: 3.5rem;
     font-weight: 900;
     text-align: center;
     color: #E53E3E;
@@ -1039,7 +1039,7 @@ function generateIconSvg(text) {
 const svgContent = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="#D90429"/><text x="50" y="68" font-family="'ZCOOL XiaoWei', serif" font-size="56" font-weight="900" fill="white" text-anchor="middle" style="filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.4));">${text}</text></svg>`;
 return 'data:image/svg+xml,' + encodeURIComponent(svgContent);
 }
-const iconUrl = generateIconSvg("");
+const iconUrl = generateIconSvg("中");
 document.getElementById('dynamic-favicon').setAttribute('href', iconUrl);
 document.getElementById('dynamic-app-icon').setAttribute('href', iconUrl);
 const manifestData = {
@@ -1048,7 +1048,7 @@ const manifestData = {
 "start_url":".",
 "display":"standalone",
 "background_color":"#eef2f5",
-"theme_color":"#eef2f5",
+"theme_color":"#D90429",
 "orientation":"portrait",
 "icons":[
 {"src": iconUrl,"sizes":"192x192","type":"image/svg+xml"},
