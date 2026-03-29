@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>好运连连 - 多彩频率版</title>
-<!-- APP背景色改为中国红 -->
 <meta name="theme-color" content="#D90429">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -84,40 +83,13 @@ user-select: none;
 position: relative;
 box-sizing: border-box;
 }
-/* 好运连连标题样式 - 马善政手写体，中国红，描金边，发亮效果 */
-.lucky-title {
-    font-family: 'Ma Shan Zheng', cursive, serif;
-    font-size: 3.5rem;
-    font-weight: 900;
-    text-align: center;
-    color: #E53E3E;
-    text-shadow: 
-        0 0 2px #FFD700,
-        0 0 4px #FFD700,
-        0 0 6px #FFD700,
-        1px 1px 0 #B8860B,
-        2px 2px 0 #B8860B,
-        0 0 10px #E53E3E,
-        0 0 20px #E53E3E;
-    letter-spacing: 2px;
-    margin: 0 0 8px 0;
-    padding-top: 0;
-    width: 100%;
-    animation: titleGlow 1.5s ease-in-out infinite;
-    transform: translateZ(0);
-}
-@keyframes titleGlow {
-    0% { text-shadow: 0 0 2px #FFD700, 0 0 4px #FFD700, 0 0 6px #FFD700, 1px 1px 0 #B8860B, 2px 2px 0 #B8860B, 0 0 10px #E53E3E, 0 0 20px #E53E3E; }
-    50% { text-shadow: 0 0 4px #FFD700, 0 0 8px #FFD700, 0 0 12px #FFD700, 1px 1px 0 #B8860B, 2px 2px 0 #B8860B, 0 0 20px #E53E3E, 0 0 30px #E53E3E; }
-    100% { text-shadow: 0 0 2px #FFD700, 0 0 4px #FFD700, 0 0 6px #FFD700, 1px 1px 0 #B8860B, 2px 2px 0 #B8860B, 0 0 10px #E53E3E, 0 0 20px #E53E3E; }
-}
 .filter-section { margin: 0 0 10px 0; width: 100%; max-width: 500px; box-sizing: border-box; position: relative; z-index: 2; display: flex; flex-direction: column; gap: 8px; }
 .control-box {
 background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
 border: 1px solid rgba(255,255,255,0.9); border-radius: 12px; padding: 8px 10px;
 box-shadow: 0 4px 15px rgba(0,0,0,0.05); position: relative;
 }
-.box-header { font-family: var(--font-art-mao); font-size: var(--header-font-size); text-align: center; margin-bottom: 6px; font-weight: bold; letter-spacing: 2px; }
+.box-header { font-family: var(--font-art-mao); font-size: 1.8rem; text-align: center; margin-bottom: 6px; font-weight: bold; letter-spacing: 2px; }
 .box-header.select-mode { color: var(--label-select-color); text-shadow: var(--label-select-glow); }
 .box-header.kill-mode { color: var(--label-kill-color); text-shadow: var(--label-kill-glow); }
 .control-row { display: flex; gap: var(--btn-gap); overflow-x: auto; -webkit-overflow-scrolling: touch; padding: 2px; scrollbar-width: none; justify-content: flex-start; flex-wrap: nowrap; margin-bottom: 2px; align-items: center; }
@@ -244,7 +216,7 @@ font-size: 0.65rem; line-height: 1.1;
 .bg-blue.is-active { background: linear-gradient(145deg, var(--deep-blue-start), var(--deep-blue-end)); color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.3); }
 .bg-red.is-active { background: linear-gradient(145deg, var(--active-red-start), var(--active-red-end)); color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.3); }
 .bg-green.is-active { background: linear-gradient(145deg, var(--active-green-start), var(--active-green-end)); color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.3); }
-.action-grid-btn { filter: grayscale(0%) brightness(1.0); opacity: 1; z-index: 10; box-shadow: 0 3px 5px rgba(0,0,0,0.2), inset 0 -2px 4px rgba(0,0,0,0.1); flex-direction: column; transform: scale(1); animation: none; border-radius: 8px; aspect-ratio: auto; height: 100%; min-height: 32px; font-size: 0.75rem; line-height: 1.1; grid-column: span 2; font-weight: 900; }
+.action-grid-btn { filter: grayscale(0%) brightness(1.0); opacity: 1; z-index: 10; box-shadow: 0 3px 5px rgba(0,0,0,0.2), inset 0 -2px 4px rgba(0,0,0,0.1); flex-direction: column; transform: scale(1); animation: none; border-radius: 8px; aspect-ratio: auto; height: 100%; min-height: 32px; font-size: 0.75rem; line-height: 1; grid-column: span 2; font-weight: 900; display: flex; align-items: center; justify-content: center; }
 .action-grid-btn:active { transform: scale(0.95); box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
 .btn-text { display: block; margin-top: 2px; opacity: 1; font-weight: 900; text-shadow: 0 1px 1px rgba(0,0,0,0.2); }
 @keyframes pulse-glow { 0% { filter: grayscale(0%) brightness(1.1); } 50% { filter: grayscale(0%) brightness(1.2); } 100% { filter: grayscale(0%) brightness(1.1); } }
@@ -354,7 +326,7 @@ padding: 0 2px;
     border: 1px solid rgba(255,255,255,0.5) !important;
 }
 .tail-silver-btn.is-depressed {
-    background: radial-gradient(circle at 35% 35%, #c0c8d5, #9098a5) !important;
+    background: radial-gradient(circle at 35% 35%, #d0d8e5, #a0a8b5) !important;
 }
 .tail-btn-empty {
     background: transparent !important;
@@ -578,6 +550,7 @@ box-sizing: border-box;
 vertical-align: middle;
 cursor: pointer;
 border: none;
+margin: 0;
 }
 .count-badge { background: #000000; color: #ffffff; }
 .bet-count-badge { background: #000000; color: #ffffff; }
@@ -592,7 +565,7 @@ box-shadow: 0 2px 4px rgba(0,0,0,0.15);
 .batch-select-btn.grey { background-color: #cbd5e0; color: #718096; cursor: not-allowed; box-shadow: none; }
 .batch-select-btn:active:not(.grey) { transform: translateY(1px); box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
 .temp-action-btn {
-margin-left: 6px;
+/* 移除 margin-left: 6px，统一由父容器 gap 控制间距 */
 transition: all 0.2s;
 }
 .temp-action-btn.green {
@@ -932,8 +905,6 @@ line-height: 1.6;
 </style>
 </head>
 <body>
-<!-- 好运连连标题 - 马善政手写体，中国红，描金边，发亮效果 -->
-<div class="lucky-title">好运连连</div>
 <div class="filter-section">
 <div class="control-box">
 <div class="box-header select-mode">选号</div>
@@ -1039,7 +1010,7 @@ function generateIconSvg(text) {
 const svgContent = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="#D90429"/><text x="50" y="68" font-family="'ZCOOL XiaoWei', serif" font-size="56" font-weight="900" fill="white" text-anchor="middle" style="filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.4));">${text}</text></svg>`;
 return 'data:image/svg+xml,' + encodeURIComponent(svgContent);
 }
-const iconUrl = generateIconSvg("中");
+const iconUrl = generateIconSvg("");
 document.getElementById('dynamic-favicon').setAttribute('href', iconUrl);
 document.getElementById('dynamic-app-icon').setAttribute('href', iconUrl);
 const manifestData = {
@@ -1074,7 +1045,7 @@ let undoStack = [];
 let redoStack = [];
 let inputHistory = [];
 let highlightedNumber = null;
-let tempStorageData = []; // 存储 { num, isSpecial, isBetting }
+let tempStorageData = [];
 let isRandomRunning = false;
 let specialNumbersSet = new Set();
 
