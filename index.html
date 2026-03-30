@@ -487,24 +487,17 @@ line-height: 1;
 border: 2px solid transparent;
 transition: border-color 0.2s, box-shadow 0.2s;
 }
+.history-num-item.highlighted {
+    border: 2px solid #FFD700;
+    box-shadow: 0 0 8px #FFD700, 0 2px 4px rgba(0,0,0,0.2), inset 0 1px 2px rgba(255,255,255,0.3);
+}
 .history-num-item.flat {
     filter: grayscale(0.6) brightness(0.85);
     box-shadow: none;
     transform: scale(0.95);
     transition: all 0.2s ease;
-    opacity: 0.8;
-}
-.history-num-item.highlighted {
-    border-color: #FFD700 !important;
-    box-shadow: 0 0 12px #FFD700, 0 0 6px rgba(255, 215, 0, 0.8), inset 0 1px 2px rgba(255,255,255,0.3) !important;
-    z-index: 10;
-}
-.history-num-item.flat.highlighted {
-    filter: grayscale(0.6) brightness(0.85);
-    box-shadow: 0 0 12px #FFD700, 0 0 6px rgba(255, 215, 0, 0.8) !important;
-    transform: scale(0.95);
-    opacity: 0.8;
-    border-color: #FFD700 !important;
+    opacity: 0.5;
+    border: 2px solid transparent;
 }
 .hist-red { background: linear-gradient(145deg, var(--active-red-start), var(--active-red-end)); }
 .hist-blue { background: linear-gradient(145deg, var(--deep-blue-start), var(--deep-blue-end)); }
@@ -1059,15 +1052,11 @@ const ZODIAC_MAP = { "鼠":0, "牛":1, "虎":2, "兔":3, "龙":4, "蛇":5, "马"
 
 const freqColorPalette = [
     "linear-gradient(145deg, #A78BFA, #8B5CF6)",
-    "linear-gradient(145deg, #F9A8D4, #EC489A)",
     "linear-gradient(145deg, #5EEAD4, #14B8A6)",
     "linear-gradient(145deg, #A5B4FC, #818CF8)",
-    "linear-gradient(145deg, #FCA5A5, #EF4444)",
     "linear-gradient(145deg, #6EE7B7, #10B981)",
-    "linear-gradient(145deg, #FDE047, #EAB308)",
     "linear-gradient(145deg, #C4B5FD, #A855F7)",
     "linear-gradient(145deg, #7DD3FC, #38BDF8)",
-    "linear-gradient(145deg, #FECACA, #F87171)",
     "linear-gradient(145deg, #A7F3D0, #2DD4BF)",
     "linear-gradient(145deg, #B9E6FE, #3B82F6)"
 ];
@@ -2038,8 +2027,12 @@ function getFreqStyle(frequency) {
 if (frequency === 1) {
 return { bg: 'radial-gradient(circle at 30% 30%, #f7fafc 0%, #cbd5e0 40%, #a0aec0 100%)', text: '#4a5568', textClass: 'light-text' };
 }
-const randomIndex = (frequency * 13) % freqColorPalette.length;
-return { bg: freqColorPalette[randomIndex], text: '#ffffff', textClass: 'dark-text' };
+if (!window._freqColorCache) window._freqColorCache = new Map();
+if (!window._freqColorCache.has(frequency)) {
+const randomIndex = Math.floor(Math.random() * freqColorPalette.length);
+window._freqColorCache.set(frequency, freqColorPalette[randomIndex]);
+}
+return { bg: window._freqColorCache.get(frequency), text: '#ffffff', textClass: 'dark-text' };
 }
 function toggleNumbersByFrequency(frequency) {
 const freqMap = calculateNumberFrequencies();
@@ -2167,8 +2160,10 @@ const isLit = selectedNumbers.has(n);
 if (!isLit) {
 span.classList.add('flat');
 }
-if (currentHighlightedNumber === n) {
+if (currentHighlightedNumber === n && isLit) {
 span.classList.add('highlighted');
+} else {
+span.classList.remove('highlighted');
 }
 span.style.background = style.bg;
 span.style.color = style.text;
@@ -2183,19 +2178,19 @@ span.onclick = (function(num) {
 return function(e) {
 e.stopPropagation();
 vibrate(15);
+if (selectedNumbers.has(num)) {
 const wasHighlighted = (currentHighlightedNumber === num);
 let newValue;
 if (wasHighlighted) {
 newValue = null;
 recordAction('global_highlight', `取消高亮${fmtNum(num)}`, [num], false, 0, { newValue: newValue, wasRemoved: true });
-showToast(`已取消高亮 ${fmtNum(num)}`);
 } else {
 newValue = num;
 recordAction('global_highlight', `高亮${fmtNum(num)}`, [num], true, 0, { newValue: newValue, wasRemoved: false });
-showToast(`已高亮 ${fmtNum(num)}`);
 }
 currentHighlightedNumber = newValue;
 renderHistoryLog();
+}
 };
 })(n);
 numsDiv.appendChild(span);
