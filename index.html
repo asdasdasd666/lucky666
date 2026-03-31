@@ -14,7 +14,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=ZCOOL+KuaiLe&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
 <link rel="icon" type="image/svg+xml" id="dynamic-favicon">
 <link rel="apple-touch-icon" id="dynamic-app-icon">
-<link rel="manifest" id="manifest-placeholder">
 <style>
 :root {
 --bg-color: #eef2f5; --text-main: #2d3748;
@@ -26,7 +25,6 @@
 --btn-bg-start: #ffffff; --btn-bg-end: #f7fafc; --btn-border: #cbd5e0;
 --btn-shadow: 0 2px 0 #cbd5e0, 0 3px 4px rgba(0,0,0,0.08);
 --btn-active-bg: #e2e8f0;
---btn-active-text: #000000;
 --btn-active-shadow: inset 0 2px 4px rgba(0,0,0,0.15);
 --btn-active-transform: translateY(2px);
 --btn-text: #1a202c;
@@ -42,7 +40,6 @@
 --btn-size: 28px;
 --btn-gap: 4px;
 --label-font-size: 1.1rem;
---header-font-size: 1.4rem;
 --res-red: #e53e3e;
 --res-blue: #3182ce;
 --res-green: #38a169;
@@ -101,7 +98,7 @@ font-weight: 900 !important;
 .filter-btn:hover { filter: brightness(0.98); }
 .filter-btn.active {
 background: var(--btn-active-bg) !important;
-color: var(--btn-active-text) !important;
+color: #000000 !important;
 box-shadow: var(--btn-active-shadow) !important;
 transform: var(--btn-active-transform);
 border-color: #a0aec0 !important;
@@ -499,14 +496,6 @@ transition: border-color 0.2s, box-shadow 0.2s;
     opacity: 0.5;
     border: 2px solid transparent;
 }
-.hist-red { background: linear-gradient(145deg, var(--active-red-start), var(--active-red-end)); }
-.hist-blue { background: linear-gradient(145deg, var(--deep-blue-start), var(--deep-blue-end)); }
-.hist-green { background: linear-gradient(145deg, var(--active-green-start), var(--active-green-end)); }
-.hist-gray {
-background: radial-gradient(circle at 30% 30%, #f7fafc 0%, #cbd5e0 40%, #a0aec0 100%);
-color: #4a5568;
-text-shadow: 0 1px 0 rgba(255,255,255,0.5);
-}
 .input-hint { font-size: 0.55rem; color: #718096; margin-top: 2px; text-align: right; }
 
 .result-box-title {
@@ -634,6 +623,10 @@ align-items: center;
 padding-left: 3.2rem;
 position: relative;
 min-height: 1.6em;
+margin-bottom: 0.6em;
+}
+.result-column:last-child {
+margin-bottom: 0;
 }
 .result-col-label {
 font-size: 0.75rem;
@@ -867,11 +860,15 @@ line-height: 1.6;
 .temp-storage-row {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.6em;
+    gap: 0.8em;
     align-items: center;
     padding-left: 3.2rem;
     position: relative;
     min-height: 1.6em;
+    margin-bottom: 0.8em;
+}
+.temp-storage-row:last-child {
+    margin-bottom: 0;
 }
 .temp-storage-label {
     font-size: 0.75rem;
@@ -999,12 +996,6 @@ line-height: 1.6;
 </div>
 <div class="toast" id="toast">操作成功</div>
 <script>
-if ('serviceWorker' in navigator) {
-const CACHE_VERSION = 'v110-final-optimized';
-const CACHE_NAME = `lucky888-${CACHE_VERSION}`;
-const swCode = `const CACHE_NAME='${CACHE_NAME}';self.addEventListener('install',e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE_NAME).then(c=>c.addAll(['./'])));});self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==CACHE_NAME).map(x=>caches.delete(x)))));self.clients.claim();});self.addEventListener('fetch',e=>{e.respondWith(fetch(e.request).catch(()=>caches.match(e.request)));});`;
-try { navigator.serviceWorker.register(URL.createObjectURL(new Blob([swCode], {type: 'application/javascript'}))).catch(console.error); } catch(e) {}
-}
 function generateIconSvg(text) {
 const svgContent = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="#D90429"/><text x="50" y="68" font-family="'ZCOOL XiaoWei', serif" font-size="56" font-weight="900" fill="white" text-anchor="middle" style="filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.4));">${text}</text></svg>`;
 return 'data:image/svg+xml,' + encodeURIComponent(svgContent);
@@ -1012,20 +1003,6 @@ return 'data:image/svg+xml,' + encodeURIComponent(svgContent);
 const iconUrl = generateIconSvg("");
 document.getElementById('dynamic-favicon').setAttribute('href', iconUrl);
 document.getElementById('dynamic-app-icon').setAttribute('href', iconUrl);
-const manifestData = {
-"name":"好运连连",
-"short_name":"好运连连",
-"start_url":".",
-"display":"standalone",
-"background_color":"#eef2f5",
-"theme_color":"#D90429",
-"orientation":"portrait",
-"icons":[
-{"src": iconUrl,"sizes":"192x192","type":"image/svg+xml"},
-{"src": iconUrl,"sizes":"512x512","type":"image/svg+xml"}
-]
-};
-document.querySelector('#manifest-placeholder').setAttribute('href', URL.createObjectURL(new Blob([JSON.stringify(manifestData)], {type: 'application/json'})));
 const zodiacs = ["鼠", "牛", "虎", "兔", "龙", "蛇", "马", "羊", "猴", "鸡", "狗", "猪"];
 const zodiacColors = ['red', 'blue', 'green', 'red', 'blue', 'green', 'red', 'blue', 'green', 'red', 'blue', 'green'];
 const redGroup = new Set([7, 2, 1, 12, 8, 19, 18, 13, 24, 23, 30, 29, 35, 34, 40, 46, 45]);
@@ -1051,14 +1028,14 @@ let manuallyTurnedOff = new Set();
 const ZODIAC_MAP = { "鼠":0, "牛":1, "虎":2, "兔":3, "龙":4, "蛇":5, "马":6, "羊":7, "猴":8, "鸡":9, "狗":10, "猪":11, "免":3 };
 
 const freqColorPalette = [
-    "linear-gradient(145deg, #A78BFA, #8B5CF6)",
-    "linear-gradient(145deg, #5EEAD4, #14B8A6)",
-    "linear-gradient(145deg, #A5B4FC, #818CF8)",
-    "linear-gradient(145deg, #6EE7B7, #10B981)",
-    "linear-gradient(145deg, #C4B5FD, #A855F7)",
-    "linear-gradient(145deg, #7DD3FC, #38BDF8)",
-    "linear-gradient(145deg, #A7F3D0, #2DD4BF)",
-    "linear-gradient(145deg, #B9E6FE, #3B82F6)"
+    "linear-gradient(145deg, #9ACD32, #7CB518)",  // 黄绿
+    "linear-gradient(145deg, #800080, #660066)",  // 紫色
+    "linear-gradient(145deg, #B22222, #8B1A1A)",  // 砖红
+    "linear-gradient(145deg, #800000, #660000)",  // 栗色
+    "linear-gradient(145deg, #808000, #666600)",  // 橄榄绿
+    "linear-gradient(145deg, #4682B4, #366E8F)",  // 钢蓝
+    "linear-gradient(145deg, #008080, #006666)",  // 青绿
+    "linear-gradient(145deg, #4B0082, #3C0066)"   // 靛蓝
 ];
 
 function vibrate(pattern = 15) { if (navigator.vibrate) navigator.vibrate(pattern); }
@@ -1096,8 +1073,6 @@ localStorage.setItem('lucky666_data_v52', JSON.stringify(data));
 }
 function load_data() {
 let raw = localStorage.getItem('lucky666_data_v52');
-if (!raw) raw = localStorage.getItem('lucky666_data_v51');
-if (!raw) raw = localStorage.getItem('lucky666_data_v50');
 if (!raw) return;
 try {
 const d = JSON.parse(raw);
@@ -1119,6 +1094,25 @@ updateTempClearBtn();
 console.error("Load failed", e);
 betResults = {}; undoStack = []; redoStack = []; inputHistory = []; tempStorageData = []; specialNumbersSet = new Set(); currentHighlightedNumber = null; manuallyTurnedOff = new Set();
 }
+}
+function restoreSpecialEffects() {
+specialNumbersSet.forEach(num => {
+    const btn = document.querySelector(`.num-btn[data-num="${num}"]`);
+    if (btn) btn.classList.add('is-special');
+});
+}
+function syncSpecialWithSelected() {
+    const newSpecialSet = new Set();
+    specialNumbersSet.forEach(num => {
+        if (selectedNumbers.has(num)) {
+            newSpecialSet.add(num);
+        } else {
+            const btn = document.querySelector(`.num-btn[data-num="${num}"]`);
+            if (btn) btn.classList.remove('is-special');
+        }
+    });
+    specialNumbersSet = newSpecialSet;
+    save_data();
 }
 function getGroupNumbers(type, value) {
 const nums = [];
@@ -1455,6 +1449,7 @@ if (!manuallyTurnedOff.has(num)) {
 selectedNumbers.add(num);
 }
 }
+syncSpecialWithSelected();
 }
 function recordAction(type, label, numbers, wasAdded, amount = 0, extraData = {}) {
 redoStack = [];
@@ -1470,7 +1465,7 @@ undoStack.push(action);
 if (undoStack.length > 20) undoStack.shift();
 save_data();
 }
-function handleWaveKill(color, parity, btnElement) {
+function handleWaveKill(color, parity) {
 vibrate(20);
 const val = `${color}-${parity}`;
 const groupNums = getGroupNumbers('parity', val);
@@ -1480,20 +1475,18 @@ const anyLit = groupNums.some(n => selectedNumbers.has(n));
 if (!anyLit) { showToast(`❌ 当前${label}已全杀`); return; }
 const removedNums = groupNums.filter(n => selectedNumbers.has(n));
 recordAction('batch_kill', label, removedNums, false);
-let killedCount = 0;
 groupNums.forEach(n => {
 if (selectedNumbers.has(n)) {
 selectedNumbers.delete(n);
 if(betResults[n] !== undefined) delete betResults[n];
 bettingNumbers.delete(n);
 manuallyTurnedOff.add(n);
-killedCount++;
 }
 });
-if (killedCount > 0) { addLog("select", `已杀所有${label}`); showToast(`❌ 已杀所有${label}`); }
+addLog("select", `已杀所有${label}`); showToast(`❌ 已杀所有${label}`);
 updateAllStates(false);
 }
-function handleHeadKill(headVal, btnElement) {
+function handleHeadKill(headVal) {
 vibrate(20);
 const groupNums = getGroupNumbers('head', headVal);
 const label = getGroupLabel('head', headVal);
@@ -1502,20 +1495,18 @@ const anyLit = groupNums.some(n => selectedNumbers.has(n));
 if (!anyLit) { showToast(`❌ 当前${label}已全杀`); return; }
 const removedNums = groupNums.filter(n => selectedNumbers.has(n));
 recordAction('batch_kill', label, removedNums, false);
-let killedCount = 0;
 groupNums.forEach(n => {
 if (selectedNumbers.has(n)) {
 selectedNumbers.delete(n);
 if(betResults[n] !== undefined) delete betResults[n];
 bettingNumbers.delete(n);
 manuallyTurnedOff.add(n);
-killedCount++;
 }
 });
-if (killedCount > 0) { addLog("select", `已杀所有${label}`); showToast(`❌ 已杀所有${label}`); }
+addLog("select", `已杀所有${label}`); showToast(`❌ 已杀所有${label}`);
 updateAllStates(false);
 }
-function handleWuxingKill(wuxingType, btnElement) {
+function handleWuxingKill(wuxingType) {
 vibrate(20);
 const groupNums = getGroupNumbers('wuxing', wuxingType);
 const label = getGroupLabel('wuxing', wuxingType);
@@ -1524,20 +1515,18 @@ const anyLit = groupNums.some(n => selectedNumbers.has(n));
 if (!anyLit) { showToast(`❌ 当前${label}已全杀`); return; }
 const removedNums = groupNums.filter(n => selectedNumbers.has(n));
 recordAction('batch_kill', label, removedNums, false);
-let killedCount = 0;
 groupNums.forEach(n => {
 if (selectedNumbers.has(n)) {
 selectedNumbers.delete(n);
 if(betResults[n] !== undefined) delete betResults[n];
 bettingNumbers.delete(n);
 manuallyTurnedOff.add(n);
-killedCount++;
 }
 });
-if (killedCount > 0) { addLog("select", `已杀所有${label}`); showToast(`❌ 已杀所有${label}`); }
+addLog("select", `已杀所有${label}`); showToast(`❌ 已杀所有${label}`);
 updateAllStates(false);
 }
-function handleTailKill(tailVal, btnElement) {
+function handleTailKill(tailVal) {
 vibrate(20);
 const groupNums = getGroupNumbers('tail', tailVal);
 const label = getGroupLabel('tail', tailVal);
@@ -1546,20 +1535,18 @@ const anyLit = groupNums.some(n => selectedNumbers.has(n));
 if (!anyLit) { showToast(`❌ 当前${label}已全杀`); return; }
 const removedNums = groupNums.filter(n => selectedNumbers.has(n));
 recordAction('batch_kill', label, removedNums, false);
-let killedCount = 0;
 groupNums.forEach(n => {
 if (selectedNumbers.has(n)) {
 selectedNumbers.delete(n);
 if(betResults[n] !== undefined) delete betResults[n];
 bettingNumbers.delete(n);
 manuallyTurnedOff.add(n);
-killedCount++;
 }
 });
-if (killedCount > 0) { addLog("select", `已杀所有${label}`); showToast(`❌ 已杀所有${label}`); }
+addLog("select", `已杀所有${label}`); showToast(`❌ 已杀所有${label}`);
 updateAllStates(false);
 }
-function handleZodiacSelect(index, label, btnElement) {
+function handleZodiacSelect(index, label) {
 vibrate(20);
 const groupNums = getGroupNumbers('zodiac', index.toString());
 if (groupNums.length === 0) return;
@@ -1684,7 +1671,7 @@ const createFilterBtn = (text, type, value, handler) => {
 const btn = document.createElement('button');
 btn.className = 'filter-btn';
 btn.textContent = text;
-btn.onclick = function() { handler(value, this); };
+btn.onclick = function() { handler(value); };
 return btn;
 };
 const createWaveBtn = (text, color, parity) => {
@@ -1692,7 +1679,7 @@ const btn = document.createElement('button');
 btn.className = 'wave-btn';
 btn.textContent = text;
 btn.dataset.type = color;
-btn.onclick = function() { handleWaveKill(color, parity, this); };
+btn.onclick = function() { handleWaveKill(color, parity); };
 return btn;
 };
 for (let i = 0; i <= 4; i++) {
@@ -1820,7 +1807,7 @@ btn.classList.add('is-pressed');
 }
 });
 }
-function updateAllStates(refreshButtons = false) {
+function updateAllStates() {
 updateNumberBalls();
 updateZodiacButtons();
 updateFilterButtons();
@@ -1877,7 +1864,7 @@ delete betResults[num];
 bettingNumbers.delete(num);
 showToast(`🗑️ 已取消 ${numStr} 的购买`);
 addLog("select", `取消购买 ${numStr}`);
-updateAllStates(false);
+updateAllStates();
 }
 function handleTailBetAction(tail) {
 const tailNumsInSelected = Array.from(selectedNumbers).filter(n => n % 10 === tail);
@@ -1917,15 +1904,9 @@ function updateBetActionArea() {
 const area = document.getElementById('betActionArea');
 const display = document.getElementById('betNumsDisplay');
 const input = document.getElementById('betAmountInput');
-const btn = document.getElementById('betConfirmBtn');
 area.style.display = 'flex';
 if (bettingNumbers.size === 0) {
 display.textContent = "暂无待购号码";
-display.style.color = "#a0aec0";
-display.style.fontSize = "0.8rem";
-display.style.fontFamily = "'Courier New', monospace";
-display.style.fontWeight = "700";
-display.innerHTML = "暂无待购号码";
 input.value = "";
 } else {
 const sortedNums = Array.from(bettingNumbers).sort((a,b)=>a-b);
@@ -1936,10 +1917,6 @@ htmlParts.push(`<span class="${colorClass}">${fmtNum(n)}</span>`);
 if (index < sortedNums.length - 1) { htmlParts.push(`<span class="bet-sep">.</span>`); }
 });
 display.innerHTML = htmlParts.join('');
-display.style.color = "inherit";
-display.style.fontSize = "0.9rem";
-display.style.fontFamily = "'Courier New', Courier, monospace";
-display.style.fontWeight = "700";
 }
 }
 function updateBettingCountBadge() {
@@ -1962,7 +1939,7 @@ recordAction('bet_confirm', label, nums, true, amount);
 nums.forEach(n => { betResults[n] = amount; });
 bettingNumbers.clear();
 input.value = "";
-updateAllStates(false);
+updateAllStates();
 showToast(`✅ 已下单：${nums.length}个号码，各${amount}块`);
 addLog("bet", `买入 ${label}. @ ${amount}块`);
 }
@@ -2077,7 +2054,7 @@ if (currentHighlightedNumber === n) currentHighlightedNumber = null;
 addLog("select", `点亮重复${frequency}次的号码 (${targetNumbers.length}个)`);
 showToast(`✅ 已点亮重复${frequency}次的号码`);
 }
-updateAllStates(false);
+updateAllStates();
 }
 function renderFrequencyButtons() {
 const container = document.getElementById('sphereBtnContainer');
@@ -2211,7 +2188,7 @@ deletedItem: item
 });
 inputHistory.splice(index, 1);
 rebuildSelectedFromHistory();
-updateAllStates(false);
+updateAllStates();
 addLog("input", `删除历史 ${item.numbers.length}码`);
 showToast("🗑️ 已删除该组号码");
 }
@@ -2243,7 +2220,7 @@ const specialSorted = [...specialNumbers].sort((a, b) => a - b);
 const specialOdd = specialSorted.filter(n => n % 2 !== 0);
 const specialEven = specialSorted.filter(n => n % 2 === 0);
 let html = "";
-const createNumSpan = (num, isSpecial = false) => {
+const createNumSpan = (num) => {
 const baseColor = getColorClass(num);
 const isBetting = bettingNumbers.has(num);
 const isBought = betResults.hasOwnProperty(num);
@@ -2269,19 +2246,19 @@ const title = isBought ? '已购买 (点击取消)' : (isBetting ? '待购买' :
 return `<span class="${classes}" onclick="${onClick}" title="${title}">${fmtNum(num)}</span>`;
 };
 if (normalOdd.length > 0) {
-const parts = normalOdd.map(n => createNumSpan(n, false));
+const parts = normalOdd.map(n => createNumSpan(n));
 html += `<div class="result-column"><span class="result-col-label">单号:</span> ${parts.join('')}</div>`;
 }
 if (normalEven.length > 0) {
-const parts = normalEven.map(n => createNumSpan(n, false));
+const parts = normalEven.map(n => createNumSpan(n));
 html += `<div class="result-column"><span class="result-col-label">双号:</span> ${parts.join('')}</div>`;
 }
 if (specialOdd.length > 0) {
-const parts = specialOdd.map(n => createNumSpan(n, true));
+const parts = specialOdd.map(n => createNumSpan(n));
 html += `<div class="result-column"><span class="result-col-label">特码:</span> ${parts.join('')}</div>`;
 }
 if (specialEven.length > 0) {
-const parts = specialEven.map(n => createNumSpan(n, true));
+const parts = specialEven.map(n => createNumSpan(n));
 if (specialOdd.length > 0) {
 const lastColumn = html.lastIndexOf('</div>');
 if (lastColumn !== -1) {
@@ -2307,7 +2284,7 @@ btn.dataset.zodiacIndex = index;
 btn.onclick = () => {
 vibrate(20);
 const nums = getGroupNumbers('zodiac', index.toString());
-handleZodiacSelect(index, z+"肖", btn);
+handleZodiacSelect(index, z+"肖");
 };
 grid.appendChild(btn);
 });
@@ -2346,6 +2323,7 @@ redoBtn.className = 'action-grid-btn bg-action redo-btn-grid';
 redoBtn.innerHTML = '<span class="btn-text">恢复</span>';
 redoBtn.onclick = () => { performRedo(); };
 grid.appendChild(redoBtn);
+restoreSpecialEffects();
 updateAllStates();
 }
 function toggleNumber(num) {
@@ -2361,7 +2339,7 @@ btn.classList.remove('is-special');
 }
 showToast(`✨ 已取消号码 ${fmtNum(num)} 的特码效果`);
 addLog("select", `取消特码 ${fmtNum(num)}`);
-updateAllStates(false);
+updateAllStates();
 return;
 }
 if (!isCurrentlySelected) {
@@ -2377,7 +2355,7 @@ recordAction('manual_toggle', numStr, [num], false, 0, { number: num, wasAdded: 
 addLog("select", `取消选中 ${numStr}`);
 showToast(`❌ 取消 ${numStr}`);
 }
-updateAllStates(true);
+updateAllStates();
 }
 function setupInputListener() {
 const input = document.getElementById('smartInput');
@@ -2506,14 +2484,14 @@ labelPrefix: labelPrefix
 if (changed) {
 if (newNums.length === 1) { recordAction('single', fmtNum(newNums[0]), newNums, true); }
 else { recordAction('batch_input', `${newNums.length}个号码`, newNums, true); }
-updateAllStates(true);
+updateAllStates();
 addLog("input", `批量选中 ${validNumbers.length} 个号`);
 vibrate(30);
 let msg = `✅ 已点亮 ${newNums.map(fmtNum).join('.')}`;
 if (alreadySelectedNums.length > 0) { msg += ` (${alreadySelectedNums.map(fmtNum).join('.')}) 已被选中`; }
 showToast(msg);
 } else {
-updateAllStates(true);
+updateAllStates();
 showToast(`ℹ️ 这些号码 (${validNumbers.map(fmtNum).join('.')}) 已选中`);
 }
 } else {
@@ -2691,7 +2669,7 @@ updateTempCountBadge();
 updateTempStoreBtn();
 updateTempRestoreBtn();
 updateTempClearBtn();
-updateAllStates(false);
+updateAllStates();
 save_data();
 showToast(`✅ 已恢复 ${restoredNums.length} 个号码`);
 addLog("select", `恢复 ${restoredNums.length} 个号码`);
@@ -2811,7 +2789,7 @@ const logContainer = document.getElementById('logContainer');
 logContainer.innerHTML = '<div class="log-item" style="color:#718096; justify-content:center;">暂无记录</div>';
 save_data();
 renderBetResults();
-updateAllStates(true);
+updateAllStates();
 showToast("🗑️ 已重置所有数据");
 addLog("clear", "重置全部");
 }
@@ -2846,7 +2824,7 @@ const finalBtn = document.querySelector(`.num-btn[data-num="${finalNum}"]`);
 if (finalBtn) {
 finalBtn.classList.add('is-special');
 }
-updateAllStates(false);
+updateAllStates();
 randomBtn.classList.remove('running');
 randomBtn.disabled = false;
 isRandomRunning = false;
@@ -2881,7 +2859,6 @@ function init() {
 renderKillControls();
 load_data();
 renderGrid();
-updateAllStates(true);
 setupInputListener();
 addLog("system", "启动就绪");
 }
