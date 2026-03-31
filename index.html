@@ -847,8 +847,8 @@ line-height: 1.6;
     word-break: break-all;
     white-space: normal;
     min-height: 60px;
-    max-height: 150px;
-    overflow-y: auto;
+    max-height: none;
+    overflow-y: visible;
     display: flex;
     flex-direction: column;
     gap: 0.8em;
@@ -860,15 +860,11 @@ line-height: 1.6;
 .temp-storage-row {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.8em;
+    gap: 0.6em;
     align-items: center;
     padding-left: 3.2rem;
     position: relative;
     min-height: 1.6em;
-    margin-bottom: 0.8em;
-}
-.temp-storage-row:last-child {
-    margin-bottom: 0;
 }
 .temp-storage-label {
     font-size: 0.75rem;
@@ -1907,6 +1903,10 @@ const input = document.getElementById('betAmountInput');
 area.style.display = 'flex';
 if (bettingNumbers.size === 0) {
 display.textContent = "暂无待购号码";
+display.style.color = "#a0aec0";
+display.style.fontSize = "0.8rem";
+display.style.fontFamily = "'Courier New', monospace";
+display.style.fontWeight = "700";
 input.value = "";
 } else {
 const sortedNums = Array.from(bettingNumbers).sort((a,b)=>a-b);
@@ -1917,6 +1917,10 @@ htmlParts.push(`<span class="${colorClass}">${fmtNum(n)}</span>`);
 if (index < sortedNums.length - 1) { htmlParts.push(`<span class="bet-sep">.</span>`); }
 });
 display.innerHTML = htmlParts.join('');
+display.style.color = "";
+display.style.fontSize = "";
+display.style.fontFamily = "";
+display.style.fontWeight = "";
 }
 }
 function updateBettingCountBadge() {
@@ -2831,6 +2835,7 @@ isRandomRunning = false;
 vibrate([50, 50, 50, 50, 50]);
 showToast(`🌟 新增特码：${fmtNum(finalNum)}`);
 addLog("random", `新增特码 ${fmtNum(finalNum)}`);
+save_data();
 return;
 }
 if (currentHighlight) {
@@ -2861,6 +2866,9 @@ load_data();
 renderGrid();
 setupInputListener();
 addLog("system", "启动就绪");
+window.addEventListener('beforeunload', function() {
+save_data();
+});
 }
 init();
 let lastTouchEnd = 0;
