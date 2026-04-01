@@ -97,11 +97,13 @@ font-weight: 900 !important;
 }
 .filter-btn:hover { filter: brightness(0.98); }
 .filter-btn.active {
-background: var(--btn-active-bg) !important;
-color: #000000 !important;
-box-shadow: var(--btn-active-shadow) !important;
-transform: var(--btn-active-transform);
-border-color: #a0aec0 !important;
+background: #cbd5e0 !important;
+color: #718096 !important;
+opacity: 0.5 !important;
+cursor: not-allowed !important;
+box-shadow: none !important;
+transform: none !important;
+border-color: #cbd5e0 !important;
 }
 .wave-btn {
 width: var(--btn-size); height: var(--btn-size);
@@ -136,11 +138,13 @@ color: #38a169 !important;
 box-shadow: 0 2px 0 #A7F3D0, 0 3px 4px rgba(56, 161, 105, 0.1) !important;
 }
 .wave-btn.wave-active {
-background: #e2e8f0 !important;
-color: #000000 !important;
-border-color: #a0aec0 !important;
-box-shadow: inset 0 2px 4px rgba(0,0,0,0.15) !important;
-transform: translateY(2px);
+background: #cbd5e0 !important;
+color: #718096 !important;
+opacity: 0.5 !important;
+cursor: not-allowed !important;
+border-color: #cbd5e0 !important;
+box-shadow: none !important;
+transform: none !important;
 text-shadow: none !important;
 }
 .wave-btn:active:not(.wave-active) {
@@ -1264,11 +1268,11 @@ if (manuallyTurnedOff.has(n)) manuallyTurnedOff.delete(n);
 });
 } else if (lastAction.type === 'manual_toggle') {
 if (lastAction.wasAdded) {
-selectedNumbers.add(lastAction.number);
-manuallyTurnedOff.delete(lastAction.number);
-} else {
 selectedNumbers.delete(lastAction.number);
 manuallyTurnedOff.add(lastAction.number);
+} else {
+selectedNumbers.add(lastAction.number);
+manuallyTurnedOff.delete(lastAction.number);
 }
 } else {
 if (lastAction.wasAdded) {
@@ -1412,11 +1416,11 @@ if (manuallyTurnedOff.has(n)) manuallyTurnedOff.delete(n);
 });
 } else if (lastUndo.type === 'manual_toggle') {
 if (lastUndo.wasAdded) {
-selectedNumbers.delete(lastUndo.number);
-manuallyTurnedOff.add(lastUndo.number);
-} else {
 selectedNumbers.add(lastUndo.number);
 manuallyTurnedOff.delete(lastUndo.number);
+} else {
+selectedNumbers.delete(lastUndo.number);
+manuallyTurnedOff.add(lastUndo.number);
 }
 } else {
 if (lastUndo.wasAdded) {
@@ -1637,13 +1641,28 @@ missingCount++;
 }
 btn.className = 'batch-select-btn';
 btn.onclick = null;
+btn.style.opacity = '';
+btn.style.cursor = '';
+btn.style.backgroundColor = '';
+btn.style.color = '';
+btn.style.boxShadow = '';
 if (totalSelected === 0) {
 btn.classList.add('grey');
 btn.textContent = '无号码';
+btn.style.opacity = '0.5';
+btn.style.cursor = 'not-allowed';
+btn.style.backgroundColor = '#cbd5e0';
+btn.style.color = '#718096';
+btn.style.boxShadow = 'none';
 btn.onclick = function() { showToast("⚠️ 暂无已选号码"); };
 } else if (notBoughtCount === 0) {
 btn.classList.add('grey');
 btn.textContent = '已选完';
+btn.style.opacity = '0.5';
+btn.style.cursor = 'not-allowed';
+btn.style.backgroundColor = '#cbd5e0';
+btn.style.color = '#718096';
+btn.style.boxShadow = 'none';
 btn.onclick = function() { showToast("ℹ️ 所有号码已选完"); };
 } else {
 if (missingCount === 0 && inBettingCount > 0) {
@@ -1803,6 +1822,62 @@ btn.classList.add('is-pressed');
 }
 });
 }
+function updateCopyButtons() {
+    const copySelectedBtn = document.querySelector('.result-box-title .small-copy-btn');
+    if (copySelectedBtn) {
+        if (selectedNumbers.size === 0) {
+            copySelectedBtn.style.background = '#cbd5e0';
+            copySelectedBtn.style.backgroundImage = 'none';
+            copySelectedBtn.style.opacity = '0.5';
+            copySelectedBtn.style.cursor = 'not-allowed';
+            copySelectedBtn.style.backgroundColor = '#cbd5e0';
+            copySelectedBtn.style.color = '#718096';
+            copySelectedBtn.style.boxShadow = 'none';
+            copySelectedBtn.onclick = function() { showToast("⚠️ 暂无已选号码"); };
+        } else {
+            copySelectedBtn.style.background = '';
+            copySelectedBtn.style.backgroundImage = '';
+            copySelectedBtn.style.opacity = '';
+            copySelectedBtn.style.cursor = '';
+            copySelectedBtn.style.backgroundColor = '';
+            copySelectedBtn.style.color = '';
+            copySelectedBtn.style.boxShadow = '';
+            copySelectedBtn.onclick = copySelectedNumbers;
+        }
+    }
+    const copyBetBtn = document.querySelector('.bet-result-header .small-copy-btn');
+    if (copyBetBtn) {
+        const keys = Object.keys(betResults).map(Number);
+        const selectedArr = Array.from(selectedNumbers);
+        const hasUnbought = selectedArr.some(n => !betResults.hasOwnProperty(n));
+        const noBetResults = keys.length === 0;
+        if (noBetResults || hasUnbought) {
+            copyBetBtn.style.background = '#cbd5e0';
+            copyBetBtn.style.backgroundImage = 'none';
+            copyBetBtn.style.opacity = '0.5';
+            copyBetBtn.style.cursor = 'not-allowed';
+            copyBetBtn.style.backgroundColor = '#cbd5e0';
+            copyBetBtn.style.color = '#718096';
+            copyBetBtn.style.boxShadow = 'none';
+            copyBetBtn.onclick = function() { 
+                if (noBetResults) {
+                    showToast("⚠️ 无买号结果可复制");
+                } else {
+                    showToast("⚠️ 还有号码没有购买，不能复制");
+                }
+            };
+        } else {
+            copyBetBtn.style.background = '';
+            copyBetBtn.style.backgroundImage = '';
+            copyBetBtn.style.opacity = '';
+            copyBetBtn.style.cursor = '';
+            copyBetBtn.style.backgroundColor = '';
+            copyBetBtn.style.color = '';
+            copyBetBtn.style.boxShadow = '';
+            copyBetBtn.onclick = copyBetResults;
+        }
+    }
+}
 function updateAllStates() {
 updateNumberBalls();
 updateZodiacButtons();
@@ -1821,6 +1896,7 @@ updateTempClearBtn();
 updateBettingCountBadge();
 updateHistoryNumItemsFlatState();
 updateFrequencyButtonsPressedState();
+updateCopyButtons();
 }
 function getColorClass(num) {
 if (redGroup.has(num)) return 'res-red';
@@ -2542,6 +2618,11 @@ const selectedArr = Array.from(selectedNumbers);
 if (selectedArr.length === 0) {
 btn.className = 'temp-action-btn grey';
 btn.textContent = '无号码';
+btn.style.opacity = '0.5';
+btn.style.cursor = 'not-allowed';
+btn.style.backgroundColor = '#cbd5e0';
+btn.style.color = '#718096';
+btn.style.boxShadow = 'none';
 btn.onclick = function() { showToast("⚠️ 暂无已选号码"); };
 return;
 }
@@ -2551,6 +2632,11 @@ const allExist = newNums.length === 0;
 if (allExist) {
 btn.className = 'temp-action-btn grey';
 btn.textContent = '已暂存';
+btn.style.opacity = '0.5';
+btn.style.cursor = 'not-allowed';
+btn.style.backgroundColor = '#cbd5e0';
+btn.style.color = '#718096';
+btn.style.boxShadow = 'none';
 btn.onclick = function() { showToast("ℹ️ 所有号码已暂存"); };
 } else {
 btn.className = 'temp-action-btn green';
@@ -2559,6 +2645,11 @@ btn.textContent = '暂存';
 } else {
 btn.textContent = '继续暂存';
 }
+btn.style.opacity = '';
+btn.style.cursor = '';
+btn.style.backgroundColor = '';
+btn.style.color = '';
+btn.style.boxShadow = '';
 btn.onclick = handleTempStore;
 }
 }
@@ -2568,10 +2659,20 @@ if(!btn) return;
 if (tempStorageData.length === 0) {
 btn.className = 'temp-action-btn grey';
 btn.textContent = '无号码';
+btn.style.opacity = '0.5';
+btn.style.cursor = 'not-allowed';
+btn.style.backgroundColor = '#cbd5e0';
+btn.style.color = '#718096';
+btn.style.boxShadow = 'none';
 btn.onclick = function() { showToast("ℹ️ 无恢复号码"); };
 } else {
 btn.className = 'temp-action-btn green';
 btn.textContent = '恢复';
+btn.style.opacity = '';
+btn.style.cursor = '';
+btn.style.backgroundColor = '';
+btn.style.color = '';
+btn.style.boxShadow = '';
 btn.onclick = handleTempRestore;
 }
 }
@@ -2583,12 +2684,18 @@ btn.className = 'temp-action-btn grey';
 btn.textContent = '清空暂存';
 btn.style.opacity = '0.5';
 btn.style.cursor = 'not-allowed';
+btn.style.backgroundColor = '#cbd5e0';
+btn.style.color = '#718096';
+btn.style.boxShadow = 'none';
 btn.onclick = function() { showToast("ℹ️ 暂存区已空"); };
 } else {
 btn.className = 'temp-action-btn orange';
 btn.textContent = '清空暂存';
-btn.style.opacity = '1';
-btn.style.cursor = 'pointer';
+btn.style.opacity = '';
+btn.style.cursor = '';
+btn.style.backgroundColor = '';
+btn.style.color = '';
+btn.style.boxShadow = '';
 btn.onclick = handleTempClear;
 }
 }
@@ -2721,16 +2828,6 @@ const keys = Object.keys(betResults).map(Number);
 if (keys.length === 0) {
 showToast("⚠️ 无买号结果可复制");
 return;
-}
-const selectedArr = Array.from(selectedNumbers);
-if (selectedArr.length > 0) {
-const unbought = selectedArr.filter(n => !betResults.hasOwnProperty(n));
-if (unbought.length > 0) {
-const unboughtStr = unbought.sort((a,b)=>a-b).map(fmtNum).join(', ');
-showToast(`⚠️ 还有 ${unboughtStr} 没有购买，不能复制`);
-vibrate([30, 30, 30]);
-return;
-}
 }
 let textParts = [];
 const amountGroups = {};
