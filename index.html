@@ -2096,7 +2096,7 @@ const sortedAmounts = Object.keys(amountGroups).sort((a,b)=>parseInt(a)-parseInt
 sortedAmounts.forEach((amt, index) => {
 const nums = amountGroups[amt].sort((a,b)=>a-b);
 if (index > 0) {
-fullHtml += '&nbsp;&nbsp;';
+fullHtml += ', ';
 }
 if (nums.length === 1) {
 const colorClass = getColorClass(nums[0]);
