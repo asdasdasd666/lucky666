@@ -1127,6 +1127,11 @@ if (color === 'red' && redGroup.has(i)) isCorrectColor = true;
 if (color === 'blue' && blueGroup.has(i)) isCorrectColor = true;
 if (color === 'green' && greenGroup.has(i)) isCorrectColor = true;
 if (isCorrectColor) { const isOdd = i % 2 !== 0; if (parity === 'odd' && isOdd) match = true; if (parity === 'even' && !isOdd) match = true; }
+} else if (type === 'size_parity') {
+if (value === '小单' && i % 2 !== 0 && i <= 23) match = true;
+if (value === '大单' && i % 2 !== 0 && i >= 25) match = true;
+if (value === '小双' && i % 2 === 0 && i <= 24) match = true;
+if (value === '大双' && i % 2 === 0 && i >= 26 && i <= 48) match = true;
 } else if (type === 'zodiac') {
 const index = parseInt(value); if (!isNaN(index)) { customGridRows.forEach(row => { if (row[index] !== null) nums.push(row[index]); }); return nums; }
 }
@@ -1140,6 +1145,7 @@ if (type === 'wuxing') return wuxingChars[value] + "行";
 if (type === 'head') return value + "字头";
 if (type === 'tail') return value + "尾";
 if (type === 'parity') { const [color, parity] = value.split('-'); const cMap = {red:'红', blue:'蓝', green:'绿'}; const pMap = {odd:'单', even:'双'}; return cMap[color] + pMap[parity]; }
+if (type === 'size_parity') return value;
 return type + value;
 }
 function performUndo() {
@@ -1486,6 +1492,26 @@ manuallyTurnedOff.add(n);
 addLog("select", `已杀所有${label}`); showToast(`❌ 已杀所有${label}`);
 updateAllStates(false);
 }
+function handleSizeParityKill(type) {
+vibrate(20);
+const groupNums = getGroupNumbers('size_parity', type);
+const label = type;
+if (groupNums.length === 0) return;
+const anyLit = groupNums.some(n => selectedNumbers.has(n));
+if (!anyLit) { showToast(`❌ 当前${label}已全杀`); return; }
+const removedNums = groupNums.filter(n => selectedNumbers.has(n));
+recordAction('batch_kill', label, removedNums, false);
+groupNums.forEach(n => {
+if (selectedNumbers.has(n)) {
+selectedNumbers.delete(n);
+if(betResults[n] !== undefined) delete betResults[n];
+bettingNumbers.delete(n);
+manuallyTurnedOff.add(n);
+}
+});
+addLog("select", `已杀所有${label}`); showToast(`❌ 已杀所有${label}`);
+updateAllStates(false);
+}
 function handleHeadKill(headVal) {
 vibrate(20);
 const groupNums = getGroupNumbers('head', headVal);
@@ -1697,6 +1723,13 @@ btn.dataset.type = color;
 btn.onclick = function() { handleWaveKill(color, parity); };
 return btn;
 };
+const createSizeFilterBtn = (text) => {
+const btn = document.createElement('button');
+btn.className = 'filter-btn';
+btn.textContent = text;
+btn.onclick = function() { handleSizeParityKill(text); };
+return btn;
+};
 for (let i = 0; i <= 4; i++) {
 headWuxingContainer.appendChild(createFilterBtn(i.toString(), 'head', i.toString(), handleHeadKill));
 }
@@ -1710,6 +1743,10 @@ parityContainer.appendChild(createWaveBtn('蓝单', 'blue', 'odd'));
 parityContainer.appendChild(createWaveBtn('蓝双', 'blue', 'even'));
 parityContainer.appendChild(createWaveBtn('绿单', 'green', 'odd'));
 parityContainer.appendChild(createWaveBtn('绿双', 'green', 'even'));
+parityContainer.appendChild(createSizeFilterBtn('大单'));
+parityContainer.appendChild(createSizeFilterBtn('小单'));
+parityContainer.appendChild(createSizeFilterBtn('大双'));
+parityContainer.appendChild(createSizeFilterBtn('小双'));
 for (let i = 0; i <= 9; i++) {
 tailContainer.appendChild(createFilterBtn(i.toString(), 'tail', i.toString(), handleTailKill));
 }
@@ -1751,15 +1788,24 @@ if (groupNums.length === 0) return;
 const allKilled = !groupNums.some(n => selectedNumbers.has(n));
 if (allKilled) btn.classList.add('active'); else btn.classList.remove('active');
 });
-document.querySelectorAll('#kill-parity-controls .wave-btn').forEach(btn => {
-const color = btn.dataset.type;
+document.querySelectorAll('#kill-parity-controls .filter-btn, #kill-parity-controls .wave-btn').forEach(btn => {
 const text = btn.textContent;
+const isWaveBtn = btn.classList.contains('wave-btn');
+const isSizeBtn = ['大单', '小单', '大双', '小双'].includes(text);
+if (isSizeBtn) {
+const groupNums = getGroupNumbers('size_parity', text);
+if (groupNums.length === 0) return;
+const allKilled = !groupNums.some(n => selectedNumbers.has(n));
+if (allKilled) btn.classList.add('active'); else btn.classList.remove('active');
+} else if (isWaveBtn) {
+const color = btn.dataset.type;
 const parity = text.includes('单') ? 'odd' : 'even';
 const val = `${color}-${parity}`;
 const groupNums = getGroupNumbers('parity', val);
 if (groupNums.length === 0) return;
 const allKilled = !groupNums.some(n => selectedNumbers.has(n));
 if (allKilled) btn.classList.add('wave-active'); else btn.classList.remove('wave-active');
+}
 });
 document.querySelectorAll('#kill-tail-controls .filter-btn').forEach(btn => {
 const val = btn.textContent;
