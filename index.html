@@ -105,6 +105,47 @@ box-shadow: none !important;
 transform: none !important;
 border-color: #cbd5e0 !important;
 }
+.filter-btn:active:not(.active) {
+transform: translateY(2px);
+box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+/* 生肖输入按钮样式 */
+.zodiac-input-btn {
+width: var(--btn-size); height: var(--btn-size); border: 1px solid var(--btn-border); border-radius: 6px;
+display: flex; align-items: center; justify-content: center; cursor: pointer;
+transition: all 0.15s ease; white-space: nowrap; position: relative;
+background: linear-gradient(145deg, var(--btn-bg-start), var(--btn-bg-end));
+color: var(--btn-text);
+text-shadow: none; user-select: none; box-shadow: var(--btn-shadow); -webkit-user-select: none; flex-shrink: 0;
+font-size: 0.7rem !important;
+font-weight: 900 !important;
+}
+.zodiac-input-btn::after {
+content: '';
+position: absolute;
+bottom: 0;
+left: 0;
+right: 0;
+height: 3px;
+border-radius: 0 0 6px 6px;
+}
+.zodiac-input-btn[data-color="red"]::after { background: var(--active-red-start); }
+.zodiac-input-btn[data-color="blue"]::after { background: var(--deep-blue-start); }
+.zodiac-input-btn[data-color="green"]::after { background: var(--active-green-start); }
+/* 选中状态 - 参照网格生肖按钮效果 */
+.zodiac-input-btn.is-active {
+background: var(--btn-active-bg) !important;
+color: #000 !important;
+box-shadow: var(--btn-active-shadow);
+transform: var(--btn-active-transform);
+border-color: #a0aec0;
+text-shadow: none;
+font-weight: 900;
+}
+.zodiac-input-btn:active:not(.is-active) {
+transform: translateY(2px);
+box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
 .wave-btn {
 width: var(--btn-size); height: var(--btn-size);
 border-radius: 6px;
@@ -904,6 +945,8 @@ line-height: 1.6;
 <div class="filter-section">
 <div class="control-box">
 <div class="box-header select-mode">选号</div>
+<!-- 12生肖按钮行 -->
+<div class="control-row" id="zodiacInputRow"></div>
 <div class="input-area-container">
 <div class="input-group" style="margin-bottom:0;">
 <input type="text" id="smartInput" class="smart-input" placeholder="请输入或粘贴号码/生肖" autocomplete="off" inputmode="text" lang="zh-CN">
@@ -1024,18 +1067,19 @@ let isRandomRunning = false;
 let specialNumbersSet = new Set();
 let currentHighlightedNumber = null;
 let manuallyTurnedOff = new Set();
+let isProgrammaticChange = false;
 
 const ZODIAC_MAP = { "鼠":0, "牛":1, "虎":2, "兔":3, "龙":4, "蛇":5, "马":6, "羊":7, "猴":8, "鸡":9, "狗":10, "猪":11, "免":3 };
 
 const freqColorPalette = [
-    "linear-gradient(145deg, #9ACD32, #7CB518)",  // 黄绿
-    "linear-gradient(145deg, #800080, #660066)",  // 紫色
-    "linear-gradient(145deg, #B22222, #8B1A1A)",  // 砖红
-    "linear-gradient(145deg, #800000, #660000)",  // 栗色
-    "linear-gradient(145deg, #808000, #666600)",  // 橄榄绿
-    "linear-gradient(145deg, #4682B4, #366E8F)",  // 钢蓝
-    "linear-gradient(145deg, #008080, #006666)",  // 青绿
-    "linear-gradient(145deg, #4B0082, #3C0066)"   // 靛蓝
+    "linear-gradient(145deg, #9ACD32, #7CB518)",
+    "linear-gradient(145deg, #800080, #660066)",
+    "linear-gradient(145deg, #B22222, #8B1A1A)",
+    "linear-gradient(145deg, #800000, #660000)",
+    "linear-gradient(145deg, #808000, #666600)",
+    "linear-gradient(145deg, #4682B4, #366E8F)",
+    "linear-gradient(145deg, #008080, #006666)",
+    "linear-gradient(145deg, #4B0082, #3C0066)"
 ];
 
 function vibrate(pattern = 15) { if (navigator.vibrate) navigator.vibrate(pattern); }
@@ -1154,10 +1198,13 @@ const lastAction = undoStack.pop();
 redoStack.push({ ...lastAction });
 vibrate(20);
 if (lastAction.type === 'input_text') {
+isProgrammaticChange = true;
 const input = document.getElementById('smartInput');
 input.value = lastAction.prevText || '';
+isProgrammaticChange = false;
 showToast("已恢复输入框内容");
 addLog("undo", `恢复输入`);
+syncZodiacButtonsFromInput();
 if (lastAction.prevNumbers) {
 selectedNumbers.clear();
 lastAction.prevNumbers.forEach(n => selectedNumbers.add(n));
@@ -1300,10 +1347,13 @@ const lastUndo = redoStack.pop();
 undoStack.push({ ...lastUndo });
 vibrate(20);
 if (lastUndo.type === 'input_text') {
+isProgrammaticChange = true;
 const input = document.getElementById('smartInput');
 input.value = lastUndo.nextText || '';
+isProgrammaticChange = false;
 showToast("已重做输入");
 addLog("redo", `重做输入`);
+syncZodiacButtonsFromInput();
 if (lastUndo.nextNumbers) {
 selectedNumbers.clear();
 lastUndo.nextNumbers.forEach(n => selectedNumbers.add(n));
@@ -1449,11 +1499,21 @@ for (const num of item.sortedNumbers) {
 historySelected.add(num);
 }
 }
+const currentSelected = new Set(selectedNumbers);
+const manualSelected = new Set();
+for (const num of currentSelected) {
+if (!historySelected.has(num) && !manuallyTurnedOff.has(num)) {
+manualSelected.add(num);
+}
+}
 selectedNumbers.clear();
 for (const num of historySelected) {
 if (!manuallyTurnedOff.has(num)) {
 selectedNumbers.add(num);
 }
+}
+for (const num of manualSelected) {
+selectedNumbers.add(num);
 }
 syncSpecialWithSelected();
 }
@@ -2308,15 +2368,23 @@ function removeHistoryItem(index) {
 const item = inputHistory[index];
 if (!item) return;
 vibrate(20);
+const numsToRemove = new Set(item.sortedNumbers);
+const remainingSelected = new Set();
+for (const num of selectedNumbers) {
+if (!numsToRemove.has(num) || manuallyTurnedOff.has(num)) {
+remainingSelected.add(num);
+}
+}
 recordAction('history_delete', '删除历史', [], false, 0, {
 index: index,
 deletedItem: item
 });
 inputHistory.splice(index, 1);
-rebuildSelectedFromHistory();
+selectedNumbers = remainingSelected;
 updateAllStates();
 addLog("input", `删除历史 ${item.numbers.length}码`);
 showToast("🗑️ 已删除该组号码");
+save_data();
 }
 function updateResultText() {
 const resultDiv = document.getElementById('resultDisplay');
@@ -2486,15 +2554,13 @@ updateAllStates();
 function setupInputListener() {
 const input = document.getElementById('smartInput');
 let lastInputValue = input.value;
-input.addEventListener('blur', () => {
-if (input.value !== lastInputValue) {
-const currentNumbers = Array.from(selectedNumbers);
-recordAction('input_text', '输入文本', [], false, 0, {
-prevText: lastInputValue,
-nextText: input.value,
-prevNumbers: currentNumbers,
-nextNumbers: null
+input.addEventListener('input', function() {
+if (!isProgrammaticChange) {
+syncZodiacButtonsFromInput();
+}
 });
+input.addEventListener('blur', () => {
+if (input.value !== lastInputValue && !isProgrammaticChange) {
 lastInputValue = input.value;
 }
 });
@@ -2517,6 +2583,13 @@ input.focus();
 input.select();
 return;
 }
+if (n < 1 || n > 49) {
+showToast("⚠️ 数字必须在 1-49 范围内");
+vibrate(30);
+input.focus();
+input.select();
+return;
+}
 }
 }
 const cleanText = text.replace(/[\s]/g, '');
@@ -2527,15 +2600,17 @@ input.focus();
 input.select();
 return;
 }
-let isValid = true;
+let hasInvalidChar = false;
+let invalidChar = '';
 for (let char of cleanText) {
 if (!/\d/.test(char) && !ZODIAC_MAP.hasOwnProperty(char)) {
-isValid = false;
+hasInvalidChar = true;
+invalidChar = char;
 break;
 }
 }
-if (!isValid) {
-showToast("⚠️ 输入包含无效字符，仅支持数字和生肖");
+if (hasInvalidChar) {
+showToast(`⚠️ 输入包含无效字符 "${invalidChar}"，仅支持数字和生肖`);
 vibrate(30);
 input.focus();
 input.select();
@@ -2550,7 +2625,11 @@ nextText: '',
 prevNumbers: prevNumbers,
 nextNumbers: nextNumbers
 });
-input.value = ''; input.blur();
+isProgrammaticChange = true;
+input.value = '';
+isProgrammaticChange = false;
+syncZodiacButtonsFromInput();
+input.blur();
 }
 function processInputAndAddToHistory(text) {
 const digitMatches = text.match(/\d+/g);
@@ -2923,7 +3002,9 @@ tempStorageData = [];
 specialNumbersSet.clear();
 currentHighlightedNumber = null;
 manuallyTurnedOff.clear();
+isProgrammaticChange = true;
 document.getElementById('smartInput').value = '';
+isProgrammaticChange = false;
 document.querySelectorAll('.num-btn.is-special').forEach(btn => {
 btn.classList.remove('is-special');
 });
@@ -2932,6 +3013,7 @@ updateTempCountBadge();
 updateTempStoreBtn();
 updateTempRestoreBtn();
 updateTempClearBtn();
+syncZodiacButtonsFromInput();
 const logContainer = document.getElementById('logContainer');
 logContainer.innerHTML = '<div class="log-item" style="color:#718096; justify-content:center;">暂无记录</div>';
 save_data();
@@ -3003,11 +3085,78 @@ setTimeout(runAnimation, speed);
 };
 runAnimation();
 }
+function syncZodiacButtonsFromInput() {
+const input = document.getElementById('smartInput');
+const text = input.value;
+const zodiacList = ["鼠", "牛", "虎", "兔", "龙", "蛇", "马", "羊", "猴", "鸡", "狗", "猪"];
+zodiacList.forEach(zodiac => {
+const btn = document.querySelector(`.zodiac-input-btn[data-zodiac="${zodiac}"]`);
+if (btn) {
+if (text.includes(zodiac)) {
+btn.classList.add('is-active');
+} else {
+btn.classList.remove('is-active');
+}
+}
+});
+}
+function renderZodiacInputButtons() {
+    const container = document.getElementById('zodiacInputRow');
+    if (!container) return;
+    container.innerHTML = '';
+    const zodiacList = ["鼠", "牛", "虎", "兔", "龙", "蛇", "马", "羊", "猴", "鸡", "狗", "猪"];
+    const zodiacColorMap = {
+        "鼠": "red", "牛": "blue", "虎": "green", "兔": "red",
+        "龙": "blue", "蛇": "green", "马": "red", "羊": "blue",
+        "猴": "green", "鸡": "red", "狗": "blue", "猪": "green"
+    };
+    zodiacList.forEach(zodiac => {
+        const btn = document.createElement('button');
+        btn.className = 'zodiac-input-btn';
+        btn.textContent = zodiac;
+        btn.setAttribute('data-zodiac', zodiac);
+        const color = zodiacColorMap[zodiac];
+        btn.setAttribute('data-color', color);
+        btn.onclick = () => {
+            const input = document.getElementById('smartInput');
+            const prevText = input.value;
+            let nextText = prevText;
+            const hasZodiac = prevText.includes(zodiac);
+            if (hasZodiac) {
+                const regex = new RegExp(zodiac, 'g');
+                nextText = prevText.replace(regex, '');
+            } else {
+                nextText = prevText + zodiac;
+            }
+            if (prevText !== nextText) {
+                isProgrammaticChange = true;
+                input.value = nextText;
+                isProgrammaticChange = false;
+                recordAction('input_text', `生肖切换:${zodiac}`, [], false, 0, {
+                    prevText: prevText,
+                    nextText: nextText,
+                    prevNumbers: Array.from(selectedNumbers),
+                    nextNumbers: null
+                });
+                addLog("input", `${hasZodiac ? '删除' : '添加'}生肖: ${zodiac}`);
+                showToast(`${hasZodiac ? '❌ 已删除' : '✅ 已添加'}生肖: ${zodiac}`);
+                vibrate(15);
+                syncZodiacButtonsFromInput();
+                input.focus();
+            } else {
+                showToast(`ℹ️ 生肖 ${zodiac} ${hasZodiac ? '已删除' : '已存在'}`);
+            }
+        };
+        container.appendChild(btn);
+    });
+    syncZodiacButtonsFromInput();
+}
 function init() {
 renderKillControls();
 load_data();
 renderGrid();
 setupInputListener();
+renderZodiacInputButtons();
 addLog("system", "启动就绪");
 window.addEventListener('beforeunload', function() {
 save_data();
