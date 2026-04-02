@@ -82,6 +82,15 @@ box-shadow: 0 4px 15px rgba(0,0,0,0.05); position: relative;
 .box-header.kill-mode { color: var(--label-kill-color); text-shadow: var(--label-kill-glow); }
 .control-row { display: flex; gap: var(--btn-gap); overflow-x: auto; -webkit-overflow-scrolling: touch; padding: 2px; scrollbar-width: none; justify-content: flex-start; flex-wrap: nowrap; margin-bottom: 2px; align-items: center; }
 .control-row::-webkit-scrollbar { display: none; }
+/* 生肖按钮行 - 适配手机屏幕，完整显示不滚动 */
+.zodiac-row {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 4px;
+    width: 100%;
+    margin-bottom: 8px;
+    overflow-x: visible;
+}
 .row-label { font-family: var(--font-art-mao); font-size: var(--label-font-size); font-weight: bold; margin-right: 4px; flex-shrink: 0; line-height: 1; padding-top: 1px; white-space: nowrap; }
 .row-label.select-label { color: var(--label-select-color); text-shadow: var(--label-select-glow); }
 .row-label.kill-label { color: var(--label-kill-color); text-shadow: var(--label-kill-glow); }
@@ -109,16 +118,29 @@ border-color: #cbd5e0 !important;
 transform: translateY(2px);
 box-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
-/* 生肖输入按钮样式 */
+/* 生肖输入按钮样式 - 自适应屏幕宽度 */
 .zodiac-input-btn {
-width: var(--btn-size); height: var(--btn-size); border: 1px solid var(--btn-border); border-radius: 6px;
-display: flex; align-items: center; justify-content: center; cursor: pointer;
-transition: all 0.15s ease; white-space: nowrap; position: relative;
-background: linear-gradient(145deg, var(--btn-bg-start), var(--btn-bg-end));
-color: var(--btn-text);
-text-shadow: none; user-select: none; box-shadow: var(--btn-shadow); -webkit-user-select: none; flex-shrink: 0;
-font-size: 0.7rem !important;
-font-weight: 900 !important;
+    flex: 1;
+    aspect-ratio: 1 / 1;
+    border: 1px solid var(--btn-border);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+    position: relative;
+    background: linear-gradient(145deg, var(--btn-bg-start), var(--btn-bg-end));
+    color: var(--btn-text);
+    text-shadow: none;
+    user-select: none;
+    box-shadow: var(--btn-shadow);
+    -webkit-user-select: none;
+    font-size: clamp(0.6rem, 4vw, 0.8rem);
+    font-weight: 900;
+    padding: 0;
+    min-width: 0;
 }
 .zodiac-input-btn::after {
 content: '';
@@ -946,7 +968,7 @@ line-height: 1.6;
 <div class="control-box">
 <div class="box-header select-mode">选号</div>
 <!-- 12生肖按钮行 -->
-<div class="control-row" id="zodiacInputRow"></div>
+<div class="control-row zodiac-row" id="zodiacInputRow"></div>
 <div class="input-area-container">
 <div class="input-group" style="margin-bottom:0;">
 <input type="text" id="smartInput" class="smart-input" placeholder="请输入或粘贴号码/生肖" autocomplete="off" inputmode="text" lang="zh-CN">
@@ -1917,11 +1939,17 @@ const f = freqMap[i] || 1;
 if (!freqNumbers[f]) freqNumbers[f] = [];
 freqNumbers[f].push(i);
 }
+const historySelected = new Set();
+for (const item of inputHistory) {
+for (const num of item.sortedNumbers) {
+historySelected.add(num);
+}
+}
 document.querySelectorAll('#sphereBtnContainer .count-btn').forEach(btn => {
 const freq = parseInt(btn.getAttribute('data-freq'));
 const numbers = freqNumbers[freq] || [];
-const anyLit = numbers.some(n => selectedNumbers.has(n));
-if (anyLit) {
+const anyLitInHistory = numbers.some(n => historySelected.has(n));
+if (anyLitInHistory) {
 btn.classList.remove('is-pressed');
 } else {
 btn.classList.add('is-pressed');
@@ -2371,7 +2399,22 @@ vibrate(20);
 const numsToRemove = new Set(item.sortedNumbers);
 const remainingSelected = new Set();
 for (const num of selectedNumbers) {
-if (!numsToRemove.has(num) || manuallyTurnedOff.has(num)) {
+let shouldKeep = false;
+if (!numsToRemove.has(num)) {
+shouldKeep = true;
+} else {
+let appearsInOtherHistory = false;
+for (let i = 0; i < inputHistory.length; i++) {
+if (i !== index && inputHistory[i].sortedNumbers.includes(num)) {
+appearsInOtherHistory = true;
+break;
+}
+}
+if (appearsInOtherHistory) {
+shouldKeep = true;
+}
+}
+if (shouldKeep) {
 remainingSelected.add(num);
 }
 }
@@ -2550,6 +2593,7 @@ addLog("select", `取消选中 ${numStr}`);
 showToast(`❌ 取消 ${numStr}`);
 }
 updateAllStates();
+updateFrequencyButtonsPressedState();
 }
 function setupInputListener() {
 const input = document.getElementById('smartInput');
