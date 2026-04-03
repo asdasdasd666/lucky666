@@ -197,8 +197,9 @@ flex: 1 1 0;
 min-width: 0;
 aspect-ratio: 1;
 border: 1px solid var(--btn-border);
+box-sizing: border-box;
 font-weight: 900;
-font-size: clamp(0.5rem, 3vw, 0.75rem);
+font-size: clamp(0.55rem, 3vw, 0.8rem);
 display: flex;
 align-items: center;
 justify-content: center;
@@ -213,9 +214,10 @@ user-select: none;
 -webkit-user-select: none;
 text-shadow: 0 1px 0 rgba(255,255,255,0.9);
 font-family: inherit;
-overflow: hidden;
-white-space: nowrap;
-box-sizing: border-box;  /* 修复：边框包含在宽度内 */
+white-space: normal;
+word-break: keep-all;
+line-height: 1.2;
+padding: 0 2px;
 }
 .select-zodiac-btn::after {
 content: '';
@@ -300,7 +302,7 @@ border-color: #A7F3D0 !important;
 color: #38a169 !important;
 box-shadow: 0 2px 0 #A7F3D0, 0 3px 4px rgba(56, 161, 105, 0.1) !important;
 }
-/* 凹陷状态 - 视觉灰色但可点击（无 pointer-events: none） */
+/* 凹陷状态 - 视觉灰色但可点击 */
 .select-wave-btn.select-wave-active {
 background: #cbd5e0 !important;
 color: #718096 !important;
@@ -1462,7 +1464,7 @@ lastAction.numbers.forEach(n => selectedNumbers.delete(n));
 lastAction.numbers.forEach(n => selectedNumbers.add(n));
 }
 lastAction.numbers.forEach(n => manuallyTurnedOff.delete(n));
-updateAllStates();  // 关键：刷新UI
+updateAllStates();
 } else if (lastAction.type === 'zodiac_append') {
 const input = document.getElementById('smartInput');
 input.value = lastAction.prevText || '';
@@ -1636,7 +1638,7 @@ lastUndo.numbers.forEach(n => selectedNumbers.add(n));
 lastUndo.numbers.forEach(n => selectedNumbers.delete(n));
 }
 lastUndo.numbers.forEach(n => manuallyTurnedOff.delete(n));
-updateAllStates();  // 关键：刷新UI
+updateAllStates();
 } else if (lastUndo.type === 'zodiac_append') {
 const input = document.getElementById('smartInput');
 input.value = lastUndo.nextText || '';
@@ -2677,16 +2679,28 @@ index: index,
 deletedItem: item
 });
 inputHistory.splice(index, 1);
-// 修复：只删除历史记录，不重建 selectedNumbers
-// 只从 specialNumbersSet 中移除被删除记录中的特码
-const numsToRemove = new Set(item.sortedNumbers);
-for (const num of numsToRemove) {
-if (specialNumbersSet.has(num)) {
-specialNumbersSet.delete(num);
+const historySelected = new Set();
+for (const histItem of inputHistory) {
+for (const num of histItem.sortedNumbers) {
+historySelected.add(num);
+}
+}
+selectedNumbers.clear();
+for (const num of historySelected) {
+if (!manuallyTurnedOff.has(num)) {
+selectedNumbers.add(num);
+}
+}
+const newSpecialSet = new Set();
+for (const num of specialNumbersSet) {
+if (selectedNumbers.has(num)) {
+newSpecialSet.add(num);
+} else {
 const btn = document.querySelector(`.num-btn[data-num="${num}"]`);
 if (btn) btn.classList.remove('is-special');
 }
 }
+specialNumbersSet = newSpecialSet;
 updateAllStates();
 addLog("input", `删除历史 ${item.numbers.length}码`);
 showToast("🗑️ 已删除该组号码");
