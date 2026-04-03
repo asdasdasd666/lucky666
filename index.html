@@ -2679,28 +2679,23 @@ index: index,
 deletedItem: item
 });
 inputHistory.splice(index, 1);
-const historySelected = new Set();
+const numsToRemove = new Set(item.sortedNumbers);
+const remainingHistoryNumbers = new Set();
 for (const histItem of inputHistory) {
 for (const num of histItem.sortedNumbers) {
-historySelected.add(num);
+remainingHistoryNumbers.add(num);
 }
 }
-selectedNumbers.clear();
-for (const num of historySelected) {
-if (!manuallyTurnedOff.has(num)) {
-selectedNumbers.add(num);
-}
-}
-const newSpecialSet = new Set();
-for (const num of specialNumbersSet) {
-if (selectedNumbers.has(num)) {
-newSpecialSet.add(num);
-} else {
+for (const num of numsToRemove) {
+if (!remainingHistoryNumbers.has(num) && selectedNumbers.has(num)) {
+selectedNumbers.delete(num);
+if (specialNumbersSet.has(num)) {
+specialNumbersSet.delete(num);
 const btn = document.querySelector(`.num-btn[data-num="${num}"]`);
 if (btn) btn.classList.remove('is-special');
 }
 }
-specialNumbersSet = newSpecialSet;
+}
 updateAllStates();
 addLog("input", `删除历史 ${item.numbers.length}码`);
 showToast("🗑️ 已删除该组号码");
