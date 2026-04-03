@@ -169,7 +169,7 @@ border-color: #a0aec0; text-shadow: none; font-weight: 900;
 }
 .zodiac-btn:active:not(.is-active-zodiac) { transform: var(--btn-active-transform); box-shadow: var(--btn-active-shadow); }
 
-/* 选号区生肖行 - 带“肖”标签，按钮自动适配屏幕 */
+/* 选号区生肖行 - 带"肖"标签，按钮自动适配屏幕 */
 .select-zodiac-row {
 display: flex;
 align-items: center;
@@ -215,6 +215,7 @@ text-shadow: 0 1px 0 rgba(255,255,255,0.9);
 font-family: inherit;
 overflow: hidden;
 white-space: nowrap;
+box-sizing: border-box;  /* 修复：边框包含在宽度内 */
 }
 .select-zodiac-btn::after {
 content: '';
@@ -233,7 +234,7 @@ transform: var(--btn-active-transform);
 box-shadow: var(--btn-active-shadow);
 }
 
-/* 选号区波行 - 带“波”标签 */
+/* 选号区波行 - 带"波"标签 */
 .select-wave-row {
 display: flex;
 align-items: center;
@@ -299,7 +300,7 @@ border-color: #A7F3D0 !important;
 color: #38a169 !important;
 box-shadow: 0 2px 0 #A7F3D0, 0 3px 4px rgba(56, 161, 105, 0.1) !important;
 }
-/* 凹陷状态 - 视觉灰色但可点击 */
+/* 凹陷状态 - 视觉灰色但可点击（无 pointer-events: none） */
 .select-wave-btn.select-wave-active {
 background: #cbd5e0 !important;
 color: #718096 !important;
@@ -1055,12 +1056,12 @@ line-height: 1.6;
 <!-- 选号标题上方空白行，高度与选号标题一致 -->
 <div style="height: 1.8rem;"></div>
 <div class="box-header select-mode">选号</div>
-<!-- 生肖行 - 带“肖”标签 -->
+<!-- 生肖行 - 带"肖"标签 -->
 <div class="select-zodiac-row">
 <span class="select-zodiac-label">肖</span>
 <div class="select-zodiac-buttons" id="selectZodiacButtons"></div>
 </div>
-<!-- 波行 - 带“波”标签 -->
+<!-- 波行 - 带"波"标签 -->
 <div class="select-wave-row">
 <span class="select-wave-label">波</span>
 <div class="select-wave-buttons" id="selectWaveButtons"></div>
@@ -1452,13 +1453,16 @@ selectedNumbers.add(lastAction.number);
 manuallyTurnedOff.delete(lastAction.number);
 }
 } else if (lastAction.type === 'select_wave') {
+// 撤销：取反操作
 if (lastAction.wasAdding) {
+// 原操作是点亮，撤销时熄灭
 lastAction.numbers.forEach(n => selectedNumbers.delete(n));
 } else {
+// 原操作是熄灭，撤销时重新点亮
 lastAction.numbers.forEach(n => selectedNumbers.add(n));
 }
 lastAction.numbers.forEach(n => manuallyTurnedOff.delete(n));
-updateSelectWaveButtonsState();
+updateAllStates();  // 关键：刷新UI
 } else if (lastAction.type === 'zodiac_append') {
 const input = document.getElementById('smartInput');
 input.value = lastAction.prevText || '';
@@ -1623,13 +1627,16 @@ selectedNumbers.delete(lastUndo.number);
 manuallyTurnedOff.add(lastUndo.number);
 }
 } else if (lastUndo.type === 'select_wave') {
+// 恢复：重新执行原操作
 if (lastUndo.wasAdding) {
+// 原操作是点亮，恢复时重新点亮
 lastUndo.numbers.forEach(n => selectedNumbers.add(n));
 } else {
+// 原操作是熄灭，恢复时重新熄灭
 lastUndo.numbers.forEach(n => selectedNumbers.delete(n));
 }
 lastUndo.numbers.forEach(n => manuallyTurnedOff.delete(n));
-updateSelectWaveButtonsState();
+updateAllStates();  // 关键：刷新UI
 } else if (lastUndo.type === 'zodiac_append') {
 const input = document.getElementById('smartInput');
 input.value = lastUndo.nextText || '';
@@ -2016,6 +2023,7 @@ container.appendChild(btn);
 });
 updateSelectWaveButtonsState();
 }
+// 选号区波按钮 - 有撤销/恢复功能
 function handleSelectWave(color, parity) {
 const val = `${color}-${parity}`;
 const groupNums = getGroupNumbers('parity', val);
@@ -2669,28 +2677,16 @@ index: index,
 deletedItem: item
 });
 inputHistory.splice(index, 1);
-const historySelected = new Set();
-for (const histItem of inputHistory) {
-for (const num of histItem.sortedNumbers) {
-historySelected.add(num);
-}
-}
-selectedNumbers.clear();
-for (const num of historySelected) {
-if (!manuallyTurnedOff.has(num)) {
-selectedNumbers.add(num);
-}
-}
-const newSpecialSet = new Set();
-for (const num of specialNumbersSet) {
-if (selectedNumbers.has(num)) {
-newSpecialSet.add(num);
-} else {
+// 修复：只删除历史记录，不重建 selectedNumbers
+// 只从 specialNumbersSet 中移除被删除记录中的特码
+const numsToRemove = new Set(item.sortedNumbers);
+for (const num of numsToRemove) {
+if (specialNumbersSet.has(num)) {
+specialNumbersSet.delete(num);
 const btn = document.querySelector(`.num-btn[data-num="${num}"]`);
 if (btn) btn.classList.remove('is-special');
 }
 }
-specialNumbersSet = newSpecialSet;
 updateAllStates();
 addLog("input", `删除历史 ${item.numbers.length}码`);
 showToast("🗑️ 已删除该组号码");
