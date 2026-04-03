@@ -169,13 +169,28 @@ border-color: #a0aec0; text-shadow: none; font-weight: 900;
 }
 .zodiac-btn:active:not(.is-active-zodiac) { transform: var(--btn-active-transform); box-shadow: var(--btn-active-shadow); }
 
-/* 选号区生肖按钮 - 完全复刻网格球区生肖按钮样式，等宽填满整行，自动适配屏幕 */
+/* 选号区生肖行 - 带“肖”标签，按钮自动适配屏幕 */
 .select-zodiac-row {
 display: flex;
-gap: 4px;
-padding: 2px;
-margin-bottom: 8px;
+align-items: center;
+gap: 8px;
 width: 100%;
+margin-bottom: 8px;
+}
+.select-zodiac-label {
+font-family: var(--font-art-mao);
+font-size: var(--label-font-size);
+font-weight: bold;
+color: var(--label-select-color);
+text-shadow: var(--label-select-glow);
+flex-shrink: 0;
+line-height: 1;
+}
+.select-zodiac-buttons {
+flex: 1;
+display: flex;
+gap: 4px;
+min-width: 0;
 }
 .select-zodiac-btn {
 flex: 1 1 0;
@@ -183,7 +198,7 @@ min-width: 0;
 aspect-ratio: 1;
 border: 1px solid var(--btn-border);
 font-weight: 900;
-font-size: clamp(0.65rem, 3.5vw, 0.9rem);
+font-size: clamp(0.55rem, 3.5vw, 0.85rem);
 display: flex;
 align-items: center;
 justify-content: center;
@@ -198,6 +213,8 @@ user-select: none;
 -webkit-user-select: none;
 text-shadow: 0 1px 0 rgba(255,255,255,0.9);
 font-family: inherit;
+overflow: hidden;
+white-space: nowrap;
 }
 .select-zodiac-btn::after {
 content: '';
@@ -216,8 +233,25 @@ transform: var(--btn-active-transform);
 box-shadow: var(--btn-active-shadow);
 }
 
-/* 选号区波按钮 - 凹陷状态可点击 */
+/* 选号区波行 - 带“波”标签 */
 .select-wave-row {
+display: flex;
+align-items: center;
+gap: 8px;
+width: 100%;
+margin-bottom: 8px;
+}
+.select-wave-label {
+font-family: var(--font-art-mao);
+font-size: var(--label-font-size);
+font-weight: bold;
+color: var(--label-select-color);
+text-shadow: var(--label-select-glow);
+flex-shrink: 0;
+line-height: 1;
+}
+.select-wave-buttons {
+flex: 1;
 display: flex;
 gap: var(--btn-gap);
 overflow-x: auto;
@@ -226,10 +260,8 @@ padding: 2px;
 scrollbar-width: none;
 justify-content: flex-start;
 flex-wrap: nowrap;
-margin-bottom: 8px;
-align-items: center;
 }
-.select-wave-row::-webkit-scrollbar { display: none; }
+.select-wave-buttons::-webkit-scrollbar { display: none; }
 .select-wave-btn {
 width: var(--btn-size);
 height: var(--btn-size);
@@ -1021,10 +1053,16 @@ line-height: 1.6;
 <div class="filter-section">
 <div class="control-box">
 <div class="box-header select-mode">选号</div>
-<!-- 生肖行 - 完全复刻网格球区生肖按钮样式，等宽填满整行，自动适配屏幕 -->
-<div class="select-zodiac-row" id="selectZodiacRow"></div>
-<!-- 波按钮行 -->
-<div class="select-wave-row" id="selectWaveRow"></div>
+<!-- 生肖行 - 带“肖”标签 -->
+<div class="select-zodiac-row">
+<span class="select-zodiac-label">肖</span>
+<div class="select-zodiac-buttons" id="selectZodiacButtons"></div>
+</div>
+<!-- 波行 - 带“波”标签 -->
+<div class="select-wave-row">
+<span class="select-wave-label">波</span>
+<div class="select-wave-buttons" id="selectWaveButtons"></div>
+</div>
 <div class="input-area-container">
 <div class="input-group" style="margin-bottom:0;">
 <input type="text" id="smartInput" class="smart-input" placeholder="请输入或粘贴号码/生肖" autocomplete="off" inputmode="text" lang="zh-CN">
@@ -1282,8 +1320,8 @@ redoStack.push({ ...lastAction });
 vibrate(20);
 if (lastAction.type === 'input_text') {
 const input = document.getElementById('smartInput');
-input.value = lastAction.prevText || '';
-lastInputValue = input.value;
+input.value = '';
+lastInputValue = '';
 showToast("已恢复输入框内容");
 addLog("undo", `恢复输入`);
 if (lastAction.prevNumbers) {
@@ -1923,8 +1961,8 @@ for (let i = 0; i <= 9; i++) {
 tailContainer.appendChild(createFilterBtn(i.toString(), 'tail', i.toString(), handleTailKill));
 }
 }
-function renderSelectZodiacRow() {
-const container = document.getElementById('selectZodiacRow');
+function renderSelectZodiacButtons() {
+const container = document.getElementById('selectZodiacButtons');
 container.innerHTML = '';
 zodiacs.forEach((z, index) => {
 const btn = document.createElement('button');
@@ -1954,8 +1992,8 @@ showToast(`➕ 已添加 ${z}`);
 container.appendChild(btn);
 });
 }
-function renderSelectWaveRow() {
-const container = document.getElementById('selectWaveRow');
+function renderSelectWaveButtons() {
+const container = document.getElementById('selectWaveButtons');
 container.innerHTML = '';
 const waves = [
 { text: '红单', color: 'red', parity: 'odd' },
@@ -3342,8 +3380,8 @@ runAnimation();
 }
 function init() {
 renderKillControls();
-renderSelectZodiacRow();
-renderSelectWaveRow();
+renderSelectZodiacButtons();
+renderSelectWaveButtons();
 load_data();
 renderGrid();
 setupInputListener();
