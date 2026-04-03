@@ -169,7 +169,7 @@ border-color: #a0aec0; text-shadow: none; font-weight: 900;
 }
 .zodiac-btn:active:not(.is-active-zodiac) { transform: var(--btn-active-transform); box-shadow: var(--btn-active-shadow); }
 
-/* 选号区生肖按钮 - 完全复刻网格球区生肖按钮样式，等宽填满整行 */
+/* 选号区生肖按钮 - 完全复刻网格球区生肖按钮样式，等宽填满整行，自动适配屏幕 */
 .select-zodiac-row {
 display: flex;
 gap: 4px;
@@ -183,7 +183,7 @@ min-width: 0;
 aspect-ratio: 1;
 border: 1px solid var(--btn-border);
 font-weight: 900;
-font-size: clamp(0.7rem, 4vw, 1rem);
+font-size: clamp(0.65rem, 3.5vw, 0.9rem);
 display: flex;
 align-items: center;
 justify-content: center;
@@ -1021,7 +1021,7 @@ line-height: 1.6;
 <div class="filter-section">
 <div class="control-box">
 <div class="box-header select-mode">选号</div>
-<!-- 生肖行 - 完全复刻网格球区生肖按钮样式，等宽填满整行，间距4px -->
+<!-- 生肖行 - 完全复刻网格球区生肖按钮样式，等宽填满整行，自动适配屏幕 -->
 <div class="select-zodiac-row" id="selectZodiacRow"></div>
 <!-- 波按钮行 -->
 <div class="select-wave-row" id="selectWaveRow"></div>
@@ -1290,6 +1290,9 @@ if (lastAction.prevNumbers) {
 selectedNumbers.clear();
 lastAction.prevNumbers.forEach(n => selectedNumbers.add(n));
 }
+if (lastAction.prevHistory) {
+inputHistory = [...lastAction.prevHistory];
+}
 updateAllStates(false);
 save_data();
 return;
@@ -1455,6 +1458,9 @@ addLog("redo", `重做输入`);
 if (lastUndo.nextNumbers) {
 selectedNumbers.clear();
 lastUndo.nextNumbers.forEach(n => selectedNumbers.add(n));
+}
+if (lastUndo.nextHistory) {
+inputHistory = [...lastUndo.nextHistory];
 }
 updateAllStates(false);
 save_data();
@@ -1929,7 +1935,12 @@ btn.setAttribute('data-color', color);
 btn.onclick = () => {
 vibrate(20);
 const input = document.getElementById('smartInput');
-const prevText = input.value;
+const currentValue = input.value;
+if (currentValue.includes(z)) {
+showToast(`⚠️ 生肖${z}已存在`);
+return;
+}
+const prevText = currentValue;
 input.value += z;
 lastInputValue = input.value;
 input.focus();
@@ -2823,6 +2834,8 @@ function handleConfirm() {
 const input = document.getElementById('smartInput');
 let text = input.value.trim();
 const prevText = input.value;
+const prevHistory = [...inputHistory];
+const prevNumbers = Array.from(selectedNumbers);
 if (!text) { showToast("⚠️ 请输入号码"); return; }
 text = text.replace(/[.,,;:;\\\/。.；：，、]/g, ' ');
 const digitMatches = text.match(/\d+/g);
@@ -2860,14 +2873,16 @@ input.focus();
 input.select();
 return;
 }
-const prevNumbers = Array.from(selectedNumbers);
 processInputAndAddToHistory(text);
 const nextNumbers = Array.from(selectedNumbers);
+const nextHistory = [...inputHistory];
 recordAction('input_text', '输入确认', [], false, 0, {
 prevText: prevText,
 nextText: '',
 prevNumbers: prevNumbers,
-nextNumbers: nextNumbers
+nextNumbers: nextNumbers,
+prevHistory: prevHistory,
+nextHistory: nextHistory
 });
 input.value = '';
 lastInputValue = '';
