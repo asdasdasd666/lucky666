@@ -189,7 +189,7 @@ line-height: 1;
 .select-zodiac-buttons {
 flex: 1;
 display: flex;
-gap: 4px;
+gap: 3px;
 min-width: 0;
 }
 .select-zodiac-btn {
@@ -198,7 +198,7 @@ min-width: 0;
 aspect-ratio: 1;
 border: 1px solid var(--btn-border);
 font-weight: 900;
-font-size: clamp(0.55rem, 3.5vw, 0.85rem);
+font-size: clamp(0.5rem, 3vw, 0.75rem);
 display: flex;
 align-items: center;
 justify-content: center;
@@ -1052,6 +1052,8 @@ line-height: 1.6;
 <body>
 <div class="filter-section">
 <div class="control-box">
+<!-- 选号标题上方空白行，高度与选号标题一致 -->
+<div style="height: 1.8rem;"></div>
 <div class="box-header select-mode">选号</div>
 <!-- 生肖行 - 带“肖”标签 -->
 <div class="select-zodiac-row">
