@@ -191,6 +191,7 @@ flex: 1;
 display: flex;
 gap: 3px;
 min-width: 0;
+overflow: hidden;
 }
 .select-zodiac-btn {
 flex: 1 1 0;
@@ -199,7 +200,7 @@ aspect-ratio: 1;
 border: 1px solid var(--btn-border);
 box-sizing: border-box;
 font-weight: 900;
-font-size: clamp(0.55rem, 3vw, 0.8rem);
+font-size: clamp(0.6rem, 3.2vw, 0.85rem);
 display: flex;
 align-items: center;
 justify-content: center;
@@ -214,9 +215,7 @@ user-select: none;
 -webkit-user-select: none;
 text-shadow: 0 1px 0 rgba(255,255,255,0.9);
 font-family: inherit;
-white-space: normal;
-word-break: keep-all;
-line-height: 1.2;
+white-space: nowrap;
 padding: 0 2px;
 }
 .select-zodiac-btn::after {
@@ -234,6 +233,17 @@ border-radius: 0 0 10px 10px;
 .select-zodiac-btn:active {
 transform: var(--btn-active-transform);
 box-shadow: var(--btn-active-shadow);
+}
+
+/* 极小屏幕（宽度<360px）进一步缩小间距和字体 */
+@media (max-width: 360px) {
+    .select-zodiac-buttons {
+        gap: 2px;
+    }
+    .select-zodiac-btn {
+        font-size: clamp(0.55rem, 3vw, 0.75rem);
+        padding: 0 1px;
+    }
 }
 
 /* 选号区波行 - 带"波"标签 */
@@ -1990,9 +2000,10 @@ showToast(`⚠️ 生肖${z}已存在`);
 return;
 }
 const prevText = currentValue;
+input.focus();
 input.value += z;
 lastInputValue = input.value;
-input.focus();
+input.blur();
 recordAction('zodiac_append', `添加生肖${z}`, [], true, 0, {
 prevText: prevText,
 nextText: input.value
