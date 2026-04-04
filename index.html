@@ -169,7 +169,6 @@ border-color: #a0aec0; text-shadow: none; font-weight: 900;
 }
 .zodiac-btn:active:not(.is-active-zodiac) { transform: var(--btn-active-transform); box-shadow: var(--btn-active-shadow); }
 
-/* 选号区生肖行 - 带"肖"标签，按钮自动适配屏幕 */
 .select-zodiac-row {
 display: flex;
 align-items: center;
@@ -235,18 +234,11 @@ transform: var(--btn-active-transform);
 box-shadow: var(--btn-active-shadow);
 }
 
-/* 极小屏幕（宽度<360px）进一步缩小间距和字体 */
 @media (max-width: 360px) {
-    .select-zodiac-buttons {
-        gap: 2px;
-    }
-    .select-zodiac-btn {
-        font-size: clamp(0.55rem, 3vw, 0.75rem);
-        padding: 0 1px;
-    }
+    .select-zodiac-buttons { gap: 2px; }
+    .select-zodiac-btn { font-size: clamp(0.55rem, 3vw, 0.75rem); padding: 0 1px; }
 }
 
-/* 选号区波行 - 带"波"标签 */
 .select-wave-row {
 display: flex;
 align-items: center;
@@ -312,7 +304,6 @@ border-color: #A7F3D0 !important;
 color: #38a169 !important;
 box-shadow: 0 2px 0 #A7F3D0, 0 3px 4px rgba(56, 161, 105, 0.1) !important;
 }
-/* 凹陷状态 - 视觉灰色但可点击 */
 .select-wave-btn.select-wave-active {
 background: #cbd5e0 !important;
 color: #718096 !important;
@@ -1065,15 +1056,12 @@ line-height: 1.6;
 <body>
 <div class="filter-section">
 <div class="control-box">
-<!-- 选号标题上方空白行，高度与选号标题一致 -->
 <div style="height: 1.8rem;"></div>
 <div class="box-header select-mode">选号</div>
-<!-- 生肖行 - 带"肖"标签 -->
 <div class="select-zodiac-row">
 <span class="select-zodiac-label">肖</span>
 <div class="select-zodiac-buttons" id="selectZodiacButtons"></div>
 </div>
-<!-- 波行 - 带"波"标签 -->
 <div class="select-wave-row">
 <span class="select-wave-label">波</span>
 <div class="select-wave-buttons" id="selectWaveButtons"></div>
@@ -1465,15 +1453,20 @@ selectedNumbers.add(lastAction.number);
 manuallyTurnedOff.delete(lastAction.number);
 }
 } else if (lastAction.type === 'select_wave') {
-// 撤销：取反操作
+// 撤销：取反操作，同时正确维护 manuallyTurnedOff 并添加日志
 if (lastAction.wasAdding) {
-// 原操作是点亮，撤销时熄灭
-lastAction.numbers.forEach(n => selectedNumbers.delete(n));
+lastAction.numbers.forEach(n => {
+selectedNumbers.delete(n);
+manuallyTurnedOff.add(n);
+});
+addLog("undo", `撤销点亮 ${lastAction.label}`);
 } else {
-// 原操作是熄灭，撤销时重新点亮
-lastAction.numbers.forEach(n => selectedNumbers.add(n));
+lastAction.numbers.forEach(n => {
+selectedNumbers.add(n);
+manuallyTurnedOff.delete(n);
+});
+addLog("undo", `撤销熄灭 ${lastAction.label}`);
 }
-lastAction.numbers.forEach(n => manuallyTurnedOff.delete(n));
 updateAllStates();
 } else if (lastAction.type === 'zodiac_append') {
 const input = document.getElementById('smartInput');
@@ -1639,15 +1632,20 @@ selectedNumbers.delete(lastUndo.number);
 manuallyTurnedOff.add(lastUndo.number);
 }
 } else if (lastUndo.type === 'select_wave') {
-// 恢复：重新执行原操作
+// 恢复：重新执行原操作，同时正确维护 manuallyTurnedOff 并添加日志
 if (lastUndo.wasAdding) {
-// 原操作是点亮，恢复时重新点亮
-lastUndo.numbers.forEach(n => selectedNumbers.add(n));
+lastUndo.numbers.forEach(n => {
+selectedNumbers.add(n);
+manuallyTurnedOff.delete(n);
+});
+addLog("redo", `重做点亮 ${lastUndo.label}`);
 } else {
-// 原操作是熄灭，恢复时重新熄灭
-lastUndo.numbers.forEach(n => selectedNumbers.delete(n));
+lastUndo.numbers.forEach(n => {
+selectedNumbers.delete(n);
+manuallyTurnedOff.add(n);
+});
+addLog("redo", `重做熄灭 ${lastUndo.label}`);
 }
-lastUndo.numbers.forEach(n => manuallyTurnedOff.delete(n));
 updateAllStates();
 } else if (lastUndo.type === 'zodiac_append') {
 const input = document.getElementById('smartInput');
@@ -2036,7 +2034,7 @@ container.appendChild(btn);
 });
 updateSelectWaveButtonsState();
 }
-// 选号区波按钮 - 有撤销/恢复功能
+// 选号区波按钮 - 有撤销/恢复功能，补全时显示数量，熄灭时显示数量，不弹窗
 function handleSelectWave(color, parity) {
 const val = `${color}-${parity}`;
 const groupNums = getGroupNumbers('parity', val);
@@ -2052,7 +2050,7 @@ selectedNumbers.add(n);
 manuallyTurnedOff.delete(n);
 });
 addLog("select", `点亮${getGroupLabel('parity', val)}`);
-showToast(`✅ 已点亮${getGroupLabel('parity', val)}`);
+showToast(`✅ 已点亮 ${toAdd.length} 个号码 (${getGroupLabel('parity', val)})`);
 } else {
 const toRemove = groupNums.filter(n => selectedNumbers.has(n));
 if (toRemove.length === 0) return;
@@ -2064,7 +2062,7 @@ bettingNumbers.delete(n);
 manuallyTurnedOff.add(n);
 });
 addLog("select", `熄灭${getGroupLabel('parity', val)}`);
-showToast(`❌ 已熄灭${getGroupLabel('parity', val)}`);
+showToast(`❌ 已熄灭 ${toRemove.length} 个号码 (${getGroupLabel('parity', val)})`);
 }
 updateAllStates(false);
 updateSelectWaveButtonsState();
