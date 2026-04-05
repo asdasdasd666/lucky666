@@ -899,6 +899,13 @@ box-sizing: border-box;
 margin: 0;
 }
 .bet-amount-input:focus { border-color: var(--action-btn-start); }
+.bet-amount-input::placeholder {
+    color: #a0aec0;
+    font-family: 'Courier New', monospace;
+    font-size: 0.8rem;
+    font-weight: 700;
+    opacity: 1;
+}
 .bet-confirm-btn {
 width: auto;
 min-width: 80px;
@@ -924,6 +931,15 @@ user-select: none;
 transform: translateY(3px);
 box-shadow: 0 0 0 rgba(0,0,0,0.2);
 background: var(--confirm-btn-active);
+}
+.bet-confirm-btn.disabled-btn,
+.bet-confirm-btn.grey {
+    background: #cbd5e0 !important;
+    color: #718096 !important;
+    opacity: 0.5 !important;
+    cursor: not-allowed !important;
+    box-shadow: none !important;
+    background-image: none !important;
 }
 .bet-result-container { margin-top: 8px; display: block; }
 .bet-result-header {
@@ -1144,8 +1160,8 @@ line-height: 1.6;
 <div class="bet-input-row">
 <div class="bet-nums-display" id="betNumsDisplay">暂无待购号码</div>
 <span class="bet-multiply-sign">×</span>
-<input type="number" id="betAmountInput" class="bet-amount-input" placeholder="金额" min="1" value="" onfocus="checkBetFocus()">
-<button class="bet-confirm-btn" id="betConfirmBtn" onclick="confirmBet()">确定</button>
+<input type="number" id="betAmountInput" class="bet-amount-input" placeholder="金额" min="1" value="">
+<button class="bet-confirm-btn" id="betConfirmBtn">确定</button>
 </div>
 </div>
 <div class="bet-result-container" id="betResultContainer">
@@ -1156,7 +1172,7 @@ line-height: 1.6;
 <span class="bet-total-amount" id="betTotalAmount">共 0 元</span>
 </div>
 <div style="display:flex; gap:6px;">
-<button class="clear-result-btn" id="clearResultBtn" onclick="handleClearBetResults()">清空结果</button>
+<button class="clear-result-btn" id="clearResultBtn">清空结果</button>
 <button class="small-copy-btn" onclick="copyBetResults()">复制</button>
 </div>
 </div>
@@ -1326,6 +1342,46 @@ if (type === 'parity') { const [color, parity] = value.split('-'); const cMap = 
 if (type === 'size_parity') return value;
 return type + value;
 }
+function updateBetConfirmButtonState() {
+    const btn = document.getElementById('betConfirmBtn');
+    if (!btn) return;
+    if (bettingNumbers.size === 0) {
+        btn.textContent = '无号码';
+        btn.classList.add('disabled-btn', 'grey');
+        btn.disabled = true;
+    } else {
+        btn.textContent = '确定';
+        btn.classList.remove('disabled-btn', 'grey');
+        btn.disabled = false;
+    }
+}
+function updateRandomSpecialButtonState() {
+    const btn = document.getElementById('randomSpecialBtn');
+    if (!btn) return;
+if (selectedNumbers.size === 0) {
+    btn.textContent = '无号码';
+    btn.style.background = '#cbd5e0';
+    btn.style.backgroundColor = '#cbd5e0';
+    btn.style.color = '#718096';
+    btn.style.opacity = '0.5';
+    btn.style.cursor = 'not-allowed';
+    btn.style.border = '2px solid #cbd5e0';
+    btn.style.boxShadow = 'none';
+    btn.style.setProperty('animation', 'none', 'important');
+    btn.disabled = true;
+} else {
+    btn.textContent = '随机特码';
+    btn.style.background = '';
+    btn.style.backgroundColor = '';
+    btn.style.color = '';
+    btn.style.opacity = '';
+    btn.style.cursor = '';
+    btn.style.border = '';
+    btn.style.boxShadow = '';
+    btn.style.setProperty('animation', '', 'important');
+    btn.disabled = false;
+    }
+}
 function performUndo() {
 if (undoStack.length === 0) { showToast("ℹ️ 没有可撤销的操作"); return; }
 const lastAction = undoStack.pop();
@@ -1481,11 +1537,13 @@ if (btn) btn.classList.add('is-active');
 addLog("undo", `撤销熄灭 ${lastAction.label}`);
 }
 updateNumberBalls();
+updateZodiacButtons();
 updateSelectWaveButtonsState();
 updateFilterButtons();
 updateResultText();
 updateTailButtons();
 updateBatchSelectButton();
+updateRandomSpecialButtonState();
 save_data();
 return;
 } else if (lastAction.type === 'zodiac_append') {
@@ -1628,7 +1686,7 @@ bettingNumbers.delete(n);
 showToast(`已重做取消待购 ${lastUndo.label}`);
 addLog("redo", `重做取消待购 ${lastUndo.label}`);
 } else if (lastUndo.type === 'freq_batch') {
-if (lastUndo.wasAdding) {
+if (lastUndo.wasAdded) {
 lastUndo.numbers.forEach(n => selectedNumbers.add(n));
 showToast(`已重做点亮 ${lastUndo.label}`);
 addLog("redo", `重做点亮 ${lastUndo.label}`);
@@ -1652,7 +1710,7 @@ selectedNumbers.delete(lastUndo.number);
 manuallyTurnedOff.add(lastUndo.number);
 }
 } else if (lastUndo.type === 'select_wave') {
-if (lastUndo.wasAdding) {
+if (lastUndo.wasAdded) {
 lastUndo.numbers.forEach(n => {
 selectedNumbers.add(n);
 manuallyTurnedOff.delete(n);
@@ -1670,11 +1728,13 @@ if (btn) btn.classList.remove('is-active');
 addLog("redo", `重做熄灭 ${lastUndo.label}`);
 }
 updateNumberBalls();
+updateZodiacButtons();
 updateSelectWaveButtonsState();
 updateFilterButtons();
 updateResultText();
 updateTailButtons();
 updateBatchSelectButton();
+updateRandomSpecialButtonState();
 save_data();
 return;
 } else if (lastUndo.type === 'zodiac_append') {
@@ -2355,6 +2415,8 @@ updateFrequencyButtonsPressedState();
 updateCopyButtons();
 updateSelectWaveButtonsState();
 updateClearResultBtn();
+updateRandomSpecialButtonState();
+updateBetConfirmButtonState();
 }
 function getColorClass(num) {
 if (redGroup.has(num)) return 'res-red';
@@ -2383,6 +2445,7 @@ updateBetActionArea();
 updateResultText();
 updateBatchSelectButton();
 updateTailButtons();
+updateBetConfirmButtonState();
 }
 function cancelBet(num) {
 if(!betResults[num]) return;
@@ -2429,6 +2492,7 @@ updateBetActionArea();
 updateResultText();
 updateBatchSelectButton();
 updateTailButtons();
+updateBetConfirmButtonState();
 }
 function updateBetActionArea() {
 const area = document.getElementById('betActionArea');
@@ -2480,6 +2544,7 @@ input.value = "";
 updateAllStates();
 showToast(`✅ 已下单：${nums.length}个号码，各${amount}块`);
 addLog("bet", `买入 ${label}. @ ${amount}块`);
+updateBetConfirmButtonState();
 }
 function renderBetResults() {
 const container = document.getElementById('betResultContainer');
@@ -3479,6 +3544,8 @@ renderSelectWaveButtons();
 load_data();
 renderGrid();
 setupInputListener();
+updateRandomSpecialButtonState();
+updateBetConfirmButtonState();
 addLog("system", "启动就绪");
 window.addEventListener('beforeunload', function() {
 save_data();
