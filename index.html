@@ -172,7 +172,7 @@ border-color: #a0aec0; text-shadow: none; font-weight: 900;
 .select-zodiac-row {
 display: flex;
 align-items: center;
-gap: 8px;
+gap: 0;
 width: 100%;
 margin-bottom: 8px;
 }
@@ -184,13 +184,14 @@ color: var(--label-select-color);
 text-shadow: var(--label-select-glow);
 flex-shrink: 0;
 line-height: 1;
-width: 2.8rem;
+width: auto;
 text-align: left;
+margin-right: 8px;
 }
 .select-zodiac-buttons {
 flex: 1;
 display: flex;
-gap: 3px;
+gap: 4px;
 min-width: 0;
 overflow: hidden;
 }
@@ -239,14 +240,14 @@ box-shadow: var(--btn-active-shadow);
 }
 
 @media (max-width: 360px) {
-    .select-zodiac-buttons { gap: 2px; }
+    .select-zodiac-buttons { gap: 3px; }
     .select-zodiac-btn { font-size: clamp(0.5rem, 3vw, 0.7rem); padding: 0 1px; }
 }
 
 .select-wave-row {
 display: flex;
 align-items: center;
-gap: 8px;
+gap: 0;
 width: 100%;
 margin-bottom: 8px;
 }
@@ -258,8 +259,9 @@ color: var(--label-select-color);
 text-shadow: var(--label-select-glow);
 flex-shrink: 0;
 line-height: 1;
-width: 2.8rem;
+width: auto;
 text-align: left;
+margin-right: 8px;
 }
 .select-wave-buttons {
 flex: 1;
