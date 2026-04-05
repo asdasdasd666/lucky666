@@ -522,6 +522,9 @@ padding: 0 2px;
     animation: pulse-fast 0.2s infinite !important;
     filter: brightness(1.3) !important;
 }
+.random-special-btn.no-animation {
+    animation: none !important;
+}
 @keyframes pulse-random {
     0% { filter: brightness(1); transform: scale(1); }
     50% { filter: brightness(1.15); transform: scale(1.05); }
@@ -1358,28 +1361,28 @@ function updateBetConfirmButtonState() {
 function updateRandomSpecialButtonState() {
     const btn = document.getElementById('randomSpecialBtn');
     if (!btn) return;
-if (selectedNumbers.size === 0) {
-    btn.textContent = '无号码';
-    btn.style.background = '#cbd5e0';
-    btn.style.backgroundColor = '#cbd5e0';
-    btn.style.color = '#718096';
-    btn.style.opacity = '0.5';
-    btn.style.cursor = 'not-allowed';
-    btn.style.border = '2px solid #cbd5e0';
-    btn.style.boxShadow = 'none';
-    btn.style.setProperty('animation', 'none', 'important');
-    btn.disabled = true;
-} else {
-    btn.textContent = '随机特码';
-    btn.style.background = '';
-    btn.style.backgroundColor = '';
-    btn.style.color = '';
-    btn.style.opacity = '';
-    btn.style.cursor = '';
-    btn.style.border = '';
-    btn.style.boxShadow = '';
-    btn.style.setProperty('animation', '', 'important');
-    btn.disabled = false;
+    if (selectedNumbers.size === 0) {
+        btn.textContent = '无号码';
+        btn.classList.add('no-animation');
+        btn.style.background = '#cbd5e0';
+        btn.style.backgroundColor = '#cbd5e0';
+        btn.style.color = '#718096';
+        btn.style.opacity = '0.5';
+        btn.style.cursor = 'not-allowed';
+        btn.style.border = '2px solid #cbd5e0';
+        btn.style.boxShadow = 'none';
+        btn.disabled = true;
+    } else {
+        btn.textContent = '随机特码';
+        btn.classList.remove('no-animation');
+        btn.style.background = '';
+        btn.style.backgroundColor = '';
+        btn.style.color = '';
+        btn.style.opacity = '';
+        btn.style.cursor = '';
+        btn.style.border = '';
+        btn.style.boxShadow = '';
+        btn.disabled = false;
     }
 }
 function performUndo() {
@@ -1495,7 +1498,7 @@ bettingNumbers.add(n);
 showToast(`已恢复待购 ${lastAction.label}`);
 addLog("undo", `恢复待购 ${lastAction.label}`);
 } else if (lastAction.type === 'freq_batch') {
-if (lastAction.wasAdding) {
+if (lastAction.wasAdded) {
 lastAction.numbers.forEach(n => selectedNumbers.delete(n));
 showToast(`已撤销点亮 ${lastAction.label}`);
 addLog("undo", `撤销点亮 ${lastAction.label}`);
@@ -2746,7 +2749,7 @@ if (item.isPureZodiac) {
     displayCount = item.numbers.length;
     displayUnit = '码';
 }
-const countStr = displayCount.toString().padStart(2, '0');
+const countStr = displayCount.toString().padStart(2, ' ');
 const numberSpan = document.createElement('span');
 numberSpan.className = 'label-number';
 numberSpan.textContent = countStr;
@@ -2811,12 +2814,13 @@ function removeHistoryItem(index) {
 const item = inputHistory[index];
 if (!item) return;
 vibrate(20);
+const numsToRemove = new Set(item.sortedNumbers);
 recordAction('history_delete', '删除历史', [], false, 0, {
 index: index,
-deletedItem: item
+deletedItem: item,
+deletedNumbers: Array.from(numsToRemove)
 });
 inputHistory.splice(index, 1);
-const numsToRemove = new Set(item.sortedNumbers);
 const remainingHistoryNumbers = new Set();
 for (const histItem of inputHistory) {
 for (const num of histItem.sortedNumbers) {
@@ -3544,6 +3548,7 @@ renderSelectWaveButtons();
 load_data();
 renderGrid();
 setupInputListener();
+document.getElementById('betConfirmBtn').onclick = confirmBet;
 updateRandomSpecialButtonState();
 updateBetConfirmButtonState();
 addLog("system", "启动就绪");
