@@ -536,6 +536,29 @@ padding: 0 2px;
     cursor: not-allowed !important;
     animation: none !important;
 }
+/* 复制按钮禁用状态样式 */
+.small-copy-btn:disabled {
+    background: #cbd5e0 !important;
+    background-color: #cbd5e0 !important;
+    color: #718096 !important;
+    border: none !important;
+    box-shadow: none !important;
+    opacity: 0.5 !important;
+    cursor: not-allowed !important;
+    background-image: none !important;
+}
+.small-copy-btn:disabled:active {
+    transform: none !important;
+    box-shadow: none !important;
+}
+/* 待购确定按钮禁用状态点击效果禁用 */
+.bet-confirm-btn.disabled-btn:active,
+.bet-confirm-btn.grey:active,
+.bet-confirm-btn:disabled:active {
+    transform: none !important;
+    box-shadow: none !important;
+    background: #cbd5e0 !important;
+}
 @keyframes pulse-random {
     0% { filter: brightness(1); transform: scale(1); }
     50% { filter: brightness(1.15); transform: scale(1.05); }
@@ -1140,7 +1163,7 @@ line-height: 1.6;
 </div>
 <div style="display:flex; gap:6px;">
 <button class="random-special-btn" id="randomSpecialBtn" onclick="randomSpecialNumber()">随机特码</button>
-<button class="small-copy-btn" onclick="copySelectedNumbers()">复制</button>
+<button class="small-copy-btn" id="copySelectedBtn" onclick="copySelectedNumbers()">复制</button>
 </div>
 </div>
 <div style="margin: 6px 0 8px 0; display: flex; align-items: center; gap: 6px; overflow-x: auto; padding: 2px;">
@@ -1193,7 +1216,7 @@ line-height: 1.6;
 </div>
 <div style="display:flex; gap:6px;">
 <button class="clear-result-btn" id="clearResultBtn">清空结果</button>
-<button class="small-copy-btn" onclick="copyBetResults()">复制</button>
+<button class="small-copy-btn" id="copyBetResultBtn" onclick="copyBetResults()">复制</button>
 </div>
 </div>
 <div class="bet-result-box" id="betResultBox" oncontextmenu="return false;" ondragstart="return false;">
@@ -1250,6 +1273,9 @@ const freqColorPalette = [
     "linear-gradient(145deg, #4B0082, #3C0066)"
 ];
 
+// 全局频率颜色映射，用于统计按钮和历史号码球保持一致
+let globalFreqColorMap = new Map();
+
 function vibrate(pattern = 15) { if (navigator.vibrate) navigator.vibrate(pattern); }
 function fmtNum(n) { return n < 10 ? '0' + n : '' + n; }
 function showToast(msg, duration = 3000) {
@@ -1277,7 +1303,8 @@ history: inputHistory,
 tempData: tempStorageData,
 specialSet: Array.from(specialNumbersSet),
 currentHighlight: currentHighlightedNumber,
-manuallyTurnedOff: Array.from(manuallyTurnedOff)
+manuallyTurnedOff: Array.from(manuallyTurnedOff),
+freqColorMap: Array.from(globalFreqColorMap.entries())
 };
 try {
 localStorage.setItem('lucky666_data_v52', JSON.stringify(data));
@@ -1297,6 +1324,9 @@ specialNumbersSet = new Set(d.specialSet || []);
 if(Array.isArray(d.tempData)) tempStorageData = d.tempData;
 currentHighlightedNumber = d.currentHighlight !== undefined && d.currentHighlight !== null ? d.currentHighlight : null;
 if(d.manuallyTurnedOff && Array.isArray(d.manuallyTurnedOff)) manuallyTurnedOff = new Set(d.manuallyTurnedOff);
+if(d.freqColorMap && Array.isArray(d.freqColorMap)) {
+    globalFreqColorMap = new Map(d.freqColorMap);
+}
 renderTempStorage();
 updateTempCountBadge();
 updateTempStoreBtn();
@@ -1305,7 +1335,7 @@ updateTempClearBtn();
 updateClearResultBtn();
 } catch(e) {
 console.error("Load failed", e);
-betResults = {}; undoStack = []; redoStack = []; inputHistory = []; tempStorageData = []; specialNumbersSet = new Set(); currentHighlightedNumber = null; manuallyTurnedOff = new Set();
+betResults = {}; undoStack = []; redoStack = []; inputHistory = []; tempStorageData = []; specialNumbersSet = new Set(); currentHighlightedNumber = null; manuallyTurnedOff = new Set(); globalFreqColorMap = new Map();
 }
 }
 function restoreSpecialEffects() {
@@ -1386,12 +1416,29 @@ function updateRandomSpecialButtonState() {
     if (!btn) return;
     if (selectedNumbers.size === 0) {
         btn.textContent = '无号码';
-        btn.classList.add('no-animation');
         btn.disabled = true;
     } else {
         btn.textContent = '随机特码';
-        btn.classList.remove('no-animation');
         btn.disabled = false;
+    }
+}
+function updateCopyButtonsState() {
+    const copySelectedBtn = document.getElementById('copySelectedBtn');
+    const copyBetResultBtn = document.getElementById('copyBetResultBtn');
+    if (copySelectedBtn) {
+        if (selectedNumbers.size === 0) {
+            copySelectedBtn.disabled = true;
+        } else {
+            copySelectedBtn.disabled = false;
+        }
+    }
+    if (copyBetResultBtn) {
+        const hasResults = Object.keys(betResults).length > 0;
+        if (!hasResults) {
+            copyBetResultBtn.disabled = true;
+        } else {
+            copyBetResultBtn.disabled = false;
+        }
     }
 }
 function performUndo() {
@@ -2356,60 +2403,7 @@ document.querySelectorAll('#sphereBtnContainer .count-btn').forEach(btn => {
 });
 }
 function updateCopyButtons() {
-    const copySelectedBtn = document.querySelector('.result-box-title .small-copy-btn');
-    if (copySelectedBtn) {
-        if (selectedNumbers.size === 0) {
-            copySelectedBtn.style.background = '#cbd5e0';
-            copySelectedBtn.style.backgroundImage = 'none';
-            copySelectedBtn.style.opacity = '0.5';
-            copySelectedBtn.style.cursor = 'not-allowed';
-            copySelectedBtn.style.backgroundColor = '#cbd5e0';
-            copySelectedBtn.style.color = '#718096';
-            copySelectedBtn.style.boxShadow = 'none';
-            copySelectedBtn.onclick = function() { showToast("⚠️ 暂无已选号码"); };
-        } else {
-            copySelectedBtn.style.background = '';
-            copySelectedBtn.style.backgroundImage = '';
-            copySelectedBtn.style.opacity = '';
-            copySelectedBtn.style.cursor = '';
-            copySelectedBtn.style.backgroundColor = '';
-            copySelectedBtn.style.color = '';
-            copySelectedBtn.style.boxShadow = '';
-            copySelectedBtn.onclick = copySelectedNumbers;
-        }
-    }
-    const copyBetBtn = document.querySelector('.bet-result-header .small-copy-btn');
-    if (copyBetBtn) {
-        const keys = Object.keys(betResults).map(Number);
-        const selectedArr = Array.from(selectedNumbers);
-        const hasUnbought = selectedArr.some(n => !betResults.hasOwnProperty(n));
-        const noBetResults = keys.length === 0;
-        if (noBetResults || hasUnbought) {
-            copyBetBtn.style.background = '#cbd5e0';
-            copyBetBtn.style.backgroundImage = 'none';
-            copyBetBtn.style.opacity = '0.5';
-            copyBetBtn.style.cursor = 'not-allowed';
-            copyBetBtn.style.backgroundColor = '#cbd5e0';
-            copyBetBtn.style.color = '#718096';
-            copyBetBtn.style.boxShadow = 'none';
-            copyBetBtn.onclick = function() { 
-                if (noBetResults) {
-                    showToast("⚠️ 无买号结果可复制");
-                } else {
-                    showToast("⚠️ 还有号码没有购买，不能复制");
-                }
-            };
-        } else {
-            copyBetBtn.style.background = '';
-            copyBetBtn.style.backgroundImage = '';
-            copyBetBtn.style.opacity = '';
-            copyBetBtn.style.cursor = '';
-            copyBetBtn.style.backgroundColor = '';
-            copyBetBtn.style.color = '';
-            copyBetBtn.style.boxShadow = '';
-            copyBetBtn.onclick = copyBetResults;
-        }
-    }
+    // 已由 updateCopyButtonsState 处理，这里保留空函数以兼容调用
 }
 function updateClearResultBtn() {
     const btn = document.getElementById('clearResultBtn');
@@ -2451,7 +2445,7 @@ updateTempClearBtn();
 updateBettingCountBadge();
 updateHistoryNumItemsFlatState();
 updateFrequencyButtonsPressedState();
-updateCopyButtons();
+updateCopyButtonsState();
 updateSelectWaveButtonsState();
 updateClearResultBtn();
 updateRandomSpecialButtonState();
@@ -2660,16 +2654,22 @@ freq[num] = (freq[num] || 0) + 1;
 });
 return freq;
 }
-function getFreqStyle(frequency) {
+function getFreqStyle(frequency, customColorMap = null) {
 if (frequency === 1) {
 return { bg: 'radial-gradient(circle at 30% 30%, #f7fafc 0%, #cbd5e0 40%, #a0aec0 100%)', text: '#4a5568', textClass: 'light-text' };
 }
-if (!window._freqColorCache) window._freqColorCache = new Map();
-if (!window._freqColorCache.has(frequency)) {
-const randomIndex = Math.floor(Math.random() * freqColorPalette.length);
-window._freqColorCache.set(frequency, freqColorPalette[randomIndex]);
+// 使用传入的颜色映射或全局映射
+const colorMap = customColorMap || globalFreqColorMap;
+if (colorMap.has(frequency)) {
+const bg = colorMap.get(frequency);
+return { bg: bg, text: '#ffffff', textClass: 'dark-text' };
 }
-return { bg: window._freqColorCache.get(frequency), text: '#ffffff', textClass: 'dark-text' };
+// 如果没有映射，从颜色池中随机取一个
+const colorPool = [...freqColorPalette];
+const randomIndex = Math.floor(Math.random() * colorPool.length);
+const selectedColor = colorPool[randomIndex];
+colorMap.set(frequency, selectedColor);
+return { bg: selectedColor, text: '#ffffff', textClass: 'dark-text' };
 }
 function toggleNumbersByFrequency(frequency) {
 const freqMap = calculateNumberFrequencies();
@@ -2736,19 +2736,19 @@ freqCount[count] = (freqCount[count] || 0) + 1;
 const sortedFreqs = Object.keys(freqCount).sort((a, b) => parseInt(a) - parseInt(b));
 // 收集所有需要生成的频率（排除频率1，因为它固定颜色）
 const freqsToColor = sortedFreqs.filter(f => parseInt(f) !== 1).map(f => parseInt(f));
-// 为每个频率分配不同的颜色
+// 为每个频率分配不同的颜色（使用全局映射，保证与历史号码球一致）
 const colorPool = [...freqColorPalette];
-const freqColorMap = new Map();
 for (let i = 0; i < freqsToColor.length; i++) {
     const freq = freqsToColor[i];
-    if (colorPool.length === 0) {
-        // 如果颜色不够用，重新填充颜色池
-        colorPool.push(...freqColorPalette);
+    if (!globalFreqColorMap.has(freq)) {
+        if (colorPool.length === 0) {
+            colorPool.push(...freqColorPalette);
+        }
+        const randomIndex = Math.floor(Math.random() * colorPool.length);
+        const selectedColor = colorPool[randomIndex];
+        colorPool.splice(randomIndex, 1);
+        globalFreqColorMap.set(freq, selectedColor);
     }
-    const randomIndex = Math.floor(Math.random() * colorPool.length);
-    const selectedColor = colorPool[randomIndex];
-    colorPool.splice(randomIndex, 1);
-    freqColorMap.set(freq, selectedColor);
 }
 sortedFreqs.forEach(countStr => {
 const count = parseInt(countStr);
@@ -2761,7 +2761,7 @@ let style;
 if (count === 1) {
     style = { bg: 'radial-gradient(circle at 30% 30%, #f7fafc 0%, #cbd5e0 40%, #a0aec0 100%)', text: '#4a5568', textClass: 'light-text' };
 } else {
-    const bg = freqColorMap.get(count) || freqColorPalette[0];
+    const bg = globalFreqColorMap.get(count) || freqColorPalette[0];
     style = { bg: bg, text: '#ffffff', textClass: 'dark-text' };
 }
 btn.style.background = style.bg;
@@ -2830,7 +2830,8 @@ numsDiv.className = 'history-nums';
 item.sortedNumbers.forEach((n) => {
 const span = document.createElement('span');
 const freq = globalFreq[n] || 1;
-const style = getFreqStyle(freq);
+// 使用与统计按钮相同的颜色映射
+const style = getFreqStyle(freq, globalFreqColorMap);
 span.className = `history-num-item`;
 const isLit = selectedNumbers.has(n);
 if (!isLit) {
@@ -3526,6 +3527,7 @@ tempStorageData = [];
 specialNumbersSet.clear();
 currentHighlightedNumber = null;
 manuallyTurnedOff.clear();
+globalFreqColorMap.clear();
 document.getElementById('smartInput').value = '';
 lastInputValue = '';
 document.querySelectorAll('.num-btn.is-special').forEach(btn => {
@@ -3620,6 +3622,7 @@ setupInputListener();
 document.getElementById('betConfirmBtn').onclick = confirmBet;
 updateRandomSpecialButtonState();
 updateBetConfirmButtonState();
+updateCopyButtonsState();
 addLog("system", "启动就绪");
 window.addEventListener('beforeunload', function() {
 save_data();
