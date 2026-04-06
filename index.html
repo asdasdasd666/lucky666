@@ -1409,7 +1409,15 @@ return;
 }
 if (lastAction.type === 'history_delete') {
 inputHistory.splice(lastAction.index, 0, lastAction.deletedItem);
-rebuildSelectedFromHistory();
+if (lastAction.deletedNumbers && lastAction.deletedNumbers.length > 0) {
+    lastAction.deletedNumbers.forEach(n => {
+        if (!selectedNumbers.has(n)) {
+            selectedNumbers.add(n);
+            const btn = document.querySelector(`.num-btn[data-num="${n}"]`);
+            if (btn) btn.classList.add('is-active');
+        }
+    });
+}
 updateAllStates(false);
 showToast("已恢复历史记录");
 addLog("undo", `恢复历史记录`);
@@ -2537,7 +2545,12 @@ return;
 }
 const input = document.getElementById('betAmountInput');
 const amount = parseInt(input.value);
-if (isNaN(amount) || amount <= 0) { showToast("⚠️ 金额必须是大于 0 的整数"); vibrate(30); input.focus(); return; }
+if (isNaN(amount) || amount <= 0) {
+showToast("⚠️ 金额必须是大于 0 的整数");
+vibrate(30);
+input.focus();
+return;
+}
 const nums = Array.from(bettingNumbers).sort((a,b)=>a-b);
 const label = nums.map(fmtNum).join('.');
 recordAction('bet_confirm', label, nums, true, amount);
@@ -2818,7 +2831,9 @@ const numsToRemove = new Set(item.sortedNumbers);
 recordAction('history_delete', '删除历史', [], false, 0, {
 index: index,
 deletedItem: item,
-deletedNumbers: Array.from(numsToRemove)
+deletedNumbers: Array.from(numsToRemove),
+deletedLabelPrefix: item.labelPrefix,
+deletedIsPureZodiac: item.isPureZodiac
 });
 inputHistory.splice(index, 1);
 const remainingHistoryNumbers = new Set();
