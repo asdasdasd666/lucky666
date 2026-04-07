@@ -525,7 +525,6 @@ padding: 0 2px;
 .random-special-btn.no-animation {
     animation: none !important;
 }
-/* 随机特码按钮禁用状态样式 */
 .random-special-btn:disabled {
     background: #cbd5e0 !important;
     background-color: #cbd5e0 !important;
@@ -544,25 +543,23 @@ padding: 0 2px;
     box-shadow: none !important;
     animation: none !important;
 }
-/* 复制按钮样式 - 正常和禁用状态尺寸一致，宽度固定72px */
 .small-copy-btn {
     background: linear-gradient(145deg, var(--deep-blue-start), var(--deep-blue-end));
     color: white;
     border: none;
     cursor: pointer;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     transition: all 0.1s;
     margin-left: 4px;
     width: 72px;
-    height: var(--badge-height);
+    height: 24px;
     text-align: center;
-    justify-content: center;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: var(--badge-padding-y) var(--badge-padding-x);
+    padding: 0 8px;
     border-radius: 50px;
-    font-size: var(--badge-font-size);
+    font-size: 0.75rem;
+    font-weight: 900;
     line-height: 1;
     white-space: nowrap;
     box-sizing: border-box;
@@ -570,23 +567,19 @@ padding: 0 2px;
 }
 .small-copy-btn:active { transform: translateY(2px); box-shadow: none; }
 .small-copy-btn:disabled {
-    background: #cbd5e0 !important;
-    background-color: #cbd5e0 !important;
-    color: #718096 !important;
+    background: #e2e8f0 !important;
+    background-color: #e2e8f0 !important;
+    color: #a0aec0 !important;
     border: none !important;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
-    opacity: 0.7 !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
     cursor: not-allowed !important;
     background-image: none !important;
     width: 72px;
-    height: var(--badge-height);
+    height: 24px;
     pointer-events: none !important;
 }
-.small-copy-btn:disabled:active {
-    transform: none !important;
-    box-shadow: none !important;
-}
-/* 待购确定按钮禁用状态点击效果禁用 */
+.small-copy-btn:disabled:active { transform: none !important; box-shadow: none !important; }
 .bet-confirm-btn.disabled-btn:active,
 .bet-confirm-btn.grey:active,
 .bet-confirm-btn:disabled:active {
@@ -594,11 +587,11 @@ padding: 0 2px;
     box-shadow: none !important;
     background: #cbd5e0 !important;
 }
-/* 金额输入框 - 强制固定宽度72px，隐藏增减按钮 */
 .bet-amount-input {
-    width: 72px !important;
-    min-width: 72px !important;
-    max-width: 72px !important;
+    width: 60px !important;
+    min-width: 60px !important;
+    max-width: 60px !important;
+    flex: 0 0 60px !important;
     padding: 0 4px;
     border: 1px solid var(--input-border);
     border-radius: 4px;
@@ -610,7 +603,6 @@ padding: 0 2px;
     line-height: 24px;
     box-sizing: border-box;
     -moz-appearance: textfield;
-    flex: none !important;
 }
 .bet-amount-input::-webkit-outer-spin-button,
 .bet-amount-input::-webkit-inner-spin-button {
@@ -958,7 +950,6 @@ border-radius: 50% !important;
 .res-prefix { color: #4a5568; }
 .bet-action-area { margin-bottom: 8px; display: flex; flex-direction: column; gap: 6px; padding-left: 0; }
 .bet-input-row { display: flex; gap: 6px; align-items: center; width: 100%; flex-wrap: nowrap; }
-/* 待购号码显示栏 - 高度24px */
 .bet-nums-display {
     flex: 2;
     background: rgba(248, 249, 250, 0.8);
@@ -979,7 +970,6 @@ border-radius: 50% !important;
     align-items: center;
 }
 .bet-sep { color: #2d3748; margin: 0 1px; }
-/* 乘号 - 保持大小，上下居中 */
 .bet-multiply-sign {
     font-size: 1.2rem;
     font-weight: 900;
@@ -990,7 +980,6 @@ border-radius: 50% !important;
     display: inline-flex;
     align-items: center;
 }
-/* 确定按钮 - 高度24px，宽度72px */
 .bet-confirm-btn {
     width: 72px;
     min-width: 72px;
@@ -1316,7 +1305,6 @@ const freqColorPalette = [
     "linear-gradient(145deg, #4B0082, #3C0066)"
 ];
 
-// 全局频率颜色映射，用于统计按钮和历史号码球保持一致
 let globalFreqColorMap = new Map();
 
 function vibrate(pattern = 15) { if (navigator.vibrate) navigator.vibrate(pattern); }
@@ -1493,8 +1481,6 @@ if (lastAction.type === 'input_text') {
 const input = document.getElementById('smartInput');
 input.value = '';
 lastInputValue = '';
-showToast("已恢复输入框内容");
-addLog("undo", `恢复输入`);
 if (lastAction.prevNumbers) {
 selectedNumbers.clear();
 lastAction.prevNumbers.forEach(n => selectedNumbers.add(n));
@@ -1518,8 +1504,6 @@ if (lastAction.deletedNumbers && lastAction.deletedNumbers.length > 0) {
     });
 }
 updateAllStates(false);
-showToast("已恢复历史记录");
-addLog("undo", `恢复历史记录`);
 save_data();
 return;
 }
@@ -1534,10 +1518,8 @@ return;
 }
 if (lastAction.type === 'bet_confirm') {
 lastAction.numbers.forEach(n => { if(betResults[n] !== undefined) { delete betResults[n]; } bettingNumbers.delete(n); });
-showToast(`已撤销购买 ${lastAction.label}`); addLog("undo", `撤销购买 ${lastAction.label}`);
 } else if (lastAction.type === 'bet_cancel') {
 lastAction.numbers.forEach(n => { betResults[n] = lastAction.amount; });
-showToast(`已恢复购买 ${lastAction.label}`); addLog("undo", `恢复购买 ${lastAction.label}`);
 } else if (lastAction.type === 'temp_store') {
 const addedNums = lastAction.addedNums || [];
 tempStorageData = tempStorageData.filter(item => !addedNums.includes(item.num));
@@ -1596,23 +1578,15 @@ addLog("undo", `恢复特码 ${lastAction.label}`);
 lastAction.numbers.forEach(n => {
 bettingNumbers.delete(n);
 });
-showToast(`已撤销加入待购 ${lastAction.label}`);
-addLog("undo", `撤销加入待购 ${lastAction.label}`);
 } else if (lastAction.type === 'betting_remove') {
 lastAction.numbers.forEach(n => {
 bettingNumbers.add(n);
 });
-showToast(`已恢复待购 ${lastAction.label}`);
-addLog("undo", `恢复待购 ${lastAction.label}`);
 } else if (lastAction.type === 'freq_batch') {
 if (lastAction.wasAdded) {
 lastAction.numbers.forEach(n => selectedNumbers.delete(n));
-showToast(`已撤销点亮 ${lastAction.label}`);
-addLog("undo", `撤销点亮 ${lastAction.label}`);
 } else {
 lastAction.numbers.forEach(n => selectedNumbers.add(n));
-showToast(`已撤销熄灭 ${lastAction.label}`);
-addLog("undo", `撤销熄灭 ${lastAction.label}`);
 }
 if (currentHighlightedNumber !== null && lastAction.numbers.includes(currentHighlightedNumber)) {
 currentHighlightedNumber = null;
@@ -1664,8 +1638,6 @@ return;
 const input = document.getElementById('smartInput');
 input.value = lastAction.prevText || '';
 lastInputValue = input.value;
-showToast("已恢复输入框内容");
-addLog("undo", `恢复输入`);
 } else if (lastAction.type === 'clear_bet_results') {
 const prevBetResults = lastAction.prevBetResults || {};
 betResults = {...prevBetResults};
@@ -1674,12 +1646,8 @@ addLog("undo", `撤销清空结果`);
 } else {
 if (lastAction.wasAdded) {
 lastAction.numbers.forEach(n => { selectedNumbers.delete(n); if(betResults[n] !== undefined) delete betResults[n]; bettingNumbers.delete(n); manuallyTurnedOff.add(n); });
-if (lastAction.numbers.length === 1) { showToast(`已撤销选中的${fmtNum(lastAction.numbers[0])}`); addLog("undo", `撤销选中 ${fmtNum(lastAction.numbers[0])}`); }
-else { showToast(`已撤销点亮的${lastAction.label}`); addLog("undo", `撤销点亮 ${lastAction.label}`); }
 } else {
 lastAction.numbers.forEach(n => { selectedNumbers.add(n); manuallyTurnedOff.delete(n); });
-if (lastAction.numbers.length === 1) { showToast(`已撤销取消的${fmtNum(lastAction.numbers[0])}`); addLog("undo", `撤销取消 ${fmtNum(lastAction.numbers[0])}`); }
-else { showToast(`已恢复杀掉的${lastAction.label}`); addLog("undo", `恢复杀掉 ${lastAction.label}`); }
 }
 }
 updateAllStates(false);
@@ -1694,8 +1662,6 @@ if (lastUndo.type === 'input_text') {
 const input = document.getElementById('smartInput');
 input.value = lastUndo.nextText || '';
 lastInputValue = input.value;
-showToast("已重做输入");
-addLog("redo", `重做输入`);
 if (lastUndo.nextNumbers) {
 selectedNumbers.clear();
 lastUndo.nextNumbers.forEach(n => selectedNumbers.add(n));
@@ -1719,8 +1685,6 @@ if (lastUndo.deletedNumbers && lastUndo.deletedNumbers.length > 0) {
 }
 inputHistory.splice(lastUndo.index, 1);
 updateAllStates(false);
-showToast("已重做删除历史");
-addLog("redo", `重做删除历史`);
 save_data();
 return;
 }
@@ -1735,10 +1699,8 @@ return;
 }
 if (lastUndo.type === 'bet_confirm') {
 lastUndo.numbers.forEach(n => { betResults[n] = lastUndo.amount; });
-showToast(`已恢复购买 ${lastUndo.label}`); addLog("redo", `恢复购买 ${lastUndo.label}`);
 } else if (lastUndo.type === 'bet_cancel') {
 lastUndo.numbers.forEach(n => { if(betResults[n] !== undefined) delete betResults[n]; });
-showToast(`已再次取消购买 ${lastUndo.label}`); addLog("redo", `再次取消购买 ${lastUndo.label}`);
 } else if (lastUndo.type === 'temp_store') {
 const addedNums = lastUndo.addedNums || [];
 addedNums.forEach(n => {
@@ -1799,23 +1761,15 @@ addLog("redo", `重做取消特码 ${lastUndo.label}`);
 lastUndo.numbers.forEach(n => {
 bettingNumbers.add(n);
 });
-showToast(`已重做加入待购 ${lastUndo.label}`);
-addLog("redo", `重做加入待购 ${lastUndo.label}`);
 } else if (lastUndo.type === 'betting_remove') {
 lastUndo.numbers.forEach(n => {
 bettingNumbers.delete(n);
 });
-showToast(`已重做取消待购 ${lastUndo.label}`);
-addLog("redo", `重做取消待购 ${lastUndo.label}`);
 } else if (lastUndo.type === 'freq_batch') {
 if (lastUndo.wasAdded) {
 lastUndo.numbers.forEach(n => selectedNumbers.add(n));
-showToast(`已重做点亮 ${lastUndo.label}`);
-addLog("redo", `重做点亮 ${lastUndo.label}`);
 } else {
 lastUndo.numbers.forEach(n => selectedNumbers.delete(n));
-showToast(`已重做熄灭 ${lastUndo.label}`);
-addLog("redo", `重做熄灭 ${lastUndo.label}`);
 }
 if (currentHighlightedNumber !== null && lastUndo.numbers.includes(currentHighlightedNumber)) {
 currentHighlightedNumber = null;
@@ -1867,8 +1821,6 @@ return;
 const input = document.getElementById('smartInput');
 input.value = lastUndo.nextText || '';
 lastInputValue = input.value;
-showToast("已重做输入");
-addLog("redo", `重做输入`);
 } else if (lastUndo.type === 'clear_bet_results') {
 betResults = {};
 showToast(`已重做清空结果`);
@@ -1876,12 +1828,8 @@ addLog("redo", `重做清空结果`);
 } else {
 if (lastUndo.wasAdded) {
 lastUndo.numbers.forEach(n => { selectedNumbers.add(n); manuallyTurnedOff.delete(n); });
-if (lastUndo.numbers.length === 1) { showToast(`已重新选中${fmtNum(lastUndo.numbers[0])}`); addLog("redo", `恢复选中 ${fmtNum(lastUndo.numbers[0])}`); }
-else { showToast(`已重新点亮${lastUndo.label}`); addLog("redo", `恢复点亮 ${lastUndo.label}`); }
 } else {
 lastUndo.numbers.forEach(n => { selectedNumbers.delete(n); manuallyTurnedOff.add(n); if(betResults[n] !== undefined) delete betResults[n]; bettingNumbers.delete(n); });
-if (lastUndo.numbers.length === 1) { showToast(`已重新取消${fmtNum(lastUndo.numbers[0])}`); addLog("redo", `再次取消 ${fmtNum(lastUndo.numbers[0])}`); }
-else { showToast(`已重新杀掉${lastUndo.label}`); addLog("redo", `再次杀掉 ${lastUndo.label}`); }
 }
 }
 updateAllStates(false);
@@ -1936,7 +1884,7 @@ const btn = document.querySelector(`.num-btn[data-num="${n}"]`);
 if (btn) btn.classList.remove('is-active');
 }
 });
-addLog("select", `已杀所有${label}`); showToast(`❌ 已杀所有${label}`);
+addLog("select", `已杀所有${label}`);
 updateAllStates(false);
 }
 function handleSizeParityKill(type) {
@@ -1958,7 +1906,7 @@ const btn = document.querySelector(`.num-btn[data-num="${n}"]`);
 if (btn) btn.classList.remove('is-active');
 }
 });
-addLog("select", `已杀所有${label}`); showToast(`❌ 已杀所有${label}`);
+addLog("select", `已杀所有${label}`);
 updateAllStates(false);
 }
 function handleHeadKill(headVal) {
@@ -1980,7 +1928,7 @@ const btn = document.querySelector(`.num-btn[data-num="${n}"]`);
 if (btn) btn.classList.remove('is-active');
 }
 });
-addLog("select", `已杀所有${label}`); showToast(`❌ 已杀所有${label}`);
+addLog("select", `已杀所有${label}`);
 updateAllStates(false);
 }
 function handleWuxingKill(wuxingType) {
@@ -2002,7 +1950,7 @@ const btn = document.querySelector(`.num-btn[data-num="${n}"]`);
 if (btn) btn.classList.remove('is-active');
 }
 });
-addLog("select", `已杀所有${label}`); showToast(`❌ 已杀所有${label}`);
+addLog("select", `已杀所有${label}`);
 updateAllStates(false);
 }
 function handleTailKill(tailVal) {
@@ -2024,7 +1972,7 @@ const btn = document.querySelector(`.num-btn[data-num="${n}"]`);
 if (btn) btn.classList.remove('is-active');
 }
 });
-addLog("select", `已杀所有${label}`); showToast(`❌ 已杀所有${label}`);
+addLog("select", `已杀所有${label}`);
 updateAllStates(false);
 }
 function handleZodiacSelect(index, label) {
@@ -2045,7 +1993,6 @@ const btn = document.querySelector(`.num-btn[data-num="${n}"]`);
 if (btn) btn.classList.remove('is-active');
 });
 addLog("select", `取消${label}选中`);
-showToast(`❌ 已取消${label}选中`);
 } else {
 const allSelected = groupNums.every(n => selectedNumbers.has(n));
 if (allSelected) { showToast(`✅ 当前${label}已全选`); return; }
@@ -2058,49 +2005,37 @@ const btn = document.querySelector(`.num-btn[data-num="${n}"]`);
 if (btn) btn.classList.add('is-active');
 });
 addLog("select", `选中所有${label}`);
-showToast(`✅ 选中所有${label}`);
 }
 updateAllStates(false);
 }
 function handleBatchSelectBet() {
 const btn = document.getElementById('selectAllBetBtn');
 if (btn.classList.contains('grey')) {
-if (selectedNumbers.size === 0) {
-showToast("⚠️ 暂无已选号码");
-} else {
-showToast("ℹ️ 所有号码已选完");
-}
 return;
 }
 const allSelectedArr = Array.from(selectedNumbers);
 if (btn.classList.contains('orange')) {
 const numsToRemove = allSelectedArr.filter(n => !betResults.hasOwnProperty(n) && bettingNumbers.has(n));
 if (numsToRemove.length === 0) {
-showToast("ℹ️ 待购栏中没有可取消的号码");
 return;
 }
 numsToRemove.forEach(n => {
 bettingNumbers.delete(n);
 });
 vibrate(30);
-const actionName = btn.textContent.includes('剩余') ? '取消剩余全选' : '取消全选';
-showToast(`✅ ${actionName}`);
-addLog("select", `${actionName}`);
+addLog("select", btn.textContent.includes('剩余') ? '取消剩余全选' : '取消全选');
 updateAllStates(false);
 }
 else {
 const numsToAdd = allSelectedArr.filter(n => !betResults.hasOwnProperty(n) && !bettingNumbers.has(n));
 if (numsToAdd.length === 0) {
-showToast("ℹ️ 这些号码已在待购或已购列表中");
 return;
 }
 numsToAdd.forEach(n => {
 bettingNumbers.add(n);
 });
 vibrate(30);
-const actionName = btn.textContent.includes('剩余') ? '剩余全选' : '全选';
-showToast(`✅ ${actionName} (${numsToAdd.length}个)`);
-addLog("select", `${actionName}`);
+addLog("select", btn.textContent.includes('剩余') ? '剩余全选' : '全选');
 updateAllStates(false);
 }
 }
@@ -2139,7 +2074,7 @@ btn.style.cursor = 'not-allowed';
 btn.style.backgroundColor = '#cbd5e0';
 btn.style.color = '#718096';
 btn.style.boxShadow = 'none';
-btn.onclick = function() { showToast("⚠️ 暂无已选号码"); };
+btn.onclick = function() {};
 } else if (notBoughtCount === 0) {
 btn.classList.add('grey');
 btn.textContent = '已选完';
@@ -2148,7 +2083,7 @@ btn.style.cursor = 'not-allowed';
 btn.style.backgroundColor = '#cbd5e0';
 btn.style.color = '#718096';
 btn.style.boxShadow = 'none';
-btn.onclick = function() { showToast("ℹ️ 所有号码已选完"); };
+btn.onclick = function() {};
 } else {
 if (missingCount === 0 && inBettingCount > 0) {
 const hasBoughtNumbers = Object.keys(betResults).length > 0;
@@ -2237,7 +2172,6 @@ prevText: prevText,
 nextText: input.value
 });
 addLog("select", `添加生肖 ${z}`);
-showToast(`➕ 已添加 ${z}`);
 };
 container.appendChild(btn);
 });
@@ -2281,7 +2215,6 @@ const btn = document.querySelector(`.num-btn[data-num="${n}"]`);
 if (btn) btn.classList.add('is-active');
 });
 addLog("select", `点亮${getGroupLabel('parity', val)}`);
-showToast(`✅ 已点亮 ${toAdd.length} 个号码 (${getGroupLabel('parity', val)})`);
 } else {
 const toRemove = groupNums.filter(n => selectedNumbers.has(n));
 if (toRemove.length === 0) return;
@@ -2295,7 +2228,6 @@ const btn = document.querySelector(`.num-btn[data-num="${n}"]`);
 if (btn) btn.classList.remove('is-active');
 });
 addLog("select", `熄灭${getGroupLabel('parity', val)}`);
-showToast(`❌ 已熄灭 ${toRemove.length} 个号码 (${getGroupLabel('parity', val)})`);
 }
 updateAllStates(false);
 }
@@ -2425,7 +2357,6 @@ span.classList.add('flat');
 }
 function updateFrequencyButtonsPressedState() {
 const freqMap = calculateNumberFrequencies();
-// 只统计实际出现该频率的号码，不包括未出现的号码
 const freqNumbers = {};
 for (let i = 1; i <= 49; i++) {
     if (freqMap[i] !== undefined) {
@@ -2444,9 +2375,6 @@ document.querySelectorAll('#sphereBtnContainer .count-btn').forEach(btn => {
         btn.classList.add('is-pressed');
     }
 });
-}
-function updateCopyButtons() {
-    // 已由 updateCopyButtonsState 处理，这里保留空函数以兼容调用
 }
 function updateClearResultBtn() {
     const btn = document.getElementById('clearResultBtn');
@@ -2467,7 +2395,7 @@ function updateClearResultBtn() {
         btn.style.backgroundColor = '#cbd5e0';
         btn.style.color = '#718096';
         btn.style.boxShadow = 'none';
-        btn.onclick = function() { showToast("ℹ️ 暂无买号结果"); };
+        btn.onclick = function() {};
     }
 }
 function updateAllStates() {
@@ -2510,12 +2438,10 @@ if (wasAdded) {
 bettingNumbers.add(num);
 recordAction('betting_add', numStr, [num], true);
 addLog("select", `加入待购 ${numStr}`);
-showToast(`📦 已加入待购：${numStr}`);
 } else {
 bettingNumbers.delete(num);
 recordAction('betting_remove', numStr, [num], false);
 addLog("select", `取消待购 ${numStr}`);
-showToast(`🗑️ 已取消待购：${numStr}`);
 }
 updateBetActionArea();
 updateResultText();
@@ -2532,7 +2458,6 @@ const amount = betResults[num];
 recordAction('bet_cancel', numStr, [num], false, amount);
 delete betResults[num];
 bettingNumbers.delete(num);
-showToast(`🗑️ 已取消 ${numStr} 的购买`);
 addLog("select", `取消购买 ${numStr}`);
 updateAllStates();
 }
@@ -2543,26 +2468,22 @@ const allBettingOrBought = tailNumsInSelected.every(n => betResults.hasOwnProper
 if (allBettingOrBought) {
 const toCancel = tailNumsInSelected.filter(n => bettingNumbers.has(n));
 if (toCancel.length === 0) {
-showToast("ℹ️ 该尾数号码已全部购买，无法取消待购");
 return;
 }
 const label = `尾${tail}`;
 recordAction('batch_kill', label, toCancel, false);
 toCancel.forEach(n => bettingNumbers.delete(n));
 vibrate(30);
-showToast(`❌ 已取消尾${tail}的待购号码`);
 addLog("select", `取消尾${tail}待购`);
 } else {
 const toAdd = tailNumsInSelected.filter(n => !betResults.hasOwnProperty(n) && !bettingNumbers.has(n));
 if (toAdd.length === 0) {
-showToast("ℹ️ 该尾数号码已在待购或已购中");
 return;
 }
 const label = `尾${tail}`;
 recordAction('batch_select', label, toAdd, true);
 toAdd.forEach(n => bettingNumbers.add(n));
 vibrate(30);
-showToast(`✅ 尾${tail}号码已加入待购`);
 addLog("select", `选中尾${tail}待购`);
 }
 updateBetActionArea();
@@ -2605,14 +2526,12 @@ badge.textContent = bettingNumbers.size + '个';
 }
 function confirmBet() {
 if (bettingNumbers.size === 0) {
-showToast("⚠️ 请先选择待购号码");
 vibrate(30);
 return;
 }
 const input = document.getElementById('betAmountInput');
 const amount = parseInt(input.value);
 if (isNaN(amount) || amount <= 0) {
-showToast("⚠️ 金额必须是大于 0 的整数");
 vibrate(30);
 input.focus();
 return;
@@ -2624,7 +2543,6 @@ nums.forEach(n => { betResults[n] = amount; });
 bettingNumbers.clear();
 input.value = "";
 updateAllStates();
-showToast(`✅ 已下单：${nums.length}个号码，各${amount}块`);
 addLog("bet", `买入 ${label}. @ ${amount}块`);
 updateBetConfirmButtonState();
 }
@@ -2678,7 +2596,6 @@ itemsDiv.innerHTML = fullHtml;
 }
 function handleClearBetResults() {
 if (Object.keys(betResults).length === 0) {
-showToast("ℹ️ 暂无买号结果");
 return;
 }
 if (!confirm("确定要清空所有买号结果吗？")) return;
@@ -2686,7 +2603,6 @@ const prevBetResults = {...betResults};
 recordAction('clear_bet_results', '清空结果', [], false, 0, { prevBetResults: prevBetResults });
 betResults = {};
 updateAllStates();
-showToast("🗑️ 已清空买号结果");
 addLog("clear", "清空买号结果");
 }
 function calculateNumberFrequencies() {
@@ -2702,13 +2618,11 @@ function getFreqStyle(frequency, customColorMap = null) {
 if (frequency === 1) {
 return { bg: 'radial-gradient(circle at 30% 30%, #f7fafc 0%, #cbd5e0 40%, #a0aec0 100%)', text: '#4a5568', textClass: 'light-text' };
 }
-// 使用传入的颜色映射或全局映射
 const colorMap = customColorMap || globalFreqColorMap;
 if (colorMap.has(frequency)) {
 const bg = colorMap.get(frequency);
 return { bg: bg, text: '#ffffff', textClass: 'dark-text' };
 }
-// 如果没有映射，从颜色池中随机取一个
 const colorPool = [...freqColorPalette];
 const randomIndex = Math.floor(Math.random() * colorPool.length);
 const selectedColor = colorPool[randomIndex];
@@ -2749,7 +2663,6 @@ if (btn) btn.classList.remove('is-active');
 }
 });
 addLog("select", `熄灭重复${frequency}次的号码 (${targetNumbers.filter(n => !selectedNumbers.has(n)).length}个)`);
-showToast(`❌ 已熄灭重复${frequency}次的号码`);
 } else {
 recordAction('freq_batch', label, targetNumbers, true, 0, { wasAdding: true });
 targetNumbers.forEach(n => {
@@ -2760,10 +2673,8 @@ const btn = document.querySelector(`.num-btn[data-num="${n}"]`);
 if (btn) btn.classList.add('is-active');
 });
 addLog("select", `点亮重复${frequency}次的号码 (${targetNumbers.length}个)`);
-showToast(`✅ 已点亮重复${frequency}次的号码`);
 }
 updateAllStates();
-// 延迟执行，确保 DOM 完全更新后再设置按钮状态
 setTimeout(() => {
     updateFrequencyButtonsPressedState();
 }, 50);
@@ -2778,9 +2689,7 @@ Object.values(freqMap).forEach(count => {
 freqCount[count] = (freqCount[count] || 0) + 1;
 });
 const sortedFreqs = Object.keys(freqCount).sort((a, b) => parseInt(a) - parseInt(b));
-// 收集所有需要生成的频率（排除频率1，因为它固定颜色）
 const freqsToColor = sortedFreqs.filter(f => parseInt(f) !== 1).map(f => parseInt(f));
-// 为每个频率分配不同的颜色（使用全局映射，保证与历史号码球一致）
 const colorPool = [...freqColorPalette];
 for (let i = 0; i < freqsToColor.length; i++) {
     const freq = freqsToColor[i];
@@ -2874,7 +2783,6 @@ numsDiv.className = 'history-nums';
 item.sortedNumbers.forEach((n) => {
 const span = document.createElement('span');
 const freq = globalFreq[n] || 1;
-// 使用与统计按钮相同的颜色映射
 const style = getFreqStyle(freq, globalFreqColorMap);
 span.className = `history-num-item`;
 const isLit = selectedNumbers.has(n);
@@ -2955,7 +2863,6 @@ if (btn) btn.classList.remove('is-active');
 }
 updateAllStates();
 addLog("input", `删除历史 ${item.numbers.length}码`);
-showToast("🗑️ 已删除该组号码");
 save_data();
 }
 function updateResultText() {
@@ -3103,7 +3010,6 @@ const btn = document.querySelector(`.num-btn[data-num="${num}"]`);
 if (btn) {
 btn.classList.remove('is-special');
 }
-showToast(`✨ 已取消号码 ${fmtNum(num)} 的特码效果`);
 addLog("select", `取消特码 ${fmtNum(num)}`);
 updateAllStates();
 return;
@@ -3115,26 +3021,20 @@ const btn = document.querySelector(`.num-btn[data-num="${num}"]`);
 if (btn) btn.classList.add('is-active');
 recordAction('manual_toggle', numStr, [num], true, 0, { number: num, wasAdded: true });
 addLog("select", `选中 ${numStr}`);
-showToast(`✅ 选中 ${numStr}`);
 } else {
 selectedNumbers.delete(num);
 manuallyTurnedOff.add(num);
-// 如果该号码在待购栏中，从待购栏移除
 if (bettingNumbers.has(num)) {
 bettingNumbers.delete(num);
 addLog("select", `取消待购 ${numStr}（因网格球熄灭）`);
 }
-// 如果该号码在已买结果中，从已买结果移除
 if (betResults[num] !== undefined) {
-const amount = betResults[num];
 delete betResults[num];
 addLog("select", `取消购买 ${numStr}（因网格球熄灭）`);
 }
 const btn = document.querySelector(`.num-btn[data-num="${num}"]`);
 if (btn) btn.classList.remove('is-active');
 recordAction('manual_toggle', numStr, [num], false, 0, { number: num, wasAdded: false });
-showToast(`❌ 取消 ${numStr}`);
-// 更新相关UI
 updateBetActionArea();
 updateBettingCountBadge();
 renderBetResults();
@@ -3334,7 +3234,7 @@ btn.style.cursor = 'not-allowed';
 btn.style.backgroundColor = '#cbd5e0';
 btn.style.color = '#718096';
 btn.style.boxShadow = 'none';
-btn.onclick = function() { showToast("⚠️ 暂无已选号码"); };
+btn.onclick = function() {};
 return;
 }
 const existingNums = new Set(tempStorageData.map(i => i.num));
@@ -3348,7 +3248,7 @@ btn.style.cursor = 'not-allowed';
 btn.style.backgroundColor = '#cbd5e0';
 btn.style.color = '#718096';
 btn.style.boxShadow = 'none';
-btn.onclick = function() { showToast("ℹ️ 所有号码已暂存"); };
+btn.onclick = function() {};
 } else {
 btn.className = 'temp-action-btn green';
 if (tempStorageData.length === 0) {
@@ -3375,7 +3275,7 @@ btn.style.cursor = 'not-allowed';
 btn.style.backgroundColor = '#cbd5e0';
 btn.style.color = '#718096';
 btn.style.boxShadow = 'none';
-btn.onclick = function() { showToast("ℹ️ 无恢复号码"); };
+btn.onclick = function() {};
 } else {
 btn.className = 'temp-action-btn green';
 btn.textContent = '恢复';
@@ -3398,7 +3298,7 @@ btn.style.cursor = 'not-allowed';
 btn.style.backgroundColor = '#cbd5e0';
 btn.style.color = '#718096';
 btn.style.boxShadow = 'none';
-btn.onclick = function() { showToast("ℹ️ 暂存区已空"); };
+btn.onclick = function() {};
 } else {
 btn.className = 'temp-action-btn orange';
 btn.textContent = '清空暂存';
@@ -3413,7 +3313,6 @@ btn.onclick = handleTempClear;
 function handleTempStore() {
 const selectedArr = Array.from(selectedNumbers);
 if (selectedArr.length === 0) {
-showToast("⚠️ 暂无已选号码");
 return;
 }
 const existingNums = new Set(tempStorageData.map(i => i.num));
@@ -3447,7 +3346,6 @@ addLog("select", `暂存 ${newNums.length} 个号码`);
 }
 function handleTempRestore() {
 if (tempStorageData.length === 0) {
-showToast("ℹ️ 无恢复号码");
 return;
 }
 if (!confirm("确定要恢复暂存号码吗？")) return;
@@ -3465,7 +3363,6 @@ manuallyTurnedOff.delete(n);
 const btn = document.querySelector(`.num-btn[data-num="${n}"]`);
 if (btn) btn.classList.add('is-active');
 }
-// 恢复时不要恢复特码效果，只移除特码效果
 if (specialNumbersSet.has(n)) {
 specialNumbersSet.delete(n);
 const btn = document.querySelector(`.num-btn[data-num="${n}"]`);
@@ -3495,7 +3392,6 @@ addLog("select", `恢复 ${restoredNums.length} 个号码`);
 }
 function handleTempClear() {
 if (tempStorageData.length === 0) {
-showToast("ℹ️ 暂存区已空");
 return;
 }
 if (!confirm("确定要清空暂存区吗？")) return;
@@ -3514,7 +3410,7 @@ showToast("🗑️ 已清空暂存区");
 addLog("clear", "清空暂存");
 }
 function copySelectedNumbers() {
-if (selectedNumbers.size === 0) { showToast("⚠️ 暂无已选号码"); return; }
+if (selectedNumbers.size === 0) { return; }
 const sortedNums = Array.from(selectedNumbers).sort((a,b)=>a-b).map(fmtNum);
 const textToCopy = sortedNums.join('.');
 vibrate([30, 50, 30]);
@@ -3534,7 +3430,6 @@ showToast("✅ 已复制已选号码");
 function copyBetResults() {
 const keys = Object.keys(betResults).map(Number);
 if (keys.length === 0) {
-showToast("⚠️ 无买号结果可复制");
 return;
 }
 let textParts = [];
@@ -3555,7 +3450,6 @@ textParts.push(`${formattedNums.join('.')}各${amt}块`);
 });
 const finalText = "新奥" + textParts.join(', ');
 if (!finalText || finalText === "新奥") {
-showToast("无内容");
 return;
 }
 vibrate([30, 50, 30]);
@@ -3604,14 +3498,12 @@ logContainer.innerHTML = '<div class="log-item" style="color:#718096; justify-co
 save_data();
 renderBetResults();
 updateAllStates();
-showToast("🗑️ 已重置所有数据");
 addLog("clear", "重置全部");
 }
 }
 function randomSpecialNumber() {
 if (isRandomRunning) return;
 if (selectedNumbers.size === 0) {
-showToast("⚠️ 暂无选中的号码");
 return;
 }
 const availableNumbers = Array.from(selectedNumbers).filter(n => !specialNumbersSet.has(n));
@@ -3700,8 +3592,6 @@ function checkBetFocus() {
 if (bettingNumbers.size === 0) {
 const input = document.getElementById('betAmountInput');
 input.blur();
-showToast("⚠️ 请先选择待购号码");
-vibrate(30);
 return false;
 }
 return true;
