@@ -594,6 +594,44 @@ padding: 0 2px;
     box-shadow: none !important;
     background: #cbd5e0 !important;
 }
+/* 金额输入框 - 强制固定宽度72px，隐藏增减按钮 */
+.bet-amount-input {
+    width: 72px !important;
+    min-width: 72px !important;
+    max-width: 72px !important;
+    padding: 0 4px;
+    border: 1px solid var(--input-border);
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-align: center;
+    outline: none;
+    height: 24px;
+    line-height: 24px;
+    box-sizing: border-box;
+    -moz-appearance: textfield;
+    flex: none !important;
+}
+.bet-amount-input::-webkit-outer-spin-button,
+.bet-amount-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+    display: none;
+}
+.bet-amount-input:focus { border-color: var(--action-btn-start); }
+.bet-amount-input::placeholder {
+    color: #a0aec0;
+    font-family: 'Courier New', monospace;
+    font-size: 0.8rem;
+    font-weight: 700;
+    opacity: 1;
+}
+.bet-amount-input:disabled {
+    background: #e2e8f0;
+    color: #718096;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
 @keyframes pulse-random {
     0% { filter: brightness(1); transform: scale(1); }
     50% { filter: brightness(1.15); transform: scale(1.05); }
@@ -919,7 +957,7 @@ border-radius: 50% !important;
 .bg-green-solid { background-color: var(--res-green) !important; }
 .res-prefix { color: #4a5568; }
 .bet-action-area { margin-bottom: 8px; display: flex; flex-direction: column; gap: 6px; padding-left: 0; }
-.bet-input-row { display: flex; gap: 6px; align-items: center; width: 100%; }
+.bet-input-row { display: flex; gap: 6px; align-items: center; width: 100%; flex-wrap: nowrap; }
 /* 待购号码显示栏 - 高度24px */
 .bet-nums-display {
     flex: 2;
@@ -951,40 +989,6 @@ border-radius: 50% !important;
     line-height: 24px;
     display: inline-flex;
     align-items: center;
-}
-/* 金额输入框 - 高度24px，宽度72px */
-.bet-amount-input {
-    width: 72px;
-    padding: 0 4px;
-    border: 1px solid var(--input-border);
-    border-radius: 4px;
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-align: center;
-    outline: none;
-    height: 24px;
-    line-height: 24px;
-    box-sizing: border-box;
-    -moz-appearance: textfield;
-}
-.bet-amount-input::-webkit-outer-spin-button,
-.bet-amount-input::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-}
-.bet-amount-input:focus { border-color: var(--action-btn-start); }
-.bet-amount-input::placeholder {
-    color: #a0aec0;
-    font-family: 'Courier New', monospace;
-    font-size: 0.8rem;
-    font-weight: 700;
-    opacity: 1;
-}
-.bet-amount-input:disabled {
-    background: #e2e8f0;
-    color: #718096;
-    cursor: not-allowed;
-    opacity: 0.6;
 }
 /* 确定按钮 - 高度24px，宽度72px */
 .bet-confirm-btn {
@@ -3115,11 +3119,30 @@ showToast(`✅ 选中 ${numStr}`);
 } else {
 selectedNumbers.delete(num);
 manuallyTurnedOff.add(num);
+// 如果该号码在待购栏中，从待购栏移除
+if (bettingNumbers.has(num)) {
+bettingNumbers.delete(num);
+addLog("select", `取消待购 ${numStr}（因网格球熄灭）`);
+}
+// 如果该号码在已买结果中，从已买结果移除
+if (betResults[num] !== undefined) {
+const amount = betResults[num];
+delete betResults[num];
+addLog("select", `取消购买 ${numStr}（因网格球熄灭）`);
+}
 const btn = document.querySelector(`.num-btn[data-num="${num}"]`);
 if (btn) btn.classList.remove('is-active');
 recordAction('manual_toggle', numStr, [num], false, 0, { number: num, wasAdded: false });
-addLog("select", `取消选中 ${numStr}`);
 showToast(`❌ 取消 ${numStr}`);
+// 更新相关UI
+updateBetActionArea();
+updateBettingCountBadge();
+renderBetResults();
+updateBatchSelectButton();
+updateTailButtons();
+updateBetConfirmButtonState();
+updateClearResultBtn();
+updateCopyButtonsState();
 }
 updateAllStates();
 }
@@ -3442,16 +3465,11 @@ manuallyTurnedOff.delete(n);
 const btn = document.querySelector(`.num-btn[data-num="${n}"]`);
 if (btn) btn.classList.add('is-active');
 }
-if (item.isSpecial) {
-specialNumbersSet.add(n);
-const btn = document.querySelector(`.num-btn[data-num="${n}"]`);
-if (btn) btn.classList.add('is-special');
-} else {
+// 恢复时不要恢复特码效果，只移除特码效果
 if (specialNumbersSet.has(n)) {
 specialNumbersSet.delete(n);
 const btn = document.querySelector(`.num-btn[data-num="${n}"]`);
 if (btn) btn.classList.remove('is-special');
-}
 }
 if (item.isBetting) {
 if (!bettingNumbers.has(n)) bettingNumbers.add(n);
