@@ -472,7 +472,7 @@ padding: 0 2px;
 }
 .image-preview-close {
     position: absolute;
-    top: -8px;
+    bottom: -8px;
     right: -8px;
     width: 20px;
     height: 20px;
@@ -1541,6 +1541,38 @@ function applyBinarization(canvas) {
     ctx.putImageData(imageData, 0, 0);
 }
 
+function ensureFreqColors() {
+    const freqMap = calculateNumberFrequencies();
+    const allFreqs = new Set();
+    for (let i = 1; i <= 49; i++) {
+        const freq = freqMap[i] || 0;
+        if (freq > 1) allFreqs.add(freq);
+    }
+    
+    const needColorFreqs = Array.from(allFreqs).filter(f => !globalFreqColorMap.has(f));
+    if (needColorFreqs.length === 0) return;
+    
+    let availableColors = [...freqColorPalette];
+    for (let i = availableColors.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [availableColors[i], availableColors[j]] = [availableColors[j], availableColors[i]];
+    }
+    
+    let colorIndex = 0;
+    for (const freq of needColorFreqs) {
+        if (colorIndex >= availableColors.length) {
+            availableColors = [...freqColorPalette];
+            for (let j = availableColors.length - 1; j > 0; j--) {
+                const k = Math.floor(Math.random() * (j + 1));
+                [availableColors[j], availableColors[k]] = [availableColors[k], availableColors[j]];
+            }
+            colorIndex = 0;
+        }
+        globalFreqColorMap.set(freq, availableColors[colorIndex]);
+        colorIndex++;
+    }
+}
+
 async function performOCR() {
     if (!selectedImageFile) {
         showToast("⚠️ 请先选择图片");
@@ -1554,6 +1586,8 @@ async function performOCR() {
     statusSpan.textContent = '压缩图片中...';
     progressTextSpan.innerHTML = '<span class="progress-label">识别中</span><span class="progress-bar-text"></span><span class="progress-percent">0%</span>';
     showToast("🔍 正在处理图片，请稍候...");
+    
+    const startTime = Date.now();
     
     try {
         compressImage(selectedImageFile, async function(compressedBlob) {
@@ -1586,7 +1620,10 @@ async function performOCR() {
                     const ret = await worker.recognize(binarizedBlob);
                     await worker.terminate();
                     
-                    const text = ret.data.text;
+                    let text = ret.data.text;
+                    
+                    // 预处理：将空格替换为 .，合并多个空格
+                    text = text.replace(/\s+/g, '.');
                     
                     const zodiacList = ["鼠","牛","虎","兔","龙","蛇","马","羊","猴","鸡","狗","猪"];
                     const numbers = [];
@@ -1638,31 +1675,46 @@ async function performOCR() {
                         completeMsg = "未识别到生肖或1-49的数字";
                     }
                     
-                    statusSpan.textContent = completeMsg;
-                    progressTextSpan.innerHTML = '';
+                    // 确保进度条至少显示1秒
+                    const elapsed = Date.now() - startTime;
+                    const remaining = Math.max(0, 1000 - elapsed);
+                    
+                    setTimeout(() => {
+                        statusSpan.textContent = completeMsg;
+                        progressTextSpan.innerHTML = '';
+                        ocrBtn.disabled = false;
+                        updateOCRButtonState();
+                    }, remaining);
                     
                     if (inputText) {
-                        document.getElementById('smartInput').value = inputText;
-                        lastInputValue = inputText;
-                        showToast(`📝 ${completeMsg}`);
+                        setTimeout(() => {
+                            document.getElementById('smartInput').value = inputText;
+                            lastInputValue = inputText;
+                        }, remaining);
+                        setTimeout(() => {
+                            showToast(`📝 ${completeMsg}`);
+                        }, remaining + 100);
                     } else {
-                        showToast("⚠️ 未识别到生肖或1-49的数字");
+                        setTimeout(() => {
+                            showToast("⚠️ 未识别到生肖或1-49的数字");
+                        }, remaining + 100);
                     }
                     
-                    ocrBtn.disabled = false;
-                    updateOCRButtonState();
                 }, 'image/jpeg', 0.9);
             };
             imgForBinarize.src = imgUrl;
         });
     } catch (error) {
         console.error('OCR错误:', error);
-        statusSpan.textContent = '识别失败';
-        const progressTextSpan = document.getElementById('ocrProgressText');
-        if (progressTextSpan) progressTextSpan.innerHTML = '';
-        showToast("❌ 识别失败，请重试");
-        ocrBtn.disabled = false;
-        updateOCRButtonState();
+        const elapsed = Date.now() - startTime;
+        const remaining = Math.max(0, 1000 - elapsed);
+        setTimeout(() => {
+            statusSpan.textContent = '识别失败';
+            progressTextSpan.innerHTML = '';
+            showToast("❌ 识别失败，请重试");
+            ocrBtn.disabled = false;
+            updateOCRButtonState();
+        }, remaining);
     }
 }
 
@@ -3075,29 +3127,8 @@ Object.values(freqMap).forEach(count => {
 freqCount[count] = (freqCount[count] || 0) + 1;
 });
 const sortedFreqs = Object.keys(freqCount).sort((a, b) => parseInt(a) - parseInt(b));
-const freqsToColor = sortedFreqs.filter(f => parseInt(f) !== 1).map(f => parseInt(f));
-let availableColors = [...freqColorPalette];
-for (let i = availableColors.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [availableColors[i], availableColors[j]] = [availableColors[j], availableColors[i]];
-}
-let colorIndex = 0;
-for (let i = 0; i < freqsToColor.length; i++) {
-    const freq = freqsToColor[i];
-    if (!globalFreqColorMap.has(freq)) {
-        if (colorIndex >= availableColors.length) {
-            availableColors = [...freqColorPalette];
-            for (let j = availableColors.length - 1; j > 0; j--) {
-                const k = Math.floor(Math.random() * (j + 1));
-                [availableColors[j], availableColors[k]] = [availableColors[k], availableColors[j]];
-            }
-            colorIndex = 0;
-        }
-        const selectedColor = availableColors[colorIndex];
-        globalFreqColorMap.set(freq, selectedColor);
-        colorIndex++;
-    }
-}
+// 确保所有频率颜色已分配
+ensureFreqColors();
 sortedFreqs.forEach(countStr => {
 const count = parseInt(countStr);
 const numCount = freqCount[count];
@@ -3109,6 +3140,7 @@ let style;
 if (count === 1) {
     style = { bg: 'radial-gradient(circle at 30% 30%, #f7fafc 0%, #cbd5e0 40%, #a0aec0 100%)', text: '#4a5568', textClass: 'light-text' };
 } else {
+    // 直接读取 globalFreqColorMap 中的颜色
     const bg = globalFreqColorMap.get(count) || freqColorPalette[0];
     style = { bg: bg, text: '#ffffff', textClass: 'dark-text' };
 }
@@ -3145,6 +3177,8 @@ return;
 box.style.display = 'flex';
 box.innerHTML = '';
 const globalFreq = calculateNumberFrequencies();
+// 确保所有频率颜色已分配
+ensureFreqColors();
 inputHistory.forEach((item, index) => {
 const row = document.createElement('div');
 row.className = 'history-row';
