@@ -376,6 +376,13 @@ padding: 0 2px;
     display: flex;
     gap: 6px;
     align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+.scan-left-group {
+    display: flex;
+    gap: 6px;
+    align-items: center;
     flex-wrap: wrap;
 }
 .scan-btn {
@@ -397,6 +404,24 @@ padding: 0 2px;
 .scan-btn:active {
     transform: translateY(2px);
     box-shadow: none;
+}
+.ocr-progress-text {
+    font-size: 0.7rem;
+    font-family: monospace;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+}
+.progress-label {
+    color: #718096;
+}
+.progress-bar-text {
+    color: #3182ce;
+    letter-spacing: 1px;
+}
+.progress-percent {
+    color: #718096;
 }
 .ocr-btn {
     width: calc(var(--btn-size) * 2 + var(--btn-gap));
@@ -432,30 +457,6 @@ padding: 0 2px;
 .ocr-status {
     font-size: 0.7rem;
     color: #718096;
-}
-.ocr-progress-container {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: rgba(255,255,255,0.6);
-    border-radius: 20px;
-    padding: 2px 8px;
-    flex: 1;
-    min-width: 0;
-}
-.ocr-progress-bar-bg {
-    width: 100%;
-    height: 6px;
-    background-color: #e2e8f0;
-    border-radius: 3px;
-    overflow: hidden;
-}
-.ocr-progress-bar-fill {
-    width: 0%;
-    height: 100%;
-    background-color: #3182ce;
-    border-radius: 3px;
-    transition: width 0.2s ease;
 }
 .image-preview-area {
     margin-top: 8px;
@@ -1283,13 +1284,10 @@ line-height: 1.6;
 <div class="input-hint" style="text-align:left; margin-top:4px;">支持空格/逗号/点号分隔，按确定键点亮并清空</div>
 <div class="scan-area">
 <input type="file" id="imageUpload" accept="image/*" style="display: none;">
+<div class="scan-left-group">
 <button class="scan-btn" id="scanBtn" onclick="document.getElementById('imageUpload').click()">扫描图片</button>
 <span class="ocr-status" id="ocrStatus"></span>
-<div class="ocr-progress-container" id="ocrProgressContainer" style="display: none;">
-<span class="ocr-progress-percent" id="ocrProgressPercent">0%</span>
-<div class="ocr-progress-bar-bg">
-<div class="ocr-progress-bar-fill" id="ocrProgressFill"></div>
-</div>
+<span class="ocr-progress-text" id="ocrProgressText"></span>
 </div>
 <button class="ocr-btn" id="ocrBtn" onclick="performOCR()">识别</button>
 </div>
@@ -1464,8 +1462,8 @@ function clearImagePreview() {
     document.getElementById('imageUpload').value = '';
     document.getElementById('imagePreview').style.display = 'none';
     document.getElementById('ocrStatus').textContent = '';
-    const progressContainer = document.getElementById('ocrProgressContainer');
-    if (progressContainer) progressContainer.style.display = 'none';
+    const progressText = document.getElementById('ocrProgressText');
+    if (progressText) progressText.textContent = '';
     updateOCRButtonState();
 }
 
@@ -1493,8 +1491,8 @@ function restoreImagePreview(file) {
         img.src = event.target.result;
         preview.style.display = 'inline-block';
         document.getElementById('ocrStatus').textContent = '已选择图片，点击识别';
-        const progressContainer = document.getElementById('ocrProgressContainer');
-        if (progressContainer) progressContainer.style.display = 'none';
+        const progressText = document.getElementById('ocrProgressText');
+        if (progressText) progressText.textContent = '';
         updateOCRButtonState();
     };
     reader.readAsDataURL(file);
@@ -1518,8 +1516,8 @@ document.getElementById('imageUpload').addEventListener('change', function(e) {
         img.src = event.target.result;
         preview.style.display = 'inline-block';
         document.getElementById('ocrStatus').textContent = '已选择图片，点击识别';
-        const progressContainer = document.getElementById('ocrProgressContainer');
-        if (progressContainer) progressContainer.style.display = 'none';
+        const progressText = document.getElementById('ocrProgressText');
+        if (progressText) progressText.textContent = '';
         updateOCRButtonState();
     };
     reader.readAsDataURL(file);
@@ -1550,15 +1548,11 @@ async function performOCR() {
     }
     const ocrBtn = document.getElementById('ocrBtn');
     const statusSpan = document.getElementById('ocrStatus');
-    const progressContainer = document.getElementById('ocrProgressContainer');
-    const progressPercent = document.getElementById('ocrProgressPercent');
-    const progressFill = document.getElementById('ocrProgressFill');
+    const progressTextSpan = document.getElementById('ocrProgressText');
     
     ocrBtn.disabled = true;
     statusSpan.textContent = '压缩图片中...';
-    progressContainer.style.display = 'inline-flex';
-    progressPercent.textContent = '0%';
-    progressFill.style.width = '0%';
+    progressTextSpan.innerHTML = '<span class="progress-label">识别中</span><span class="progress-bar-text"></span><span class="progress-percent">0%</span>';
     showToast("🔍 正在处理图片，请稍候...");
     
     try {
@@ -1578,26 +1572,21 @@ async function performOCR() {
                 URL.revokeObjectURL(imgUrl);
                 
                 canvas.toBlob(async function(binarizedBlob) {
-                    statusSpan.textContent = '识别中 0%';
+                    statusSpan.textContent = '识别中';
                     const worker = await Tesseract.createWorker('chi_sim+eng');
                     
                     worker.progress = (p) => {
                         const percent = Math.round(p.progress * 100);
+                        const barLength = Math.floor(percent / 5);
+                        const bar = '='.repeat(barLength);
+                        progressTextSpan.innerHTML = `<span class="progress-label">识别中</span><span class="progress-bar-text">${bar}</span><span class="progress-percent">${percent}%</span>`;
                         statusSpan.textContent = `识别中 ${percent}%`;
-                        progressPercent.textContent = `${percent}%`;
-                        progressFill.style.width = `${percent}%`;
                     };
                     
                     const ret = await worker.recognize(binarizedBlob);
                     await worker.terminate();
                     
                     const text = ret.data.text;
-                    statusSpan.textContent = '识别完成！';
-                    progressPercent.textContent = '100%';
-                    progressFill.style.width = '100%';
-                    setTimeout(() => {
-                        progressContainer.style.display = 'none';
-                    }, 1500);
                     
                     const zodiacList = ["鼠","牛","虎","兔","龙","蛇","马","羊","猴","鸡","狗","猪"];
                     const numbers = [];
@@ -1637,10 +1626,25 @@ async function performOCR() {
                     });
                     const finalCount = allValidNumbers.size;
                     
+                    // 构建完成提示
+                    let completeMsg = '';
+                    if (numbers.length > 0 && zodiacMatches.length > 0) {
+                        completeMsg = `识别完成，共 ${finalCount} 个号码和 ${zodiacMatches.length} 肖`;
+                    } else if (numbers.length > 0) {
+                        completeMsg = `识别完成，共 ${finalCount} 个号码`;
+                    } else if (zodiacMatches.length > 0) {
+                        completeMsg = `识别完成，共 ${zodiacMatches.length} 肖`;
+                    } else {
+                        completeMsg = "未识别到生肖或1-49的数字";
+                    }
+                    
+                    statusSpan.textContent = completeMsg;
+                    progressTextSpan.innerHTML = '';
+                    
                     if (inputText) {
                         document.getElementById('smartInput').value = inputText;
                         lastInputValue = inputText;
-                        showToast(`📝 已填入 ${finalCount} 个号码`);
+                        showToast(`📝 ${completeMsg}`);
                     } else {
                         showToast("⚠️ 未识别到生肖或1-49的数字");
                     }
@@ -1654,7 +1658,8 @@ async function performOCR() {
     } catch (error) {
         console.error('OCR错误:', error);
         statusSpan.textContent = '识别失败';
-        progressContainer.style.display = 'none';
+        const progressTextSpan = document.getElementById('ocrProgressText');
+        if (progressTextSpan) progressTextSpan.innerHTML = '';
         showToast("❌ 识别失败，请重试");
         ocrBtn.disabled = false;
         updateOCRButtonState();
@@ -3000,15 +3005,15 @@ freq[num] = (freq[num] || 0) + 1;
 return freq;
 }
 function getFreqStyle(frequency, customColorMap = null) {
-if (frequency === 1) {
-return { bg: 'radial-gradient(circle at 30% 30%, #f7fafc 0%, #cbd5e0 40%, #a0aec0 100%)', text: '#4a5568', textClass: 'light-text' };
-}
-const colorMap = customColorMap || globalFreqColorMap;
-if (colorMap.has(frequency)) {
-const bg = colorMap.get(frequency);
-return { bg: bg, text: '#ffffff', textClass: 'dark-text' };
-}
-return { bg: freqColorPalette[0], text: '#ffffff', textClass: 'dark-text' };
+    if (frequency === 1) {
+        return { bg: 'radial-gradient(circle at 30% 30%, #f7fafc 0%, #cbd5e0 40%, #a0aec0 100%)', text: '#4a5568', textClass: 'light-text' };
+    }
+    const colorMap = customColorMap || globalFreqColorMap;
+    if (colorMap.has(frequency)) {
+        const bg = colorMap.get(frequency);
+        return { bg: bg, text: '#ffffff', textClass: 'dark-text' };
+    }
+    return { bg: freqColorPalette[0], text: '#ffffff', textClass: 'dark-text' };
 }
 function toggleNumbersByFrequency(frequency) {
 const freqMap = calculateNumberFrequencies();
