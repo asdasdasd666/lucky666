@@ -173,7 +173,7 @@ border-color: #a0aec0; text-shadow: none; font-weight: 900;
 .select-zodiac-row {
 display: grid;
 grid-template-columns: auto repeat(12, 1fr);
-gap: 4px;
+gap: 2px;
 align-items: center;
 width: 100%;
 margin-bottom: 8px;
@@ -377,6 +377,13 @@ padding: 0 2px;
     gap: 6px;
     align-items: center;
     flex-wrap: wrap;
+    justify-content: space-between;
+}
+.scan-left-group {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex-wrap: wrap;
 }
 .scan-btn {
     height: var(--btn-size);
@@ -414,6 +421,7 @@ padding: 0 2px;
     justify-content: center;
     box-shadow: 0 2px 0 rgba(0,0,0,0.2);
     transition: all 0.1s;
+    flex-shrink: 0;
 }
 .ocr-btn:active {
     transform: translateY(2px);
@@ -421,9 +429,12 @@ padding: 0 2px;
 }
 .ocr-btn:disabled {
     background: #cbd5e0 !important;
+    background-color: #cbd5e0 !important;
     color: #718096 !important;
-    cursor: not-allowed;
-    opacity: 0.5;
+    border: none !important;
+    box-shadow: none !important;
+    cursor: not-allowed !important;
+    opacity: 1 !important;
 }
 .ocr-status {
     font-size: 0.7rem;
@@ -669,8 +680,8 @@ position: relative; z-index: 2;
 }
 .small-copy-btn:active { transform: translateY(2px); box-shadow: none; }
 .small-copy-btn:disabled {
-    background: #e2e8f0 !important;
-    background-color: #e2e8f0 !important;
+    background: #cbd5e0 !important;
+    background-color: #cbd5e0 !important;
     color: #718096 !important;
     border: none !important;
     box-shadow: none !important;
@@ -1277,6 +1288,7 @@ line-height: 1.6;
 <div class="input-hint" style="text-align:left; margin-top:4px;">支持空格/逗号/点号分隔，按确定键点亮并清空</div>
 <div class="scan-area">
 <input type="file" id="imageUpload" accept="image/*" style="display: none;">
+<div class="scan-left-group">
 <button class="scan-btn" id="scanBtn" onclick="document.getElementById('imageUpload').click()">扫描图片</button>
 <span class="ocr-status" id="ocrStatus"></span>
 <div class="ocr-progress-container" id="ocrProgressContainer" style="display: none;">
@@ -1285,7 +1297,8 @@ line-height: 1.6;
 <div class="ocr-progress-bar-fill" id="ocrProgressFill"></div>
 </div>
 </div>
-<button class="ocr-btn" id="ocrBtn" onclick="performOCR()" style="display: none;">识别</button>
+</div>
+<button class="ocr-btn" id="ocrBtn" onclick="performOCR()">识别</button>
 </div>
 <div class="image-preview-area" id="imagePreview" style="display: none;">
 <img id="previewImg">
@@ -1428,7 +1441,7 @@ const freqColorPalette = [
 let globalFreqColorMap = new Map();
 
 let selectedImageFile = null;
-let lastImageFileData = null; // 用于撤销/恢复
+let lastImageFileData = null;
 
 function compressImage(file, callback) {
     const reader = new FileReader();
@@ -1457,13 +1470,23 @@ function clearImagePreview() {
     selectedImageFile = null;
     document.getElementById('imageUpload').value = '';
     document.getElementById('imagePreview').style.display = 'none';
-    document.getElementById('ocrBtn').style.display = 'none';
     document.getElementById('ocrStatus').textContent = '';
     const progressContainer = document.getElementById('ocrProgressContainer');
     if (progressContainer) progressContainer.style.display = 'none';
+    updateOCRButtonState();
 }
 
-// 恢复图片预览（用于撤销/恢复）
+function updateOCRButtonState() {
+    const ocrBtn = document.getElementById('ocrBtn');
+    if (!selectedImageFile) {
+        ocrBtn.disabled = true;
+        ocrBtn.textContent = '无图片';
+    } else {
+        ocrBtn.disabled = false;
+        ocrBtn.textContent = '识别';
+    }
+}
+
 function restoreImagePreview(file) {
     if (!file) {
         clearImagePreview();
@@ -1476,10 +1499,10 @@ function restoreImagePreview(file) {
         const img = document.getElementById('previewImg');
         img.src = event.target.result;
         preview.style.display = 'inline-block';
-        document.getElementById('ocrBtn').style.display = 'inline-flex';
         document.getElementById('ocrStatus').textContent = '已选择图片，点击识别';
         const progressContainer = document.getElementById('ocrProgressContainer');
         if (progressContainer) progressContainer.style.display = 'none';
+        updateOCRButtonState();
     };
     reader.readAsDataURL(file);
 }
@@ -1488,7 +1511,6 @@ document.getElementById('imageUpload').addEventListener('change', function(e) {
     const file = e.target.files[0];
     if (!file) return;
     
-    // 记录到撤销栈
     const prevImageFile = selectedImageFile;
     recordAction('image_select', '选择图片', [], true, 0, {
         prevImageFile: prevImageFile,
@@ -1502,10 +1524,10 @@ document.getElementById('imageUpload').addEventListener('change', function(e) {
         const img = document.getElementById('previewImg');
         img.src = event.target.result;
         preview.style.display = 'inline-block';
-        document.getElementById('ocrBtn').style.display = 'inline-flex';
         document.getElementById('ocrStatus').textContent = '已选择图片，点击识别';
         const progressContainer = document.getElementById('ocrProgressContainer');
         if (progressContainer) progressContainer.style.display = 'none';
+        updateOCRButtonState();
     };
     reader.readAsDataURL(file);
 });
@@ -1613,9 +1635,6 @@ async function performOCR() {
                         inputText += zodiacMatches.join('');
                     }
                     
-                    // 计算总号码数量（去重后）
-                    const totalNumberCount = numbers.length + zodiacMatches.length * 12; // 每个生肖对应12个号码
-                    // 实际去重后的数量需要通过getGroupNumbers计算
                     const allValidNumbers = new Set();
                     numbers.forEach(n => allValidNumbers.add(n));
                     zodiacMatches.forEach(z => {
@@ -1628,12 +1647,13 @@ async function performOCR() {
                     if (inputText) {
                         document.getElementById('smartInput').value = inputText;
                         lastInputValue = inputText;
-                        showToast(`📝 已填入：${inputText}（共 ${finalCount} 个号码）`);
+                        showToast(`📝 已填入 ${finalCount} 个号码`);
                     } else {
                         showToast("⚠️ 未识别到生肖或1-49的数字");
                     }
                     
                     ocrBtn.disabled = false;
+                    updateOCRButtonState();
                 }, 'image/jpeg', 0.9);
             };
             imgForBinarize.src = imgUrl;
@@ -1644,6 +1664,7 @@ async function performOCR() {
         progressContainer.style.display = 'none';
         showToast("❌ 识别失败，请重试");
         ocrBtn.disabled = false;
+        updateOCRButtonState();
     }
 }
 
@@ -1866,7 +1887,6 @@ save_data();
 return;
 }
 if (lastAction.type === 'image_select') {
-    // 撤销图片选择
     if (lastAction.prevImageFile) {
         restoreImagePreview(lastAction.prevImageFile);
     } else {
@@ -2059,7 +2079,6 @@ save_data();
 return;
 }
 if (lastUndo.type === 'image_select') {
-    // 重做图片选择
     if (lastUndo.newImageFile) {
         restoreImagePreview(lastUndo.newImageFile);
     } else {
@@ -2996,11 +3015,7 @@ if (colorMap.has(frequency)) {
 const bg = colorMap.get(frequency);
 return { bg: bg, text: '#ffffff', textClass: 'dark-text' };
 }
-const colorPool = [...freqColorPalette];
-const randomIndex = Math.floor(Math.random() * colorPool.length);
-const selectedColor = colorPool[randomIndex];
-colorMap.set(frequency, selectedColor);
-return { bg: selectedColor, text: '#ffffff', textClass: 'dark-text' };
+return { bg: freqColorPalette[0], text: '#ffffff', textClass: 'dark-text' };
 }
 function toggleNumbersByFrequency(frequency) {
 const freqMap = calculateNumberFrequencies();
@@ -3063,24 +3078,16 @@ freqCount[count] = (freqCount[count] || 0) + 1;
 });
 const sortedFreqs = Object.keys(freqCount).sort((a, b) => parseInt(a) - parseInt(b));
 const freqsToColor = sortedFreqs.filter(f => parseInt(f) !== 1).map(f => parseInt(f));
-// 打乱需要分配颜色的频率顺序
-const shuffledFreqs = [...freqsToColor];
-for (let i = shuffledFreqs.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [shuffledFreqs[i], shuffledFreqs[j]] = [shuffledFreqs[j], shuffledFreqs[i]];
-}
-// 打乱颜色池
 let availableColors = [...freqColorPalette];
 for (let i = availableColors.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [availableColors[i], availableColors[j]] = [availableColors[j], availableColors[i]];
 }
 let colorIndex = 0;
-for (let i = 0; i < shuffledFreqs.length; i++) {
-    const freq = shuffledFreqs[i];
+for (let i = 0; i < freqsToColor.length; i++) {
+    const freq = freqsToColor[i];
     if (!globalFreqColorMap.has(freq)) {
         if (colorIndex >= availableColors.length) {
-            // 颜色池用完了，重新打乱并循环使用
             availableColors = [...freqColorPalette];
             for (let j = availableColors.length - 1; j > 0; j--) {
                 const k = Math.floor(Math.random() * (j + 1));
@@ -3971,6 +3978,7 @@ document.getElementById('betConfirmBtn').onclick = confirmBet;
 updateRandomSpecialButtonState();
 updateBetConfirmButtonState();
 updateCopyButtonsState();
+updateOCRButtonState();
 addLog("system", "启动就绪");
 window.addEventListener('beforeunload', function() {
 save_data();
