@@ -173,7 +173,7 @@ border-color: #a0aec0; text-shadow: none; font-weight: 900;
 .select-zodiac-row {
 display: grid;
 grid-template-columns: auto repeat(12, 1fr);
-gap: 6px;
+gap: 4px;
 align-items: center;
 width: 100%;
 margin-bottom: 8px;
@@ -197,7 +197,7 @@ width: 100%;
 aspect-ratio: 1;
 border: 1px solid var(--btn-border);
 font-weight: 900;
-font-size: clamp(0.85rem, 5vw, 1.2rem);
+font-size: clamp(0.7rem, 4vw, 1rem);
 display: flex;
 align-items: center;
 justify-content: center;
@@ -399,6 +399,7 @@ padding: 0 2px;
     box-shadow: none;
 }
 .ocr-btn {
+    width: calc(var(--btn-size) * 2 + var(--btn-gap));
     height: var(--btn-size);
     padding: 0 12px;
     border: none;
@@ -1427,6 +1428,7 @@ const freqColorPalette = [
 let globalFreqColorMap = new Map();
 
 let selectedImageFile = null;
+let lastImageFileData = null; // 用于撤销/恢复
 
 function compressImage(file, callback) {
     const reader = new FileReader();
@@ -1461,9 +1463,38 @@ function clearImagePreview() {
     if (progressContainer) progressContainer.style.display = 'none';
 }
 
+// 恢复图片预览（用于撤销/恢复）
+function restoreImagePreview(file) {
+    if (!file) {
+        clearImagePreview();
+        return;
+    }
+    selectedImageFile = file;
+    const reader = new FileReader();
+    reader.onload = function(event) {
+        const preview = document.getElementById('imagePreview');
+        const img = document.getElementById('previewImg');
+        img.src = event.target.result;
+        preview.style.display = 'inline-block';
+        document.getElementById('ocrBtn').style.display = 'inline-flex';
+        document.getElementById('ocrStatus').textContent = '已选择图片，点击识别';
+        const progressContainer = document.getElementById('ocrProgressContainer');
+        if (progressContainer) progressContainer.style.display = 'none';
+    };
+    reader.readAsDataURL(file);
+}
+
 document.getElementById('imageUpload').addEventListener('change', function(e) {
     const file = e.target.files[0];
     if (!file) return;
+    
+    // 记录到撤销栈
+    const prevImageFile = selectedImageFile;
+    recordAction('image_select', '选择图片', [], true, 0, {
+        prevImageFile: prevImageFile,
+        newImageFile: file
+    });
+    
     selectedImageFile = file;
     const reader = new FileReader();
     reader.onload = function(event) {
@@ -1552,7 +1583,6 @@ async function performOCR() {
                     setTimeout(() => {
                         progressContainer.style.display = 'none';
                     }, 1500);
-                    showToast("✅ 识别完成");
                     
                     const zodiacList = ["鼠","牛","虎","兔","龙","蛇","马","羊","猴","鸡","狗","猪"];
                     const numbers = [];
@@ -1583,10 +1613,22 @@ async function performOCR() {
                         inputText += zodiacMatches.join('');
                     }
                     
+                    // 计算总号码数量（去重后）
+                    const totalNumberCount = numbers.length + zodiacMatches.length * 12; // 每个生肖对应12个号码
+                    // 实际去重后的数量需要通过getGroupNumbers计算
+                    const allValidNumbers = new Set();
+                    numbers.forEach(n => allValidNumbers.add(n));
+                    zodiacMatches.forEach(z => {
+                        const index = ZODIAC_MAP[z];
+                        const nums = getGroupNumbers('zodiac', index.toString());
+                        nums.forEach(n => allValidNumbers.add(n));
+                    });
+                    const finalCount = allValidNumbers.size;
+                    
                     if (inputText) {
                         document.getElementById('smartInput').value = inputText;
                         lastInputValue = inputText;
-                        showToast(`📝 已填入：${inputText}`);
+                        showToast(`📝 已填入：${inputText}（共 ${finalCount} 个号码）`);
                     } else {
                         showToast("⚠️ 未识别到生肖或1-49的数字");
                     }
@@ -1823,6 +1865,18 @@ updateAllStates(false);
 save_data();
 return;
 }
+if (lastAction.type === 'image_select') {
+    // 撤销图片选择
+    if (lastAction.prevImageFile) {
+        restoreImagePreview(lastAction.prevImageFile);
+    } else {
+        clearImagePreview();
+    }
+    addLog("undo", `撤销图片选择`);
+    updateAllStates(false);
+    save_data();
+    return;
+}
 if (lastAction.type === 'bet_confirm') {
 lastAction.numbers.forEach(n => { if(betResults[n] !== undefined) { delete betResults[n]; } bettingNumbers.delete(n); });
 } else if (lastAction.type === 'bet_cancel') {
@@ -2003,6 +2057,18 @@ addLog("redo", lastUndo.wasRemoved ? `取消高亮` : `重做高亮 ${fmtNum(las
 updateAllStates(false);
 save_data();
 return;
+}
+if (lastUndo.type === 'image_select') {
+    // 重做图片选择
+    if (lastUndo.newImageFile) {
+        restoreImagePreview(lastUndo.newImageFile);
+    } else {
+        clearImagePreview();
+    }
+    addLog("redo", `重做图片选择`);
+    updateAllStates(false);
+    save_data();
+    return;
 }
 if (lastUndo.type === 'bet_confirm') {
 lastUndo.numbers.forEach(n => { betResults[n] = lastUndo.amount; });
@@ -2997,17 +3063,34 @@ freqCount[count] = (freqCount[count] || 0) + 1;
 });
 const sortedFreqs = Object.keys(freqCount).sort((a, b) => parseInt(a) - parseInt(b));
 const freqsToColor = sortedFreqs.filter(f => parseInt(f) !== 1).map(f => parseInt(f));
-const colorPool = [...freqColorPalette];
-for (let i = 0; i < freqsToColor.length; i++) {
-    const freq = freqsToColor[i];
+// 打乱需要分配颜色的频率顺序
+const shuffledFreqs = [...freqsToColor];
+for (let i = shuffledFreqs.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffledFreqs[i], shuffledFreqs[j]] = [shuffledFreqs[j], shuffledFreqs[i]];
+}
+// 打乱颜色池
+let availableColors = [...freqColorPalette];
+for (let i = availableColors.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [availableColors[i], availableColors[j]] = [availableColors[j], availableColors[i]];
+}
+let colorIndex = 0;
+for (let i = 0; i < shuffledFreqs.length; i++) {
+    const freq = shuffledFreqs[i];
     if (!globalFreqColorMap.has(freq)) {
-        if (colorPool.length === 0) {
-            colorPool.push(...freqColorPalette);
+        if (colorIndex >= availableColors.length) {
+            // 颜色池用完了，重新打乱并循环使用
+            availableColors = [...freqColorPalette];
+            for (let j = availableColors.length - 1; j > 0; j--) {
+                const k = Math.floor(Math.random() * (j + 1));
+                [availableColors[j], availableColors[k]] = [availableColors[k], availableColors[j]];
+            }
+            colorIndex = 0;
         }
-        const randomIndex = Math.floor(Math.random() * colorPool.length);
-        const selectedColor = colorPool[randomIndex];
-        colorPool.splice(randomIndex, 1);
+        const selectedColor = availableColors[colorIndex];
         globalFreqColorMap.set(freq, selectedColor);
+        colorIndex++;
     }
 }
 sortedFreqs.forEach(countStr => {
