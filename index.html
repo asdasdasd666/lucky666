@@ -170,9 +170,10 @@ border-color: #a0aec0; text-shadow: none; font-weight: 900;
 .zodiac-btn:active:not(.is-active-zodiac) { transform: var(--btn-active-transform); box-shadow: var(--btn-active-shadow); }
 
 .select-zodiac-row {
-display: flex;
+display: grid;
+grid-template-columns: auto repeat(12, 1fr);
+gap: 4px;
 align-items: center;
-gap: 0;
 width: 100%;
 margin-bottom: 8px;
 }
@@ -182,27 +183,20 @@ font-size: var(--label-font-size);
 font-weight: bold;
 color: var(--label-select-color);
 text-shadow: var(--label-select-glow);
-flex-shrink: 0;
 line-height: 1;
-width: auto;
-text-align: left;
-margin-right: 8px;
+white-space: nowrap;
+margin-right: 0;
+padding-right: 4px;
 }
 .select-zodiac-buttons {
-flex: 1;
-display: flex;
-gap: 4px;
-min-width: 0;
-overflow: hidden;
+display: contents;
 }
 .select-zodiac-btn {
-flex: 1 1 0;
-min-width: 0;
+width: 100%;
 aspect-ratio: 1;
 border: 1px solid var(--btn-border);
-box-sizing: border-box;
 font-weight: 900;
-font-size: clamp(0.55rem, 3.5vw, 0.85rem);
+font-size: clamp(0.7rem, 4vw, 1rem);
 display: flex;
 align-items: center;
 justify-content: center;
@@ -217,10 +211,8 @@ user-select: none;
 -webkit-user-select: none;
 text-shadow: 0 1px 0 rgba(255,255,255,0.9);
 font-family: inherit;
-white-space: nowrap;
-padding: 0 2px;
-overflow: hidden;
-text-overflow: ellipsis;
+padding: 0;
+margin: 0;
 }
 .select-zodiac-btn::after {
 content: '';
@@ -237,11 +229,6 @@ border-radius: 0 0 10px 10px;
 .select-zodiac-btn:active {
 transform: var(--btn-active-transform);
 box-shadow: var(--btn-active-shadow);
-}
-
-@media (max-width: 360px) {
-    .select-zodiac-buttons { gap: 3px; }
-    .select-zodiac-btn { font-size: clamp(0.5rem, 3vw, 0.7rem); padding: 0 1px; }
 }
 
 .select-wave-row {
@@ -1456,19 +1443,28 @@ function updateRandomSpecialButtonState() {
 function updateCopyButtonsState() {
     const copySelectedBtn = document.getElementById('copySelectedBtn');
     const copyBetResultBtn = document.getElementById('copyBetResultBtn');
+    
     if (copySelectedBtn) {
-        if (selectedNumbers.size === 0) {
-            copySelectedBtn.disabled = true;
-        } else {
-            copySelectedBtn.disabled = false;
-        }
+        copySelectedBtn.disabled = selectedNumbers.size === 0;
     }
+    
     if (copyBetResultBtn) {
-        const hasResults = Object.keys(betResults).length > 0;
-        if (!hasResults) {
-            copyBetResultBtn.disabled = true;
+        let allBought = true;
+        if (selectedNumbers.size === 0) {
+            allBought = false;
         } else {
-            copyBetResultBtn.disabled = false;
+            for (const num of selectedNumbers) {
+                if (betResults[num] === undefined) {
+                    allBought = false;
+                    break;
+                }
+            }
+        }
+        copyBetResultBtn.disabled = !allBought;
+        if (!allBought && selectedNumbers.size > 0) {
+            copyBetResultBtn.title = "还有号码没有购买，不能复制";
+        } else {
+            copyBetResultBtn.title = "";
         }
     }
 }
@@ -3428,6 +3424,14 @@ showToast("✅ 已复制已选号码");
 });
 }
 function copyBetResults() {
+if (selectedNumbers.size > 0) {
+    for (const num of selectedNumbers) {
+        if (betResults[num] === undefined) {
+            showToast("⚠️ 还有号码没有购买，不能复制");
+            return;
+        }
+    }
+}
 const keys = Object.keys(betResults).map(Number);
 if (keys.length === 0) {
 return;
