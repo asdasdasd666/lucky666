@@ -169,163 +169,135 @@ border-color: #a0aec0; text-shadow: none; font-weight: 900;
 }
 .zodiac-btn:active:not(.is-active-zodiac) { transform: var(--btn-active-transform); box-shadow: var(--btn-active-shadow); }
 
+/* 选号区12生肖按钮样式 */
 .select-zodiac-row {
-display: flex;
-align-items: center;
-gap: 0;
-width: 100%;
-margin-bottom: 8px;
+    display: grid;
+    grid-template-columns: auto repeat(12, 1fr);
+    gap: 1px;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 8px;
 }
-.select-zodiac-label {
-font-family: var(--font-art-mao);
-font-size: var(--label-font-size);
-font-weight: bold;
-color: var(--label-select-color);
-text-shadow: var(--label-select-glow);
-flex-shrink: 0;
-line-height: 1;
-width: auto;
-text-align: left;
-margin-right: 8px;
-}
-.select-zodiac-buttons {
-flex: 1;
-display: flex;
-gap: 4px;
-min-width: 0;
-overflow: hidden;
-}
+.select-zodiac-buttons { display: contents; }
 .select-zodiac-btn {
-flex: 1 1 0;
-min-width: 0;
-aspect-ratio: 1;
-border: 1px solid var(--btn-border);
-box-sizing: border-box;
-font-weight: 900;
-font-size: clamp(0.55rem, 3.5vw, 0.85rem);
-display: flex;
-align-items: center;
-justify-content: center;
-cursor: pointer;
-border-radius: 10px;
-position: relative;
-background: linear-gradient(145deg, var(--btn-bg-start), var(--btn-bg-end));
-box-shadow: var(--btn-shadow);
-transition: all 0.1s;
-color: var(--btn-text);
-user-select: none;
--webkit-user-select: none;
-text-shadow: 0 1px 0 rgba(255,255,255,0.9);
-font-family: inherit;
-white-space: nowrap;
-padding: 0 2px;
-overflow: hidden;
-text-overflow: ellipsis;
+    width: 100%;
+    aspect-ratio: 1;
+    border: 1px solid var(--btn-border);
+    font-weight: 900;
+    font-size: clamp(0.7rem, 4vw, 1rem);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border-radius: 10px;
+    position: relative;
+    background: linear-gradient(145deg, var(--btn-bg-start), var(--btn-bg-end));
+    box-shadow: var(--btn-shadow);
+    transition: all 0.1s;
+    color: var(--btn-text);
+    user-select: none;
+    -webkit-user-select: none;
+    text-shadow: 0 1px 0 rgba(255,255,255,0.9);
+    font-family: inherit;
+    padding: 0;
+    margin: 0;
 }
 .select-zodiac-btn::after {
-content: '';
-position: absolute;
-bottom: 0;
-left: 0;
-right: 0;
-height: 3px;
-border-radius: 0 0 10px 10px;
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    border-radius: 0 0 10px 10px;
 }
 .select-zodiac-btn[data-color="red"]::after { background: var(--active-red-start); }
 .select-zodiac-btn[data-color="blue"]::after { background: var(--deep-blue-start); }
 .select-zodiac-btn[data-color="green"]::after { background: var(--active-green-start); }
 .select-zodiac-btn:active {
-transform: var(--btn-active-transform);
-box-shadow: var(--btn-active-shadow);
+    transform: var(--btn-active-transform);
+    box-shadow: var(--btn-active-shadow);
 }
 
-@media (max-width: 360px) {
-    .select-zodiac-buttons { gap: 3px; }
-    .select-zodiac-btn { font-size: clamp(0.5rem, 3vw, 0.7rem); padding: 0 1px; }
-}
-
+/* 选号区波色行样式 - 修改为不横向滚动，允许换行 */
 .select-wave-row {
-display: flex;
-align-items: center;
-gap: 0;
-width: 100%;
-margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 0;
+    width: 100%;
+    margin-bottom: 8px;
 }
 .select-wave-label {
-font-family: var(--font-art-mao);
-font-size: var(--label-font-size);
-font-weight: bold;
-color: var(--label-select-color);
-text-shadow: var(--label-select-glow);
-flex-shrink: 0;
-line-height: 1;
-width: auto;
-text-align: left;
-margin-right: 8px;
+    font-family: var(--font-art-mao);
+    font-size: var(--label-font-size);
+    font-weight: bold;
+    color: var(--label-select-color);
+    text-shadow: var(--label-select-glow);
+    flex-shrink: 0;
+    line-height: 1;
+    width: auto;
+    text-align: left;
+    margin-right: 8px;
 }
 .select-wave-buttons {
-flex: 1;
-display: flex;
-gap: var(--btn-gap);
-overflow-x: auto;
--webkit-overflow-scrolling: touch;
-padding: 2px;
-scrollbar-width: none;
-justify-content: flex-start;
-flex-wrap: nowrap;
+    flex: 1;
+    display: flex;
+    gap: var(--btn-gap);
+    padding: 2px;
+    justify-content: flex-start;
+    flex-wrap: wrap;
 }
-.select-wave-buttons::-webkit-scrollbar { display: none; }
 .select-wave-btn {
-width: var(--btn-size);
-height: var(--btn-size);
-border-radius: 6px;
-display: flex;
-align-items: center;
-justify-content: center;
-cursor: pointer;
-transition: all 0.15s ease;
-white-space: nowrap;
-position: relative;
-user-select: none;
--webkit-user-select: none;
-flex-shrink: 0;
-font-size: 0.65rem !important;
-font-weight: 800 !important;
-border-width: 1px;
-border-style: solid;
+    width: var(--btn-size);
+    height: var(--btn-size);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+    position: relative;
+    user-select: none;
+    -webkit-user-select: none;
+    flex-shrink: 0;
+    font-size: 0.65rem !important;
+    font-weight: 800 !important;
+    border-width: 1px;
+    border-style: solid;
 }
 .select-wave-btn[data-type="red"] {
-background: #FFF0F3 !important;
-border-color: #FFC2D1 !important;
-color: #e53e3e !important;
-box-shadow: 0 2px 0 #FFC2D1, 0 3px 4px rgba(229, 62, 62, 0.1) !important;
+    background: #FFF0F3 !important;
+    border-color: #FFC2D1 !important;
+    color: #e53e3e !important;
+    box-shadow: 0 2px 0 #FFC2D1, 0 3px 4px rgba(229, 62, 62, 0.1) !important;
 }
 .select-wave-btn[data-type="blue"] {
-background: #F0F7FF !important;
-border-color: #BDE0FE !important;
-color: #3182ce !important;
-box-shadow: 0 2px 0 #BDE0FE, 0 3px 4px rgba(49, 130, 206, 0.1) !important;
+    background: #F0F7FF !important;
+    border-color: #BDE0FE !important;
+    color: #3182ce !important;
+    box-shadow: 0 2px 0 #BDE0FE, 0 3px 4px rgba(49, 130, 206, 0.1) !important;
 }
 .select-wave-btn[data-type="green"] {
-background: #F0FFF4 !important;
-border-color: #A7F3D0 !important;
-color: #38a169 !important;
-box-shadow: 0 2px 0 #A7F3D0, 0 3px 4px rgba(56, 161, 105, 0.1) !important;
+    background: #F0FFF4 !important;
+    border-color: #A7F3D0 !important;
+    color: #38a169 !important;
+    box-shadow: 0 2px 0 #A7F3D0, 0 3px 4px rgba(56, 161, 105, 0.1) !important;
 }
 .select-wave-btn.select-wave-active {
-background: #cbd5e0 !important;
-color: #718096 !important;
-opacity: 0.6 !important;
-border-color: #cbd5e0 !important;
-box-shadow: none !important;
+    background: #cbd5e0 !important;
+    color: #718096 !important;
+    opacity: 0.6 !important;
+    border-color: #cbd5e0 !important;
+    box-shadow: none !important;
 }
 .select-wave-btn:active:not(.select-wave-active) {
-transform: translateY(2px);
-filter: brightness(0.95);
+    transform: translateY(2px);
+    filter: brightness(0.95);
 }
 .select-wave-btn.select-wave-active:active {
-transform: translateY(2px);
-filter: brightness(0.85);
+    transform: translateY(2px);
+    filter: brightness(0.85);
 }
 
 .input-area-container {
@@ -525,12 +497,11 @@ padding: 0 2px;
 .random-special-btn.no-animation {
     animation: none !important;
 }
-/* 随机特码按钮禁用状态样式 */
+/* 随机特码按钮灰色禁用状态 - 统一无号码形态，去掉边框 */
 .random-special-btn:disabled {
     background: #cbd5e0 !important;
     background-color: #cbd5e0 !important;
     color: #718096 !important;
-    border: 2px solid #cbd5e0 !important;
     box-shadow: none !important;
     opacity: 0.5 !important;
     cursor: not-allowed !important;
@@ -544,49 +515,47 @@ padding: 0 2px;
     box-shadow: none !important;
     animation: none !important;
 }
-/* 复制按钮样式 - 正常和禁用状态尺寸一致，宽度固定72px */
 .small-copy-btn {
     background: linear-gradient(145deg, var(--deep-blue-start), var(--deep-blue-end));
     color: white;
     border: none;
     cursor: pointer;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     transition: all 0.1s;
     margin-left: 4px;
     width: 72px;
-    height: var(--badge-height);
+    height: 24px;
     text-align: center;
-    justify-content: center;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: var(--badge-padding-y) var(--badge-padding-x);
+    padding: 0 8px;
     border-radius: 50px;
-    font-size: var(--badge-font-size);
+    font-size: 0.75rem;
+    font-weight: 900;
     line-height: 1;
     white-space: nowrap;
     box-sizing: border-box;
     vertical-align: middle;
 }
 .small-copy-btn:active { transform: translateY(2px); box-shadow: none; }
+/* 复制按钮灰色禁用状态 - 统一样式 */
 .small-copy-btn:disabled {
     background: #cbd5e0 !important;
     background-color: #cbd5e0 !important;
     color: #718096 !important;
     border: none !important;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
-    opacity: 0.7 !important;
+    box-shadow: none !important;
+    opacity: 0.5 !important;
     cursor: not-allowed !important;
     background-image: none !important;
     width: 72px;
-    height: var(--badge-height);
+    height: 24px;
     pointer-events: none !important;
 }
 .small-copy-btn:disabled:active {
     transform: none !important;
     box-shadow: none !important;
 }
-/* 待购确定按钮禁用状态点击效果禁用 */
 .bet-confirm-btn.disabled-btn:active,
 .bet-confirm-btn.grey:active,
 .bet-confirm-btn:disabled:active {
@@ -594,7 +563,6 @@ padding: 0 2px;
     box-shadow: none !important;
     background: #cbd5e0 !important;
 }
-/* 金额输入框 - 强制固定宽度72px，隐藏增减按钮 */
 .bet-amount-input {
     width: 72px !important;
     min-width: 72px !important;
@@ -861,6 +829,11 @@ color: #fff;
 transform: translateY(1px);
 box-shadow: 0 1px 2px rgba(0,0,0,0.2);
 }
+/* 清空结果按钮固定宽度 72px */
+.clear-result-btn {
+    width: 72px;
+    min-width: 72px;
+}
 .result-text {
 font-family: "Courier New", Courier, monospace;
 font-size: 0.9rem;
@@ -958,7 +931,6 @@ border-radius: 50% !important;
 .res-prefix { color: #4a5568; }
 .bet-action-area { margin-bottom: 8px; display: flex; flex-direction: column; gap: 6px; padding-left: 0; }
 .bet-input-row { display: flex; gap: 6px; align-items: center; width: 100%; flex-wrap: nowrap; }
-/* 待购号码显示栏 - 高度24px */
 .bet-nums-display {
     flex: 2;
     background: rgba(248, 249, 250, 0.8);
@@ -979,7 +951,6 @@ border-radius: 50% !important;
     align-items: center;
 }
 .bet-sep { color: #2d3748; margin: 0 1px; }
-/* 乘号 - 保持大小，上下居中 */
 .bet-multiply-sign {
     font-size: 1.2rem;
     font-weight: 900;
@@ -990,7 +961,6 @@ border-radius: 50% !important;
     display: inline-flex;
     align-items: center;
 }
-/* 确定按钮 - 高度24px，宽度72px */
 .bet-confirm-btn {
     width: 72px;
     min-width: 72px;
@@ -1171,12 +1141,12 @@ line-height: 1.6;
 <div style="height: 1.8rem;"></div>
 <div class="box-header select-mode">选号</div>
 <div class="select-zodiac-row">
-<span class="select-zodiac-label">肖</span>
-<div class="select-zodiac-buttons" id="selectZodiacButtons"></div>
+    <span class="row-label select-label">肖</span>
+    <div class="select-zodiac-buttons" id="selectZodiacButtons"></div>
 </div>
 <div class="select-wave-row">
-<span class="select-wave-label">波</span>
-<div class="select-wave-buttons" id="selectWaveButtons"></div>
+    <span class="row-label select-label">波</span>
+    <div class="select-wave-buttons" id="selectWaveButtons"></div>
 </div>
 <div class="input-area-container">
 <div class="input-group" style="margin-bottom:0;">
@@ -1267,7 +1237,8 @@ line-height: 1.6;
 </div>
 </div>
 <div style="font-size: 0.65rem; font-weight: 700; color: #4a5568; margin-bottom: 2px; display:flex; justify-content:space-between; align-items:center;">
-<span>📜 操作记录</span>
+<span>操作记录</span>
+<span style="font-weight: 600; color: #718096;">V1.00</span>
 </div>
 <div class="log-container" id="logContainer"><div class="log-item" style="color:#718096; justify-content:center;">暂无记录</div></div>
 </div>
@@ -1316,7 +1287,6 @@ const freqColorPalette = [
     "linear-gradient(145deg, #4B0082, #3C0066)"
 ];
 
-// 全局频率颜色映射，用于统计按钮和历史号码球保持一致
 let globalFreqColorMap = new Map();
 
 function vibrate(pattern = 15) { if (navigator.vibrate) navigator.vibrate(pattern); }
@@ -1469,18 +1439,25 @@ function updateCopyButtonsState() {
     const copySelectedBtn = document.getElementById('copySelectedBtn');
     const copyBetResultBtn = document.getElementById('copyBetResultBtn');
     if (copySelectedBtn) {
-        if (selectedNumbers.size === 0) {
-            copySelectedBtn.disabled = true;
-        } else {
-            copySelectedBtn.disabled = false;
-        }
+        copySelectedBtn.disabled = selectedNumbers.size === 0;
     }
     if (copyBetResultBtn) {
-        const hasResults = Object.keys(betResults).length > 0;
-        if (!hasResults) {
-            copyBetResultBtn.disabled = true;
+        let allBought = true;
+        if (selectedNumbers.size === 0) {
+            allBought = false;
         } else {
-            copyBetResultBtn.disabled = false;
+            for (const num of selectedNumbers) {
+                if (betResults[num] === undefined) {
+                    allBought = false;
+                    break;
+                }
+            }
+        }
+        copyBetResultBtn.disabled = !allBought;
+        if (!allBought && selectedNumbers.size > 0) {
+            copyBetResultBtn.title = "还有号码没有购买，不能复制";
+        } else {
+            copyBetResultBtn.title = "";
         }
     }
 }
@@ -2210,38 +2187,39 @@ for (let i = 0; i <= 9; i++) {
 tailContainer.appendChild(createFilterBtn(i.toString(), 'tail', i.toString(), handleTailKill));
 }
 }
+
 function renderSelectZodiacButtons() {
-const container = document.getElementById('selectZodiacButtons');
-container.innerHTML = '';
-zodiacs.forEach((z, index) => {
-const btn = document.createElement('button');
-btn.className = 'select-zodiac-btn';
-btn.textContent = z;
-const color = zodiacColors[index % zodiacColors.length];
-btn.setAttribute('data-color', color);
-btn.onclick = () => {
-vibrate(20);
-const input = document.getElementById('smartInput');
-const currentValue = input.value;
-if (currentValue.includes(z)) {
-showToast(`⚠️ 生肖${z}已存在`);
-return;
+    const container = document.getElementById('selectZodiacButtons');
+    container.innerHTML = '';
+    zodiacs.forEach((z, index) => {
+        const btn = document.createElement('button');
+        btn.className = 'select-zodiac-btn';
+        btn.textContent = z;
+        const color = zodiacColors[index % zodiacColors.length];
+        btn.setAttribute('data-color', color);
+        btn.onclick = () => {
+            vibrate(20);
+            const input = document.getElementById('smartInput');
+            const currentValue = input.value;
+            if (currentValue.includes(z)) {
+                showToast(`⚠️ 生肖${z}已存在`);
+                return;
+            }
+            const prevText = currentValue;
+            input.focus();
+            input.value += z;
+            lastInputValue = input.value;
+            input.blur();
+            recordAction('zodiac_append', `添加生肖${z}`, [], true, 0, {
+                prevText: prevText,
+                nextText: input.value
+            });
+            addLog("select", `添加生肖 ${z}`);
+        };
+        container.appendChild(btn);
+    });
 }
-const prevText = currentValue;
-input.focus();
-input.value += z;
-lastInputValue = input.value;
-input.blur();
-recordAction('zodiac_append', `添加生肖${z}`, [], true, 0, {
-prevText: prevText,
-nextText: input.value
-});
-addLog("select", `添加生肖 ${z}`);
-showToast(`➕ 已添加 ${z}`);
-};
-container.appendChild(btn);
-});
-}
+
 function renderSelectWaveButtons() {
 const container = document.getElementById('selectWaveButtons');
 container.innerHTML = '';
@@ -2425,7 +2403,6 @@ span.classList.add('flat');
 }
 function updateFrequencyButtonsPressedState() {
 const freqMap = calculateNumberFrequencies();
-// 只统计实际出现该频率的号码，不包括未出现的号码
 const freqNumbers = {};
 for (let i = 1; i <= 49; i++) {
     if (freqMap[i] !== undefined) {
@@ -2446,7 +2423,7 @@ document.querySelectorAll('#sphereBtnContainer .count-btn').forEach(btn => {
 });
 }
 function updateCopyButtons() {
-    // 已由 updateCopyButtonsState 处理，这里保留空函数以兼容调用
+    // 已由 updateCopyButtonsState 处理
 }
 function updateClearResultBtn() {
     const btn = document.getElementById('clearResultBtn');
@@ -2454,6 +2431,8 @@ function updateClearResultBtn() {
     const hasResults = Object.keys(betResults).length > 0;
     if (hasResults) {
         btn.className = 'clear-result-btn orange';
+        btn.style.width = '72px';
+        btn.style.minWidth = '72px';
         btn.style.opacity = '';
         btn.style.cursor = '';
         btn.style.backgroundColor = '';
@@ -2462,6 +2441,8 @@ function updateClearResultBtn() {
         btn.onclick = handleClearBetResults;
     } else {
         btn.className = 'clear-result-btn grey';
+        btn.style.width = '72px';
+        btn.style.minWidth = '72px';
         btn.style.opacity = '0.5';
         btn.style.cursor = 'not-allowed';
         btn.style.backgroundColor = '#cbd5e0';
@@ -2702,13 +2683,11 @@ function getFreqStyle(frequency, customColorMap = null) {
 if (frequency === 1) {
 return { bg: 'radial-gradient(circle at 30% 30%, #f7fafc 0%, #cbd5e0 40%, #a0aec0 100%)', text: '#4a5568', textClass: 'light-text' };
 }
-// 使用传入的颜色映射或全局映射
 const colorMap = customColorMap || globalFreqColorMap;
 if (colorMap.has(frequency)) {
 const bg = colorMap.get(frequency);
 return { bg: bg, text: '#ffffff', textClass: 'dark-text' };
 }
-// 如果没有映射，从颜色池中随机取一个
 const colorPool = [...freqColorPalette];
 const randomIndex = Math.floor(Math.random() * colorPool.length);
 const selectedColor = colorPool[randomIndex];
@@ -2763,7 +2742,6 @@ addLog("select", `点亮重复${frequency}次的号码 (${targetNumbers.length}�
 showToast(`✅ 已点亮重复${frequency}次的号码`);
 }
 updateAllStates();
-// 延迟执行，确保 DOM 完全更新后再设置按钮状态
 setTimeout(() => {
     updateFrequencyButtonsPressedState();
 }, 50);
@@ -2778,9 +2756,7 @@ Object.values(freqMap).forEach(count => {
 freqCount[count] = (freqCount[count] || 0) + 1;
 });
 const sortedFreqs = Object.keys(freqCount).sort((a, b) => parseInt(a) - parseInt(b));
-// 收集所有需要生成的频率（排除频率1，因为它固定颜色）
 const freqsToColor = sortedFreqs.filter(f => parseInt(f) !== 1).map(f => parseInt(f));
-// 为每个频率分配不同的颜色（使用全局映射，保证与历史号码球一致）
 const colorPool = [...freqColorPalette];
 for (let i = 0; i < freqsToColor.length; i++) {
     const freq = freqsToColor[i];
@@ -2874,7 +2850,6 @@ numsDiv.className = 'history-nums';
 item.sortedNumbers.forEach((n) => {
 const span = document.createElement('span');
 const freq = globalFreq[n] || 1;
-// 使用与统计按钮相同的颜色映射
 const style = getFreqStyle(freq, globalFreqColorMap);
 span.className = `history-num-item`;
 const isLit = selectedNumbers.has(n);
@@ -3119,12 +3094,10 @@ showToast(`✅ 选中 ${numStr}`);
 } else {
 selectedNumbers.delete(num);
 manuallyTurnedOff.add(num);
-// 如果该号码在待购栏中，从待购栏移除
 if (bettingNumbers.has(num)) {
 bettingNumbers.delete(num);
 addLog("select", `取消待购 ${numStr}（因网格球熄灭）`);
 }
-// 如果该号码在已买结果中，从已买结果移除
 if (betResults[num] !== undefined) {
 const amount = betResults[num];
 delete betResults[num];
@@ -3134,7 +3107,6 @@ const btn = document.querySelector(`.num-btn[data-num="${num}"]`);
 if (btn) btn.classList.remove('is-active');
 recordAction('manual_toggle', numStr, [num], false, 0, { number: num, wasAdded: false });
 showToast(`❌ 取消 ${numStr}`);
-// 更新相关UI
 updateBetActionArea();
 updateBettingCountBadge();
 renderBetResults();
@@ -3465,7 +3437,6 @@ manuallyTurnedOff.delete(n);
 const btn = document.querySelector(`.num-btn[data-num="${n}"]`);
 if (btn) btn.classList.add('is-active');
 }
-// 恢复时不要恢复特码效果，只移除特码效果
 if (specialNumbersSet.has(n)) {
 specialNumbersSet.delete(n);
 const btn = document.querySelector(`.num-btn[data-num="${n}"]`);
@@ -3532,45 +3503,51 @@ showToast("✅ 已复制已选号码");
 });
 }
 function copyBetResults() {
-const keys = Object.keys(betResults).map(Number);
-if (keys.length === 0) {
-showToast("⚠️ 无买号结果可复制");
-return;
-}
-let textParts = [];
-const amountGroups = {};
-keys.forEach(num => {
-const amt = betResults[num];
-if (!amountGroups[amt]) amountGroups[amt] = [];
-amountGroups[amt].push(num);
-});
-Object.keys(amountGroups).sort((a,b) => parseInt(a) - parseInt(b)).forEach(amt => {
-const nums = amountGroups[amt].sort((a,b) => a - b);
-const formattedNums = nums.map(fmtNum);
-if (nums.length === 1) {
-textParts.push(`${formattedNums[0]}买${amt}块`);
-} else {
-textParts.push(`${formattedNums.join('.')}各${amt}块`);
-}
-});
-const finalText = "新奥" + textParts.join(', ');
-if (!finalText || finalText === "新奥") {
-showToast("无内容");
-return;
-}
-vibrate([30, 50, 30]);
-navigator.clipboard.writeText(finalText).then(() => {
-showToast("✅ 已复制： " + finalText);
-addLog("system", "复制买号结果");
-}).catch(() => {
-const ta = document.createElement('textarea');
-ta.value = finalText;
-document.body.appendChild(ta);
-ta.select();
-document.execCommand('copy');
-document.body.removeChild(ta);
-showToast("✅ 已复制： " + finalText);
-});
+    if (selectedNumbers.size > 0) {
+        for (const num of selectedNumbers) {
+            if (betResults[num] === undefined) {
+                showToast("⚠️ 还有号码没有购买，不能复制");
+                return;
+            }
+        }
+    }
+    const keys = Object.keys(betResults).map(Number);
+    if (keys.length === 0) {
+        return;
+    }
+    let textParts = [];
+    const amountGroups = {};
+    keys.forEach(num => {
+        const amt = betResults[num];
+        if (!amountGroups[amt]) amountGroups[amt] = [];
+        amountGroups[amt].push(num);
+    });
+    Object.keys(amountGroups).sort((a, b) => parseInt(a) - parseInt(b)).forEach(amt => {
+        const nums = amountGroups[amt].sort((a, b) => a - b);
+        const formattedNums = nums.map(fmtNum);
+        if (nums.length === 1) {
+            textParts.push(`${formattedNums[0]}买${amt}块`);
+        } else {
+            textParts.push(`${formattedNums.join('.')}各${amt}块`);
+        }
+    });
+    const finalText = "新奥" + textParts.join(', ');
+    if (!finalText || finalText === "新奥") {
+        return;
+    }
+    vibrate([30, 50, 30]);
+    navigator.clipboard.writeText(finalText).then(() => {
+        showToast("✅ 已复制： " + finalText);
+        addLog("system", "复制买号结果");
+    }).catch(() => {
+        const ta = document.createElement('textarea');
+        ta.value = finalText;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        showToast("✅ 已复制： " + finalText);
+    });
 }
 function handleReset() {
 if(confirm("⚠️ 确定全部重置？\n这将清空所有选号、买号记录以及撤销/恢复历史，且无法恢复！")) {
