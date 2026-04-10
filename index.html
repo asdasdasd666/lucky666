@@ -218,6 +218,15 @@ border-color: #a0aec0; text-shadow: none; font-weight: 900;
     transform: var(--btn-active-transform);
     box-shadow: var(--btn-active-shadow);
 }
+.select-zodiac-btn.is-active-zodiac {
+    background: var(--btn-active-bg) !important;
+    color: #000 !important;
+    box-shadow: var(--btn-active-shadow);
+    transform: var(--btn-active-transform);
+    border-color: #a0aec0;
+    text-shadow: none;
+    font-weight: 900;
+}
 
 /* 选号区波色行样式 */
 .select-wave-row {
@@ -325,9 +334,9 @@ font-size: 0.65rem; line-height: 1.1;
 .bg-action { background: linear-gradient(145deg, #f6ad55, #dd6b20); }
 .bg-reset { background: linear-gradient(145deg, #fc8181, #c53030); }
 .num-btn.is-active { filter: grayscale(0%) brightness(1.1); opacity: 1; transform: scale(1.3); z-index: 20; animation: pulse-glow 2s infinite; box-shadow: 0 0 15px currentColor, 0 0 30px rgba(255,255,255,0.3), inset 0 0 0 2px rgba(255,255,255,0.5); background-image: none; }
-.bg-blue.is-active { background: linear-gradient(145deg, #4299e1, #2b6cb0); color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.3); }
-.bg-red.is-active { background: linear-gradient(145deg, #fc8181, #c53030); color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.3); }
-.bg-green.is-active { background: linear-gradient(145deg, #48bb78, #2f855a); color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.3); }
+.bg-blue.is-active { background: linear-gradient(145deg, var(--deep-blue-start), var(--deep-blue-end)); color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.3); }
+.bg-red.is-active { background: linear-gradient(145deg, var(--active-red-start), var(--active-red-end)); color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.3); }
+.bg-green.is-active { background: linear-gradient(145deg, var(--active-green-start), var(--active-green-end)); color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.3); }
 .action-grid-btn { filter: grayscale(0%) brightness(1.0); opacity: 1; z-index: 10; box-shadow: 0 3px 5px rgba(0,0,0,0.2), inset 0 1px 2px rgba(255,255,255,0.3); flex-direction: column; transform: scale(1); animation: none; border-radius: 8px; aspect-ratio: auto; height: 100%; min-height: 32px; font-size: 0.75rem; line-height: 1; grid-column: span 2; font-weight: 900; display: flex; align-items: center; justify-content: center; }
 .action-grid-btn:active { transform: scale(0.95); box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
 .btn-text { display: block; margin-top: 2px; opacity: 1; font-weight: 900; text-shadow: 0 1px 1px rgba(0,0,0,0.2); }
@@ -838,7 +847,7 @@ box-shadow: 0 2px 4px rgba(0,0,0,0.15);
 .batch-select-btn.orange { background: linear-gradient(145deg, #f6ad55, #dd6b20); color: #fff; box-shadow: 0 2px 0 rgba(0,0,0,0.2), inset 0 1px 2px rgba(255,255,255,0.3); }
 .batch-select-btn.grey { background-color: #cbd5e0; color: #718096; cursor: not-allowed; box-shadow: none; }
 .batch-select-btn:active:not(.grey) { transform: translateY(1px); box-shadow: inset 0 1px 2px rgba(255,255,255,0.3); }
-.temp-action-btn, .clear-result-btn {
+.temp-action-btn, .clear-result-btn, .clear-betting-btn {
 transition: all 0.2s;
 }
 .temp-action-btn.green, .clear-result-btn.green {
@@ -850,22 +859,22 @@ box-shadow: 0 2px 0 rgba(0,0,0,0.2), inset 0 1px 2px rgba(255,255,255,0.3);
 transform: translateY(1px);
 box-shadow: inset 0 1px 2px rgba(255,255,255,0.3);
 }
-.temp-action-btn.grey, .clear-result-btn.grey {
+.temp-action-btn.grey, .clear-result-btn.grey, .clear-betting-btn.grey {
 background-color: #cbd5e0;
 color: #718096;
 cursor: not-allowed;
 box-shadow: none;
 }
-.temp-action-btn.orange, .clear-result-btn.orange {
+.temp-action-btn.orange, .clear-result-btn.orange, .clear-betting-btn.orange {
 background: linear-gradient(145deg, #f6ad55, #dd6b20);
 color: #fff;
 box-shadow: 0 2px 0 rgba(0,0,0,0.2), inset 0 1px 2px rgba(255,255,255,0.3);
 }
-.temp-action-btn.orange:active, .clear-result-btn.orange:active {
+.temp-action-btn.orange:active, .clear-result-btn.orange:active, .clear-betting-btn.orange:active {
 transform: translateY(1px);
 box-shadow: inset 0 1px 2px rgba(255,255,255,0.3);
 }
-.clear-result-btn {
+.clear-result-btn, .clear-betting-btn {
     width: 72px;
     min-width: 72px;
 }
@@ -966,25 +975,30 @@ border-radius: 50% !important;
 .bg-green-solid { background-color: var(--res-green) !important; }
 .res-prefix { color: #4a5568; }
 .bet-action-area { margin-bottom: 8px; display: flex; flex-direction: column; gap: 6px; padding-left: 0; }
-.bet-input-row { display: flex; gap: 6px; align-items: center; width: 100%; flex-wrap: nowrap; }
+.bet-input-row { display: flex; gap: 6px; align-items: flex-start; width: 100%; flex-wrap: nowrap; max-width: 100%; }
 .bet-nums-display {
     flex: 2;
+    min-width: 0;
     background: rgba(248, 249, 250, 0.8);
     border: 1px solid #e2e8f0;
     border-radius: 6px;
-    padding: 0 8px;
+    padding: 4px 8px;
     font-family: "Courier New", Courier, monospace;
-    font-size: 0.85rem;
+    font-size: 0.9em;
     font-weight: 700;
     color: inherit;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    height: 24px;
-    line-height: 24px;
+    min-height: 28px;
+    line-height: 1.4;
     box-sizing: border-box;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
+    word-wrap: break-word;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+    height: auto;
+    max-width: 100%;
+    overflow: hidden;
 }
 .bet-sep { color: #2d3748; margin: 0 1px; }
 .bet-multiply-sign {
@@ -1035,6 +1049,9 @@ display: block;
 display: inline;
 width: 100%;
 line-height: 1.6;
+}
+.bet-result-items span {
+    font-size: 0.9em;
 }
 .amt-tag { font-size: 0.8rem; color: #718096; font-weight: 600; white-space: nowrap; margin-left: 2px; }
 .log-container { background: rgba(247, 250, 252, 0.6); border-radius: 6px; border: 1px solid rgba(226, 232, 240, 0.6); max-height: 80px; overflow-y: auto; padding: 4px; font-size: 0.65rem; color: #4a5568; font-family: monospace; -webkit-overflow-scrolling: touch; }
@@ -1211,6 +1228,7 @@ line-height: 1.6;
 <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
 <span>待购号码</span>
 <span class="bet-count-badge" id="bettingCountBadge">0 个</span>
+<button class="clear-betting-btn orange" id="clearBettingBtn" onclick="handleClearBetting()">清空</button>
 </div>
 </div>
 <div class="bet-action-area" id="betActionArea">
@@ -1239,7 +1257,7 @@ line-height: 1.6;
 </div>
 <div style="font-size: 0.65rem; font-weight: 700; color: #4a5568; margin-bottom: 2px; display:flex; justify-content:space-between; align-items:center;">
 <span>操作记录</span>
-<span style="font-weight: 600; color: #718096;">V1.05</span>
+<span style="font-weight: 600; color: #718096;">V1.08</span>
 </div>
 <div class="log-container" id="logContainer"><div class="log-item" style="color:#718096; justify-content:center;">暂无记录</div></div>
 </div>
@@ -1278,14 +1296,16 @@ let lastInputValue = '';
 const ZODIAC_MAP = { "鼠":0, "牛":1, "虎":2, "兔":3, "龙":4, "蛇":5, "马":6, "羊":7, "猴":8, "鸡":9, "狗":10, "猪":11, "免":3 };
 
 const freqColorPalette = [
+    "linear-gradient(145deg, #4169E1, #3151B1)",
+    "linear-gradient(145deg, #D2691E, #106020)",
+    "linear-gradient(145deg, #00CED1, #009EA1)",
+    "linear-gradient(145deg, #808000, #606000)",
     "linear-gradient(145deg, #8A2BE2, #6A1BB2)",
-    "linear-gradient(145deg, #6495ED, #4475CD)",
     "linear-gradient(145deg, #008B8B, #006B6B)",
-    "linear-gradient(145deg, #483D8B, #382D7B)",
-    "linear-gradient(145deg, #6B8E23, #4B6E13)",
-    "linear-gradient(145deg, #F08080, #D06060)",
     "linear-gradient(145deg, #A52A2A, #851A1A)",
-    "linear-gradient(145deg, #00CED1, #00AEB1)"
+    "linear-gradient(145deg, #00BFFF, #009FCF)",
+    "linear-gradient(145deg, #CD5C5C, #AD3C3C)",
+    "linear-gradient(145deg, #4B0082, #3B0062)"
 ];
 
 let globalFreqColorMap = new Map();
@@ -1464,6 +1484,34 @@ function updateCopyButtonsState() {
             copyBetResultBtn.title = "";
         }
     }
+}
+function updateClearBettingButtonState() {
+    const btn = document.getElementById('clearBettingBtn');
+    if (!btn) return;
+    if (bettingNumbers.size === 0) {
+        btn.className = 'clear-betting-btn grey';
+        btn.style.opacity = '0.5';
+        btn.style.cursor = 'not-allowed';
+    } else {
+        btn.className = 'clear-betting-btn orange';
+        btn.style.opacity = '';
+        btn.style.cursor = '';
+    }
+}
+function handleClearBetting() {
+    if (bettingNumbers.size === 0) {
+        showToast("ℹ️ 待购栏已空");
+        return;
+    }
+    bettingNumbers.clear();
+    updateBetActionArea();
+    updateResultText();
+    updateBatchSelectButton();
+    updateTailButtons();
+    updateBetConfirmButtonState();
+    updateClearBettingButtonState();
+    updateBettingCountBadge();
+    addLog("select", "清空待购栏");
 }
 function performUndo() {
 if (undoStack.length === 0) { return; }
@@ -1864,7 +1912,7 @@ amount: amount,
 ...extraData
 };
 undoStack.push(action);
-if (undoStack.length > 30) undoStack.shift();
+if (undoStack.length > 100) undoStack.shift();
 save_data();
 }
 function handleWaveKill(color, parity) {
@@ -2160,6 +2208,24 @@ tailContainer.appendChild(createFilterBtn(i.toString(), 'tail', i.toString(), ha
 }
 }
 
+function removeZodiacFromInput(zodiacChar) {
+    const input = document.getElementById('smartInput');
+    let value = input.value;
+    const index = value.indexOf(zodiacChar);
+    if (index !== -1) {
+        value = value.slice(0, index) + value.slice(index + 1);
+        input.value = value;
+        lastInputValue = value;
+        autoResizeTextarea();
+    }
+}
+
+function resetAllZodiacButtons() {
+    document.querySelectorAll('.select-zodiac-btn').forEach(btn => {
+        btn.classList.remove('is-active-zodiac');
+    });
+}
+
 function renderSelectZodiacButtons() {
     const container = document.getElementById('selectZodiacButtons');
     container.innerHTML = '';
@@ -2173,21 +2239,30 @@ function renderSelectZodiacButtons() {
             vibrate(20);
             const input = document.getElementById('smartInput');
             const currentValue = input.value;
-            if (currentValue.includes(z)) {
-                showToast(`⚠️ 生肖${z}已存在`);
-                return;
+            const isActive = btn.classList.contains('is-active-zodiac');
+            
+            if (isActive) {
+                btn.classList.remove('is-active-zodiac');
+                removeZodiacFromInput(z);
+                addLog("select", `移除生肖 ${z}`);
+            } else {
+                if (currentValue.includes(z)) {
+                    showToast(`⚠️ 生肖${z}已存在`);
+                    return;
+                }
+                btn.classList.add('is-active-zodiac');
+                const prevText = currentValue;
+                input.focus();
+                input.value += z;
+                lastInputValue = input.value;
+                autoResizeTextarea();
+                input.blur();
+                recordAction('zodiac_append', `添加生肖${z}`, [], true, 0, {
+                    prevText: prevText,
+                    nextText: input.value
+                });
+                addLog("select", `添加生肖 ${z}`);
             }
-            const prevText = currentValue;
-            input.focus();
-            input.value += z;
-            lastInputValue = input.value;
-            autoResizeTextarea();
-            input.blur();
-            recordAction('zodiac_append', `添加生肖${z}`, [], true, 0, {
-                prevText: prevText,
-                nextText: input.value
-            });
-            addLog("select", `添加生肖 ${z}`);
         };
         container.appendChild(btn);
     });
@@ -2437,13 +2512,14 @@ updateFrequencyButtonsPressedState();
 updateCopyButtonsState();
 updateSelectWaveButtonsState();
 updateClearResultBtn();
+updateClearBettingButtonState();
 updateRandomSpecialButtonState();
 updateBetConfirmButtonState();
 }
 function getColorClass(num) {
-if (redGroup.has(num)) return 'res-red';
-if (greenGroup.has(num)) return 'res-green';
-if (blueGroup.has(num)) return 'res-blue';
+if (redGroup.has(num)) return 'text-red';
+if (greenGroup.has(num)) return 'text-green';
+if (blueGroup.has(num)) return 'text-blue';
 return '';
 }
 function handleResultNumClick(num) {
@@ -2466,6 +2542,7 @@ updateResultText();
 updateBatchSelectButton();
 updateTailButtons();
 updateBetConfirmButtonState();
+updateClearBettingButtonState();
 updateBettingCountBadge();
 }
 function cancelBet(num) {
@@ -2511,6 +2588,7 @@ updateResultText();
 updateBatchSelectButton();
 updateTailButtons();
 updateBetConfirmButtonState();
+updateClearBettingButtonState();
 }
 function updateBetActionArea() {
 const area = document.getElementById('betActionArea');
@@ -2531,8 +2609,8 @@ const sortedNums = Array.from(bettingNumbers).sort((a,b)=>a-b);
 let htmlParts = [];
 sortedNums.forEach((n, index) => {
 const colorClass = getColorClass(n);
-htmlParts.push(`<span class="${colorClass}">${fmtNum(n)}</span>`);
-if (index < sortedNums.length - 1) { htmlParts.push(`<span class="bet-sep">.</span>`); }
+const displayText = index < sortedNums.length - 1 ? fmtNum(n) + '.' : fmtNum(n);
+htmlParts.push(`<span class="${colorClass}" style="display:inline-block; white-space:nowrap; font-size:0.9em;">${displayText}</span>`);
 });
 display.innerHTML = htmlParts.join('');
 display.style.color = "";
@@ -2572,6 +2650,7 @@ updateAllStates();
 showToast(`✅ 已下单：${nums.length}个号码，各${amount}块`);
 addLog("bet", `买入 ${label}. @ ${amount}块`);
 updateBetConfirmButtonState();
+updateClearBettingButtonState();
 }
 function renderBetResults() {
 const container = document.getElementById('betResultContainer');
@@ -2604,12 +2683,12 @@ fullHtml += ', ';
 }
 if (nums.length === 1) {
 const colorClass = getColorClass(nums[0]);
-fullHtml += `<span class="${colorClass}" style="font-weight:900;">${fmtNum(nums[0])}</span><span class="amt-tag">买${amt}块</span>`;
+fullHtml += `<span class="${colorClass}" style="font-weight:900; font-size:0.9em;">${fmtNum(nums[0])}</span><span class="amt-tag">买${amt}块</span>`;
 } else {
 for (let i = 0; i < nums.length; i++) {
 const n = nums[i];
 const cClass = getColorClass(n);
-const numSpan = `<span class="${cClass}" style="font-weight:900;">${fmtNum(n)}</span>`;
+const numSpan = `<span class="${cClass}" style="font-weight:900; font-size:0.9em;">${fmtNum(n)}</span>`;
 if (i === nums.length - 1) {
 fullHtml += numSpan;
 } else {
@@ -2651,9 +2730,8 @@ if (colorMap.has(frequency)) {
 const bg = colorMap.get(frequency);
 return { bg: bg, text: '#ffffff', textClass: 'dark-text' };
 }
-const colorPool = [...freqColorPalette];
-const randomIndex = Math.floor(Math.random() * colorPool.length);
-const selectedColor = colorPool[randomIndex];
+const index = (frequency - 2) % freqColorPalette.length;
+const selectedColor = freqColorPalette[index];
 colorMap.set(frequency, selectedColor);
 return { bg: selectedColor, text: '#ffffff', textClass: 'dark-text' };
 }
@@ -2718,20 +2796,6 @@ Object.values(freqMap).forEach(count => {
 freqCount[count] = (freqCount[count] || 0) + 1;
 });
 const sortedFreqs = Object.keys(freqCount).sort((a, b) => parseInt(a) - parseInt(b));
-const freqsToColor = sortedFreqs.filter(f => parseInt(f) !== 1).map(f => parseInt(f));
-const colorPool = [...freqColorPalette];
-for (let i = 0; i < freqsToColor.length; i++) {
-    const freq = freqsToColor[i];
-    if (!globalFreqColorMap.has(freq)) {
-        if (colorPool.length === 0) {
-            colorPool.push(...freqColorPalette);
-        }
-        const randomIndex = Math.floor(Math.random() * colorPool.length);
-        const selectedColor = colorPool[randomIndex];
-        colorPool.splice(randomIndex, 1);
-        globalFreqColorMap.set(freq, selectedColor);
-    }
-}
 sortedFreqs.forEach(countStr => {
 const count = parseInt(countStr);
 const numCount = freqCount[count];
@@ -2743,8 +2807,12 @@ let style;
 if (count === 1) {
     style = { bg: 'radial-gradient(circle at 30% 30%, #f7fafc 0%, #cbd5e0 40%, #a0aec0 100%)', text: '#4a5568', textClass: 'light-text' };
 } else {
-    const bg = globalFreqColorMap.get(count) || freqColorPalette[0];
+    const index = (count - 2) % freqColorPalette.length;
+    const bg = freqColorPalette[index];
     style = { bg: bg, text: '#ffffff', textClass: 'dark-text' };
+    if (!globalFreqColorMap.has(count)) {
+        globalFreqColorMap.set(count, bg);
+    }
 }
 btn.style.background = style.bg;
 btn.style.color = style.text;
@@ -2912,19 +2980,19 @@ const isBought = betResults.hasOwnProperty(num);
 let classes = "list-num-base";
 if (isBought) {
 classes += " result-num-sold";
-if (baseColor === 'res-red') classes += " bg-red-solid";
-else if (baseColor === 'res-blue') classes += " bg-blue-solid";
-else if (baseColor === 'res-green') classes += " bg-green-solid";
+if (baseColor === 'text-red') classes += " bg-red-solid";
+else if (baseColor === 'text-blue') classes += " bg-blue-solid";
+else if (baseColor === 'text-green') classes += " bg-green-solid";
 } else if (isBetting) {
 classes += " result-num-betting";
-if (baseColor === 'res-red') classes += " text-red";
-else if (baseColor === 'res-blue') classes += " text-blue";
-else if (baseColor === 'res-green') classes += " text-green";
+if (baseColor === 'text-red') classes += " text-red";
+else if (baseColor === 'text-blue') classes += " text-blue";
+else if (baseColor === 'text-green') classes += " text-green";
 } else {
 classes += " result-num-selected";
-if (baseColor === 'res-red') classes += " text-red";
-else if (baseColor === 'res-blue') classes += " text-blue";
-else if (baseColor === 'res-green') classes += " text-green";
+if (baseColor === 'text-red') classes += " text-red";
+else if (baseColor === 'text-blue') classes += " text-blue";
+else if (baseColor === 'text-green') classes += " text-green";
 }
 const onClick = `handleResultNumClick(${num})`;
 const title = isBought ? '已购买 (点击取消)' : (isBetting ? '待购买' : '点击加入待买');
@@ -2982,7 +3050,7 @@ spacer.style.pointerEvents = 'none';
 grid.appendChild(spacer);
 } else {
 const btn = document.createElement('button');
-const colorClass = getColorClass(num).replace('res-', 'bg-');
+const colorClass = getColorClass(num).replace('text-', 'bg-');
 btn.className = `num-btn ${colorClass}`;
 const wxType = numToWuxing[num];
 const wxChar = wxType ? wuxingChars[wxType] : '';
@@ -3054,6 +3122,7 @@ renderBetResults();
 updateBatchSelectButton();
 updateTailButtons();
 updateBetConfirmButtonState();
+updateClearBettingButtonState();
 updateClearResultBtn();
 updateCopyButtonsState();
 }
@@ -3078,6 +3147,15 @@ input.addEventListener('focus', () => {
 });
 input.addEventListener('input', () => {
     autoResizeTextarea();
+    const currentValue = input.value;
+    document.querySelectorAll('.select-zodiac-btn').forEach(btn => {
+        const z = btn.textContent;
+        if (currentValue.includes(z)) {
+            btn.classList.add('is-active-zodiac');
+        } else {
+            btn.classList.remove('is-active-zodiac');
+        }
+    });
 });
 input.addEventListener('blur', () => {
     const newValue = input.value;
@@ -3148,6 +3226,7 @@ nextHistory: nextHistory
 input.value = '';
 lastInputValue = '';
 autoResizeTextarea();
+resetAllZodiacButtons();
 input.blur();
 }
 function processInputAndAddToHistory(text) {
@@ -3517,6 +3596,7 @@ globalFreqColorMap.clear();
 document.getElementById('smartInput').value = '';
 lastInputValue = '';
 autoResizeTextarea();
+resetAllZodiacButtons();
 document.querySelectorAll('.num-btn.is-special').forEach(btn => {
 btn.classList.remove('is-special');
 });
@@ -3608,6 +3688,7 @@ setupInputListener();
 updateRandomSpecialButtonState();
 updateBetConfirmButtonState();
 updateCopyButtonsState();
+updateClearBettingButtonState();
 addLog("system", "启动就绪");
 window.addEventListener('beforeunload', function() {
 save_data();
