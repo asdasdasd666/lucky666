@@ -991,6 +991,7 @@ border-radius: 50% !important;
     line-height: 1.4;
     box-sizing: border-box;
     display: flex;
+    flex-wrap: wrap;
     align-items: flex-start;
     word-wrap: break-word;
     word-break: break-word;
@@ -1297,7 +1298,7 @@ const ZODIAC_MAP = { "鼠":0, "牛":1, "虎":2, "兔":3, "龙":4, "蛇":5, "马"
 
 const freqColorPalette = [
     "linear-gradient(145deg, #4169E1, #3151B1)",
-    "linear-gradient(145deg, #D2691E, #106020)",
+    "linear-gradient(145deg, #D2691E, #A25018)",
     "linear-gradient(145deg, #00CED1, #009EA1)",
     "linear-gradient(145deg, #808000, #606000)",
     "linear-gradient(145deg, #8A2BE2, #6A1BB2)",
@@ -1489,10 +1490,12 @@ function updateClearBettingButtonState() {
     const btn = document.getElementById('clearBettingBtn');
     if (!btn) return;
     if (bettingNumbers.size === 0) {
+        btn.textContent = '无号码';
         btn.className = 'clear-betting-btn grey';
         btn.style.opacity = '0.5';
         btn.style.cursor = 'not-allowed';
     } else {
+        btn.textContent = '清空';
         btn.className = 'clear-betting-btn orange';
         btn.style.opacity = '';
         btn.style.cursor = '';
@@ -3569,6 +3572,7 @@ function copyBetResults() {
     }
     vibrate([30, 50, 30]);
     navigator.clipboard.writeText(finalText).then(() => {
+        showToast("✅ 已复制买号结果");
         addLog("system", "复制买号结果");
     }).catch(() => {
         const ta = document.createElement('textarea');
@@ -3577,6 +3581,7 @@ function copyBetResults() {
         ta.select();
         document.execCommand('copy');
         document.body.removeChild(ta);
+        showToast("✅ 已复制买号结果");
     });
 }
 function handleReset() {
