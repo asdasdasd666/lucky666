@@ -140,8 +140,7 @@ box-shadow: 0 2px 0 #A7F3D0, 0 3px 4px rgba(56, 161, 105, 0.1) !important;
 .wave-btn.wave-active {
 background: #cbd5e0 !important;
 color: #718096 !important;
-opacity: 0.5 !important;
-cursor: not-allowed !important;
+opacity: 0.6 !important;
 border-color: #cbd5e0 !important;
 box-shadow: none !important;
 transform: none !important;
@@ -163,9 +162,14 @@ font-family: inherit;
 .zodiac-btn[data-color="blue"]::after { background: var(--deep-blue-start); }
 .zodiac-btn[data-color="green"]::after { background: var(--active-green-start); }
 .zodiac-btn.is-active-zodiac {
-background: var(--btn-active-bg) !important; color: #000 !important;
-box-shadow: var(--btn-active-shadow); transform: var(--btn-active-transform);
-border-color: #a0aec0; text-shadow: none; font-weight: 900;
+background: #cbd5e0 !important;
+color: #718096 !important;
+opacity: 0.6 !important;
+border-color: #cbd5e0 !important;
+box-shadow: none !important;
+transform: none !important;
+text-shadow: none !important;
+font-weight: 900;
 }
 .zodiac-btn:active:not(.is-active-zodiac) { transform: var(--btn-active-transform); box-shadow: var(--btn-active-shadow); }
 
@@ -219,11 +223,12 @@ border-color: #a0aec0; text-shadow: none; font-weight: 900;
     box-shadow: var(--btn-active-shadow);
 }
 .select-zodiac-btn.is-active-zodiac {
-    background: var(--btn-active-bg) !important;
-    color: #000 !important;
-    box-shadow: var(--btn-active-shadow);
-    transform: var(--btn-active-transform);
-    border-color: #a0aec0;
+    background: #cbd5e0 !important;
+    color: #718096 !important;
+    opacity: 0.6 !important;
+    border-color: #cbd5e0 !important;
+    box-shadow: none !important;
+    transform: none !important;
     text-shadow: none;
     font-weight: 900;
 }
@@ -438,6 +443,31 @@ margin-top: 0;
     transform: translateY(1px) scale(0.96);
     filter: brightness(0.95);
 }
+/* 统计按钮文字样式 - 与历史小球完全一致 */
+.sphere-btn-base.count-btn {
+    font-size: 0.75rem !important;
+    font-weight: 900 !important;
+}
+/* 统计按钮按下扁平效果 - 完全复制尾按钮扁平效果 */
+.sphere-btn-base.count-btn.is-pressed {
+    background: #cbd5e0 !important;
+    color: #718096 !important;
+    box-shadow: none !important;
+    transform: none !important;
+    filter: none !important;
+    opacity: 0.6 !important;
+    text-shadow: none !important;
+}
+/* 尾按钮按下扁平效果 */
+.tail-silver-btn.is-depressed {
+    background: #cbd5e0 !important;
+    color: #718096 !important;
+    box-shadow: none !important;
+    transform: none !important;
+    filter: none !important;
+    opacity: 0.6 !important;
+    text-shadow: none !important;
+}
 .sphere-btn-base:not(.is-pressed):not(.is-depressed):hover {
     transform: translateY(-1px);
     box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.7), inset 0 -2px 4px rgba(0, 0, 0, 0.1), 0 6px 8px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -466,6 +496,9 @@ margin-top: 0;
 .tail-silver-btn {
     background: radial-gradient(circle at 35% 35%, #e8eef4, #b0b8c5) !important;
     border: 1px solid rgba(255,255,255,0.5) !important;
+    font-family: "Courier New", monospace !important;
+    font-size: 0.75rem !important;
+    font-weight: 900 !important;
 }
 .tail-silver-btn.is-depressed {
     background: radial-gradient(circle at 35% 35%, #d0d8e5, #a0a8b5) !important;
@@ -709,9 +742,9 @@ gap: 6px;
 }
 .history-row {
 display: grid;
-grid-template-columns: 20px auto 1fr;
+grid-template-columns: 16px auto 1fr;
 align-items: start;
-gap: 6px;
+gap: 2px;
 line-height: 1.4;
 }
 .history-delete-btn {
@@ -731,16 +764,38 @@ margin-top: 2px;
 color: #4a5568;
 white-space: nowrap;
 font-weight: 800;
-line-height: 1.5;
-margin-top: 1px;
+line-height: 1;
+margin-top: 0;
 display: flex;
-align-items: baseline;
-gap: 2px;
+align-items: center;
+justify-content: center;
+gap: 0px;
+padding: 0;
+width: 2.75em;
+height: 1.5em;
+box-sizing: border-box;
+border-radius: 12px;
+background: radial-gradient(circle at 30% 30%, #f7fafc 0%, #cbd5e0 40%, #a0aec0 100%);
+box-shadow: 0 2px 4px rgba(0,0,0,0.2), inset 0 1px 2px rgba(255,255,255,0.5);
+cursor: pointer;
+transition: all 0.15s;
+color: #2d3e50;
+text-shadow: 0 1px 0 rgba(255,255,255,0.7);
+}
+.history-label.all-lit {
+background: #cbd5e0 !important;
+color: #718096 !important;
+box-shadow: none !important;
+transform: none !important;
+text-shadow: none !important;
+opacity: 0.6 !important;
+}
+.history-label .label-number,
+.history-label .label-text {
+color: inherit;
 }
 .history-label .label-number {
 display: inline-block;
-width: 2em;
-text-align: right;
 font-weight: 900;
 }
 .history-label .label-text {
@@ -847,7 +902,7 @@ box-shadow: 0 2px 4px rgba(0,0,0,0.15);
 .batch-select-btn.orange { background: linear-gradient(145deg, #f6ad55, #dd6b20); color: #fff; box-shadow: 0 2px 0 rgba(0,0,0,0.2), inset 0 1px 2px rgba(255,255,255,0.3); }
 .batch-select-btn.grey { background-color: #cbd5e0; color: #718096; cursor: not-allowed; box-shadow: none; }
 .batch-select-btn:active:not(.grey) { transform: translateY(1px); box-shadow: inset 0 1px 2px rgba(255,255,255,0.3); }
-.temp-action-btn, .clear-result-btn, .clear-betting-btn {
+.temp-action-btn, .clear-result-btn {
 transition: all 0.2s;
 }
 .temp-action-btn.green, .clear-result-btn.green {
@@ -859,22 +914,22 @@ box-shadow: 0 2px 0 rgba(0,0,0,0.2), inset 0 1px 2px rgba(255,255,255,0.3);
 transform: translateY(1px);
 box-shadow: inset 0 1px 2px rgba(255,255,255,0.3);
 }
-.temp-action-btn.grey, .clear-result-btn.grey, .clear-betting-btn.grey {
+.temp-action-btn.grey, .clear-result-btn.grey {
 background-color: #cbd5e0;
 color: #718096;
 cursor: not-allowed;
 box-shadow: none;
 }
-.temp-action-btn.orange, .clear-result-btn.orange, .clear-betting-btn.orange {
+.temp-action-btn.orange, .clear-result-btn.orange {
 background: linear-gradient(145deg, #f6ad55, #dd6b20);
 color: #fff;
 box-shadow: 0 2px 0 rgba(0,0,0,0.2), inset 0 1px 2px rgba(255,255,255,0.3);
 }
-.temp-action-btn.orange:active, .clear-result-btn.orange:active, .clear-betting-btn.orange:active {
+.temp-action-btn.orange:active, .clear-result-btn.orange:active {
 transform: translateY(1px);
 box-shadow: inset 0 1px 2px rgba(255,255,255,0.3);
 }
-.clear-result-btn, .clear-betting-btn {
+.clear-result-btn {
     width: 72px;
     min-width: 72px;
 }
@@ -1055,8 +1110,8 @@ line-height: 1.6;
     font-size: 0.9em;
 }
 .amt-tag { font-size: 0.8rem; color: #718096; font-weight: 600; white-space: nowrap; margin-left: 2px; }
-.log-container { background: rgba(247, 250, 252, 0.6); border-radius: 6px; border: 1px solid rgba(226, 232, 240, 0.6); max-height: 80px; overflow-y: auto; padding: 4px; font-size: 0.65rem; color: #4a5568; font-family: monospace; -webkit-overflow-scrolling: touch; }
-.log-item { padding: 2px 0; border-bottom: 1px dashed rgba(226, 232, 240, 0.8); display: flex; justify-content: space-between; }
+.log-container { background: rgba(247, 250, 252, 0.6); border-radius: 6px; border: 1px solid rgba(226, 232, 240, 0.6); max-height: 80px; overflow-y: auto; overflow-x: hidden; padding: 4px; font-size: 0.65rem; color: #4a5568; font-family: monospace; -webkit-overflow-scrolling: touch; word-break: break-word; }
+.log-item { padding: 2px 0; border-bottom: 1px dashed rgba(226, 232, 240, 0.8); display: flex; justify-content: space-between; word-break: break-word; }
 .log-item:last-child { border-bottom: none; }
 .log-time { color: #718096; font-size: 0.55rem; margin-right: 4px; }
 .log-action { font-weight: 600; }
@@ -1229,7 +1284,7 @@ line-height: 1.6;
 <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
 <span>待购号码</span>
 <span class="bet-count-badge" id="bettingCountBadge">0 个</span>
-<button class="clear-betting-btn orange" id="clearBettingBtn" onclick="handleClearBetting()">清空</button>
+<button id="clearBettingBtn" class="temp-action-btn orange" onclick="handleClearBetting()">清空</button>
 </div>
 </div>
 <div class="bet-action-area" id="betActionArea">
@@ -1258,7 +1313,7 @@ line-height: 1.6;
 </div>
 <div style="font-size: 0.65rem; font-weight: 700; color: #4a5568; margin-bottom: 2px; display:flex; justify-content:space-between; align-items:center;">
 <span>操作记录</span>
-<span style="font-weight: 600; color: #718096;">V1.08</span>
+<span style="font-weight: 600; color: #718096;">V1.15</span>
 </div>
 <div class="log-container" id="logContainer"><div class="log-item" style="color:#718096; justify-content:center;">暂无记录</div></div>
 </div>
@@ -1326,7 +1381,9 @@ let actionClass = 'select';
 if (type === 'input') actionClass = 'input'; else if (type === 'clear') actionClass = 'clear'; else if (type === 'bet') actionClass = 'input'; else if (type === 'undo') actionClass = 'undo'; else if (type === 'redo') actionClass = 'redo'; else if (type === 'random') actionClass = 'random';
 div.innerHTML = `<span><span class="log-time">${timeStr}</span><span class="log-action ${actionClass}">${message}</span></span>`;
 container.prepend(div);
-if (container.children.length > 15) container.removeChild(container.lastChild);
+while (container.children.length > 20) {
+container.removeChild(container.lastChild);
+}
 }
 function save_data() {
 const data = {
@@ -1491,12 +1548,12 @@ function updateClearBettingButtonState() {
     if (!btn) return;
     if (bettingNumbers.size === 0) {
         btn.textContent = '无号码';
-        btn.className = 'clear-betting-btn grey';
+        btn.className = 'temp-action-btn grey';
         btn.style.opacity = '0.5';
         btn.style.cursor = 'not-allowed';
     } else {
         btn.textContent = '清空';
-        btn.className = 'clear-betting-btn orange';
+        btn.className = 'temp-action-btn orange';
         btn.style.opacity = '';
         btn.style.cursor = '';
     }
@@ -1506,6 +1563,10 @@ function handleClearBetting() {
         showToast("ℹ️ 待购栏已空");
         return;
     }
+    const clearedNums = Array.from(bettingNumbers);
+    recordAction('clear_betting', '清空待购', clearedNums, false, 0, {
+        clearedNums: clearedNums
+    });
     bettingNumbers.clear();
     updateBetActionArea();
     updateResultText();
@@ -1623,6 +1684,14 @@ lastAction.numbers.forEach(n => {
 bettingNumbers.add(n);
 });
 addLog("undo", `恢复待购 ${lastAction.label}`);
+} else if (lastAction.type === 'clear_betting') {
+    const clearedNums = lastAction.clearedNums || [];
+    clearedNums.forEach(n => {
+        if (selectedNumbers.has(n) && !betResults[n]) {
+            bettingNumbers.add(n);
+        }
+    });
+    addLog("undo", `撤销清空待购`);
 } else if (lastAction.type === 'freq_batch') {
 if (lastAction.wasAdded) {
 lastAction.numbers.forEach(n => selectedNumbers.delete(n));
@@ -1642,6 +1711,29 @@ updateAllStates(false);
 updateFrequencyButtonsPressedState();
 save_data();
 return;
+} else if (lastAction.type === 'history_label_on') {
+    lastAction.numbers.forEach(n => {
+        if (selectedNumbers.has(n)) {
+            selectedNumbers.delete(n);
+            if (betResults[n] !== undefined) delete betResults[n];
+            bettingNumbers.delete(n);
+            manuallyTurnedOff.add(n);
+            const btn = document.querySelector(`.num-btn[data-num="${n}"]`);
+            if (btn) btn.classList.remove('is-active');
+        }
+    });
+    syncSpecialWithSelected();
+    addLog("undo", `撤销${lastAction.label}`);
+} else if (lastAction.type === 'history_label_off') {
+    lastAction.numbers.forEach(n => {
+        if (!selectedNumbers.has(n)) {
+            selectedNumbers.add(n);
+            manuallyTurnedOff.delete(n);
+            const btn = document.querySelector(`.num-btn[data-num="${n}"]`);
+            if (btn) btn.classList.add('is-active');
+        }
+    });
+    addLog("undo", `撤销${lastAction.label}`);
 } else if (lastAction.type === 'manual_toggle') {
 if (lastAction.wasAdded) {
 selectedNumbers.delete(lastAction.number);
@@ -1811,6 +1903,12 @@ lastUndo.numbers.forEach(n => {
 bettingNumbers.delete(n);
 });
 addLog("redo", `重做取消待购 ${lastUndo.label}`);
+} else if (lastUndo.type === 'clear_betting') {
+    const clearedNums = lastUndo.clearedNums || [];
+    clearedNums.forEach(n => {
+        bettingNumbers.delete(n);
+    });
+    addLog("redo", `重做清空待购`);
 } else if (lastUndo.type === 'freq_batch') {
 if (lastUndo.wasAdded) {
 lastUndo.numbers.forEach(n => selectedNumbers.add(n));
@@ -1830,6 +1928,29 @@ updateAllStates(false);
 updateFrequencyButtonsPressedState();
 save_data();
 return;
+} else if (lastUndo.type === 'history_label_on') {
+    lastUndo.numbers.forEach(n => {
+        if (!selectedNumbers.has(n)) {
+            selectedNumbers.add(n);
+            manuallyTurnedOff.delete(n);
+            const btn = document.querySelector(`.num-btn[data-num="${n}"]`);
+            if (btn) btn.classList.add('is-active');
+        }
+    });
+    syncSpecialWithSelected();
+    addLog("redo", `重做${lastUndo.label}`);
+} else if (lastUndo.type === 'history_label_off') {
+    lastUndo.numbers.forEach(n => {
+        if (selectedNumbers.has(n)) {
+            selectedNumbers.delete(n);
+            if (betResults[n] !== undefined) delete betResults[n];
+            bettingNumbers.delete(n);
+            manuallyTurnedOff.add(n);
+            const btn = document.querySelector(`.num-btn[data-num="${n}"]`);
+            if (btn) btn.classList.remove('is-active');
+        }
+    });
+    addLog("redo", `重做${lastUndo.label}`);
 } else if (lastUndo.type === 'manual_toggle') {
 if (lastUndo.wasAdded) {
 selectedNumbers.add(lastUndo.number);
@@ -2869,7 +2990,7 @@ if (item.isPureZodiac) {
     displayCount = item.numbers.length;
     displayUnit = '码';
 }
-const countStr = displayCount.toString().padStart(2, ' ');
+const countStr = displayCount.toString();
 const numberSpan = document.createElement('span');
 numberSpan.className = 'label-number';
 numberSpan.textContent = countStr;
@@ -2878,6 +2999,48 @@ const textSpan = document.createElement('span');
 textSpan.className = 'label-text';
 textSpan.textContent = displayUnit;
 labelContainer.appendChild(textSpan);
+
+const allOff = item.sortedNumbers.every(n => !selectedNumbers.has(n));
+if (allOff) {
+    labelContainer.classList.add('all-lit');
+} else {
+    labelContainer.classList.remove('all-lit');
+}
+
+labelContainer.onclick = () => {
+    const nums = item.sortedNumbers;
+    const isAllOff = nums.every(n => !selectedNumbers.has(n));
+    
+    if (isAllOff) {
+        const toAdd = nums.filter(n => !selectedNumbers.has(n));
+        toAdd.forEach(n => {
+            selectedNumbers.add(n);
+            manuallyTurnedOff.delete(n);
+            const btn = document.querySelector(`.num-btn[data-num="${n}"]`);
+            if (btn) btn.classList.add('is-active');
+        });
+        labelContainer.classList.remove('all-lit');
+        recordAction('history_label_on', `点亮${item.labelPrefix}`, toAdd, true);
+        addLog("select", `点亮历史记录 ${item.labelPrefix}`);
+    } else {
+        nums.forEach(n => {
+            if (selectedNumbers.has(n)) {
+                selectedNumbers.delete(n);
+                if (betResults[n] !== undefined) delete betResults[n];
+                bettingNumbers.delete(n);
+                manuallyTurnedOff.add(n);
+                const btn = document.querySelector(`.num-btn[data-num="${n}"]`);
+                if (btn) btn.classList.remove('is-active');
+            }
+        });
+        labelContainer.classList.add('all-lit');
+        recordAction('history_label_off', `熄灭${item.labelPrefix}`, nums, false);
+        addLog("select", `熄灭历史记录 ${item.labelPrefix}`);
+    }
+    syncSpecialWithSelected();
+    updateAllStates();
+};
+
 const numsDiv = document.createElement('div');
 numsDiv.className = 'history-nums';
 item.sortedNumbers.forEach((n) => {
