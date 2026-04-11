@@ -443,31 +443,6 @@ margin-top: 0;
     transform: translateY(1px) scale(0.96);
     filter: brightness(0.95);
 }
-/* 统计按钮文字样式 - 与历史小球完全一致 */
-.sphere-btn-base.count-btn {
-    font-size: 0.75rem !important;
-    font-weight: 900 !important;
-}
-/* 统计按钮按下扁平效果 - 完全复制尾按钮扁平效果 */
-.sphere-btn-base.count-btn.is-pressed {
-    background: #cbd5e0 !important;
-    color: #718096 !important;
-    box-shadow: none !important;
-    transform: none !important;
-    filter: none !important;
-    opacity: 0.6 !important;
-    text-shadow: none !important;
-}
-/* 尾按钮按下扁平效果 */
-.tail-silver-btn.is-depressed {
-    background: #cbd5e0 !important;
-    color: #718096 !important;
-    box-shadow: none !important;
-    transform: none !important;
-    filter: none !important;
-    opacity: 0.6 !important;
-    text-shadow: none !important;
-}
 .sphere-btn-base:not(.is-pressed):not(.is-depressed):hover {
     transform: translateY(-1px);
     box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.7), inset 0 -2px 4px rgba(0, 0, 0, 0.1), 0 6px 8px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -496,9 +471,6 @@ margin-top: 0;
 .tail-silver-btn {
     background: radial-gradient(circle at 35% 35%, #e8eef4, #b0b8c5) !important;
     border: 1px solid rgba(255,255,255,0.5) !important;
-    font-family: "Courier New", monospace !important;
-    font-size: 0.75rem !important;
-    font-weight: 900 !important;
 }
 .tail-silver-btn.is-depressed {
     background: radial-gradient(circle at 35% 35%, #d0d8e5, #a0a8b5) !important;
@@ -959,10 +931,10 @@ display: flex;
 flex-wrap: wrap;
 gap: 0.6em;
 align-items: center;
-padding-left: 3.2rem;
 position: relative;
 min-height: 1.6em;
 margin-bottom: 0.6em;
+padding-left: 0;
 }
 .result-column:last-child {
 margin-bottom: 0;
@@ -972,12 +944,9 @@ font-size: 0.75rem;
 color: #718096;
 font-weight: 800;
 white-space: nowrap;
-position: absolute;
-left: 0;
-top: 50%;
-transform: translateY(-50%);
 width: 2.8rem;
 text-align: right;
+flex-shrink: 0;
 }
 .list-num-base {
 display: inline-flex !important;
@@ -1174,21 +1143,18 @@ line-height: 1.6;
     flex-wrap: wrap;
     gap: 0.6em;
     align-items: center;
-    padding-left: 3.2rem;
     position: relative;
     min-height: 1.6em;
+    padding-left: 0;
 }
 .temp-storage-label {
     font-size: 0.75rem;
     color: #718096;
     font-weight: 800;
     white-space: nowrap;
-    position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
     width: 2.8rem;
     text-align: right;
+    flex-shrink: 0;
 }
 .temp-num-item {
     display: inline-flex !important;
@@ -1313,7 +1279,7 @@ line-height: 1.6;
 </div>
 <div style="font-size: 0.65rem; font-weight: 700; color: #4a5568; margin-bottom: 2px; display:flex; justify-content:space-between; align-items:center;">
 <span>操作记录</span>
-<span style="font-weight: 600; color: #718096;">V1.15</span>
+<span style="font-weight: 600; color: #718096;">V1.25</span>
 </div>
 <div class="log-container" id="logContainer"><div class="log-item" style="color:#718096; justify-content:center;">暂无记录</div></div>
 </div>
@@ -1347,6 +1313,7 @@ let isRandomRunning = false;
 let specialNumbersSet = new Set();
 let currentHighlightedNumber = null;
 let manuallyTurnedOff = new Set();
+let manuallyTurnedOn = new Set();
 let lastInputValue = '';
 
 const ZODIAC_MAP = { "鼠":0, "牛":1, "虎":2, "兔":3, "龙":4, "蛇":5, "马":6, "羊":7, "猴":8, "鸡":9, "狗":10, "猪":11, "免":3 };
@@ -1365,6 +1332,17 @@ const freqColorPalette = [
 ];
 
 let globalFreqColorMap = new Map();
+
+function syncGlobalStateToHistory(targetNumbers, newState) {
+    inputHistory.forEach(item => {
+        targetNumbers.forEach(n => {
+            if (item.groupState && item.groupState.hasOwnProperty(n)) {
+                item.groupState[n] = newState;
+            }
+        });
+    });
+    renderHistoryLog();
+}
 
 function vibrate(pattern = 15) { if (navigator.vibrate) navigator.vibrate(pattern); }
 function fmtNum(n) { return n < 10 ? '0' + n : '' + n; }
@@ -1396,6 +1374,7 @@ tempData: tempStorageData,
 specialSet: Array.from(specialNumbersSet),
 currentHighlight: currentHighlightedNumber,
 manuallyTurnedOff: Array.from(manuallyTurnedOff),
+manuallyTurnedOn: Array.from(manuallyTurnedOn),
 freqColorMap: Array.from(globalFreqColorMap.entries())
 };
 try {
@@ -1416,6 +1395,7 @@ specialNumbersSet = new Set(d.specialSet || []);
 if(Array.isArray(d.tempData)) tempStorageData = d.tempData;
 currentHighlightedNumber = d.currentHighlight !== undefined && d.currentHighlight !== null ? d.currentHighlight : null;
 if(d.manuallyTurnedOff && Array.isArray(d.manuallyTurnedOff)) manuallyTurnedOff = new Set(d.manuallyTurnedOff);
+if(d.manuallyTurnedOn && Array.isArray(d.manuallyTurnedOn)) manuallyTurnedOn = new Set(d.manuallyTurnedOn);
 if(d.freqColorMap && Array.isArray(d.freqColorMap)) {
     globalFreqColorMap = new Map(d.freqColorMap);
 }
@@ -1427,7 +1407,7 @@ updateTempClearBtn();
 updateClearResultBtn();
 } catch(e) {
 console.error("Load failed", e);
-betResults = {}; undoStack = []; redoStack = []; inputHistory = []; tempStorageData = []; specialNumbersSet = new Set(); currentHighlightedNumber = null; manuallyTurnedOff = new Set(); globalFreqColorMap = new Map();
+betResults = {}; undoStack = []; redoStack = []; inputHistory = []; tempStorageData = []; specialNumbersSet = new Set(); currentHighlightedNumber = null; manuallyTurnedOff = new Set(); manuallyTurnedOn = new Set(); globalFreqColorMap = new Map();
 }
 }
 function restoreSpecialEffects() {
@@ -1577,6 +1557,37 @@ function handleClearBetting() {
     updateBettingCountBadge();
     addLog("select", "清空待购栏");
 }
+function recalcSelectedFromHistory() {
+    selectedNumbers.clear();
+    
+    const numberShouldBeSelected = {};
+    
+    // 1. 收集所有历史记录中处于点亮状态的号码
+    inputHistory.forEach(item => {
+        item.sortedNumbers.forEach(n => {
+            if (item.groupState[n] === true) {
+                numberShouldBeSelected[n] = true;
+            }
+        });
+    });
+    
+    // 2. 添加历史记录中要求点亮的号码（未被手动关闭）
+    Object.keys(numberShouldBeSelected).forEach(n => {
+        const num = parseInt(n);
+        if (!manuallyTurnedOff.has(num)) {
+            selectedNumbers.add(num);
+        }
+    });
+    
+    // 3. 添加纯粹手动点亮的号码（未被手动关闭）
+    manuallyTurnedOn.forEach(num => {
+        if (!manuallyTurnedOff.has(num)) {
+            selectedNumbers.add(num);
+        }
+    });
+    
+    syncSpecialWithSelected();
+}
 function performUndo() {
 if (undoStack.length === 0) { return; }
 const lastAction = undoStack.pop();
@@ -1605,7 +1616,7 @@ return;
 }
 if (lastAction.type === 'history_delete') {
 inputHistory.splice(lastAction.index, 0, lastAction.deletedItem);
-rebuildSelectedFromHistory();
+recalcSelectedFromHistory();
 updateAllStates(false);
 addLog("undo", `恢复历史记录`);
 save_data();
@@ -1695,9 +1706,11 @@ addLog("undo", `恢复待购 ${lastAction.label}`);
 } else if (lastAction.type === 'freq_batch') {
 if (lastAction.wasAdded) {
 lastAction.numbers.forEach(n => selectedNumbers.delete(n));
+syncGlobalStateToHistory(lastAction.numbers, false);
 addLog("undo", `撤销点亮 ${lastAction.label}`);
 } else {
 lastAction.numbers.forEach(n => selectedNumbers.add(n));
+syncGlobalStateToHistory(lastAction.numbers, true);
 addLog("undo", `撤销熄灭 ${lastAction.label}`);
 }
 if (currentHighlightedNumber !== null && lastAction.numbers.includes(currentHighlightedNumber)) {
@@ -1712,50 +1725,54 @@ updateFrequencyButtonsPressedState();
 save_data();
 return;
 } else if (lastAction.type === 'history_label_on') {
-    lastAction.numbers.forEach(n => {
-        if (selectedNumbers.has(n)) {
-            selectedNumbers.delete(n);
-            if (betResults[n] !== undefined) delete betResults[n];
-            bettingNumbers.delete(n);
-            manuallyTurnedOff.add(n);
-            const btn = document.querySelector(`.num-btn[data-num="${n}"]`);
-            if (btn) btn.classList.remove('is-active');
-        }
-    });
-    syncSpecialWithSelected();
+    const item = inputHistory.find(h => h.id === lastAction.historyId);
+    if (item) {
+        lastAction.numbers.forEach(n => { item.groupState[n] = false; });
+    }
+    recalcSelectedFromHistory();
     addLog("undo", `撤销${lastAction.label}`);
+    renderHistoryLog();
 } else if (lastAction.type === 'history_label_off') {
-    lastAction.numbers.forEach(n => {
-        if (!selectedNumbers.has(n)) {
-            selectedNumbers.add(n);
+    const item = inputHistory.find(h => h.id === lastAction.historyId);
+    if (item) {
+        lastAction.numbers.forEach(n => { 
+            item.groupState[n] = true; 
             manuallyTurnedOff.delete(n);
-            const btn = document.querySelector(`.num-btn[data-num="${n}"]`);
-            if (btn) btn.classList.add('is-active');
-        }
-    });
+            manuallyTurnedOn.delete(n);
+        });
+    }
+    recalcSelectedFromHistory();
     addLog("undo", `撤销${lastAction.label}`);
+    renderHistoryLog();
 } else if (lastAction.type === 'manual_toggle') {
 if (lastAction.wasAdded) {
 selectedNumbers.delete(lastAction.number);
+syncGlobalStateToHistory([lastAction.number], false);
 manuallyTurnedOff.add(lastAction.number);
+manuallyTurnedOn.delete(lastAction.number);
 } else {
 selectedNumbers.add(lastAction.number);
+syncGlobalStateToHistory([lastAction.number], true);
 manuallyTurnedOff.delete(lastAction.number);
+manuallyTurnedOn.add(lastAction.number);
 }
 } else if (lastAction.type === 'select_wave') {
 if (lastAction.wasAdded) {
 lastAction.numbers.forEach(n => {
 selectedNumbers.delete(n);
 manuallyTurnedOff.add(n);
+manuallyTurnedOn.delete(n);
 if(betResults[n] !== undefined) delete betResults[n];
 bettingNumbers.delete(n);
 });
+syncGlobalStateToHistory(lastAction.numbers, false);
 addLog("undo", `撤销点亮 ${lastAction.label}`);
 } else {
 lastAction.numbers.forEach(n => {
 selectedNumbers.add(n);
 manuallyTurnedOff.delete(n);
 });
+syncGlobalStateToHistory(lastAction.numbers, true);
 addLog("undo", `撤销熄灭 ${lastAction.label}`);
 }
 syncSpecialWithSelected();
@@ -1781,11 +1798,13 @@ betResults = {...prevBetResults};
 addLog("undo", `撤销清空结果`);
 } else {
 if (lastAction.wasAdded) {
-lastAction.numbers.forEach(n => { selectedNumbers.delete(n); if(betResults[n] !== undefined) delete betResults[n]; bettingNumbers.delete(n); manuallyTurnedOff.add(n); });
+lastAction.numbers.forEach(n => { selectedNumbers.delete(n); if(betResults[n] !== undefined) delete betResults[n]; bettingNumbers.delete(n); manuallyTurnedOff.add(n); manuallyTurnedOn.delete(n); });
+syncGlobalStateToHistory(lastAction.numbers, false);
 if (lastAction.numbers.length === 1) { addLog("undo", `撤销选中 ${fmtNum(lastAction.numbers[0])}`); }
 else { addLog("undo", `撤销点亮 ${lastAction.label}`); }
 } else {
 lastAction.numbers.forEach(n => { selectedNumbers.add(n); manuallyTurnedOff.delete(n); });
+syncGlobalStateToHistory(lastAction.numbers, true);
 if (lastAction.numbers.length === 1) { addLog("undo", `撤销取消 ${fmtNum(lastAction.numbers[0])}`); }
 else { addLog("undo", `恢复杀掉 ${lastAction.label}`); }
 }
@@ -1822,7 +1841,7 @@ return;
 }
 if (lastUndo.type === 'history_delete') {
 inputHistory.splice(lastUndo.index, 1);
-rebuildSelectedFromHistory();
+recalcSelectedFromHistory();
 updateAllStates(false);
 addLog("redo", `重做删除历史`);
 save_data();
@@ -1912,9 +1931,11 @@ addLog("redo", `重做取消待购 ${lastUndo.label}`);
 } else if (lastUndo.type === 'freq_batch') {
 if (lastUndo.wasAdded) {
 lastUndo.numbers.forEach(n => selectedNumbers.add(n));
+syncGlobalStateToHistory(lastUndo.numbers, true);
 addLog("redo", `重做点亮 ${lastUndo.label}`);
 } else {
 lastUndo.numbers.forEach(n => selectedNumbers.delete(n));
+syncGlobalStateToHistory(lastUndo.numbers, false);
 addLog("redo", `重做熄灭 ${lastUndo.label}`);
 }
 if (currentHighlightedNumber !== null && lastUndo.numbers.includes(currentHighlightedNumber)) {
@@ -1929,35 +1950,36 @@ updateFrequencyButtonsPressedState();
 save_data();
 return;
 } else if (lastUndo.type === 'history_label_on') {
-    lastUndo.numbers.forEach(n => {
-        if (!selectedNumbers.has(n)) {
-            selectedNumbers.add(n);
+    const item = inputHistory.find(h => h.id === lastUndo.historyId);
+    if (item) {
+        lastUndo.numbers.forEach(n => { 
+            item.groupState[n] = true; 
             manuallyTurnedOff.delete(n);
-            const btn = document.querySelector(`.num-btn[data-num="${n}"]`);
-            if (btn) btn.classList.add('is-active');
-        }
-    });
-    syncSpecialWithSelected();
+            manuallyTurnedOn.delete(n);
+        });
+    }
+    recalcSelectedFromHistory();
     addLog("redo", `重做${lastUndo.label}`);
+    renderHistoryLog();
 } else if (lastUndo.type === 'history_label_off') {
-    lastUndo.numbers.forEach(n => {
-        if (selectedNumbers.has(n)) {
-            selectedNumbers.delete(n);
-            if (betResults[n] !== undefined) delete betResults[n];
-            bettingNumbers.delete(n);
-            manuallyTurnedOff.add(n);
-            const btn = document.querySelector(`.num-btn[data-num="${n}"]`);
-            if (btn) btn.classList.remove('is-active');
-        }
-    });
+    const item = inputHistory.find(h => h.id === lastUndo.historyId);
+    if (item) {
+        lastUndo.numbers.forEach(n => { item.groupState[n] = false; });
+    }
+    recalcSelectedFromHistory();
     addLog("redo", `重做${lastUndo.label}`);
+    renderHistoryLog();
 } else if (lastUndo.type === 'manual_toggle') {
 if (lastUndo.wasAdded) {
 selectedNumbers.add(lastUndo.number);
+syncGlobalStateToHistory([lastUndo.number], true);
 manuallyTurnedOff.delete(lastUndo.number);
+manuallyTurnedOn.add(lastUndo.number);
 } else {
 selectedNumbers.delete(lastUndo.number);
+syncGlobalStateToHistory([lastUndo.number], false);
 manuallyTurnedOff.add(lastUndo.number);
+manuallyTurnedOn.delete(lastUndo.number);
 }
 } else if (lastUndo.type === 'select_wave') {
 if (lastUndo.wasAdded) {
@@ -1965,14 +1987,17 @@ lastUndo.numbers.forEach(n => {
 selectedNumbers.add(n);
 manuallyTurnedOff.delete(n);
 });
+syncGlobalStateToHistory(lastUndo.numbers, true);
 addLog("redo", `重做点亮 ${lastUndo.label}`);
 } else {
 lastUndo.numbers.forEach(n => {
 selectedNumbers.delete(n);
 manuallyTurnedOff.add(n);
+manuallyTurnedOn.delete(n);
 if(betResults[n] !== undefined) delete betResults[n];
 bettingNumbers.delete(n);
 });
+syncGlobalStateToHistory(lastUndo.numbers, false);
 addLog("redo", `重做熄灭 ${lastUndo.label}`);
 }
 syncSpecialWithSelected();
@@ -1998,10 +2023,12 @@ addLog("redo", `重做清空结果`);
 } else {
 if (lastUndo.wasAdded) {
 lastUndo.numbers.forEach(n => { selectedNumbers.add(n); manuallyTurnedOff.delete(n); });
+syncGlobalStateToHistory(lastUndo.numbers, true);
 if (lastUndo.numbers.length === 1) { addLog("redo", `恢复选中 ${fmtNum(lastUndo.numbers[0])}`); }
 else { addLog("redo", `恢复点亮 ${lastUndo.label}`); }
 } else {
-lastUndo.numbers.forEach(n => { selectedNumbers.delete(n); manuallyTurnedOff.add(n); if(betResults[n] !== undefined) delete betResults[n]; bettingNumbers.delete(n); });
+lastUndo.numbers.forEach(n => { selectedNumbers.delete(n); manuallyTurnedOff.add(n); manuallyTurnedOn.delete(n); if(betResults[n] !== undefined) delete betResults[n]; bettingNumbers.delete(n); });
+syncGlobalStateToHistory(lastUndo.numbers, false);
 if (lastUndo.numbers.length === 1) { addLog("redo", `再次取消 ${fmtNum(lastUndo.numbers[0])}`); }
 else { addLog("redo", `再次杀掉 ${lastUndo.label}`); }
 }
@@ -2009,21 +2036,6 @@ syncSpecialWithSelected();
 }
 updateAllStates(false);
 save_data();
-}
-function rebuildSelectedFromHistory() {
-const historySelected = new Set();
-for (const item of inputHistory) {
-for (const num of item.sortedNumbers) {
-historySelected.add(num);
-}
-}
-selectedNumbers.clear();
-for (const num of historySelected) {
-if (!manuallyTurnedOff.has(num)) {
-selectedNumbers.add(num);
-}
-}
-syncSpecialWithSelected();
 }
 function recordAction(type, label, numbers, wasAdded, amount = 0, extraData = {}) {
 redoStack = [];
@@ -2055,10 +2067,12 @@ selectedNumbers.delete(n);
 if(betResults[n] !== undefined) delete betResults[n];
 bettingNumbers.delete(n);
 manuallyTurnedOff.add(n);
+manuallyTurnedOn.delete(n);
 const btn = document.querySelector(`.num-btn[data-num="${n}"]`);
 if (btn) btn.classList.remove('is-active');
 }
 });
+syncGlobalStateToHistory(removedNums, false);
 syncSpecialWithSelected();
 addLog("select", `已杀所有${label}`);
 updateAllStates(false);
@@ -2078,10 +2092,12 @@ selectedNumbers.delete(n);
 if(betResults[n] !== undefined) delete betResults[n];
 bettingNumbers.delete(n);
 manuallyTurnedOff.add(n);
+manuallyTurnedOn.delete(n);
 const btn = document.querySelector(`.num-btn[data-num="${n}"]`);
 if (btn) btn.classList.remove('is-active');
 }
 });
+syncGlobalStateToHistory(removedNums, false);
 syncSpecialWithSelected();
 addLog("select", `已杀所有${label}`);
 updateAllStates(false);
@@ -2101,10 +2117,12 @@ selectedNumbers.delete(n);
 if(betResults[n] !== undefined) delete betResults[n];
 bettingNumbers.delete(n);
 manuallyTurnedOff.add(n);
+manuallyTurnedOn.delete(n);
 const btn = document.querySelector(`.num-btn[data-num="${n}"]`);
 if (btn) btn.classList.remove('is-active');
 }
 });
+syncGlobalStateToHistory(removedNums, false);
 syncSpecialWithSelected();
 addLog("select", `已杀所有${label}`);
 updateAllStates(false);
@@ -2124,10 +2142,12 @@ selectedNumbers.delete(n);
 if(betResults[n] !== undefined) delete betResults[n];
 bettingNumbers.delete(n);
 manuallyTurnedOff.add(n);
+manuallyTurnedOn.delete(n);
 const btn = document.querySelector(`.num-btn[data-num="${n}"]`);
 if (btn) btn.classList.remove('is-active');
 }
 });
+syncGlobalStateToHistory(removedNums, false);
 syncSpecialWithSelected();
 addLog("select", `已杀所有${label}`);
 updateAllStates(false);
@@ -2147,10 +2167,12 @@ selectedNumbers.delete(n);
 if(betResults[n] !== undefined) delete betResults[n];
 bettingNumbers.delete(n);
 manuallyTurnedOff.add(n);
+manuallyTurnedOn.delete(n);
 const btn = document.querySelector(`.num-btn[data-num="${n}"]`);
 if (btn) btn.classList.remove('is-active');
 }
 });
+syncGlobalStateToHistory(removedNums, false);
 syncSpecialWithSelected();
 addLog("select", `已杀所有${label}`);
 updateAllStates(false);
@@ -2169,9 +2191,11 @@ selectedNumbers.delete(n);
 if(betResults[n] !== undefined) delete betResults[n];
 bettingNumbers.delete(n);
 manuallyTurnedOff.add(n);
+manuallyTurnedOn.delete(n);
 const btn = document.querySelector(`.num-btn[data-num="${n}"]`);
 if (btn) btn.classList.remove('is-active');
 });
+syncGlobalStateToHistory(toRemove, false);
 syncSpecialWithSelected();
 addLog("select", `取消${label}选中`);
 } else {
@@ -2185,6 +2209,7 @@ manuallyTurnedOff.delete(n);
 const btn = document.querySelector(`.num-btn[data-num="${n}"]`);
 if (btn) btn.classList.add('is-active');
 });
+syncGlobalStateToHistory(newNums, true);
 addLog("select", `选中所有${label}`);
 }
 updateAllStates(false);
@@ -2430,6 +2455,7 @@ manuallyTurnedOff.delete(n);
 const btn = document.querySelector(`.num-btn[data-num="${n}"]`);
 if (btn) btn.classList.add('is-active');
 });
+syncGlobalStateToHistory(toAdd, true);
 addLog("select", `点亮${getGroupLabel('parity', val)}`);
 } else {
 const toRemove = groupNums.filter(n => selectedNumbers.has(n));
@@ -2440,9 +2466,11 @@ selectedNumbers.delete(n);
 if(betResults[n] !== undefined) delete betResults[n];
 bettingNumbers.delete(n);
 manuallyTurnedOff.add(n);
+manuallyTurnedOn.delete(n);
 const btn = document.querySelector(`.num-btn[data-num="${n}"]`);
 if (btn) btn.classList.remove('is-active');
 });
+syncGlobalStateToHistory(toRemove, false);
 addLog("select", `熄灭${getGroupLabel('parity', val)}`);
 }
 syncSpecialWithSelected();
@@ -2560,15 +2588,7 @@ btn.classList.remove('is-depressed');
 }
 }
 function updateHistoryNumItemsFlatState() {
-document.querySelectorAll('.history-num-item').forEach(span => {
-const num = parseInt(span.textContent);
-const isLit = selectedNumbers.has(num);
-if (isLit) {
-span.classList.remove('flat');
-} else {
-span.classList.add('flat');
-}
-});
+// 历史记录小球不再与全局 selectedNumbers 联动，此函数保留但清空
 }
 function updateFrequencyButtonsPressedState() {
 const freqMap = calculateNumberFrequencies();
@@ -2631,7 +2651,6 @@ updateTempStoreBtn();
 updateTempRestoreBtn();
 updateTempClearBtn();
 updateBettingCountBadge();
-updateHistoryNumItemsFlatState();
 updateFrequencyButtonsPressedState();
 updateCopyButtonsState();
 updateSelectWaveButtonsState();
@@ -2840,7 +2859,10 @@ function calculateNumberFrequencies() {
 const freq = {};
 inputHistory.forEach(item => {
 item.sortedNumbers.forEach(num => {
+// 只统计处于点亮状态的号码
+if (item.groupState[num] === true) {
 freq[num] = (freq[num] || 0) + 1;
+}
 });
 });
 return freq;
@@ -2874,6 +2896,7 @@ return;
 const anyLit = targetNumbers.some(n => selectedNumbers.has(n));
 vibrate(30);
 const label = `${frequency}次重复号`;
+const newState = !anyLit;
 if (anyLit) {
 recordAction('freq_batch', label, targetNumbers, false, 0, { wasAdding: false });
 targetNumbers.forEach(n => {
@@ -2887,12 +2910,13 @@ const btn = document.querySelector(`.num-btn[data-num="${n}"]`);
 if (btn) btn.classList.remove('is-special');
 }
 manuallyTurnedOff.add(n);
+manuallyTurnedOn.delete(n);
 if (currentHighlightedNumber === n) currentHighlightedNumber = null;
 const btn = document.querySelector(`.num-btn[data-num="${n}"]`);
 if (btn) btn.classList.remove('is-active');
 }
 });
-syncSpecialWithSelected();
+syncGlobalStateToHistory(targetNumbers, false);
 addLog("select", `熄灭重复${frequency}次的号码`);
 } else {
 recordAction('freq_batch', label, targetNumbers, true, 0, { wasAdding: true });
@@ -2903,8 +2927,10 @@ if (currentHighlightedNumber === n) currentHighlightedNumber = null;
 const btn = document.querySelector(`.num-btn[data-num="${n}"]`);
 if (btn) btn.classList.add('is-active');
 });
+syncGlobalStateToHistory(targetNumbers, true);
 addLog("select", `点亮重复${frequency}次的号码`);
 }
+syncSpecialWithSelected();
 updateAllStates();
 setTimeout(() => {
     updateFrequencyButtonsPressedState();
@@ -2970,7 +2996,6 @@ return;
 }
 box.style.display = 'flex';
 box.innerHTML = '';
-const globalFreq = calculateNumberFrequencies();
 inputHistory.forEach((item, index) => {
 const row = document.createElement('div');
 row.className = 'history-row';
@@ -3000,7 +3025,7 @@ textSpan.className = 'label-text';
 textSpan.textContent = displayUnit;
 labelContainer.appendChild(textSpan);
 
-const allOff = item.sortedNumbers.every(n => !selectedNumbers.has(n));
+const allOff = item.sortedNumbers.every(n => !item.groupState[n]);
 if (allOff) {
     labelContainer.classList.add('all-lit');
 } else {
@@ -3009,35 +3034,24 @@ if (allOff) {
 
 labelContainer.onclick = () => {
     const nums = item.sortedNumbers;
-    const isAllOff = nums.every(n => !selectedNumbers.has(n));
+    const isAllOff = nums.every(n => !item.groupState[n]);
     
     if (isAllOff) {
-        const toAdd = nums.filter(n => !selectedNumbers.has(n));
-        toAdd.forEach(n => {
-            selectedNumbers.add(n);
+        nums.forEach(n => { 
+            item.groupState[n] = true; 
             manuallyTurnedOff.delete(n);
-            const btn = document.querySelector(`.num-btn[data-num="${n}"]`);
-            if (btn) btn.classList.add('is-active');
+            manuallyTurnedOn.delete(n);
         });
         labelContainer.classList.remove('all-lit');
-        recordAction('history_label_on', `点亮${item.labelPrefix}`, toAdd, true);
+        recordAction('history_label_on', `点亮${item.labelPrefix}`, nums, true, 0, { historyId: item.id });
         addLog("select", `点亮历史记录 ${item.labelPrefix}`);
     } else {
-        nums.forEach(n => {
-            if (selectedNumbers.has(n)) {
-                selectedNumbers.delete(n);
-                if (betResults[n] !== undefined) delete betResults[n];
-                bettingNumbers.delete(n);
-                manuallyTurnedOff.add(n);
-                const btn = document.querySelector(`.num-btn[data-num="${n}"]`);
-                if (btn) btn.classList.remove('is-active');
-            }
-        });
+        nums.forEach(n => { item.groupState[n] = false; });
         labelContainer.classList.add('all-lit');
-        recordAction('history_label_off', `熄灭${item.labelPrefix}`, nums, false);
+        recordAction('history_label_off', `熄灭${item.labelPrefix}`, nums, false, 0, { historyId: item.id });
         addLog("select", `熄灭历史记录 ${item.labelPrefix}`);
     }
-    syncSpecialWithSelected();
+    recalcSelectedFromHistory();
     updateAllStates();
 };
 
@@ -3045,10 +3059,10 @@ const numsDiv = document.createElement('div');
 numsDiv.className = 'history-nums';
 item.sortedNumbers.forEach((n) => {
 const span = document.createElement('span');
-const freq = globalFreq[n] || 1;
-const style = getFreqStyle(freq, globalFreqColorMap);
+const freq = calculateNumberFrequencies()[n] || 0;
+const style = getFreqStyle(freq || 1, globalFreqColorMap);
 span.className = `history-num-item`;
-const isLit = selectedNumbers.has(n);
+const isLit = item.groupState[n];
 if (!isLit) {
 span.classList.add('flat');
 }
@@ -3065,26 +3079,32 @@ span.style.textShadow = '0 1px 0 rgba(255,255,255,0.5)';
 span.style.textShadow = '0 1px 2px rgba(0,0,0,0.4)';
 }
 span.textContent = fmtNum(n);
-span.title = `出现 ${freq} 次 (点击切换高亮)`;
-span.onclick = (function(num) {
-return function(e) {
-e.stopPropagation();
-vibrate(15);
-if (selectedNumbers.has(num)) {
-const wasHighlighted = (currentHighlightedNumber === num);
-let newValue;
-if (wasHighlighted) {
-newValue = null;
-recordAction('global_highlight', `取消高亮${fmtNum(num)}`, [num], false, 0, { newValue: newValue, wasRemoved: true });
-} else {
-newValue = num;
-recordAction('global_highlight', `高亮${fmtNum(num)}`, [num], true, 0, { newValue: newValue, wasRemoved: false });
-}
-currentHighlightedNumber = newValue;
-renderHistoryLog();
-}
+span.title = `出现 ${freq} 次`;
+span.onclick = (e) => {
+    e.stopPropagation();
+    
+    // 清除所有高亮
+    document.querySelectorAll('.history-num-item.highlighted').forEach(el => {
+        el.classList.remove('highlighted');
+    });
+    
+    if (currentHighlightedNumber === n) {
+        currentHighlightedNumber = null;
+        recordAction('global_highlight', `取消高亮`, [n], false, 0, { newValue: null, wasRemoved: true });
+    } else {
+        currentHighlightedNumber = n;
+        
+        // 高亮所有历史记录中相同号码的小球
+        document.querySelectorAll('.history-num-item').forEach(el => {
+            if (parseInt(el.textContent) === n) {
+                el.classList.add('highlighted');
+            }
+        });
+        
+        recordAction('global_highlight', `高亮 ${fmtNum(n)}`, [n], true, 0, { newValue: n, wasRemoved: false });
+    }
+    save_data();
 };
-})(n);
 numsDiv.appendChild(span);
 });
 row.appendChild(delBtn);
@@ -3097,12 +3117,15 @@ function removeHistoryItem(index) {
 const item = inputHistory[index];
 if (!item) return;
 vibrate(20);
+
 recordAction('history_delete', '删除历史', [], false, 0, {
 index: index,
 deletedItem: item
 });
+
 inputHistory.splice(index, 1);
-rebuildSelectedFromHistory();
+recalcSelectedFromHistory();
+
 updateAllStates();
 addLog("input", `删除历史 ${item.numbers.length}码`);
 save_data();
@@ -3261,15 +3284,21 @@ updateAllStates();
 return;
 }
 if (!isCurrentlySelected) {
+// 手动点亮
 selectedNumbers.add(num);
 manuallyTurnedOff.delete(num);
+manuallyTurnedOn.add(num);
+syncGlobalStateToHistory([num], true);
 const btn = document.querySelector(`.num-btn[data-num="${num}"]`);
 if (btn) btn.classList.add('is-active');
 recordAction('manual_toggle', numStr, [num], true, 0, { number: num, wasAdded: true });
 addLog("select", `选中 ${numStr}`);
 } else {
+// 手动熄灭
 selectedNumbers.delete(num);
 manuallyTurnedOff.add(num);
+manuallyTurnedOn.delete(num);
+syncGlobalStateToHistory([num], false);
 if (bettingNumbers.has(num)) {
 bettingNumbers.delete(num);
 addLog("select", `取消待购 ${numStr}（因网格球熄灭）`);
@@ -3446,13 +3475,16 @@ if (digitCount === 0 && zodiacCount > 0) {
     labelPrefix = `${validNumbers.length}码`;
     isPureZodiac = false;
 }
+const groupState = {};
+sortedNums.forEach(n => { groupState[n] = true; });
 inputHistory.push({
 id: Date.now(),
 rawText: text,
 numbers: originalOrderNumbers,
 sortedNumbers: sortedNums,
 labelPrefix: labelPrefix,
-isPureZodiac: isPureZodiac
+isPureZodiac: isPureZodiac,
+groupState: groupState
 });
 if (changed) {
 if (newNums.length === 1) { recordAction('single', fmtNum(newNums[0]), newNums, true); }
@@ -3760,6 +3792,7 @@ tempStorageData = [];
 specialNumbersSet.clear();
 currentHighlightedNumber = null;
 manuallyTurnedOff.clear();
+manuallyTurnedOn.clear();
 globalFreqColorMap.clear();
 document.getElementById('smartInput').value = '';
 lastInputValue = '';
