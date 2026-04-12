@@ -381,22 +381,20 @@ position: relative; z-index: 2;
     transition: border-color 0.2s, box-shadow 0.2s;
     user-select: text;
     -webkit-user-select: text;
-    min-height: 28px;
+    height: 28px;
     line-height: 28px;
     resize: none;
     overflow-y: hidden;
     box-sizing: border-box;
 }
 .smart-input::placeholder {
-    color: #5a6a78;
+    color: #9a9a9a;
+    opacity: 1;
+    text-shadow: none;
+    font-weight: 700;
+    letter-spacing: normal;
     text-align: left;
     font-size: 0.7rem;
-    text-shadow: 
-        2px 2px 3px rgba(255,255,255,0.9),
-        -1px -1px 2px rgba(0,0,0,0.15);
-    opacity: 0.9;
-    font-weight: 700;
-    letter-spacing: 0.3px;
 }
 .smart-input:focus {
     border-color: var(--deep-blue-start);
@@ -1029,7 +1027,7 @@ border-radius: 50% !important;
     box-sizing: border-box;
     display: flex;
     flex-wrap: wrap;
-    align-items: flex-start;
+    align-items: center;
     word-wrap: break-word;
     word-break: break-word;
     overflow-wrap: break-word;
@@ -1037,6 +1035,9 @@ border-radius: 50% !important;
     height: auto;
     max-width: 100%;
     overflow: hidden;
+}
+.bet-nums-display span {
+    vertical-align: middle;
 }
 .bet-sep { color: #2d3748; margin: 0 1px; }
 .bet-multiply-sign {
@@ -1256,7 +1257,7 @@ line-height: 1.6;
     </div>
 </div>
 <div id="tempStorageContent" class="temp-storage-content">
-    <div style="color:#8a9aa8; font-size:0.7rem; font-weight:700; text-shadow:0 1px 0 rgba(255,255,255,0.8), 0 -1px 0 rgba(0,0,0,0.1); opacity:0.8;">暂无暂存号码</div>
+    <div style="color:#9a9a9a; opacity:1; text-shadow:none; font-weight:700; font-family:'Courier New', monospace; font-size:0.7rem;">暂无暂存号码</div>
 </div>
 <div class="bet-box-title">
 <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
@@ -1291,7 +1292,7 @@ line-height: 1.6;
 </div>
 <div style="font-size: 0.65rem; font-weight: 700; color: #4a5568; margin-bottom: 2px; display:flex; justify-content:space-between; align-items:center;">
 <span>操作记录</span>
-<span style="font-weight: 600; color: #718096;">V2.1</span>
+<span style="font-weight: 600; color: #718096;">V2.3</span>
 </div>
 <div class="log-container" id="logContainer"><div class="log-item" style="color:#718096; justify-content:center;">暂无记录</div></div>
 </div>
@@ -2719,12 +2720,14 @@ const input = document.getElementById('betAmountInput');
 area.style.display = 'flex';
 if (bettingNumbers.size === 0) {
 display.textContent = "暂无待购号码";
-display.style.color = "#8a9aa8";
+display.style.color = "#9a9a9a";
+display.style.opacity = "1";
+display.style.textShadow = "none";
+display.style.fontWeight = "700";
 display.style.fontSize = "0.7rem";
 display.style.fontFamily = "'Courier New', monospace";
-display.style.fontWeight = "700";
-display.style.textShadow = "0 1px 0 rgba(255,255,255,0.8), 0 -1px 0 rgba(0,0,0,0.1)";
-display.style.opacity = "0.8";
+display.style.display = "flex";
+display.style.alignItems = "center";
 input.value = "";
 } else {
 const sortedNums = Array.from(bettingNumbers).sort((a,b)=>a-b);
@@ -2741,6 +2744,8 @@ display.style.fontFamily = "";
 display.style.fontWeight = "";
 display.style.textShadow = "";
 display.style.opacity = "";
+display.style.display = "flex";
+display.style.alignItems = "center";
 }
 }
 function updateBettingCountBadge() {
@@ -2787,7 +2792,7 @@ totalAmountSpan.textContent = `共 ${totalMoney} 元`;
 container.style.display = 'block';
 itemsDiv.innerHTML = '';
 if (keys.length === 0) {
-itemsDiv.innerHTML = '<span style="color:#8a9aa8; font-size:0.7rem; font-family:\'Courier New\', monospace; font-weight:700; text-shadow:0 1px 0 rgba(255,255,255,0.8), 0 -1px 0 rgba(0,0,0,0.1); opacity:0.8;">暂无买号记录</span>';
+itemsDiv.innerHTML = '<span style="color:#9a9a9a; opacity:1; text-shadow:none; font-weight:700; font-family:\'Courier New\', monospace; font-size:0.7rem;">暂无买号记录</span>';
 return;
 }
 const amountGroups = {};
@@ -3040,10 +3045,11 @@ const span = document.createElement('span');
 const freq = calculateNumberFrequencies()[n] || 0;
 const style = getFreqStyle(freq || 1, globalFreqColorMap);
 span.className = `history-num-item`;
-if (!item.isActive) {
+const isLit = item.isActive && selectedNumbers.has(n);
+if (!isLit) {
 span.classList.add('flat');
 }
-if (currentHighlightedNumber === n && item.isActive) {
+if (currentHighlightedNumber === n && isLit) {
 span.classList.add('highlighted');
 } else {
 span.classList.remove('highlighted');
@@ -3119,12 +3125,12 @@ const count = selectedNumbers.size;
 countBadge.textContent = count + '个';
 if (count === 0) {
 resultDiv.textContent = "暂无已选号码";
-resultDiv.style.color = "#8a9aa8";
-resultDiv.style.fontFamily = "'Courier New', Courier, monospace";
-resultDiv.style.fontSize = "0.7rem";
+resultDiv.style.color = "#9a9a9a";
+resultDiv.style.opacity = "1";
+resultDiv.style.textShadow = "none";
 resultDiv.style.fontWeight = "700";
-resultDiv.style.textShadow = "0 1px 0 rgba(255,255,255,0.8), 0 -1px 0 rgba(0,0,0,0.1)";
-resultDiv.style.opacity = "0.8";
+resultDiv.style.fontSize = "0.7rem";
+resultDiv.style.fontFamily = "'Courier New', Courier, monospace";
 resultDiv.style.textAlign = "left";
 return;
 }
@@ -3481,7 +3487,7 @@ function renderTempStorage() {
 const container = document.getElementById('tempStorageContent');
 if (!container) return;
 if (tempStorageData.length === 0) {
-container.innerHTML = '<div style="color:#8a9aa8; font-size:0.7rem; font-weight:700; text-shadow:0 1px 0 rgba(255,255,255,0.8), 0 -1px 0 rgba(0,0,0,0.1); opacity:0.8;">暂无暂存号码</div>';
+container.innerHTML = '<div style="color:#9a9a9a; opacity:1; text-shadow:none; font-weight:700; font-family:\'Courier New\', monospace; font-size:0.7rem;">暂无暂存号码</div>';
 return;
 }
 const sortedNums = [...tempStorageData].sort((a, b) => a.num - b.num);
