@@ -748,15 +748,16 @@ margin-top: 2px;
 color: #4a5568;
 white-space: nowrap;
 font-weight: 800;
-line-height: 1;
+line-height: 1.5em;
 margin-top: 0;
 display: flex;
 align-items: center;
 justify-content: center;
 gap: 0px;
-padding: 0;
-width: 2.75em;
-height: 1.5em;
+padding: 0 6px;
+width: auto;
+min-width: 2.75em;
+height: 1.8em;
 box-sizing: border-box;
 border-radius: 12px;
 background: radial-gradient(circle at 30% 30%, #f7fafc 0%, #cbd5e0 40%, #a0aec0 100%);
@@ -765,6 +766,7 @@ cursor: pointer;
 transition: all 0.15s;
 color: #2d3e50;
 text-shadow: 0 1px 0 rgba(255,255,255,0.7);
+font-size: 0.8rem;
 }
 .history-label.all-lit {
 background: #cbd5e0 !important;
@@ -776,14 +778,13 @@ opacity: 0.6 !important;
 }
 .history-label .label-number,
 .history-label .label-text {
+display: inline-block;
+line-height: 1;
+vertical-align: middle;
 color: inherit;
 }
 .history-label .label-number {
-display: inline-block;
 font-weight: 900;
-}
-.history-label .label-text {
-display: inline-block;
 }
 .history-nums {
 display: flex;
@@ -924,6 +925,7 @@ line-height: 1.4;
 color: #2d3748;
 background: rgba(248, 249, 250, 0.8);
 padding: 8px;
+padding-left: 0;
 border-radius: 6px;
 margin-bottom: 8px;
 border: 1px solid #e2e8f0;
@@ -942,10 +944,10 @@ gap: 0.8em;
 display: flex;
 flex-wrap: wrap;
 gap: 0.6em;
-align-items: center;
+align-items: flex-start;
 min-height: 1.6em;
 margin-bottom: 0.6em;
-padding-left: 0;
+padding-left: calc(2.8rem + 0.6em);
 }
 .result-column:last-child {
 margin-bottom: 0;
@@ -958,6 +960,7 @@ white-space: nowrap;
 width: 2.8rem;
 text-align: right;
 flex-shrink: 0;
+margin-left: calc(-2.8rem - 0.6em);
 }
 .list-num-base {
 display: inline-flex !important;
@@ -1134,6 +1137,7 @@ line-height: 1.6;
     color: #2d3748;
     background: rgba(248, 249, 250, 0.8);
     padding: 8px;
+    padding-left: 0;
     border-radius: 6px;
     border: 1px solid #e2e8f0;
     font-weight: 700;
@@ -1156,9 +1160,10 @@ line-height: 1.6;
     display: flex;
     flex-wrap: wrap;
     gap: 0.6em;
-    align-items: center;
+    align-items: flex-start;
     min-height: 1.6em;
-    padding-left: 0;
+    margin-bottom: 0.6em;
+    padding-left: calc(2.8rem + 0.6em);
 }
 .temp-storage-label {
     font-size: 0.75rem;
@@ -1168,6 +1173,7 @@ line-height: 1.6;
     width: 2.8rem;
     text-align: right;
     flex-shrink: 0;
+    margin-left: calc(-2.8rem - 0.6em);
 }
 .temp-num-item {
     display: inline-flex !important;
