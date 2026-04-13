@@ -1338,7 +1338,7 @@ line-height: 1.6;
 </div>
 <div style="font-size: 0.65rem; font-weight: 700; color: #4a5568; margin-bottom: 2px; display:flex; justify-content:space-between; align-items:center;">
 <span>操作记录</span>
-<span style="font-weight: 600; color: #718096;">V2.33</span>
+<span style="font-weight: 600; color: #718096;">V2.0</span>
 </div>
 <div class="log-container" id="logContainer"><div class="log-item" style="color:#718096; justify-content:center;">暂无记录</div></div>
 </div>
@@ -1754,6 +1754,7 @@ addLog("undo", `恢复待购 ${lastAction.label}`);
     });
     addLog("undo", `撤销清空待购`);
 } else if (lastAction.type === 'freq_batch') {
+const originalSpecial = lastAction.originalSpecial || [];
 if (lastAction.wasAdded) {
 lastAction.numbers.forEach(n => selectedNumbers.delete(n));
 syncGlobalStateToHistory(lastAction.numbers, false);
@@ -1763,6 +1764,13 @@ lastAction.numbers.forEach(n => selectedNumbers.add(n));
 syncGlobalStateToHistory(lastAction.numbers, true);
 addLog("undo", `撤销熄 ${lastAction.label}`);
 }
+originalSpecial.forEach(n => {
+if (!specialNumbersSet.has(n)) {
+specialNumbersSet.add(n);
+const btn = document.querySelector(`.num-btn[data-num="${n}"]`);
+if (btn) btn.classList.add('is-special');
+}
+});
 if (currentHighlightedNumber !== null && lastAction.numbers.includes(currentHighlightedNumber)) {
 currentHighlightedNumber = null;
 }
@@ -1813,6 +1821,12 @@ addLog("undo", `撤销亮 ${lastAction.label}`);
 } else {
 lastAction.numbers.forEach(n => {
 selectedNumbers.add(n);
+});
+const betStates = lastAction.betStates || {};
+const bettingStates = lastAction.bettingStates || {};
+lastAction.numbers.forEach(n => {
+if (betStates[n] !== undefined) betResults[n] = betStates[n];
+if (bettingStates[n]) bettingNumbers.add(n);
 });
 syncGlobalStateToHistory(lastAction.numbers, true);
 addLog("undo", `撤销熄 ${lastAction.label}`);
@@ -1979,6 +1993,7 @@ addLog("redo", `重做取消待购 ${lastUndo.label}`);
     });
     addLog("redo", `重做清空待购`);
 } else if (lastUndo.type === 'freq_batch') {
+const originalSpecial = lastUndo.originalSpecial || [];
 if (lastUndo.wasAdded) {
 lastUndo.numbers.forEach(n => selectedNumbers.add(n));
 syncGlobalStateToHistory(lastUndo.numbers, true);
@@ -1988,6 +2003,13 @@ lastUndo.numbers.forEach(n => selectedNumbers.delete(n));
 syncGlobalStateToHistory(lastUndo.numbers, false);
 addLog("redo", `重做熄 ${lastUndo.label}`);
 }
+originalSpecial.forEach(n => {
+if (!specialNumbersSet.has(n)) {
+specialNumbersSet.add(n);
+const btn = document.querySelector(`.num-btn[data-num="${n}"]`);
+if (btn) btn.classList.add('is-special');
+}
+});
 if (currentHighlightedNumber !== null && lastUndo.numbers.includes(currentHighlightedNumber)) {
 currentHighlightedNumber = null;
 }
@@ -2038,6 +2060,12 @@ lastUndo.numbers.forEach(n => {
 selectedNumbers.delete(n);
 if(betResults[n] !== undefined) delete betResults[n];
 bettingNumbers.delete(n);
+});
+const betStates = lastUndo.betStates || {};
+const bettingStates = lastUndo.bettingStates || {};
+lastUndo.numbers.forEach(n => {
+if (betStates[n] !== undefined) betResults[n] = betStates[n];
+if (bettingStates[n]) bettingNumbers.add(n);
 });
 syncGlobalStateToHistory(lastUndo.numbers, false);
 addLog("redo", `重做熄 ${lastUndo.label}`);
@@ -2477,7 +2505,7 @@ const wasAdding = !allLit;
 if (wasAdding) {
 const toAdd = groupNums.filter(n => !selectedNumbers.has(n));
 if (toAdd.length === 0) return;
-recordAction('select_wave', getGroupLabel('parity', val), toAdd, true);
+recordAction('select_wave', getGroupLabel('parity', val), toAdd, true, 0, { wasAdding: true });
 toAdd.forEach(n => {
 selectedNumbers.add(n);
 const btn = document.querySelector(`.num-btn[data-num="${n}"]`);
@@ -2488,7 +2516,17 @@ addLog("select", `亮${getGroupLabel('parity', val)}`);
 } else {
 const toRemove = groupNums.filter(n => selectedNumbers.has(n));
 if (toRemove.length === 0) return;
-recordAction('select_wave', getGroupLabel('parity', val), toRemove, false);
+const betStates = {};
+const bettingStates = {};
+toRemove.forEach(n => {
+betStates[n] = betResults[n];
+bettingStates[n] = bettingNumbers.has(n);
+});
+recordAction('select_wave', getGroupLabel('parity', val), toRemove, false, 0, {
+wasAdding: false,
+betStates: betStates,
+bettingStates: bettingStates
+});
 toRemove.forEach(n => {
 selectedNumbers.delete(n);
 if(betResults[n] !== undefined) delete betResults[n];
@@ -2924,9 +2962,9 @@ return;
 const anyLit = targetNumbers.some(n => selectedNumbers.has(n));
 vibrate(30);
 const label = `${frequency}次重复号`;
-const newState = !anyLit;
+const originalSpecial = targetNumbers.filter(n => specialNumbersSet.has(n));
 if (anyLit) {
-recordAction('freq_batch', label, targetNumbers, false, 0, { wasAdding: false });
+recordAction('freq_batch', label, targetNumbers, false, 0, { wasAdding: false, originalSpecial: originalSpecial });
 targetNumbers.forEach(n => {
 if (selectedNumbers.has(n)) {
 selectedNumbers.delete(n);
@@ -2945,7 +2983,7 @@ if (btn) btn.classList.remove('is-active');
 syncGlobalStateToHistory(targetNumbers, false);
 addLog("select", `熄${label}`);
 } else {
-recordAction('freq_batch', label, targetNumbers, true, 0, { wasAdding: true });
+recordAction('freq_batch', label, targetNumbers, true, 0, { wasAdding: true, originalSpecial: originalSpecial });
 targetNumbers.forEach(n => {
 selectedNumbers.add(n);
 if (currentHighlightedNumber === n) currentHighlightedNumber = null;
