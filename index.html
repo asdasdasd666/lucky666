@@ -312,47 +312,6 @@ font-weight: 900;
     filter: brightness(0.85);
 }
 
-/* 蓝色随机按钮 */
-.blue-random-btn {
-    width: calc(var(--btn-size) * 2 + var(--btn-gap));
-    height: var(--btn-size);
-    border: none;
-    border-radius: 6px;
-    background: linear-gradient(145deg, #4299e1, #2b6cb0) !important;
-    color: white;
-    font-size: 0.75rem;
-    font-weight: 900;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    box-shadow: 0 3px 0 rgba(0,0,0,0.2), inset 0 1px 2px rgba(255,255,255,0.3) !important;
-    transition: all 0.1s;
-    flex-shrink: 0;
-    user-select: none;
-    -webkit-user-select: none;
-    padding: 0 2px;
-    margin-left: auto;
-}
-.blue-random-btn:active {
-    background: linear-gradient(145deg, #2b6cb0, #1a4f8a) !important;
-    transform: translateY(3px);
-    box-shadow: inset 0 1px 2px rgba(255,255,255,0.3) !important;
-}
-.blue-random-btn.disabled {
-    background: #cbd5e0 !important;
-    color: #718096 !important;
-    opacity: 0.5 !important;
-    cursor: not-allowed !important;
-    box-shadow: none !important;
-    pointer-events: auto !important;
-}
-.blue-random-btn.disabled:active {
-    transform: none !important;
-    background: #cbd5e0 !important;
-    box-shadow: none !important;
-}
-
 .input-area-container {
 width: 100%;
 margin: 8px 0 0 0;
@@ -1227,6 +1186,47 @@ line-height: 1.6;
     vertical-align: middle !important;
     cursor: default !important;
 }
+
+/* 蓝色随机按钮 */
+.blue-random-btn {
+    width: calc(var(--btn-size) * 2 + var(--btn-gap));
+    height: var(--btn-size);
+    border: none;
+    border-radius: 6px;
+    background: linear-gradient(145deg, #4299e1, #2b6cb0) !important;
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 900;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 3px 0 rgba(0,0,0,0.2), inset 0 1px 2px rgba(255,255,255,0.3) !important;
+    transition: all 0.1s;
+    flex-shrink: 0;
+    user-select: none;
+    -webkit-user-select: none;
+    padding: 0 2px;
+    margin-left: auto;
+}
+.blue-random-btn:active {
+    background: linear-gradient(145deg, #2b6cb0, #1a4f8a) !important;
+    transform: translateY(3px);
+    box-shadow: inset 0 1px 2px rgba(255,255,255,0.3) !important;
+}
+.blue-random-btn.disabled {
+    background: #cbd5e0 !important;
+    color: #718096 !important;
+    opacity: 0.5 !important;
+    cursor: not-allowed !important;
+    box-shadow: none !important;
+    pointer-events: auto !important;
+}
+.blue-random-btn.disabled:active {
+    transform: none !important;
+    background: #cbd5e0 !important;
+    box-shadow: none !important;
+}
 </style>
 </head>
 <body>
@@ -1334,7 +1334,7 @@ line-height: 1.6;
 </div>
 <div style="font-size: 0.65rem; font-weight: 700; color: #4a5568; margin-bottom: 2px; display:flex; justify-content:space-between; align-items:center;">
 <span>操作记录</span>
-<span style="font-weight: 600; color: #718096;">V2.3</span>
+<span style="font-weight: 600; color: #718096;">V2.31</span>
 </div>
 <div class="log-container" id="logContainer"><div class="log-item" style="color:#718096; justify-content:center;">暂无记录</div></div>
 </div>
@@ -1370,29 +1370,6 @@ let currentHighlightedNumber = null;
 let numberSources = new Map();
 let lastInputValue = '';
 
-// 跑马灯动画相关变量
-let isAnimationRunning = false;
-let animationTimer = null;
-let currentHighlightBtn = null;
-
-// 顺时针巡游路线（07 → 30）
-const clockwiseRoute = [
-    7, 6, 5, 4, 3, 2, 1, 12, 11, 10, 9, 8, 20, 32, 44,
-    45, 46, 47, 48, 49, 37, 38, 39, 40, 41, 42,
-    43, 31, 19, 18, 17, 16, 15, 14, 13,
-    24, 23, 22, 21, 33, 34, 35, 36,
-    25, 26, 27, 28, 29, 30
-];
-
-// 逆时针巡游路线（第二阶段：30 → 07）
-const counterClockwiseRoute = [
-    30, 29, 28, 27, 26, 25, 36, 35, 34, 33,
-    21, 22, 23, 24, 13, 14, 15, 16, 17, 18, 19,
-    31, 43, 42, 41, 40, 39, 38, 37, 49, 48, 47, 46,
-    45, 44, 32, 20, 8, 9, 10, 11, 12, 1,
-    2, 3, 4, 5, 6, 7
-];
-
 const ZODIAC_MAP = { "鼠":0, "牛":1, "虎":2, "兔":3, "龙":4, "蛇":5, "马":6, "羊":7, "猴":8, "鸡":9, "狗":10, "猪":11, "免":3 };
 
 const freqColorPalette = [
@@ -1409,354 +1386,6 @@ const freqColorPalette = [
 ];
 
 let globalFreqColorMap = new Map();
-
-// 蓝色随机按钮处理函数
-function handleBlueRandom() {
-    if (isAnimationRunning) {
-        showToast("⚠️ 随机选号中");
-        return;
-    }
-    
-    // 检查是否有已选号码
-    if (selectedNumbers.size > 0) {
-        const shouldClear = confirm("检测到已选号码，是否清空？");
-        if (shouldClear) {
-            // 清空已选号码
-            selectedNumbers.clear();
-            bettingNumbers.clear();
-            betResults = {};
-            specialNumbersSet.clear();
-            updateAllStates();
-            addLog("clear", "清空已选号码准备随机");
-        } else {
-            // 用户点取消，询问是否保留
-            const shouldKeep = confirm("是否保留已有号码继续随机？");
-            if (!shouldKeep) {
-                return;  // 退出随机
-            }
-            // 保留号码，继续往下
-        }
-    }
-    
-    const input = prompt("请输入随机号码数量（1-49）", "");
-    if (input === null) return;
-    
-    const count = parseInt(input);
-    if (isNaN(count) || count < 1 || count > 49) {
-        showToast("⚠️ 请输入1-49之间的数字");
-        return;
-    }
-    
-    // 禁用随机按钮
-    const btn = document.getElementById('blueRandomBtn');
-    btn.classList.add('disabled');
-    
-    // 开始动画（直接从第一阶段顺时针巡游开始）
-    startMarqueeAnimation(count);
-}
-
-// 跑马灯动画主函数
-function startMarqueeAnimation(count) {
-    isAnimationRunning = true;
-    
-    // 清除所有金色高亮
-    document.querySelectorAll('.num-btn.gold-highlight').forEach(btn => {
-        btn.classList.remove('gold-highlight');
-    });
-    
-    // 第一阶段：顺时针巡游到30（2秒，由慢变快）
-    // 每次只亮1个号码，保持1个亮
-    function phase1() {
-        let step = 0;
-        const totalSteps = clockwiseRoute.length;
-        const startTime = Date.now();
-        const duration = 2000; // 2秒
-        let currentNum = null;
-        
-        function runStep() {
-            const elapsed = Date.now() - startTime;
-            const progress = Math.min(elapsed / duration, 1);
-            // 缓动函数：由慢变快
-            const easeProgress = progress * progress;
-            const targetStep = Math.floor(easeProgress * totalSteps);
-            
-            while (step < targetStep && step < totalSteps) {
-                const newNum = clockwiseRoute[step];
-                
-                // 熄灭上一个
-                if (currentNum !== null) {
-                    const oldBtn = document.querySelector(`.num-btn[data-num="${currentNum}"]`);
-                    if (oldBtn) oldBtn.classList.remove('gold-highlight');
-                }
-                
-                // 点亮新的
-                const newBtn = document.querySelector(`.num-btn[data-num="${newNum}"]`);
-                if (newBtn) {
-                    newBtn.classList.add('gold-highlight');
-                    vibrate(5);
-                }
-                currentNum = newNum;
-                step++;
-            }
-            
-            if (step < totalSteps) {
-                setTimeout(runStep, 20);
-            } else {
-                // 熄灭最后一个
-                if (currentNum !== null) {
-                    const oldBtn = document.querySelector(`.num-btn[data-num="${currentNum}"]`);
-                    if (oldBtn) oldBtn.classList.remove('gold-highlight');
-                }
-                // 第一阶段完成，开始第二阶段
-                setTimeout(phase2, 100);
-            }
-        }
-        
-        runStep();
-    }
-    
-    // 第二阶段：逆时针回到07（保持最快速度，每次只亮1个）
-    function phase2() {
-        let step = 0;
-        const totalSteps = counterClockwiseRoute.length;
-        const speed = 30; // 最快速度
-        let currentNum = null;
-        
-        function runStep() {
-            if (step < totalSteps) {
-                const newNum = counterClockwiseRoute[step];
-                
-                // 熄灭上一个
-                if (currentNum !== null) {
-                    const oldBtn = document.querySelector(`.num-btn[data-num="${currentNum}"]`);
-                    if (oldBtn) oldBtn.classList.remove('gold-highlight');
-                }
-                
-                // 点亮新的
-                const newBtn = document.querySelector(`.num-btn[data-num="${newNum}"]`);
-                if (newBtn) {
-                    newBtn.classList.add('gold-highlight');
-                    vibrate(5);
-                }
-                currentNum = newNum;
-                step++;
-                
-                setTimeout(runStep, speed);
-            } else {
-                // 熄灭最后一个
-                if (currentNum !== null) {
-                    const oldBtn = document.querySelector(`.num-btn[data-num="${currentNum}"]`);
-                    if (oldBtn) oldBtn.classList.remove('gold-highlight');
-                }
-                
-                // 第二阶段完成，开始第三阶段
-                setTimeout(phase3, 500);
-            }
-        }
-        
-        runStep();
-    }
-    
-    // 第三阶段：生肖跑马灯（4趟，每趟0.5秒，每次亮3个相邻生肖）
-    function phase3() {
-        let round = 0;
-        const directions = [
-            { dir: 1, desc: '左→右' },
-            { dir: -1, desc: '右→左' },
-            { dir: 1, desc: '左→右' },
-            { dir: -1, desc: '右→左' }
-        ];
-        
-        function runRound() {
-            if (round < 4) {
-                const direction = directions[round];
-                let currentIndices = direction.dir === 1 ? [0, 1, 2] : [11, 10, 9];
-                
-                const startTime = Date.now();
-                const duration = 500; // 0.5秒
-                
-                function runStep() {
-                    const elapsed = Date.now() - startTime;
-                    const progress = Math.min(elapsed / duration, 1);
-                    
-                    let targetOffset;
-                    if (direction.dir === 1) {
-                        targetOffset = Math.floor(progress * 12);
-                    } else {
-                        targetOffset = Math.floor(progress * 12);
-                    }
-                    
-                    // 计算目标位置
-                    let targetIndices;
-                    if (direction.dir === 1) {
-                        targetIndices = [
-                            Math.min(targetOffset, 11),
-                            Math.min(targetOffset + 1, 11),
-                            Math.min(targetOffset + 2, 11)
-                        ];
-                    } else {
-                        targetIndices = [
-                            Math.max(11 - targetOffset, 0),
-                            Math.max(10 - targetOffset, 0),
-                            Math.max(9 - targetOffset, 0)
-                        ];
-                    }
-                    
-                    // 检查是否需要更新
-                    const needUpdate = !currentIndices.every((idx, i) => idx === targetIndices[i]);
-                    
-                    if (needUpdate) {
-                        // 熄灭旧列
-                        currentIndices.forEach(idx => {
-                            if (idx >= 0 && idx < 12) {
-                                customGridRows.forEach(row => {
-                                    const num = row[idx];
-                                    if (num !== null) {
-                                        const btn = document.querySelector(`.num-btn[data-num="${num}"]`);
-                                        if (btn) btn.classList.remove('gold-highlight');
-                                    }
-                                });
-                            }
-                        });
-                        
-                        // 点亮新列
-                        targetIndices.forEach(idx => {
-                            if (idx >= 0 && idx < 12) {
-                                customGridRows.forEach(row => {
-                                    const num = row[idx];
-                                    if (num !== null) {
-                                        const btn = document.querySelector(`.num-btn[data-num="${num}"]`);
-                                        if (btn) {
-                                            btn.classList.add('gold-highlight');
-                                        }
-                                    }
-                                });
-                            }
-                        });
-                        
-                        vibrate(10);
-                        currentIndices = [...targetIndices];
-                    }
-                    
-                    if (progress < 1) {
-                        setTimeout(runStep, 20);
-                    } else {
-                        // 熄灭当前列
-                        currentIndices.forEach(idx => {
-                            if (idx >= 0 && idx < 12) {
-                                customGridRows.forEach(row => {
-                                    const num = row[idx];
-                                    if (num !== null) {
-                                        const btn = document.querySelector(`.num-btn[data-num="${num}"]`);
-                                        if (btn) btn.classList.remove('gold-highlight');
-                                    }
-                                });
-                            }
-                        });
-                        
-                        round++;
-                        setTimeout(runRound, 50);
-                    }
-                }
-                
-                runStep();
-            } else {
-                // 第三阶段完成，开始第四阶段
-                setTimeout(phase4, 500);
-            }
-        }
-        
-        runRound();
-    }
-    
-    // 第四阶段：全号码快速轮闪金色（2秒，由快到慢）
-    function phase4() {
-        const allNumbers = [];
-        for (let i = 1; i <= 49; i++) allNumbers.push(i);
-        
-        let currentNum = null;
-        const startTime = Date.now();
-        const duration = 2000; // 2秒
-        
-        function runStep() {
-            const elapsed = Date.now() - startTime;
-            const progress = Math.min(elapsed / duration, 1);
-            // 由快到慢：速度逐渐降低
-            const speed = Math.max(30, Math.floor(150 * progress));
-            
-            if (progress < 1) {
-                // 熄灭上一个
-                if (currentNum !== null) {
-                    const oldBtn = document.querySelector(`.num-btn[data-num="${currentNum}"]`);
-                    if (oldBtn) oldBtn.classList.remove('gold-highlight');
-                }
-                
-                // 随机点亮一个
-                const randomIdx = Math.floor(Math.random() * 49);
-                const num = allNumbers[randomIdx];
-                const btn = document.querySelector(`.num-btn[data-num="${num}"]`);
-                if (btn) {
-                    btn.classList.add('gold-highlight');
-                    currentNum = num;
-                    vibrate(5);
-                }
-                
-                setTimeout(runStep, speed);
-            } else {
-                // 第四阶段完成
-                if (currentNum !== null) {
-                    const oldBtn = document.querySelector(`.num-btn[data-num="${currentNum}"]`);
-                    if (oldBtn) oldBtn.classList.remove('gold-highlight');
-                }
-                
-                // 第五阶段：随机点亮N个号码
-                setTimeout(() => phase5(count), 500);
-            }
-        }
-        
-        runStep();
-    }
-    
-    // 第五阶段：随机点亮N个号码（普通点亮）
-    function phase5(count) {
-        // 生成1-49的随机数组
-        const allNumbers = [];
-        for (let i = 1; i <= 49; i++) allNumbers.push(i);
-        
-        // 打乱数组
-        for (let i = allNumbers.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [allNumbers[i], allNumbers[j]] = [allNumbers[j], allNumbers[i]];
-        }
-        
-        // 取前count个
-        const selectedNums = allNumbers.slice(0, count);
-        
-        // 点亮这些号码
-        selectedNums.forEach(num => {
-            if (!selectedNumbers.has(num)) {
-                selectedNumbers.add(num);
-                const btn = document.querySelector(`.num-btn[data-num="${num}"]`);
-                if (btn) btn.classList.add('is-active');
-            }
-        });
-        
-        // 更新UI
-        updateAllStates();
-        
-        // 启用按钮
-        const btn = document.getElementById('blueRandomBtn');
-        btn.classList.remove('disabled');
-        isAnimationRunning = false;
-        
-        addLog("random", `随机点亮 ${count} 个号码`);
-        showToast(`✅ 已随机点亮 ${count} 个号码`);
-        save_data();
-    }
-    
-    // 开始动画
-    phase1();
-}
 
 function syncGlobalStateToHistory(targetNumbers, newState) {
     inputHistory.forEach(item => {
@@ -4270,6 +3899,276 @@ setTimeout(runAnimation, speed);
 };
 runAnimation();
 }
+
+// ==================== 新增：随机动画功能 ====================
+
+let isAnimationRunning = false;
+
+const clockwiseRoute = [7, 6, 5, 4, 3, 2, 1, 12, 11, 10, 9, 8, 20, 32, 44, 45, 46, 47, 48, 49, 37, 38, 39, 40, 41, 42, 43, 31, 19, 18, 17, 16, 15, 14, 13, 24, 23, 22, 21, 33, 34, 35, 36, 25, 26, 27, 28, 29, 30];
+const counterClockwiseRoute = [30, 29, 28, 27, 26, 25, 36, 35, 34, 33, 21, 22, 23, 24, 13, 14, 15, 16, 17, 18, 19, 31, 43, 42, 41, 40, 39, 38, 37, 49, 48, 47, 46, 45, 44, 32, 20, 8, 9, 10, 11, 12, 1, 2, 3, 4, 5, 6, 7];
+const firstPhaseRoute = [7, 6, 5, 4, 3, 2];
+const allNumbersList = Array.from({length: 49}, (_, i) => i + 1);
+
+function clearAllGoldHighlights() {
+    document.querySelectorAll('.num-btn.gold-highlight').forEach(btn => btn.classList.remove('gold-highlight'));
+}
+
+function finalizeRandomNumbers(count) {
+    const shuffled = [...allNumbersList];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    const selectedNums = shuffled.slice(0, count);
+    const newNums = [];
+    selectedNums.forEach(num => {
+        if (!selectedNumbers.has(num)) {
+            selectedNumbers.add(num);
+            newNums.push(num);
+            const btn = document.querySelector(`.num-btn[data-num="${num}"]`);
+            if (btn) btn.classList.add('is-active');
+        }
+    });
+    if (newNums.length > 0) {
+        recordAction('batch_input', `随机${newNums.length}个号码`, newNums, true);
+    }
+    updateAllStates();
+    const btn = document.getElementById('blueRandomBtn');
+    btn.classList.remove('disabled');
+    isAnimationRunning = false;
+    addLog("random", `随机点亮 ${newNums.length} 个号码`);
+    showToast(`✅ 已随机点亮 ${newNums.length} 个号码`);
+    save_data();
+}
+
+// 1. 跑马灯巡游（完整版）
+function animationScheme1(count, callback) {
+    const N = Math.min(count, 6);
+    clearAllGoldHighlights();
+    let phase1Index = 0;
+    const litNumbers = [];
+    function phase1() {
+        if (phase1Index < N) {
+            const num = firstPhaseRoute[phase1Index];
+            const btn = document.querySelector(`.num-btn[data-num="${num}"]`);
+            if (btn) { btn.classList.add('gold-highlight'); litNumbers.push(num); vibrate(10); }
+            phase1Index++;
+            setTimeout(phase1, 1000);
+        } else setTimeout(phase2, 1000);
+    }
+    function phase2() {
+        let step = 0; const totalSteps = clockwiseRoute.length;
+        const startTime = Date.now(); const duration = 1000;
+        function runStep() {
+            const elapsed = Date.now() - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            const targetStep = Math.floor(progress * progress * totalSteps);
+            while (step < targetStep && step < totalSteps) {
+                const newNum = clockwiseRoute[step];
+                if (litNumbers.length >= N) { const oldNum = litNumbers.shift(); const oldBtn = document.querySelector(`.num-btn[data-num="${oldNum}"]`); if (oldBtn) oldBtn.classList.remove('gold-highlight'); }
+                const newBtn = document.querySelector(`.num-btn[data-num="${newNum}"]`); if (newBtn) { newBtn.classList.add('gold-highlight'); vibrate(5); }
+                litNumbers.push(newNum); step++;
+            }
+            if (step < totalSteps) setTimeout(runStep, 20);
+            else { litNumbers.forEach(num => { const btn = document.querySelector(`.num-btn[data-num="${num}"]`); if (btn) btn.classList.remove('gold-highlight'); }); litNumbers.length = 0; setTimeout(phase3, 500); }
+        }
+        runStep();
+    }
+    function phase3() {
+        let step = 0; const totalSteps = counterClockwiseRoute.length; const speed = 30;
+        function runStep() {
+            if (step < totalSteps) {
+                const newNum = counterClockwiseRoute[step];
+                if (litNumbers.length >= N) { const oldNum = litNumbers.shift(); const oldBtn = document.querySelector(`.num-btn[data-num="${oldNum}"]`); if (oldBtn) oldBtn.classList.remove('gold-highlight'); }
+                const newBtn = document.querySelector(`.num-btn[data-num="${newNum}"]`); if (newBtn) { newBtn.classList.add('gold-highlight'); vibrate(5); }
+                litNumbers.push(newNum); step++;
+                setTimeout(runStep, speed);
+            } else { litNumbers.forEach(num => { const btn = document.querySelector(`.num-btn[data-num="${num}"]`); if (btn) btn.classList.remove('gold-highlight'); }); litNumbers.length = 0; setTimeout(phase4, 500); }
+        }
+        runStep();
+    }
+    function phase4() {
+        let round = 0; const directions = [{ dir: 1 }, { dir: -1 }, { dir: 1 }, { dir: -1 }];
+        function runRound() {
+            if (round < 4) {
+                const direction = directions[round]; let currentIndices = direction.dir === 1 ? [0, 1, 2] : [11, 10, 9];
+                const startTime = Date.now(); const duration = 300;
+                function runStep() {
+                    const elapsed = Date.now() - startTime; const progress = Math.min(elapsed / duration, 1);
+                    let targetOffset = Math.floor(progress * 12);
+                    let targetIndices = direction.dir === 1 ? [Math.min(targetOffset, 11), Math.min(targetOffset + 1, 11), Math.min(targetOffset + 2, 11)] : [Math.max(11 - targetOffset, 0), Math.max(10 - targetOffset, 0), Math.max(9 - targetOffset, 0)];
+                    if (!currentIndices.every((idx, i) => idx === targetIndices[i])) {
+                        currentIndices.forEach(idx => { if (idx >= 0 && idx < 12) customGridRows.forEach(row => { const num = row[idx]; if (num !== null) { const btn = document.querySelector(`.num-btn[data-num="${num}"]`); if (btn) btn.classList.remove('gold-highlight'); } }); });
+                        targetIndices.forEach(idx => { if (idx >= 0 && idx < 12) customGridRows.forEach(row => { const num = row[idx]; if (num !== null) { const btn = document.querySelector(`.num-btn[data-num="${num}"]`); if (btn) btn.classList.add('gold-highlight'); } }); });
+                        vibrate(10); currentIndices = [...targetIndices];
+                    }
+                    if (progress < 1) setTimeout(runStep, 20);
+                    else { currentIndices.forEach(idx => { if (idx >= 0 && idx < 12) customGridRows.forEach(row => { const num = row[idx]; if (num !== null) { const btn = document.querySelector(`.num-btn[data-num="${num}"]`); if (btn) btn.classList.remove('gold-highlight'); } }); }); round++; setTimeout(runRound, 50); }
+                }
+                runStep();
+            } else setTimeout(phase5, 500);
+        }
+        runRound();
+    }
+    function phase5() {
+        const startTime = Date.now(); const duration = 2000; const litNums = [];
+        function runStep() {
+            const elapsed = Date.now() - startTime; const progress = Math.min(elapsed / duration, 1);
+            const speed = Math.max(30, Math.floor(150 * progress));
+            if (progress < 1) {
+                litNums.forEach(num => { const btn = document.querySelector(`.num-btn[data-num="${num}"]`); if (btn) btn.classList.remove('gold-highlight'); });
+                litNums.length = 0;
+                const shuffled = [...allNumbersList];
+                for (let i = shuffled.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]; }
+                const selectedNums = shuffled.slice(0, N);
+                selectedNums.forEach(num => { const btn = document.querySelector(`.num-btn[data-num="${num}"]`); if (btn) { btn.classList.add('gold-highlight'); litNums.push(num); } });
+                vibrate(5); setTimeout(runStep, speed);
+            } else { litNums.forEach(num => { const btn = document.querySelector(`.num-btn[data-num="${num}"]`); if (btn) btn.classList.remove('gold-highlight'); }); callback(); }
+        }
+        runStep();
+    }
+    phase1();
+}
+
+// 2. 波纹扩散
+function animationScheme2(count, callback) {
+    clearAllGoldHighlights();
+    const center = 25; const startTime = Date.now(); const duration = 5000;
+    const allNums = allNumbersList.map(n => ({ num: n, dist: Math.abs(n - center) + Math.floor(Math.abs((n - 1) % 12 - 5) / 2) }));
+    function runStep() {
+        const elapsed = Date.now() - startTime; const progress = Math.min(elapsed / duration, 1);
+        if (progress < 1) {
+            clearAllGoldHighlights();
+            let radius;
+            if (progress < 0.3) radius = progress * 30;
+            else if (progress < 0.6) radius = (0.6 - progress) * 30;
+            else radius = (progress - 0.6) * 50;
+            allNums.forEach(({num, dist}) => { if (Math.abs(dist - radius) < 2) { const btn = document.querySelector(`.num-btn[data-num="${num}"]`); if (btn) btn.classList.add('gold-highlight'); } });
+            setTimeout(runStep, 40);
+        } else { clearAllGoldHighlights(); callback(); }
+    }
+    runStep();
+}
+
+// 3. 数字雨
+function animationScheme3(count, callback) {
+    clearAllGoldHighlights();
+    const startTime = Date.now(); const duration = 5000;
+    function runStep() {
+        const elapsed = Date.now() - startTime; const progress = Math.min(elapsed / duration, 1);
+        if (progress < 1) {
+            clearAllGoldHighlights();
+            const dropCount = Math.floor(5 + progress * 15);
+            for (let i = 0; i < dropCount; i++) {
+                const num = allNumbersList[Math.floor(Math.random() * 49)];
+                const btn = document.querySelector(`.num-btn[data-num="${num}"]`); if (btn) btn.classList.add('gold-highlight');
+            }
+            setTimeout(runStep, Math.max(30, Math.floor(100 * (1 - progress))));
+        } else { clearAllGoldHighlights(); callback(); }
+    }
+    runStep();
+}
+
+// 4. 贪吃蛇
+function animationScheme4(count, callback) {
+    clearAllGoldHighlights();
+    let idx = 0; const startTime = Date.now(); const duration = 5000;
+    function runStep() {
+        const elapsed = Date.now() - startTime; const progress = Math.min(elapsed / duration, 1);
+        if (progress < 1) {
+            clearAllGoldHighlights();
+            const length = Math.floor(3 + progress * 10);
+            for (let i = 0; i < length; i++) {
+                const routeIdx = (idx + i) % clockwiseRoute.length;
+                const num = clockwiseRoute[routeIdx];
+                const btn = document.querySelector(`.num-btn[data-num="${num}"]`); if (btn) btn.classList.add('gold-highlight');
+            }
+            idx = (idx + 1) % clockwiseRoute.length;
+            setTimeout(runStep, Math.max(40, Math.floor(120 * (1 - progress))));
+        } else { clearAllGoldHighlights(); callback(); }
+    }
+    runStep();
+}
+
+// 5. 轮盘旋转
+function animationScheme5(count, callback) {
+    clearAllGoldHighlights();
+    let angle = 0; const startTime = Date.now(); const duration = 5000;
+    function runStep() {
+        const elapsed = Date.now() - startTime; const progress = Math.min(elapsed / duration, 1);
+        if (progress < 1) {
+            clearAllGoldHighlights();
+            angle = (angle + (1 - progress) * 0.5) % (Math.PI * 2);
+            for (let i = 0; i < 49; i++) {
+                const num = allNumbersList[i];
+                const row = Math.floor((num - 1) / 12); const col = (num - 1) % 12;
+                const centerRow = 2, centerCol = 5.5;
+                const dx = col - centerCol, dy = row - centerRow;
+                const rotatedCol = Math.round(centerCol + dx * Math.cos(angle) - dy * Math.sin(angle));
+                const rotatedRow = Math.round(centerRow + dx * Math.sin(angle) + dy * Math.cos(angle));
+                if (rotatedRow >= 0 && rotatedRow < 4 && rotatedCol >= 0 && rotatedCol < 12) {
+                    const targetNum = customGridRows[rotatedRow]?.[rotatedCol];
+                    if (targetNum) { const btn = document.querySelector(`.num-btn[data-num="${targetNum}"]`); if (btn) btn.classList.add('gold-highlight'); }
+                }
+            }
+            setTimeout(runStep, Math.max(30, Math.floor(100 * (1 - progress))));
+        } else { clearAllGoldHighlights(); callback(); }
+    }
+    runStep();
+}
+
+// 6. 呼吸灯
+function animationScheme6(count, callback) {
+    clearAllGoldHighlights();
+    const startTime = Date.now(); const duration = 5000;
+    function runStep() {
+        const elapsed = Date.now() - startTime; const progress = Math.min(elapsed / duration, 1);
+        if (progress < 1) {
+            clearAllGoldHighlights();
+            const breath = Math.sin(progress * Math.PI * 8) * 0.5 + 0.5;
+            const numToLight = Math.floor(breath * 49);
+            const shuffled = [...allNumbersList];
+            for (let i = shuffled.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]; }
+            for (let i = 0; i < numToLight; i++) { const btn = document.querySelector(`.num-btn[data-num="${shuffled[i]}"]`); if (btn) btn.classList.add('gold-highlight'); }
+            setTimeout(runStep, 50);
+        } else { clearAllGoldHighlights(); callback(); }
+    }
+    runStep();
+}
+
+const animationSchemes = [
+    { id: 1, name: '跑马灯', func: animationScheme1 },
+    { id: 2, name: '波纹', func: animationScheme2 },
+    { id: 3, name: '数字雨', func: animationScheme3 },
+    { id: 4, name: '贪吃蛇', func: animationScheme4 },
+    { id: 5, name: '轮盘', func: animationScheme5 },
+    { id: 6, name: '呼吸灯', func: animationScheme6 }
+];
+
+function handleBlueRandom() {
+    if (isAnimationRunning) { showToast("⚠️ 随机选号中"); return; }
+    if (selectedNumbers.size > 0) {
+        if (confirm("检测到已选号码，是否清空？")) {
+            selectedNumbers.clear(); bettingNumbers.clear(); betResults = {}; specialNumbersSet.clear();
+            updateAllStates(); addLog("clear", "清空已选号码准备随机");
+        } else if (!confirm("是否保留已有号码继续随机？")) return;
+    }
+    const input = prompt("请输入随机号码数量（1-49）", "");
+    if (input === null) return;
+    const count = parseInt(input);
+    if (isNaN(count) || count < 1 || count > 49) { showToast("⚠️ 请输入1-49之间的数字"); return; }
+    
+    const btn = document.getElementById('blueRandomBtn');
+    btn.classList.add('disabled');
+    isAnimationRunning = true;
+    
+    const randomIndex = Math.floor(Math.random() * animationSchemes.length);
+    const selectedScheme = animationSchemes[randomIndex];
+    addLog("random", `使用${selectedScheme.name}动画`);
+    
+    selectedScheme.func(count, () => finalizeRandomNumbers(count));
+}
+
 function init() {
 renderKillControls();
 renderSelectZodiacButtons();
