@@ -1437,7 +1437,7 @@ line-height: 1.6;
 </div>
 <div style="font-size: 0.65rem; font-weight: 700; color: #4a5568; margin-bottom: 2px; display:flex; justify-content:space-between; align-items:center;">
 <span>操作记录</span>
-<span style="font-weight: 600; color: #718096;">V2.01</span>
+<span style="font-weight: 600; color: #718096;">V2.02</span>
 </div>
 <div class="log-container" id="logContainer"><div class="log-item" style="color:#718096; justify-content:center;">暂无记录</div></div>
 </div>
@@ -1463,6 +1463,30 @@ line-height: 1.6;
         <div class="modal-buttons">
             <button class="modal-btn modal-btn-cancel" id="modalNumberCancel">取消</button>
             <button class="modal-btn modal-btn-confirm" id="modalNumberConfirm">确定</button>
+        </div>
+    </div>
+</div>
+
+<!-- 重置确认弹窗 -->
+<div class="modal-overlay" id="resetModal">
+    <div class="modal-card">
+        <div class="modal-title">⚠️ 确定全部重置？</div>
+        <div class="modal-title" style="font-size:0.8rem; font-weight:400; margin-top:-10px;">这将清空所有选号、买号记录以及撤销/恢复历史，且无法恢复！</div>
+        <div class="modal-buttons">
+            <button class="modal-btn modal-btn-cancel" id="modalResetCancel">取消</button>
+            <button class="modal-btn modal-btn-confirm" id="modalResetConfirm">确定重置</button>
+        </div>
+    </div>
+</div>
+
+<!-- 金额输入弹窗 -->
+<div class="modal-overlay" id="amountModal">
+    <div class="modal-card">
+        <div class="modal-title">请输入金额</div>
+        <input type="text" inputmode="numeric" pattern="[0-9]*" class="modal-input" id="amountInput" placeholder="请输入金额" maxlength="5">
+        <div class="modal-buttons">
+            <button class="modal-btn modal-btn-cancel" id="modalAmountCancel">取消</button>
+            <button class="modal-btn modal-btn-confirm" id="modalAmountConfirm">确定</button>
         </div>
     </div>
 </div>
@@ -2967,25 +2991,56 @@ showToast("⚠️ 请先选择待购号码");
 vibrate(30);
 return;
 }
-const input = document.getElementById('betAmountInput');
-const amount = parseInt(input.value);
-if (isNaN(amount) || amount <= 0) {
-showToast("⚠️ 金额必须是大于 0 的整数");
-vibrate(30);
+
+const modal = document.getElementById('amountModal');
+const input = document.getElementById('amountInput');
+const confirmBtn = document.getElementById('modalAmountConfirm');
+const cancelBtn = document.getElementById('modalAmountCancel');
+
+input.value = '';
+modal.style.display = 'flex';
 input.focus();
-return;
-}
-const nums = Array.from(bettingNumbers).sort((a,b)=>a-b);
-const label = nums.map(fmtNum).join('.');
-recordAction('bet_confirm', label, nums, true, amount);
-nums.forEach(n => { betResults[n] = amount; });
-bettingNumbers.clear();
-input.value = "";
-updateAllStates();
-showToast(`✅ 已下单：${nums.length}个号码，各${amount}块`);
-addLog("bet", `买${label}各${amount}`);
-updateBetConfirmButtonState();
-updateClearBettingButtonState();
+
+const closeModal = () => {
+    modal.style.display = 'none';
+};
+
+const handleConfirm = () => {
+    const amount = parseInt(input.value);
+    if (isNaN(amount) || amount <= 0) {
+        showToast("⚠️ 金额必须是大于 0 的整数");
+        vibrate(30);
+        input.focus();
+        return;
+    }
+    
+    const nums = Array.from(bettingNumbers).sort((a,b)=>a-b);
+    const label = nums.map(fmtNum).join('.');
+    recordAction('bet_confirm', label, nums, true, amount);
+    nums.forEach(n => { betResults[n] = amount; });
+    bettingNumbers.clear();
+    
+    updateAllStates();
+    showToast(`✅ 已下单：${nums.length}个号码，各${amount}块`);
+    addLog("bet", `买${label}各${amount}`);
+    updateBetConfirmButtonState();
+    updateClearBettingButtonState();
+    
+    closeModal();
+};
+
+confirmBtn.onclick = handleConfirm;
+cancelBtn.onclick = closeModal;
+modal.onclick = (e) => {
+    if (e.target === modal) {
+        closeModal();
+    }
+};
+input.onkeydown = (e) => {
+    if (e.key === 'Enter') {
+        handleConfirm();
+    }
+};
 }
 function renderBetResults() {
 const container = document.getElementById('betResultContainer');
@@ -3965,42 +4020,61 @@ function copyBetResults() {
     });
 }
 function handleReset() {
-if(confirm("⚠️ 确定全部重置？\n这将清空所有选号、买号记录以及撤销/恢复历史，且无法恢复！")) {
-vibrate([50, 50, 50]);
-selectedNumbers.clear();
-bettingNumbers.clear();
-betResults = {};
-undoStack = [];
-redoStack = [];
-inputHistory = [];
-tempStorageData = [];
-specialNumbersSet.clear();
-currentHighlightedNumber = null;
-numberSources.clear();
-globalFreqColorMap.clear();
-document.getElementById('smartInput').value = '';
-lastInputValue = '';
-autoResizeTextarea();
-resetAllZodiacButtons();
-document.querySelectorAll('.num-btn.is-special').forEach(btn => {
-btn.classList.remove('is-special');
-});
-document.querySelectorAll('.num-btn.is-active').forEach(btn => {
-btn.classList.remove('is-active');
-});
-renderTempStorage();
-updateTempCountBadge();
-updateTempStoreBtn();
-updateTempRestoreBtn();
-updateTempClearBtn();
-const logContainer = document.getElementById('logContainer');
-logContainer.innerHTML = '<div class="log-item" style="color:#718096; justify-content:center;">暂无记录</div>';
-save_data();
-renderBetResults();
-updateAllStates();
-showToast("🗑️ 已重置所有数据");
-addLog("clear", "重置");
-}
+    const modal = document.getElementById('resetModal');
+    const cancelBtn = document.getElementById('modalResetCancel');
+    const confirmBtn = document.getElementById('modalResetConfirm');
+    
+    modal.style.display = 'flex';
+    
+    const closeModal = () => {
+        modal.style.display = 'none';
+    };
+    
+    const performReset = () => {
+        vibrate([50, 50, 50]);
+        selectedNumbers.clear();
+        bettingNumbers.clear();
+        betResults = {};
+        undoStack = [];
+        redoStack = [];
+        inputHistory = [];
+        tempStorageData = [];
+        specialNumbersSet.clear();
+        currentHighlightedNumber = null;
+        numberSources.clear();
+        globalFreqColorMap.clear();
+        document.getElementById('smartInput').value = '';
+        lastInputValue = '';
+        autoResizeTextarea();
+        resetAllZodiacButtons();
+        document.querySelectorAll('.num-btn.is-special').forEach(btn => {
+            btn.classList.remove('is-special');
+        });
+        document.querySelectorAll('.num-btn.is-active').forEach(btn => {
+            btn.classList.remove('is-active');
+        });
+        renderTempStorage();
+        updateTempCountBadge();
+        updateTempStoreBtn();
+        updateTempRestoreBtn();
+        updateTempClearBtn();
+        const logContainer = document.getElementById('logContainer');
+        logContainer.innerHTML = '<div class="log-item" style="color:#718096; justify-content:center;">暂无记录</div>';
+        save_data();
+        renderBetResults();
+        updateAllStates();
+        showToast("🗑️ 已重置所有数据");
+        addLog("clear", "重置");
+        closeModal();
+    };
+    
+    confirmBtn.onclick = performReset;
+    cancelBtn.onclick = closeModal;
+    modal.onclick = (e) => {
+        if (e.target === modal) {
+            closeModal();
+        }
+    };
 }
 function randomSpecialNumber() {
 if (isRandomRunning) return;
@@ -4317,7 +4391,20 @@ function showChoiceModal(callback) {
     
     clearBtn.onclick = () => {
         closeModal();
-        callback('clear');
+        // 先弹出数字输入框
+        showNumberModal((count) => {
+            if (count !== null) {
+                // 清空所有已选数据
+                selectedNumbers.clear();
+                bettingNumbers.clear();
+                betResults = {};
+                specialNumbersSet.clear();
+                updateAllStates();
+                addLog("clear", "清空已选");
+                // 然后开始随机动画
+                startRandomAnimation(count);
+            }
+        });
     };
     keepBtn.onclick = () => {
         closeModal();
@@ -4378,15 +4465,7 @@ function handleBlueRandom() {
     
     if (selectedNumbers.size > 0) {
         showChoiceModal((choice) => {
-            if (choice === 'clear') {
-                selectedNumbers.clear();
-                bettingNumbers.clear();
-                betResults = {};
-                specialNumbersSet.clear();
-                updateAllStates();
-                addLog("clear", "清空已选");
-                showNumberModal((count) => startRandomAnimation(count));
-            } else if (choice === 'keep') {
+            if (choice === 'keep') {
                 showNumberModal((count) => startRandomAnimation(count));
             }
         });
