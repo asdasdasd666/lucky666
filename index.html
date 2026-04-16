@@ -225,17 +225,33 @@ box-sizing: border-box; vertical-align: middle; box-shadow: 0 2px 0 rgba(0,0,0,0
 .small-copy-btn:active { transform: translateY(2px); box-shadow: inset 0 1px 2px rgba(255,255,255,0.3); }
 .small-copy-btn.disabled { background: #cbd5e0 !important; color: #718096 !important; border: none !important; box-shadow: none !important; opacity: 0.5 !important; cursor: not-allowed !important; background-image: none !important; width: 72px; height: 24px; pointer-events: auto !important; }
 .small-copy-btn.disabled:active { transform: none !important; box-shadow: none !important; }
-.bet-amount-input {
-width: 72px !important; padding: 0 4px; border: 1px solid var(--input-border);
-border-radius: 4px; font-size: 0.75rem; font-weight: 700; text-align: center; outline: none; height: 28px; line-height: 28px;
-box-sizing: border-box; -moz-appearance: textfield; cursor: pointer; background: var(--input-bg); color: #2d3748;
-margin-left: auto; flex-shrink: 0;
+.bet-amount-btn {
+width: 72px !important; height: 28px; border: none; border-radius: 6px;
+font-size: 0.75rem; font-weight: 900; text-align: center; outline: none;
+box-sizing: border-box; cursor: pointer; flex-shrink: 0; margin-left: auto;
+transition: all 0.1s; user-select: none; -webkit-user-select: none;
+padding: 0 4px; line-height: 28px; box-shadow: 0 3px 0 rgba(0,0,0,0.2), inset 0 1px 2px rgba(255,255,255,0.3);
 }
-.bet-amount-input::-webkit-outer-spin-button, .bet-amount-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; display: none; }
-.bet-amount-input:focus { border-color: var(--action-btn-start); }
-.bet-amount-input::placeholder { color: #a0aec0; font-family: 'Courier New', monospace; font-size: 0.75rem; font-weight: 700; opacity: 1; }
-.bet-amount-input:disabled { background: #e2e8f0; color: #718096; cursor: not-allowed; opacity: 0.6; }
-.bet-amount-input:read-only { cursor: pointer; }
+.bet-amount-btn.green {
+background: linear-gradient(145deg, var(--confirm-btn-bg), var(--confirm-btn-active));
+color: white;
+}
+.bet-amount-btn.green:active {
+transform: translateY(3px);
+box-shadow: 0 0 0 rgba(0,0,0,0.2);
+}
+.bet-amount-btn.grey {
+background: #cbd5e0 !important;
+color: #718096 !important;
+opacity: 0.5 !important;
+cursor: not-allowed !important;
+box-shadow: none !important;
+pointer-events: auto !important;
+}
+.bet-amount-btn.grey:active {
+transform: none !important;
+box-shadow: none !important;
+}
 @keyframes pulse-random { 0% { filter: brightness(1); transform: scale(1); } 50% { filter: brightness(1.15); transform: scale(1.05); } 100% { filter: brightness(1); transform: scale(1); } }
 @keyframes pulse-fast { 0% { transform: scale(1); filter: brightness(1.2); } 50% { transform: scale(1.1); filter: brightness(1.5); } 100% { transform: scale(1); filter: brightness(1.2); } }
 .num-btn.gold-highlight {
@@ -554,7 +570,7 @@ transition: all 0.15s; padding: 0 4px; white-space: nowrap;
 <div class="bet-action-area" id="betActionArea">
 <div class="bet-input-row">
 <div class="bet-nums-display" id="betNumsDisplay"></div>
-<input type="text" id="betAmountInput" class="bet-amount-input" placeholder="购买金额" readonly onclick="handleAmountInputClick()">
+<button id="betAmountBtn" class="bet-amount-btn grey" onclick="handleAmountButtonClick()">无号码</button>
 </div>
 </div>
 <div class="bet-result-container" id="betResultContainer">
@@ -575,7 +591,7 @@ transition: all 0.15s; padding: 0 4px; white-space: nowrap;
 </div>
 <div style="font-size: 0.65rem; font-weight: 700; color: #4a5568; margin-bottom: 2px; display:flex; justify-content:space-between; align-items:center;">
 <span>操作记录</span>
-<span style="font-weight: 600; color: #718096;">V2.23</span>
+<span style="font-weight: 600; color: #718096;">V2.30</span>
 </div>
 <div class="log-container" id="logContainer"><div class="log-item" style="color:#718096; justify-content:center;">暂无记录</div></div>
 </div>
@@ -755,7 +771,7 @@ const SoundManager = (function(){
     }
     function playNote(freq, when, dur, vol, type='sine', pan=0) {
         if (!audioCtx || audioCtx.state !== 'running') return;
-        try { const osc = audioCtx.createOscillator(), gain = audioCtx.createGain(), panner = audioCtx.createStereoPanner(); osc.type = type; osc.frequency.value = freq; panner.pan.value = pan; gain.gain.setValueAtTime(vol, when); gain.gain.exponentialRampToValueAtTime(0.001, when + dur); osc.connect(gain); gain.connect(panner); panner.connect(audioCtx.destination); osc.start(when); osc.stop(when + dur); } catch(e) {}
+        try { const osc = audioCtx.createOscillator(), gain = audioCtx.createGain(), panner = audioCtx.createStereoPanner(); osc.type = type; osc.frequency.value = freq; panner.pan.value = pan; gain.gain.setValueAtTime(vol, when); gain.gain.exponentialRampToValueAtTime(0.001, when + dur * 0.6); osc.connect(gain); gain.connect(panner); panner.connect(audioCtx.destination); osc.start(when); osc.stop(when + dur); } catch(e) {}
     }
     function playChord(notes, when, dur, vol, type='triangle') { notes.forEach(f => playNote(f, when, dur, vol, type, 0)); }
     
@@ -805,27 +821,7 @@ const SoundManager = (function(){
         }
     };
 
-    const randomSoundSchemes = {
-        random1: {
-            tick: () => { if(!audioCtx||audioCtx.state!=='running') return; const t=audioCtx.currentTime; playNote(523,t,0.04,0.2,'triangle'); playNote(659,t+0.02,0.03,0.15,'sine'); },
-            reveal: () => { if(!audioCtx||audioCtx.state!=='running') return; const t=audioCtx.currentTime; [N.C5,N.E5,N.G5,N.C6].forEach((f,i)=>playNote(f,t+i*0.06,0.15,0.2,'triangle')); }
-        },
-        random2: {
-            tick: () => { if(!audioCtx||audioCtx.state!=='running') return; const t=audioCtx.currentTime; playNote(784,t,0.03,0.25,'square'); playNote(988,t+0.01,0.02,0.15,'triangle'); },
-            reveal: () => { if(!audioCtx||audioCtx.state!=='running') return; const t=audioCtx.currentTime; [N.C4,N.E4,N.G4,N.C5].forEach((f,i)=>playNote(f,t+i*0.05,0.12,0.18,'sine')); }
-        },
-        random3: {
-            tick: () => { if(!audioCtx||audioCtx.state!=='running') return; const t=audioCtx.currentTime; playNote(659,t,0.02,0.2,'sawtooth'); playNote(880,t+0.01,0.02,0.15,'square'); },
-            reveal: () => { if(!audioCtx||audioCtx.state!=='running') return; const t=audioCtx.currentTime; [N.C5,N.G5,N.C6,N.E6].forEach((f,i)=>playNote(f,t+i*0.04,0.1,0.2,'triangle')); }
-        },
-        random4: {
-            tick: () => { if(!audioCtx||audioCtx.state!=='running') return; const t=audioCtx.currentTime; playNote(440,t,0.03,0.2,'triangle'); playNote(587,t+0.02,0.02,0.15,'sine'); },
-            reveal: () => { if(!audioCtx||audioCtx.state!=='running') return; const t=audioCtx.currentTime; [N.C5,N.D5,N.E5,N.G5,N.C6].forEach((f,i)=>playNote(f,t+i*0.06,0.12,0.18,'triangle')); }
-        }
-    };
-
     let currentScheme = null;
-    let currentRandomScheme = null;
     
     document.addEventListener('visibilitychange', () => {
         if (!document.hidden) resume();
@@ -834,11 +830,68 @@ const SoundManager = (function(){
     return { 
         play: async (t)=>{ await activate(); await play(t); },
         initScheme: (name) => { currentScheme = soundSchemes[name] || soundSchemes.wave; },
-        initRandomScheme: (name) => { currentRandomScheme = randomSoundSchemes[name] || randomSoundSchemes.random1; },
         playTick: async () => { await activate(); if (currentScheme) currentScheme.tick(); },
-        playReveal: async () => { await activate(); if (currentScheme) currentScheme.reveal(); },
-        playRandomTick: async () => { await activate(); if (currentRandomScheme) currentRandomScheme.tick(); },
-        playRandomReveal: async () => { await activate(); if (currentRandomScheme) currentRandomScheme.reveal(); }
+        playReveal: async () => { await activate(); if (currentScheme) currentScheme.reveal(); }
+    };
+})();
+
+const BlueRandomSoundManager = (function(){
+    let audioCtx = null, activated = false;
+    const N = { C3:130.81, E3:164.81, G3:196.00, C4:261.63, D4:293.66, E4:329.63, G4:392.00, A4:440.00, C5:523.25, D5:587.33, E5:659.25, G5:784.00, A5:880.00, B5:987.77, C6:1046.50, D6:1174.66, E6:1318.51, G6:1567.98, A6:1760.00, C7:2093.00, E7:2637.02, G7:3135.96, C8:4186.01 };
+    function getAudioCtx() {
+        if (!audioCtx) {
+            try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
+        }
+        return audioCtx;
+    }
+    async function activate() {
+        const ctx = getAudioCtx(); if (!ctx) return false;
+        if (ctx.state === 'suspended') { try { await ctx.resume(); activated = true; return true; } catch(e) { return false; } }
+        else if (ctx.state === 'running') { activated = true; return true; }
+        return false;
+    }
+    function playNote(freq, when, dur, vol, type='sine', pan=0) {
+        const ctx = getAudioCtx(); if (!ctx || ctx.state !== 'running') return;
+        try { const osc = ctx.createOscillator(), gain = ctx.createGain(), panner = ctx.createStereoPanner(); osc.type = type; osc.frequency.value = freq; panner.pan.value = pan; gain.gain.setValueAtTime(vol, when); gain.gain.exponentialRampToValueAtTime(0.001, when + dur * 0.6); osc.connect(gain); gain.connect(panner); panner.connect(ctx.destination); osc.start(when); osc.stop(when + dur); } catch(e) {}
+    }
+    function playChord(notes, when, dur, vol, type='triangle') { notes.forEach(f => playNote(f, when, dur, vol, type, 0)); }
+
+    const blueRandomSchemes = {
+        wave: {
+            tick: () => { const ctx=getAudioCtx(); if(!ctx||ctx.state!=='running') return; const t=ctx.currentTime; playNote(1200,t,0.02,0.15,'sine'); },
+            reveal: () => { const ctx=getAudioCtx(); if(!ctx||ctx.state!=='running') return; const t=ctx.currentTime; [N.C3,N.E3,N.G3,N.C4,N.E4,N.G4,N.C5,N.E5,N.G5,N.C6,N.G5,N.E5,N.C5,N.G4,N.E4,N.C4,N.G3,N.E3,N.C3].forEach((freq,i)=>playNote(freq,t+i*0.25,0.35,0.1,'triangle')); setTimeout(()=>{ if(getAudioCtx()) playChord([N.C4,N.E4,N.G4,N.C5], getAudioCtx().currentTime, 1.0, 0.12, 'triangle'); },4800); }
+        },
+        rain: {
+            tick: () => { const ctx=getAudioCtx(); if(!ctx||ctx.state!=='running') return; const t=ctx.currentTime; playNote(1400,t,0.02,0.15,'sine'); },
+            reveal: () => { const ctx=getAudioCtx(); if(!ctx||ctx.state!=='running') return; const t=ctx.currentTime; [N.C4,N.D4,N.E4,N.G4,N.A4,N.C5,N.D5,N.E5,N.G5,N.A5,N.C6].forEach((freq,i)=>playNote(freq,t+i*0.12,0.35,0.08,'sine',(i%3-1)*0.3)); for(let i=0;i<30;i++){ const rainNotes=[N.C5,N.D5,N.E5,N.G5,N.A5,N.C6,N.D6,N.E6,N.G6]; setTimeout(()=>{ if(getAudioCtx()) playNote(rainNotes[Math.floor(Math.random()*rainNotes.length)], getAudioCtx().currentTime, 0.1, 0.05, 'sine', (Math.random()-0.5)*0.8); }, (0.5+Math.random()*4.2)*1000); } setTimeout(()=>{ if(getAudioCtx()) playChord([N.C5,N.E5,N.G5,N.C6], getAudioCtx().currentTime, 1.2, 0.08, 'sine'); },4800); }
+        },
+        slot: {
+            tick: () => { const ctx=getAudioCtx(); if(!ctx||ctx.state!=='running') return; const t=ctx.currentTime; playNote(800,t,0.02,0.15,'square'); },
+            reveal: () => { const ctx=getAudioCtx(); if(!ctx||ctx.state!=='running') return; const t=ctx.currentTime; const osc1=ctx.createOscillator(); const gain1=ctx.createGain(); osc1.type='sawtooth'; osc1.frequency.setValueAtTime(400,t); osc1.frequency.exponentialRampToValueAtTime(80,t+0.15); gain1.gain.setValueAtTime(0.12,t); gain1.gain.exponentialRampToValueAtTime(0.001,t+0.15); osc1.connect(gain1); gain1.connect(ctx.destination); osc1.start(t); osc1.stop(t+0.15); for(let i=0;i<50;i++){ playNote(600+(i%10)*40, t+0.15+i*0.053, 0.03, 0.07, 'square'); } [0,70,80,90,100,115,130,150,175,205,240,280,330,390,460].forEach((d,i)=>{ setTimeout(()=>{ if(getAudioCtx()) playNote(700+i*25, getAudioCtx().currentTime, 0.04, 0.05*(1-i*0.05), 'square'); }, 2800+d); }); setTimeout(()=>{ const ctx=getAudioCtx(); if(ctx){ const t2=ctx.currentTime; [N.C5,N.E5,N.G5,N.B5,N.C6,N.E6,N.G6,N.C7,N.G6,N.E6,N.C6,N.G5,N.E5,N.C5].forEach((freq,i)=>playNote(freq,t2+i*0.04,0.15,0.08,'triangle')); setTimeout(()=>{ if(getAudioCtx()) playChord([N.C4,N.E4,N.G4,N.C5], getAudioCtx().currentTime, 0.6, 0.12, 'triangle'); },600); } },4200); }
+        },
+        bright: {
+            tick: () => { const ctx=getAudioCtx(); if(!ctx||ctx.state!=='running') return; const t=ctx.currentTime; playNote(1600,t,0.02,0.15,'triangle'); },
+            reveal: () => { const ctx=getAudioCtx(); if(!ctx||ctx.state!=='running') return; const t=ctx.currentTime; for(let i=0;i<30;i++){ playNote(500+(i%12)*40, t+i*0.07, 0.02, 0.06, 'square'); } setTimeout(()=>{ const ctx=getAudioCtx(); if(!ctx) return; const t2=ctx.currentTime; playNote(1200,t2,0.12,0.15,'triangle'); playNote(1600,t2+0.01,0.1,0.1,'sine'); playNote(2400,t2+0.02,0.08,0.08,'sine'); const rise=ctx.createOscillator(); const riseGain=ctx.createGain(); rise.type='sine'; rise.frequency.setValueAtTime(500,t2); rise.frequency.exponentialRampToValueAtTime(1500,t2+0.2); riseGain.gain.setValueAtTime(0.1,t2); riseGain.gain.exponentialRampToValueAtTime(0.001,t2+0.25); rise.connect(riseGain); riseGain.connect(ctx.destination); rise.start(t2); rise.stop(t2+0.25); setTimeout(()=>{ if(getAudioCtx()) playChord([N.C5,N.E5,N.G5,N.C6], getAudioCtx().currentTime, 0.6, 0.12); },250); },4000); }
+        },
+        magic: {
+            tick: () => { const ctx=getAudioCtx(); if(!ctx||ctx.state!=='running') return; const t=ctx.currentTime; playNote(600,t,0.02,0.15,'sine'); },
+            reveal: () => { const ctx=getAudioCtx(); if(!ctx||ctx.state!=='running') return; const t=ctx.currentTime; const drone=ctx.createOscillator(); const droneGain=ctx.createGain(); drone.type='sine'; drone.frequency.setValueAtTime(200,t); drone.frequency.exponentialRampToValueAtTime(400,t+4); droneGain.gain.setValueAtTime(0.03,t); droneGain.gain.linearRampToValueAtTime(0.06,t+2); droneGain.gain.exponentialRampToValueAtTime(0.001,t+4.5); drone.connect(droneGain); droneGain.connect(ctx.destination); drone.start(t); drone.stop(t+4.5); for(let i=0;i<15;i++){ playNote(800+(i%5)*100, t+i*0.25, 0.05, 0.05, 'triangle', Math.sin(i)*0.5); } setTimeout(()=>{ const ctx=getAudioCtx(); if(!ctx) return; const t2=ctx.currentTime; playNote(N.C6,t2,0.3,0.12,'sine'); playNote(N.E6,t2+0.05,0.25,0.1,'triangle'); playNote(N.G6,t2+0.1,0.2,0.08,'sine'); setTimeout(()=>{ if(getAudioCtx()) playChord([N.C5,N.G5,N.C6], getAudioCtx().currentTime, 0.8, 0.1); },300); },4200); }
+        },
+        scifi: {
+            tick: () => { const ctx=getAudioCtx(); if(!ctx||ctx.state!=='running') return; const t=ctx.currentTime; playNote(1000,t,0.02,0.15,'sawtooth'); },
+            reveal: () => { const ctx=getAudioCtx(); if(!ctx||ctx.state!=='running') return; const t=ctx.currentTime; for(let i=0;i<30;i++){ playNote(600+(i%8)*60, t+i*0.12, 0.04, 0.06, 'sawtooth', Math.sin(i*0.5)*0.8); } setTimeout(()=>{ for(let i=0;i<6;i++){ setTimeout(()=>{ if(getAudioCtx()) playNote(1000+i*50, getAudioCtx().currentTime, 0.06, 0.08, 'square'); }, i*120); } },3800); setTimeout(()=>{ const ctx=getAudioCtx(); if(!ctx) return; const t2=ctx.currentTime; playNote(N.C6,t2,0.15,0.15,'triangle'); playNote(N.G6,t2+0.08,0.12,0.1,'sine'); setTimeout(()=>{ if(getAudioCtx()) playChord([N.C5,N.E5,N.G5], getAudioCtx().currentTime, 0.4, 0.1); },200); },4600); }
+        },
+        deep: {
+            tick: () => { const ctx=getAudioCtx(); if(!ctx||ctx.state!=='running') return; const t=ctx.currentTime; playNote(250,t,0.03,0.15,'sine'); },
+            reveal: () => { const ctx=getAudioCtx(); if(!ctx||ctx.state!=='running') return; const t=ctx.currentTime; for(let i=0;i<8;i++){ const sonarT=t+i*0.55; playNote(200,sonarT,0.3,0.1,'sine'); playNote(400,sonarT+0.1,0.15,0.05,'triangle'); } setTimeout(()=>{ const ctx=getAudioCtx(); if(!ctx) return; const rise=ctx.createOscillator(); const riseGain=ctx.createGain(); rise.type='sine'; rise.frequency.setValueAtTime(100,ctx.currentTime); rise.frequency.exponentialRampToValueAtTime(300,ctx.currentTime+1.5); riseGain.gain.setValueAtTime(0.04,ctx.currentTime); riseGain.gain.linearRampToValueAtTime(0.08,ctx.currentTime+0.8); riseGain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+1.5); rise.connect(riseGain); riseGain.connect(ctx.destination); rise.start(); rise.stop(ctx.currentTime+1.5); },3800); setTimeout(()=>{ const ctx=getAudioCtx(); if(!ctx) return; const t2=ctx.currentTime; playNote(N.C5,t2,0.5,0.1,'triangle'); playNote(N.G5,t2+0.05,0.45,0.08,'sine'); playNote(N.C6,t2+0.1,0.4,0.06,'triangle'); },4600); }
+        }
+    };
+
+    let currentScheme = null;
+    return {
+        initScheme: async (name) => { await activate(); currentScheme = blueRandomSchemes[name] || blueRandomSchemes.wave; },
+        playTick: async () => { await activate(); if (currentScheme) currentScheme.tick(); },
+        playReveal: async () => { await activate(); if (currentScheme) currentScheme.reveal(); }
     };
 })();
 
@@ -882,7 +935,6 @@ async function showBetConfirmModal(nums, amt) {
         close();
         nums.forEach(n => betResults[n] = amt);
         bettingNumbers.clear();
-        document.getElementById('betAmountInput').value = '';
         updateAllStates();
         showToast(`✅ 已下单：${nums.size}个号码，${unit}${amt}块`);
         addLog("bet",`买${sorted.map(fmtNum).join('.')} ${unit}${amt}`);
@@ -892,7 +944,7 @@ async function showBetConfirmModal(nums, amt) {
     m.onclick = async (e) => { if(e.target === m) { await playSound('click'); close(); } };
 }
 
-async function handleAmountInputClick() {
+async function handleAmountButtonClick() {
     if (!bettingNumbers.size) { showToast("⚠️ 请先选择待购号码"); vibrate(30); return; }
     await playSound('click');
     const m = document.getElementById('amountModal');
@@ -979,7 +1031,20 @@ function getGroupLabel(type, val){ if(type==='zodiac') return zodiacs[val]+"肖"
 function updateRandomSpecialButtonState(){ const b=document.getElementById('randomSpecialBtn'); if(!b) return; if(selectedNumbers.size===0){ b.textContent='无号码'; b.classList.add('disabled'); } else { b.textContent='随机特码'; b.classList.remove('disabled'); } }
 function updateCopyButtonsState(){ const cs=document.getElementById('copySelectedBtn'), cr=document.getElementById('copyBetResultBtn'); if(cs) cs.classList.toggle('disabled', selectedNumbers.size===0); if(cr){ let all=selectedNumbers.size>0; if(all) for(const n of selectedNumbers) if(betResults[n]===undefined){ all=false; break; } cr.classList.toggle('disabled', !all); cr.title=all?"":"还有号码没有购买，不能复制"; } }
 function updateClearBettingButtonState(){ const b=document.getElementById('clearBettingBtn'); if(!b) return; if(bettingNumbers.size===0){ b.textContent='无号码'; b.className='temp-action-btn grey'; b.style.opacity='0.5'; } else { b.textContent='清空'; b.className='temp-action-btn orange'; b.style.opacity=''; } }
-async function handleClearBetting(){ await playSound('click'); if(!bettingNumbers.size){ showToast("ℹ️ 待购栏已空"); return; } showConfirmModal('清空待购','', async ()=>{ await playSound('shutter'); const cl=Array.from(bettingNumbers); recordAction('clear_betting','清空待购',cl,false); bettingNumbers.clear(); updateBetActionArea(); updateResultText(); updateBatchSelectButton(); updateTailButtons(); updateClearBettingButtonState(); updateBettingCountBadge(); addLog("select","清空待购"); save_data(); }); }
+function updateAmountButtonState() {
+    const b = document.getElementById('betAmountBtn');
+    if (!b) return;
+    if (bettingNumbers.size === 0) {
+        b.textContent = '无号码';
+        b.className = 'bet-amount-btn grey';
+        b.disabled = true;
+    } else {
+        b.textContent = '买买买';
+        b.className = 'bet-amount-btn green';
+        b.disabled = false;
+    }
+}
+async function handleClearBetting(){ await playSound('click'); if(!bettingNumbers.size){ showToast("ℹ️ 待购栏已空"); return; } showConfirmModal('清空待购','', async ()=>{ await playSound('shutter'); const cl=Array.from(bettingNumbers); recordAction('clear_betting','清空待购',cl,false); bettingNumbers.clear(); updateBetActionArea(); updateResultText(); updateBatchSelectButton(); updateTailButtons(); updateClearBettingButtonState(); updateAmountButtonState(); updateBettingCountBadge(); addLog("select","清空待购"); save_data(); }); }
 function addNumberSource(n,gid){ if(!numberSources.has(n)) numberSources.set(n,new Set()); numberSources.get(n).add(gid); }
 function removeNumberSource(n,gid){ const s=numberSources.get(n); if(s){ s.delete(gid); if(s.size===0) numberSources.delete(n); } }
 
@@ -1093,11 +1158,11 @@ function updateFilterButtons(){ document.querySelectorAll('#kill-head-wuxing-con
 function updateTailButtons(){ for(let t=0;t<=9;t++){ const b=document.getElementById(`tailBtn${t}`); if(!b) continue; const nums=Array.from(selectedNumbers).filter(n=>n%10===t); b.classList.remove('tail-silver-btn','is-depressed','tail-btn-empty'); if(!nums.length){ b.classList.add('tail-btn-empty'); continue; } b.classList.add('tail-silver-btn'); b.style.opacity='1'; b.classList.toggle('is-depressed',nums.every(n=>betResults.hasOwnProperty(n)||bettingNumbers.has(n))); } }
 function updateFrequencyButtonsPressedState(){ const fm=calculateNumberFrequencies(), fn={}; for(let i=1;i<=49;i++){ const f=fm[i]; if(f!==undefined){ if(!fn[f]) fn[f]=[]; fn[f].push(i); } } document.querySelectorAll('#sphereBtnContainer .count-btn').forEach(b=>{ const f=parseInt(b.getAttribute('data-freq')), nums=fn[f]||[]; b.classList.toggle('is-pressed',!nums.some(n=>selectedNumbers.has(n))); }); }
 function updateClearResultBtn(){ const b=document.getElementById('clearResultBtn'); if(!b) return; const has=Object.keys(betResults).length>0; b.className=`clear-result-btn ${has?'orange':'grey'}`; if(!has){ b.style.opacity='0.5'; b.style.cursor='not-allowed'; } else { b.style.opacity=b.style.cursor=''; } }
-function updateAllStates(){ syncSpecialWithSelected(); updateNumberBalls(); updateZodiacButtons(); updateFilterButtons(); updateTailButtons(); updateResultText(); renderBetResults(); updateBetActionArea(); updateBatchSelectButton(); renderFrequencyButtons(); renderHistoryLog(); updateTempCountBadge(); updateTempStoreBtn(); updateTempRestoreBtn(); updateTempClearBtn(); updateBettingCountBadge(); updateFrequencyButtonsPressedState(); updateCopyButtonsState(); updateSelectWaveButtonsState(); updateClearResultBtn(); updateClearBettingButtonState(); updateRandomSpecialButtonState(); }
+function updateAllStates(){ syncSpecialWithSelected(); updateNumberBalls(); updateZodiacButtons(); updateFilterButtons(); updateTailButtons(); updateResultText(); renderBetResults(); updateBetActionArea(); updateBatchSelectButton(); renderFrequencyButtons(); renderHistoryLog(); updateTempCountBadge(); updateTempStoreBtn(); updateTempRestoreBtn(); updateTempClearBtn(); updateBettingCountBadge(); updateFrequencyButtonsPressedState(); updateCopyButtonsState(); updateSelectWaveButtonsState(); updateClearResultBtn(); updateClearBettingButtonState(); updateAmountButtonState(); updateRandomSpecialButtonState(); }
 function getColorClass(n){ if(redGroup.has(n)) return 'text-red'; if(greenGroup.has(n)) return 'text-green'; if(blueGroup.has(n)) return 'text-blue'; return ''; }
-async function handleResultNumClick(n){ if(!selectedNumbers.has(n)) return; vibrate(10); if(betResults[n]!==undefined){ cancelBet(n); return; } const add=!bettingNumbers.has(n); if(add){ await playSound('pop'); bettingNumbers.add(n); recordAction('betting_add',fmtNum(n),[n],true); addLog("select",`待购${fmtNum(n)}`); } else { await playSound('slip'); bettingNumbers.delete(n); recordAction('betting_remove',fmtNum(n),[n],false); addLog("select",`取消待购${fmtNum(n)}`); } updateBetActionArea(); updateResultText(); updateBatchSelectButton(); updateTailButtons(); updateClearBettingButtonState(); updateBettingCountBadge(); }
+async function handleResultNumClick(n){ if(!selectedNumbers.has(n)) return; vibrate(10); if(betResults[n]!==undefined){ cancelBet(n); return; } const add=!bettingNumbers.has(n); if(add){ await playSound('pop'); bettingNumbers.add(n); recordAction('betting_add',fmtNum(n),[n],true); addLog("select",`待购${fmtNum(n)}`); } else { await playSound('slip'); bettingNumbers.delete(n); recordAction('betting_remove',fmtNum(n),[n],false); addLog("select",`取消待购${fmtNum(n)}`); } updateBetActionArea(); updateResultText(); updateBatchSelectButton(); updateTailButtons(); updateClearBettingButtonState(); updateAmountButtonState(); updateBettingCountBadge(); }
 async function cancelBet(n){ if(!betResults[n]) return; await playSound('shutter'); vibrate(20); recordAction('bet_cancel',fmtNum(n),[n],false,betResults[n]); delete betResults[n]; bettingNumbers.delete(n); addLog("select",`取消买${fmtNum(n)}`); updateAllStates(); }
-async function handleTailBetAction(t){ const nums=Array.from(selectedNumbers).filter(n=>n%10===t); if(!nums.length) return; const all=nums.every(n=>betResults.hasOwnProperty(n)||bettingNumbers.has(n)); if(all){ await playSound('slip'); const rm=nums.filter(n=>bettingNumbers.has(n)); if(!rm.length){ showToast("ℹ️ 该尾数号码已全部购买，无法取消待购"); return; } recordAction('batch_kill',`尾${t}`,rm,false); rm.forEach(n=>bettingNumbers.delete(n)); vibrate(30); addLog("select",`取消尾${t}待购`); } else { await playSound('pop'); const add=nums.filter(n=>!betResults.hasOwnProperty(n)&&!bettingNumbers.has(n)); if(!add.length){ showToast("ℹ️ 该尾数号码已在待购或已购中"); return; } recordAction('batch_select',`尾${t}`,add,true); add.forEach(n=>bettingNumbers.add(n)); vibrate(30); addLog("select",`尾${t}待购`); } updateBetActionArea(); updateResultText(); updateBatchSelectButton(); updateTailButtons(); updateClearBettingButtonState(); }
+async function handleTailBetAction(t){ const nums=Array.from(selectedNumbers).filter(n=>n%10===t); if(!nums.length) return; const all=nums.every(n=>betResults.hasOwnProperty(n)||bettingNumbers.has(n)); if(all){ await playSound('slip'); const rm=nums.filter(n=>bettingNumbers.has(n)); if(!rm.length){ showToast("ℹ️ 该尾数号码已全部购买，无法取消待购"); return; } recordAction('batch_kill',`尾${t}`,rm,false); rm.forEach(n=>bettingNumbers.delete(n)); vibrate(30); addLog("select",`取消尾${t}待购`); } else { await playSound('pop'); const add=nums.filter(n=>!betResults.hasOwnProperty(n)&&!bettingNumbers.has(n)); if(!add.length){ showToast("ℹ️ 该尾数号码已在待购或已购中"); return; } recordAction('batch_select',`尾${t}`,add,true); add.forEach(n=>bettingNumbers.add(n)); vibrate(30); addLog("select",`尾${t}待购`); } updateBetActionArea(); updateResultText(); updateBatchSelectButton(); updateTailButtons(); updateClearBettingButtonState(); updateAmountButtonState(); }
 function updateBetActionArea(){ const d=document.getElementById('betNumsDisplay'); if(!bettingNumbers.size){ d.textContent=""; d.style.color="#9a9a9a"; } else { const s=Array.from(bettingNumbers).sort((a,b)=>a-b); d.innerHTML=s.map((n,i)=>`<span class="${getColorClass(n)}" style="display:inline-block; white-space:nowrap; font-size:0.9em;">${fmtNum(n)}${i<s.length-1?'.':''}</span>`).join(''); d.style.color=""; } }
 function updateBettingCountBadge(){ document.getElementById('bettingCountBadge').textContent=bettingNumbers.size+'个'; }
 function renderBetResults(){ const items=document.getElementById('betResultItems'), keys=Object.keys(betResults).map(Number); document.getElementById('betCountBadge').textContent=keys.length+'个'; document.getElementById('betTotalAmount').textContent=`共 ${keys.reduce((s,n)=>s+(betResults[n]||0),0)} 元`; if(!keys.length){ items.innerHTML=''; return; } const grp={}; keys.forEach(n=>{ const a=betResults[n]; if(!grp[a]) grp[a]=[]; grp[a].push(n); }); let h=''; Object.keys(grp).sort((a,b)=>parseInt(a)-parseInt(b)).forEach((a,idx)=>{ const nums=grp[a].sort((a,b)=>a-b); if(idx) h+=', '; if(nums.length===1){ h+=`<span class="${getColorClass(nums[0])}" style="font-weight:900; font-size:0.9em;">${fmtNum(nums[0])}</span><span class="amt-tag">买${a}块</span>`; } else { nums.forEach((n,i)=>{ h+=`<span class="${getColorClass(n)}" style="font-weight:900; font-size:0.9em;">${fmtNum(n)}</span>`; if(i<nums.length-1) h+='<span class="amt-tag" style="color:#2d3748;">.</span>'; }); h+=`<span class="amt-tag">各${a}块</span>`; } }); items.innerHTML=h; }
@@ -1110,7 +1175,7 @@ function renderHistoryLog(){ const box=document.getElementById('historyLogBox');
 async function removeHistoryItem(idx){ await playSound('shutter'); const it=inputHistory[idx]; if(!it) return; vibrate(20); const specialState = {}; it.sortedNumbers.forEach(n=>{ specialState[n] = specialNumbersSet.has(n); }); recordAction('history_delete','删除历史',[],false,0,{index:idx,deletedItem:it,specialState}); if(it.isActive) it.numbers.forEach(n=>{ removeNumberSource(n,it.id); if(!numberSources.has(n)){ selectedNumbers.delete(n); syncRemoveSpecial(n); } }); inputHistory.splice(idx,1); updateAllStates(); addLog("input",`删历史${it.numbers.length}码`); save_data(); }
 function updateResultText(){ const d=document.getElementById('resultDisplay'), badge=document.getElementById('countBadge'), cnt=selectedNumbers.size; badge.textContent=cnt+'个'; if(!cnt){ d.innerHTML=""; d.style.color="#9a9a9a"; return; } d.style.color="#2d3748"; const all=Array.from(selectedNumbers).sort((a,b)=>a-b), normal=all.filter(n=>!specialNumbersSet.has(n)), special=all.filter(n=>specialNumbersSet.has(n)); const sp=(n)=>{ const c=getColorClass(n), bought=betResults.hasOwnProperty(n), bet=bettingNumbers.has(n); let cls='list-num-base'; if(bought) cls+=` result-num-sold ${c.replace('text-','bg-')}-solid`; else if(bet) cls+=` result-num-betting ${c}`; else cls+=` result-num-selected ${c}`; return `<span class="${cls}" onclick="handleResultNumClick(${n})" title="${bought?'已购买':bet?'待购买':'点击加入待买'}">${fmtNum(n)}</span>`; }; let h=''; const nOdd=normal.filter(n=>n%2), nEven=normal.filter(n=>n%2===0); if(nOdd.length) h+=`<div class="result-column"><span class="result-col-label">单号:</span> ${nOdd.map(sp).join('')}</div>`; if(nEven.length) h+=`<div class="result-column"><span class="result-col-label">双号:</span> ${nEven.map(sp).join('')}</div>`; const sOdd=special.filter(n=>n%2), sEven=special.filter(n=>n%2===0); if(sOdd.length) h+=`<div class="result-column"><span class="result-col-label">特码:</span> ${sOdd.map(sp).join('')}</div>`; if(sEven.length){ const parts=sEven.map(sp).join(''); if(sOdd.length) h=h.replace('</div>',' ')+parts+'</div>'; else h+=`<div class="result-column"><span class="result-col-label">特码:</span> ${parts}</div>`; } d.innerHTML=h; }
 function renderGrid(){ const g=document.getElementById('grid'); g.innerHTML=''; zodiacs.forEach((z,i)=>{ const b=document.createElement('div'); b.className='zodiac-btn'; b.setAttribute('data-color',zodiacColors[i%zodiacColors.length]); b.textContent=z; b.dataset.zodiacIndex=i; b.onclick=()=>{ vibrate(20); handleZodiacSelect(i,z+"肖"); }; g.appendChild(b); }); customGridRows.forEach(r=>r.forEach(n=>{ if(n===null){ const s=document.createElement('div'); s.style.visibility='hidden'; g.appendChild(s); } else { const b=document.createElement('button'); b.className=`num-btn ${getColorClass(n).replace('text-','bg-')}`; b.innerHTML=`<span class="num-val">${fmtNum(n)}</span><span class="num-wx">${wuxingChars[numToWuxing[n]]||''}</span>`; b.dataset.num=n; b.onclick=()=>{ vibrate(25); toggleNumber(n); }; g.appendChild(b); } })); const ub=document.createElement('button'); ub.className='action-grid-btn bg-action undo-btn-grid'; ub.innerHTML='<span class="btn-text">撤销</span>'; ub.onclick=performUndo; g.appendChild(ub); const rb=document.createElement('button'); rb.className='action-grid-btn bg-reset reset-btn-grid'; rb.innerHTML='<span class="btn-text">全部重置</span>'; rb.onclick=handleReset; g.appendChild(rb); const db=document.createElement('button'); db.className='action-grid-btn bg-action redo-btn-grid'; db.innerHTML='<span class="btn-text">恢复</span>'; db.onclick=performRedo; g.appendChild(db); restoreSpecialEffects(); updateAllStates(); }
-async function toggleNumber(n){ const specialState = specialNumbersSet.has(n); if(specialNumbersSet.has(n)){ recordAction('special_remove',fmtNum(n),[n],false,0,{specialState}); specialNumbersSet.delete(n); document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.remove('is-special'); addLog("select",`取消特码${fmtNum(n)}`); updateAllStates(); return; } if(!selectedNumbers.has(n)){ await playSound('pop'); selectedNumbers.add(n); document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.add('is-active'); recordAction('manual_toggle',fmtNum(n),[n],true,0,{number:n,wasAdded:true,specialState}); addLog("select",`选${fmtNum(n)}`); } else { await playSound('slip'); selectedNumbers.delete(n); if(bettingNumbers.has(n)){ bettingNumbers.delete(n); addLog("select",`取消待购${fmtNum(n)}`); } if(betResults[n]){ delete betResults[n]; addLog("select",`取消买${fmtNum(n)}`); } document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.remove('is-active'); recordAction('manual_toggle',fmtNum(n),[n],false,0,{number:n,wasAdded:false,specialState}); syncRemoveSpecial(n); updateBetActionArea(); updateBettingCountBadge(); renderBetResults(); updateBatchSelectButton(); updateTailButtons(); updateClearBettingButtonState(); updateClearResultBtn(); updateCopyButtonsState(); } syncSpecialWithSelected(); updateAllStates(); }
+async function toggleNumber(n){ const specialState = specialNumbersSet.has(n); if(specialNumbersSet.has(n)){ recordAction('special_remove',fmtNum(n),[n],false,0,{specialState}); specialNumbersSet.delete(n); document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.remove('is-special'); addLog("select",`取消特码${fmtNum(n)}`); updateAllStates(); return; } if(!selectedNumbers.has(n)){ await playSound('pop'); selectedNumbers.add(n); document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.add('is-active'); recordAction('manual_toggle',fmtNum(n),[n],true,0,{number:n,wasAdded:true,specialState}); addLog("select",`选${fmtNum(n)}`); } else { await playSound('slip'); selectedNumbers.delete(n); if(bettingNumbers.has(n)){ bettingNumbers.delete(n); addLog("select",`取消待购${fmtNum(n)}`); } if(betResults[n]){ delete betResults[n]; addLog("select",`取消买${fmtNum(n)}`); } document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.remove('is-active'); recordAction('manual_toggle',fmtNum(n),[n],false,0,{number:n,wasAdded:false,specialState}); syncRemoveSpecial(n); updateBetActionArea(); updateBettingCountBadge(); renderBetResults(); updateBatchSelectButton(); updateTailButtons(); updateClearBettingButtonState(); updateAmountButtonState(); updateClearResultBtn(); updateCopyButtonsState(); } syncSpecialWithSelected(); updateAllStates(); }
 async function processConfirm(){ const inp=document.getElementById('smartInput'), txt=inp.value.trim(); if(!txt){ await playSound('slip'); showToast("⚠️ 请输入号码或生肖"); vibrate(30); return; } await playSound('pop'); processInputAndAddToHistory(txt); inp.value=''; updateZodiacButtonsFromInput(''); recordAction('input_text','输入确认',[],false,0,{prevText:txt,nextText:''}); }
 function processInputAndAddToHistory(txt){ const dm=txt.match(/\d+/g); const valid=[], orig=[]; let dc=0; if(dm) dm.forEach(m=>{ let n=parseInt(m); if(n>=1&&n<=49){ if(!valid.includes(n)) valid.push(n); orig.push(n); dc++; } }); let zc=0; const found=new Set(); for(let c of txt){ if(ZODIAC_MAP.hasOwnProperty(c)){ if(!found.has(c)){ found.add(c); zc++; } getGroupNumbers('zodiac',ZODIAC_MAP[c].toString()).forEach(n=>{ if(!valid.includes(n)){ valid.push(n); orig.push(n); } }); } } if(valid.length){ let chg=false; const add=[], already=[], gid=Date.now(); valid.forEach(n=>{ addNumberSource(n,gid); if(selectedNumbers.has(n)) already.push(n); else { selectedNumbers.add(n); chg=true; add.push(n); document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.add('is-active'); } }); const sorted=[...valid].sort((a,b)=>a-b), pure=dc===0&&zc>0; inputHistory.push({id:gid,rawText:txt,numbers:orig,sortedNumbers:sorted,labelPrefix:pure?`${zc}肖`:`${valid.length}码`,isPureZodiac:pure,isActive:true}); if(chg){ recordAction('batch_input',`${add.length}码`,add,true); updateAllStates(); addLog("input",`选${valid.length}码`); vibrate(30); let msg=`✅ 已点亮 ${add.map(fmtNum).join('.')}`; if(already.length) msg+=`（${already.map(fmtNum).join('.')}已选中）`; showToast(msg); } else { updateAllStates(); showToast(`ℹ️ 这些号码（${valid.map(fmtNum).join('.')}）已选中`); } } else showToast("⚠️ 无有效号码（1-49）或生肖"); }
 function renderTempStorage(){ const c=document.getElementById('tempStorageContent'); if(!tempStorageData.length){ c.innerHTML=''; return; } const s=[...tempStorageData].sort((a,b)=>a.num-b.num), odd=s.filter(i=>i.num%2), even=s.filter(i=>i.num%2===0); const sp=(n)=>`<span class="temp-num-item ${redGroup.has(n)?'text-red':blueGroup.has(n)?'text-blue':'text-green'}">${fmtNum(n)}</span>`; let h=''; if(odd.length) h+=`<div class="temp-storage-row"><span class="temp-storage-label">单号:</span> ${odd.map(i=>sp(i.num)).join('')}</div>`; if(even.length) h+=`<div class="temp-storage-row"><span class="temp-storage-label">双号:</span> ${even.map(i=>sp(i.num)).join('')}</div>`; c.innerHTML=h; }
@@ -1126,7 +1191,6 @@ async function copyBetResults(){ if(selectedNumbers.size&&Array.from(selectedNum
 async function handleReset(){ await playSound('click'); const m=document.getElementById('resetModal'); m.style.display='flex'; const close=()=>m.style.display='none'; document.getElementById('modalResetConfirm').onclick=async ()=>{ await playSound('slip'); vibrate([50,50,50]); selectedNumbers.clear(); bettingNumbers.clear(); betResults={}; undoStack=[]; redoStack=[]; inputHistory=[]; tempStorageData=[]; specialNumbersSet.clear(); currentHighlightedNumber=null; numberSources.clear(); globalFreqColorMap.clear(); document.getElementById('smartInput').value=''; updateZodiacButtonsFromInput(''); document.querySelectorAll('.num-btn.is-special, .num-btn.is-active').forEach(b=>b.classList.remove('is-special','is-active')); renderTempStorage(); updateTempCountBadge(); updateTempStoreBtn(); updateTempRestoreBtn(); updateTempClearBtn(); document.getElementById('logContainer').innerHTML='<div class="log-item" style="color:#718096; justify-content:center;">暂无记录</div>'; save_data(); renderBetResults(); updateAllStates(); showToast("🗑️ 已重置所有数据"); addLog("clear","重置"); close(); }; document.getElementById('modalResetCancel').onclick=close; m.onclick=e=>{ if(e.target===m) close(); }; }
 
 const allAnimationSounds = ['wave','rain','slot','bright','magic','scifi','deep'];
-const randomAnimationSounds = ['random1','random2','random3','random4'];
 
 async function randomSpecialNumber(){
     if(isRandomRunning) return; if(!selectedNumbers.size){ showToast("⚠️ 暂无选中的号码"); return; }
@@ -1166,12 +1230,12 @@ let isAnimationRunning=false;
 const clockwiseRoute=[7,6,5,4,3,2,1,12,11,10,9,8,20,32,44,45,46,47,48,49,37,38,39,40,41,42,43,31,19,18,17,16,15,14,13,24,23,22,21,33,34,35,36,25,26,27,28,29,30];
 const allNumbersList=Array.from({length:49},(_,i)=>i+1);
 function clearAllGoldHighlights(){ document.querySelectorAll('.num-btn.gold-highlight').forEach(b=>b.classList.remove('gold-highlight')); }
-function finalizeRandomNumbers(c){ const sh=[...allNumbersList]; for(let i=sh.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [sh[i],sh[j]]=[sh[j],sh[i]]; } const sel=sh.slice(0,c), add=[]; sel.forEach(n=>{ if(!selectedNumbers.has(n)){ selectedNumbers.add(n); add.push(n); document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.add('is-active'); } }); if(add.length) recordAction('batch_input',`随机${add.length}码`,add,true); updateAllStates(); document.getElementById('blueRandomBtn').classList.remove('disabled'); isAnimationRunning=false; SoundManager.playRandomReveal(); addLog("random",`随机${add.length}码`); showToast(`✅ 已随机点亮 ${add.length} 个号码`); save_data(); }
-function a2(c,cb){ clearAllGoldHighlights(); const st=Date.now(), dur=5000, all=allNumbersList.map(n=>({n, d:Math.abs(n-25)+Math.floor(Math.abs((n-1)%12-5)/2)})); const run=()=>{ const p=Math.min((Date.now()-st)/dur,1); if(p<1){ clearAllGoldHighlights(); let r=p<.3?p*30:p<.6?(.6-p)*30:(p-.6)*50; all.forEach(({n,d})=>{ if(Math.abs(d-r)<2) document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.add('gold-highlight'); SoundManager.playRandomTick(); }); setTimeout(run,40); } else { clearAllGoldHighlights(); cb(); } }; run(); }
-function a3(c,cb){ clearAllGoldHighlights(); const st=Date.now(), dur=5000; const run=()=>{ const p=Math.min((Date.now()-st)/dur,1); if(p<1){ clearAllGoldHighlights(); for(let i=0, cnt=Math.floor(5+p*15); i<cnt; i++) document.querySelector(`.num-btn[data-num="${allNumbersList[Math.floor(Math.random()*49)]}"]`)?.classList.add('gold-highlight'); SoundManager.playRandomTick(); setTimeout(run, Math.max(30, Math.floor(100*(1-p)))); } else { clearAllGoldHighlights(); cb(); } }; run(); }
-function a4(c,cb){ clearAllGoldHighlights(); let idx=0; const st=Date.now(), dur=5000; const run=()=>{ const p=Math.min((Date.now()-st)/dur,1); if(p<1){ clearAllGoldHighlights(); for(let i=0, len=Math.floor(3+p*10); i<len; i++){ const n=clockwiseRoute[(idx+i)%clockwiseRoute.length]; document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.add('gold-highlight'); } idx=(idx+1)%clockwiseRoute.length; SoundManager.playRandomTick(); setTimeout(run, Math.max(40, Math.floor(120*(1-p)))); } else { clearAllGoldHighlights(); cb(); } }; run(); }
-function a5(c,cb){ clearAllGoldHighlights(); let ang=0; const st=Date.now(), dur=5000; const run=()=>{ const p=Math.min((Date.now()-st)/dur,1); if(p<1){ clearAllGoldHighlights(); ang=(ang+(1-p)*0.5)%(Math.PI*2); for(let i=0;i<49;i++){ const n=allNumbersList[i], row=Math.floor((n-1)/12), col=(n-1)%12, dx=col-5.5, dy=row-2; const rc=Math.round(5.5+dx*Math.cos(ang)-dy*Math.sin(ang)), rr=Math.round(2+dx*Math.sin(ang)+dy*Math.cos(ang)); if(rr>=0&&rr<4&&rc>=0&&rc<12){ const t=customGridRows[rr]?.[rc]; if(t) document.querySelector(`.num-btn[data-num="${t}"]`)?.classList.add('gold-highlight'); } } SoundManager.playRandomTick(); setTimeout(run, Math.max(30, Math.floor(100*(1-p)))); } else { clearAllGoldHighlights(); cb(); } }; run(); }
-function a6(c,cb){ clearAllGoldHighlights(); const st=Date.now(), dur=5000; const run=()=>{ const p=Math.min((Date.now()-st)/dur,1); if(p<1){ clearAllGoldHighlights(); const br=Math.sin(p*Math.PI*8)*0.5+0.5, cnt=Math.floor(br*49), sh=[...allNumbersList]; for(let i=sh.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [sh[i],sh[j]]=[sh[j],sh[i]]; } for(let i=0;i<cnt;i++) document.querySelector(`.num-btn[data-num="${sh[i]}"]`)?.classList.add('gold-highlight'); SoundManager.playRandomTick(); setTimeout(run,50); } else { clearAllGoldHighlights(); cb(); } }; run(); }
+function finalizeRandomNumbers(c){ const sh=[...allNumbersList]; for(let i=sh.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [sh[i],sh[j]]=[sh[j],sh[i]]; } const sel=sh.slice(0,c), add=[]; sel.forEach(n=>{ if(!selectedNumbers.has(n)){ selectedNumbers.add(n); add.push(n); document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.add('is-active'); } }); if(add.length) recordAction('batch_input',`随机${add.length}码`,add,true); updateAllStates(); document.getElementById('blueRandomBtn').classList.remove('disabled'); isAnimationRunning=false; BlueRandomSoundManager.playReveal(); addLog("random",`随机${add.length}码`); showToast(`✅ 已随机点亮 ${add.length} 个号码`); save_data(); }
+function a2(c,cb){ clearAllGoldHighlights(); const st=Date.now(), dur=5000, all=allNumbersList.map(n=>({n, d:Math.abs(n-25)+Math.floor(Math.abs((n-1)%12-5)/2)})); const run=()=>{ const p=Math.min((Date.now()-st)/dur,1); if(p<1){ clearAllGoldHighlights(); let r=p<.3?p*30:p<.6?(.6-p)*30:(p-.6)*50; all.forEach(({n,d})=>{ if(Math.abs(d-r)<2) document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.add('gold-highlight'); BlueRandomSoundManager.playTick(); }); setTimeout(run,40); } else { clearAllGoldHighlights(); cb(); } }; run(); }
+function a3(c,cb){ clearAllGoldHighlights(); const st=Date.now(), dur=5000; const run=()=>{ const p=Math.min((Date.now()-st)/dur,1); if(p<1){ clearAllGoldHighlights(); for(let i=0, cnt=Math.floor(5+p*15); i<cnt; i++) document.querySelector(`.num-btn[data-num="${allNumbersList[Math.floor(Math.random()*49)]}"]`)?.classList.add('gold-highlight'); BlueRandomSoundManager.playTick(); setTimeout(run, Math.max(30, Math.floor(100*(1-p)))); } else { clearAllGoldHighlights(); cb(); } }; run(); }
+function a4(c,cb){ clearAllGoldHighlights(); let idx=0; const st=Date.now(), dur=5000; const run=()=>{ const p=Math.min((Date.now()-st)/dur,1); if(p<1){ clearAllGoldHighlights(); for(let i=0, len=Math.floor(3+p*10); i<len; i++){ const n=clockwiseRoute[(idx+i)%clockwiseRoute.length]; document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.add('gold-highlight'); } idx=(idx+1)%clockwiseRoute.length; BlueRandomSoundManager.playTick(); setTimeout(run, Math.max(40, Math.floor(120*(1-p)))); } else { clearAllGoldHighlights(); cb(); } }; run(); }
+function a5(c,cb){ clearAllGoldHighlights(); let ang=0; const st=Date.now(), dur=5000; const run=()=>{ const p=Math.min((Date.now()-st)/dur,1); if(p<1){ clearAllGoldHighlights(); ang=(ang+(1-p)*0.5)%(Math.PI*2); for(let i=0;i<49;i++){ const n=allNumbersList[i], row=Math.floor((n-1)/12), col=(n-1)%12, dx=col-5.5, dy=row-2; const rc=Math.round(5.5+dx*Math.cos(ang)-dy*Math.sin(ang)), rr=Math.round(2+dx*Math.sin(ang)+dy*Math.cos(ang)); if(rr>=0&&rr<4&&rc>=0&&rc<12){ const t=customGridRows[rr]?.[rc]; if(t) document.querySelector(`.num-btn[data-num="${t}"]`)?.classList.add('gold-highlight'); } } BlueRandomSoundManager.playTick(); setTimeout(run, Math.max(30, Math.floor(100*(1-p)))); } else { clearAllGoldHighlights(); cb(); } }; run(); }
+function a6(c,cb){ clearAllGoldHighlights(); const st=Date.now(), dur=5000; const run=()=>{ const p=Math.min((Date.now()-st)/dur,1); if(p<1){ clearAllGoldHighlights(); const br=Math.sin(p*Math.PI*8)*0.5+0.5, cnt=Math.floor(br*49), sh=[...allNumbersList]; for(let i=sh.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [sh[i],sh[j]]=[sh[j],sh[i]]; } for(let i=0;i<cnt;i++) document.querySelector(`.num-btn[data-num="${sh[i]}"]`)?.classList.add('gold-highlight'); BlueRandomSoundManager.playTick(); setTimeout(run,50); } else { clearAllGoldHighlights(); cb(); } }; run(); }
 const schemes=[{id:2,name:'波纹',func:a2},{id:3,name:'数字雨',func:a3},{id:4,name:'贪吃蛇',func:a4},{id:5,name:'轮盘',func:a5},{id:6,name:'呼吸灯',func:a6}];
 async function showChoiceModal(cb){ await playSound('click'); const m=document.getElementById('choiceModal'); m.style.display='flex'; const close=()=>m.style.display='none'; document.getElementById('modalClear').onclick=()=>{ close(); showNumberModal(c=>{ if(c!==null){ selectedNumbers.clear(); bettingNumbers.clear(); betResults={}; specialNumbersSet.clear(); updateAllStates(); addLog("clear","清空已选"); startRandomAnimation(c); } }); }; document.getElementById('modalKeep').onclick=()=>{ close(); cb('keep'); }; document.getElementById('modalChoiceCancel').onclick=()=>{ close(); cb('cancel'); }; m.onclick=e=>{ if(e.target===m){ close(); cb('cancel'); } }; }
 async function showNumberModal(cb){ await playSound('click'); const m=document.getElementById('numberModal'), inp=document.getElementById('numberInput'); inp.value=''; m.style.display='flex'; inp.focus();
@@ -1192,9 +1256,10 @@ async function showNumberModal(cb){ await playSound('click'); const m=document.g
     m.onclick=e=>{ if(e.target===m){ close(); cb(null); } };
     inp.onkeydown=e=>{ if(e.key==='Enter') conf(); };
 }
+const blueRandomSoundNames = ['wave','rain','slot','bright','magic','scifi','deep'];
 async function handleBlueRandom(){ if(isAnimationRunning){ showToast("⚠️ 随机选号中"); return; } if(selectedNumbers.size) showChoiceModal(c=>{ if(c==='keep') showNumberModal(c=>startRandomAnimation(c)); }); else showNumberModal(c=>startRandomAnimation(c)); }
-async function startRandomAnimation(c){ if(c===null||isNaN(c)||c<1||c>49){ showToast("⚠️ 请输入1-49之间的数字"); return; } document.getElementById('blueRandomBtn').classList.add('disabled'); isAnimationRunning=true; const schemeName = randomAnimationSounds[Math.floor(Math.random()*randomAnimationSounds.length)]; SoundManager.initRandomScheme(schemeName); const s=schemes[Math.floor(Math.random()*schemes.length)]; s.func(c, ()=>finalizeRandomNumbers(c)); }
-function init(){ renderKillControls(); renderSelectZodiacButtons(); renderSelectWaveButtons(); load_data(); renderGrid(); updateRandomSpecialButtonState(); updateCopyButtonsState(); updateClearBettingButtonState(); addLog("system","启动"); window.addEventListener('beforeunload', save_data); }
+async function startRandomAnimation(c){ if(c===null||isNaN(c)||c<1||c>49){ showToast("⚠️ 请输入1-49之间的数字"); return; } document.getElementById('blueRandomBtn').classList.add('disabled'); isAnimationRunning=true; const schemeName = blueRandomSoundNames[Math.floor(Math.random()*blueRandomSoundNames.length)]; await BlueRandomSoundManager.initScheme(schemeName); const s=schemes[Math.floor(Math.random()*schemes.length)]; s.func(c, ()=>finalizeRandomNumbers(c)); }
+function init(){ renderKillControls(); renderSelectZodiacButtons(); renderSelectWaveButtons(); load_data(); renderGrid(); updateRandomSpecialButtonState(); updateCopyButtonsState(); updateClearBettingButtonState(); updateAmountButtonState(); addLog("system","启动"); window.addEventListener('beforeunload', save_data); }
 init();
 let lastTouchEnd=0;
 document.addEventListener('touchend', e=>{ const n=Date.now(); if(n-lastTouchEnd<=300) e.preventDefault(); lastTouchEnd=n; }, false);
