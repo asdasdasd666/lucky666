@@ -596,7 +596,7 @@ button, .num-btn, .action-grid-btn, .sphere-btn-base, .filter-btn, .wave-btn, .z
 </div>
 <div style="font-size: 0.65rem; font-weight: 700; color: #4a5568; margin-bottom: 2px; display:flex; justify-content:space-between; align-items:center;">
 <span>操作记录</span>
-<span style="font-weight: 600; color: #718096;">V2.39</span>
+<span style="font-weight: 600; color: #718096;">V2.0</span>
 </div>
 <div class="log-container" id="logContainer"><div class="log-item" style="color:#718096; justify-content:center;">暂无记录</div></div>
 </div>
@@ -712,7 +712,7 @@ button, .num-btn, .action-grid-btn, .sphere-btn-base, .filter-btn, .wave-btn, .z
 </div>
 
 <script>
-// --- 马里奥音效 (音量 0.4) ---
+// --- 马里奥音效 (音量 0.3) ---
 let marioCtx = null;
 function marioInit() {
     if (!marioCtx) marioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -739,20 +739,20 @@ function marioCoinTick() {
 function marioCoinReveal() {
     marioInit(); if (!marioCtx || marioCtx.state !== 'running') return;
     const t = marioCtx.currentTime;
-    marioPlayNote(1046, t, 0.08, 0.4, 'square');
-    marioPlayNote(1318, t+0.03, 0.08, 0.35, 'square');
+    marioPlayNote(1046, t, 0.08, 0.3, 'square');
+    marioPlayNote(1318, t+0.03, 0.08, 0.3, 'square');
     marioPlayNote(1568, t+0.06, 0.08, 0.3, 'square');
-    marioPlayNote(2093, t+0.09, 0.15, 0.4, 'square');
+    marioPlayNote(2093, t+0.09, 0.15, 0.3, 'square');
 }
 function marioPowerupReveal() {
     marioInit(); if (!marioCtx || marioCtx.state !== 'running') return;
     const t = marioCtx.currentTime;
     [392, 523, 659, 784, 1046].forEach((f, i) => {
-        marioPlayNote(f, t + i * 0.06, 0.12, 0.4, 'square');
+        marioPlayNote(f, t + i * 0.06, 0.12, 0.3, 'square');
     });
 }
 
-// --- 原始代码 (V2.39 整合版) ---
+// --- 原始代码 (V2.0) ---
 function generateIconSvg(text) {
 const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="#D90429"/><text x="50" y="68" font-family="'ZCOOL XiaoWei', serif" font-size="56" font-weight="900" fill="white" text-anchor="middle" style="filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.4));">${text}</text></svg>`;
 return 'data:image/svg+xml,' + encodeURIComponent(svg);
