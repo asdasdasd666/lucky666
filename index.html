@@ -590,7 +590,7 @@ button, .num-btn, .action-grid-btn, .sphere-btn-base, .filter-btn, .wave-btn, .z
 </div>
 <div style="font-size: 0.65rem; font-weight: 700; color: #4a5568; margin-bottom: 2px; display:flex; justify-content:space-between; align-items:center;">
 <span>操作记录</span>
-<span style="font-weight: 600; color: #718096;">V2.06</span>
+<span style="font-weight: 600; color: #718096;">V2.07</span>
 </div>
 <div class="log-container" id="logContainer"><div class="log-item" style="color:#718096; justify-content:center;">暂无记录</div></div>
 </div>
@@ -706,49 +706,132 @@ button, .num-btn, .action-grid-btn, .sphere-btn-base, .filter-btn, .wave-btn, .z
 </div>
 
 <script>
-// --- 马里奥音效 (音量调整) ---
-let marioCtx = null;
-function marioInit() {
-    if (!marioCtx) marioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    if (marioCtx.state === 'suspended') marioCtx.resume();
-    return marioCtx;
-}
-function marioPlayNote(freq, when, dur, vol, type='square', pan=0) {
-    if (!marioCtx || marioCtx.state !== 'running') return;
-    try {
-        const osc = marioCtx.createOscillator(), gain = marioCtx.createGain();
-        osc.type = type; osc.frequency.value = freq;
-        gain.gain.setValueAtTime(vol, when);
-        gain.gain.exponentialRampToValueAtTime(0.001, when + dur * 0.8);
-        osc.connect(gain); gain.connect(marioCtx.destination);
-        osc.start(when); osc.stop(when + dur);
-    } catch(e) {}
-}
-function marioCoinTick() {
-    marioInit(); if (!marioCtx || marioCtx.state !== 'running') return;
-    const t = marioCtx.currentTime;
-    marioPlayNote(1318, t, 0.05, 0.1, 'square');
-    marioPlayNote(1760, t+0.02, 0.05, 0.1, 'square');
-}
-function marioCoinReveal() {
-    marioInit(); if (!marioCtx || marioCtx.state !== 'running') return;
-    const t = marioCtx.currentTime;
-    marioPlayNote(1046, t, 0.08, 0.3, 'square');
-    marioPlayNote(1318, t+0.03, 0.08, 0.3, 'square');
-    marioPlayNote(1568, t+0.06, 0.08, 0.3, 'square');
-    marioPlayNote(2093, t+0.09, 0.15, 0.3, 'square');
-}
-async function marioPowerupReveal() {
-    await SoundManager.activate();
-    marioInit(); 
-    if (!marioCtx || marioCtx.state !== 'running') return;
-    const t = marioCtx.currentTime;
-    [392, 523, 659, 784, 1046].forEach((f, i) => {
-        marioPlayNote(f, t + i * 0.06, 0.12, 0.1, 'square');
-    });
-}
+// ==================== 统一音效管理器 (V2.07) ====================
+const SoundManager = (function(){
+    let audioCtx = null;
+    const N = { C3:130.81, E3:164.81, G3:196.00, C4:261.63, D4:293.66, E4:329.63, G4:392.00, A4:440.00, C5:523.25, D5:587.33, E5:659.25, G5:784.00, A5:880.00, B5:987.77, C6:1046.50, D6:1174.66, E6:1318.51, G6:1567.98, A6:1760.00, C7:2093.00, E7:2637.02, G7:3135.96, C8:4186.01 };
+    
+    function init() { 
+        if (!audioCtx) {
+            try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
+        }
+    }
+    
+    async function activate() {
+        init();
+        if (!audioCtx) return false;
+        if (audioCtx.state === 'closed') {
+            audioCtx = null;
+            init();
+            if (!audioCtx) return false;
+        }
+        if (audioCtx.state === 'suspended') {
+            try {
+                await audioCtx.resume();
+                return true;
+            } catch(e) {
+                // iOS 上如果失败，稍后重试
+                await new Promise(r => setTimeout(r, 50));
+                try { await audioCtx.resume(); return true; } catch(e2) { return false; }
+            }
+        }
+        return audioCtx.state === 'running';
+    }
+    
+    function playNote(freq, when, dur, vol, type='sine', pan=0) {
+        if (!audioCtx || audioCtx.state !== 'running') return;
+        try {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            const panner = audioCtx.createStereoPanner();
+            osc.type = type;
+            osc.frequency.value = freq;
+            panner.pan.value = pan;
+            gain.gain.setValueAtTime(vol, when);
+            gain.gain.exponentialRampToValueAtTime(0.001, when + dur * 0.6);
+            osc.connect(gain);
+            gain.connect(panner);
+            panner.connect(audioCtx.destination);
+            osc.start(when);
+            osc.stop(when + dur);
+        } catch(e) {}
+    }
+    
+    function playChord(notes, when, dur, vol, type='triangle') {
+        notes.forEach(f => playNote(f, when, dur, vol, type, 0));
+    }
 
-// --- 核心代码 (V2.06) ---
+    // ========== 标准音效 ==========
+    async function play(type) {
+        await activate();
+        if (!audioCtx || audioCtx.state !== 'running') return;
+        const t = audioCtx.currentTime;
+        switch(type) {
+            case 'click': playNote(1600, t, 0.04, 0.5, 'triangle'); playNote(2400, t+0.005, 0.03, 0.25, 'sine'); break;
+            case 'pop': { const o=audioCtx.createOscillator(), g=audioCtx.createGain(); o.type='sine'; o.frequency.setValueAtTime(450,t); o.frequency.exponentialRampToValueAtTime(350,t+0.08); g.gain.setValueAtTime(0.42,t); g.gain.exponentialRampToValueAtTime(0.001,t+0.12); o.connect(g); g.connect(audioCtx.destination); o.start(t); o.stop(t+0.12); } break;
+            case 'coin': playNote(523,t,0.12,0.4,'sine'); playNote(659,t,0.12,0.3,'sine'); playNote(1046,t+0.02,0.1,0.2,'triangle'); break;
+            case 'shutter': playNote(2400,t,0.03,0.42,'triangle'); playNote(800,t+0.01,0.05,0.25,'sine'); playNote(400,t+0.02,0.04,0.17,'sawtooth'); break;
+            case 'slip': { const o=audioCtx.createOscillator(), g=audioCtx.createGain(); o.type='triangle'; o.frequency.setValueAtTime(500,t); o.frequency.exponentialRampToValueAtTime(150,t+0.2); g.gain.setValueAtTime(0.42,t); g.gain.exponentialRampToValueAtTime(0.001,t+0.28); o.connect(g); g.connect(audioCtx.destination); o.start(t); o.stop(t+0.28); playNote(80,t+0.18,0.1,0.3,'sine'); } break;
+            case 'cash': playNote(120,t,0.06,0.5,'triangle'); playNote(80,t+0.01,0.04,0.3,'sine'); [N.C5,N.E5,N.G5,N.C6,N.E6,N.G6,N.C7,N.G6,N.E6,N.C6,N.G5,N.E5].forEach((f,i)=>playNote(f,t+0.08+i*0.03,0.12,0.2,'triangle')); setTimeout(()=>{ if(audioCtx) playChord([N.C4,N.E4,N.G4,N.C5], audioCtx.currentTime, 0.6, 0.25, 'triangle'); },500); break;
+        }
+    }
+
+    // ========== 马里奥音效 (统一音量) ==========
+    async function playMarioCoinTick() {
+        await activate();
+        if (!audioCtx || audioCtx.state !== 'running') return;
+        const t = audioCtx.currentTime;
+        playNote(1318, t, 0.05, 0.1, 'square');
+        playNote(1760, t+0.02, 0.05, 0.1, 'square');
+    }
+    
+    async function playMarioCoinReveal() {
+        await activate();
+        if (!audioCtx || audioCtx.state !== 'running') return;
+        const t = audioCtx.currentTime;
+        playNote(1046, t, 0.08, 0.3, 'square');
+        playNote(1318, t+0.03, 0.08, 0.3, 'square');
+        playNote(1568, t+0.06, 0.08, 0.3, 'square');
+        playNote(2093, t+0.09, 0.15, 0.3, 'square');
+    }
+    
+    async function playMarioPowerupReveal() {
+        await activate();
+        if (!audioCtx || audioCtx.state !== 'running') return;
+        const t = audioCtx.currentTime;
+        [392, 523, 659, 784, 1046].forEach((f, i) => {
+            playNote(f, t + i * 0.06, 0.12, 0.1, 'square');
+        });
+    }
+
+    // ========== 动画音效 (保持不变) ==========
+    const soundSchemes = {
+        wave: { tick: () => { if(!audioCtx||audioCtx.state!=='running') return; const t=audioCtx.currentTime; playNote(800,t,0.03,0.3,'triangle'); playNote(1000,t+0.01,0.02,0.2,'sine'); }, reveal: () => { if(!audioCtx||audioCtx.state!=='running') return; const t=audioCtx.currentTime; [N.C3,N.E3,N.G3,N.C4,N.E4,N.G4,N.C5].forEach((f,i)=>playNote(f,t+i*0.04,0.12,0.2,'triangle')); } },
+        rain: { tick: () => { if(!audioCtx||audioCtx.state!=='running') return; const t=audioCtx.currentTime; playNote(1200,t,0.02,0.25,'sine'); playNote(1400,t+0.01,0.02,0.15,'triangle'); }, reveal: () => { if(!audioCtx||audioCtx.state!=='running') return; const t=audioCtx.currentTime; [N.C4,N.D4,N.E4,N.G4,N.A4,N.C5].forEach((f,i)=>playNote(f,t+i*0.05,0.1,0.18,'sine')); } },
+        slot: { tick: () => { if(!audioCtx||audioCtx.state!=='running') return; const t=audioCtx.currentTime; playNote(600,t,0.02,0.2,'sawtooth'); playNote(800,t+0.01,0.02,0.15,'square'); }, reveal: () => { if(!audioCtx||audioCtx.state!=='running') return; const t=audioCtx.currentTime; [N.C5,N.E5,N.G5,N.B5,N.C6].forEach((f,i)=>playNote(f,t+i*0.05,0.12,0.2,'triangle')); } },
+        bright: { tick: () => { if(!audioCtx||audioCtx.state!=='running') return; const t=audioCtx.currentTime; playNote(1500,t,0.02,0.25,'square'); playNote(1800,t+0.01,0.02,0.15,'triangle'); }, reveal: () => { if(!audioCtx||audioCtx.state!=='running') return; const t=audioCtx.currentTime; [N.C5,N.E5,N.G5,N.C6].forEach((f,i)=>playNote(f,t+i*0.06,0.15,0.22,'triangle')); } },
+        magic: { tick: () => { if(!audioCtx||audioCtx.state!=='running') return; const t=audioCtx.currentTime; playNote(500,t,0.03,0.2,'triangle'); playNote(700,t+0.01,0.02,0.15,'sine'); }, reveal: () => { if(!audioCtx||audioCtx.state!=='running') return; const t=audioCtx.currentTime; [N.C6,N.E6,N.G6,N.C7].forEach((f,i)=>playNote(f,t+i*0.06,0.12,0.18,'sine')); } },
+        scifi: { tick: () => { if(!audioCtx||audioCtx.state!=='running') return; const t=audioCtx.currentTime; playNote(900,t,0.02,0.2,'sawtooth'); playNote(1100,t+0.01,0.02,0.15,'square'); }, reveal: () => { if(!audioCtx||audioCtx.state!=='running') return; const t=audioCtx.currentTime; [N.C5,N.G5,N.C6,N.G6].forEach((f,i)=>playNote(f,t+i*0.05,0.1,0.2,'triangle')); } },
+        deep: { tick: () => { if(!audioCtx||audioCtx.state!=='running') return; const t=audioCtx.currentTime; playNote(200,t,0.04,0.25,'sine'); playNote(300,t+0.02,0.03,0.15,'triangle'); }, reveal: () => { if(!audioCtx||audioCtx.state!=='running') return; const t=audioCtx.currentTime; [N.C3,N.G3,N.C4,N.G4,N.C5].forEach((f,i)=>playNote(f,t+i*0.08,0.15,0.2,'sine')); } }
+    };
+    let currentScheme = null;
+    
+    return {
+        play,
+        playMarioCoinTick,
+        playMarioCoinReveal,
+        playMarioPowerupReveal,
+        activate,
+        initScheme: (name) => { currentScheme = soundSchemes[name] || soundSchemes.wave; },
+        playTick: async () => { await activate(); if (currentScheme) currentScheme.tick(); },
+        playReveal: async () => { await activate(); if (currentScheme) currentScheme.reveal(); }
+    };
+})();
+
+// 快捷函数
+async function playSound(t) { await SoundManager.play(t); }
+
+// ==================== 核心逻辑 (V2.07) ====================
 function generateIconSvg(text) {
 const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="#D90429"/><text x="50" y="68" font-family="'ZCOOL XiaoWei', serif" font-size="56" font-weight="900" fill="white" text-anchor="middle" style="filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.4));">${text}</text></svg>`;
 return 'data:image/svg+xml,' + encodeURIComponent(svg);
@@ -811,60 +894,7 @@ function syncRestoreSpecial(num, shouldBeSpecial) {
     }
 }
 
-const SoundManager = (function(){
-    let audioCtx = null, activated = false;
-    const N = { C3:130.81, E3:164.81, G3:196.00, C4:261.63, D4:293.66, E4:329.63, G4:392.00, A4:440.00, C5:523.25, D5:587.33, E5:659.25, G5:784.00, A5:880.00, B5:987.77, C6:1046.50, D6:1174.66, E6:1318.51, G6:1567.98, A6:1760.00, C7:2093.00, E7:2637.02, G7:3135.96, C8:4186.01 };
-    function init() { if (!audioCtx) try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {} }
-    async function activate() {
-        if (!audioCtx) init(); if (!audioCtx) return false;
-        if (audioCtx.state === 'closed') { audioCtx = null; init(); if (!audioCtx) return false; }
-        if (audioCtx.state === 'suspended') {
-            try { await audioCtx.resume(); activated = true; return true; } catch(e) {
-                await new Promise(r => setTimeout(r, 100));
-                try { await audioCtx.resume(); activated = true; return true; } catch(e2) { return false; }
-            }
-        } else if (audioCtx.state === 'running') { activated = true; return true; }
-        return false;
-    }
-    function playNote(freq, when, dur, vol, type='sine', pan=0) {
-        if (!audioCtx || audioCtx.state !== 'running') return;
-        try { const osc = audioCtx.createOscillator(), gain = audioCtx.createGain(), panner = audioCtx.createStereoPanner(); osc.type = type; osc.frequency.value = freq; panner.pan.value = pan; gain.gain.setValueAtTime(vol, when); gain.gain.exponentialRampToValueAtTime(0.001, when + dur * 0.6); osc.connect(gain); gain.connect(panner); panner.connect(audioCtx.destination); osc.start(when); osc.stop(when + dur); } catch(e) {}
-    }
-    function playChord(notes, when, dur, vol, type='triangle') { notes.forEach(f => playNote(f, when, dur, vol, type, 0)); }
-    async function play(type) {
-        await activate();
-        if (!audioCtx || audioCtx.state !== 'running') return;
-        const t = audioCtx.currentTime;
-        switch(type) {
-            case 'click': playNote(1600, t, 0.04, 0.5, 'triangle'); playNote(2400, t+0.005, 0.03, 0.25, 'sine'); break;
-            case 'pop': { const o=audioCtx.createOscillator(), g=audioCtx.createGain(); o.type='sine'; o.frequency.setValueAtTime(450,t); o.frequency.exponentialRampToValueAtTime(350,t+0.08); g.gain.setValueAtTime(0.42,t); g.gain.exponentialRampToValueAtTime(0.001,t+0.12); o.connect(g); g.connect(audioCtx.destination); o.start(t); o.stop(t+0.12); } break;
-            case 'coin': playNote(523,t,0.12,0.4,'sine'); playNote(659,t,0.12,0.3,'sine'); playNote(1046,t+0.02,0.1,0.2,'triangle'); break;
-            case 'shutter': playNote(2400,t,0.03,0.42,'triangle'); playNote(800,t+0.01,0.05,0.25,'sine'); playNote(400,t+0.02,0.04,0.17,'sawtooth'); break;
-            case 'slip': { const o=audioCtx.createOscillator(), g=audioCtx.createGain(); o.type='triangle'; o.frequency.setValueAtTime(500,t); o.frequency.exponentialRampToValueAtTime(150,t+0.2); g.gain.setValueAtTime(0.42,t); g.gain.exponentialRampToValueAtTime(0.001,t+0.28); o.connect(g); g.connect(audioCtx.destination); o.start(t); o.stop(t+0.28); playNote(80,t+0.18,0.1,0.3,'sine'); } break;
-            case 'cash': playNote(120,t,0.06,0.5,'triangle'); playNote(80,t+0.01,0.04,0.3,'sine'); [N.C5,N.E5,N.G5,N.C6,N.E6,N.G6,N.C7,N.G6,N.E6,N.C6,N.G5,N.E5].forEach((f,i)=>playNote(f,t+0.08+i*0.03,0.12,0.2,'triangle')); setTimeout(()=>{ if(audioCtx) playChord([N.C4,N.E4,N.G4,N.C5], audioCtx.currentTime, 0.6, 0.25, 'triangle'); },500); break;
-            default: break;
-        }
-    }
-    const soundSchemes = {
-        wave: { tick: () => { if(!audioCtx||audioCtx.state!=='running') return; const t=audioCtx.currentTime; playNote(800,t,0.03,0.3,'triangle'); playNote(1000,t+0.01,0.02,0.2,'sine'); }, reveal: () => { if(!audioCtx||audioCtx.state!=='running') return; const t=audioCtx.currentTime; [N.C3,N.E3,N.G3,N.C4,N.E4,N.G4,N.C5].forEach((f,i)=>playNote(f,t+i*0.04,0.12,0.2,'triangle')); } },
-        rain: { tick: () => { if(!audioCtx||audioCtx.state!=='running') return; const t=audioCtx.currentTime; playNote(1200,t,0.02,0.25,'sine'); playNote(1400,t+0.01,0.02,0.15,'triangle'); }, reveal: () => { if(!audioCtx||audioCtx.state!=='running') return; const t=audioCtx.currentTime; [N.C4,N.D4,N.E4,N.G4,N.A4,N.C5].forEach((f,i)=>playNote(f,t+i*0.05,0.1,0.18,'sine')); } },
-        slot: { tick: () => { if(!audioCtx||audioCtx.state!=='running') return; const t=audioCtx.currentTime; playNote(600,t,0.02,0.2,'sawtooth'); playNote(800,t+0.01,0.02,0.15,'square'); }, reveal: () => { if(!audioCtx||audioCtx.state!=='running') return; const t=audioCtx.currentTime; [N.C5,N.E5,N.G5,N.B5,N.C6].forEach((f,i)=>playNote(f,t+i*0.05,0.12,0.2,'triangle')); } },
-        bright: { tick: () => { if(!audioCtx||audioCtx.state!=='running') return; const t=audioCtx.currentTime; playNote(1500,t,0.02,0.25,'square'); playNote(1800,t+0.01,0.02,0.15,'triangle'); }, reveal: () => { if(!audioCtx||audioCtx.state!=='running') return; const t=audioCtx.currentTime; [N.C5,N.E5,N.G5,N.C6].forEach((f,i)=>playNote(f,t+i*0.06,0.15,0.22,'triangle')); } },
-        magic: { tick: () => { if(!audioCtx||audioCtx.state!=='running') return; const t=audioCtx.currentTime; playNote(500,t,0.03,0.2,'triangle'); playNote(700,t+0.01,0.02,0.15,'sine'); }, reveal: () => { if(!audioCtx||audioCtx.state!=='running') return; const t=audioCtx.currentTime; [N.C6,N.E6,N.G6,N.C7].forEach((f,i)=>playNote(f,t+i*0.06,0.12,0.18,'sine')); } },
-        scifi: { tick: () => { if(!audioCtx||audioCtx.state!=='running') return; const t=audioCtx.currentTime; playNote(900,t,0.02,0.2,'sawtooth'); playNote(1100,t+0.01,0.02,0.15,'square'); }, reveal: () => { if(!audioCtx||audioCtx.state!=='running') return; const t=audioCtx.currentTime; [N.C5,N.G5,N.C6,N.G6].forEach((f,i)=>playNote(f,t+i*0.05,0.1,0.2,'triangle')); } },
-        deep: { tick: () => { if(!audioCtx||audioCtx.state!=='running') return; const t=audioCtx.currentTime; playNote(200,t,0.04,0.25,'sine'); playNote(300,t+0.02,0.03,0.15,'triangle'); }, reveal: () => { if(!audioCtx||audioCtx.state!=='running') return; const t=audioCtx.currentTime; [N.C3,N.G3,N.C4,N.G4,N.C5].forEach((f,i)=>playNote(f,t+i*0.08,0.15,0.2,'sine')); } }
-    };
-    let currentScheme = null;
-    document.addEventListener('visibilitychange', async () => { if (!document.hidden) { await activate(); } });
-    return { 
-        play: async (t)=>{ await activate(); await play(t); },
-        activate: activate,
-        initScheme: (name) => { currentScheme = soundSchemes[name] || soundSchemes.wave; },
-        playTick: async () => { await activate(); if (currentScheme) currentScheme.tick(); },
-        playReveal: async () => { await activate(); if (currentScheme) currentScheme.reveal(); }
-    };
-})();
-
+// BlueRandomSoundManager 保持不变
 const BlueRandomSoundManager = (function(){
     let audioCtx = null, activated = false;
     const N = { C3:130.81, E3:164.81, G3:196.00, C4:261.63, D4:293.66, E4:329.63, G4:392.00, A4:440.00, C5:523.25, D5:587.33, E5:659.25, G5:784.00, A5:880.00, B5:987.77, C6:1046.50, D6:1174.66, E6:1318.51, G6:1567.98, A6:1760.00, C7:2093.00, E7:2637.02, G7:3135.96, C8:4186.01 };
@@ -895,14 +925,12 @@ const BlueRandomSoundManager = (function(){
         deep: { reveal: () => { const ctx=getAudioCtx(); if(!ctx||ctx.state!=='running') return; const t=ctx.currentTime; for(let i=0;i<8;i++){ const sonarT=t+i*0.55; playNote(200,sonarT,0.3,0.4,'sine'); playNote(400,sonarT+0.1,0.15,0.4,'triangle'); } setTimeout(()=>{ const ctx=getAudioCtx(); if(!ctx) return; const rise=ctx.createOscillator(); const riseGain=ctx.createGain(); rise.type='sine'; rise.frequency.setValueAtTime(100,ctx.currentTime); rise.frequency.exponentialRampToValueAtTime(300,ctx.currentTime+1.5); riseGain.gain.setValueAtTime(0.4,ctx.currentTime); riseGain.gain.linearRampToValueAtTime(0.4,ctx.currentTime+0.8); riseGain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+1.5); rise.connect(riseGain); riseGain.connect(ctx.destination); rise.start(); rise.stop(ctx.currentTime+1.5); },3800); setTimeout(()=>{ const ctx=getAudioCtx(); if(!ctx) return; const t2=ctx.currentTime; playNote(N.C5,t2,0.5,0.4,'triangle'); playNote(N.G5,t2+0.05,0.45,0.4,'sine'); playNote(N.C6,t2+0.1,0.4,0.4,'triangle'); },4600); } }
     };
     let currentScheme = null;
-    document.addEventListener('visibilitychange', async () => { if (!document.hidden) { await activate(); } });
     return {
         initScheme: async (name) => { await activate(); currentScheme = blueRandomSchemes[name] || blueRandomSchemes.wave; },
         playReveal: async () => { await activate(); if (currentScheme) currentScheme.reveal(); }
     };
 })();
 
-async function playSound(t) { await SoundManager.play(t); }
 function colorizeText(txt) { return txt.replace(/\b(\d{2})\b/g, (m,n)=>{ const c=parseInt(n); let col='#2d3748'; if(redGroup.has(c)) col='#e53e3e'; else if(blueGroup.has(c)) col='#3182ce'; else if(greenGroup.has(c)) col='#38a169'; return `<span style="color:${col};">${n}</span>`; }); }
 
 function formatNumbersForDisplay(numbers) {
@@ -979,7 +1007,7 @@ async function showCopyPreviewModal(html, plain, onConfirm) {
     const m = document.getElementById('copyPreviewModal'), msg = document.getElementById('copyPreviewMessage'); msg.innerHTML = html; m.style.display = 'flex';
     const close = () => { m.style.display = 'none'; };
     document.getElementById('modalCopyConfirm').onclick = async () => { 
-        await marioPowerupReveal(); 
+        await SoundManager.playMarioPowerupReveal(); 
         close(); 
         if(onConfirm) onConfirm(plain); 
     };
@@ -1208,7 +1236,7 @@ async function handleTailKill(t){
 }
 async function handleZodiacSelect(idx,lbl){ const nums=getGroupNumbers('zodiac',idx.toString()); if(!nums.length) return; const has=nums.some(n=>selectedNumbers.has(n));
     if(has){ await playSound('shutter'); const rm=nums.filter(n=>selectedNumbers.has(n)); if(!rm.length) return; const snapshot = captureFullSnapshot(rm); recordAction('batch_kill',lbl,rm,false,0,snapshot); rm.forEach(n=>{ selectedNumbers.delete(n); delete betResults[n]; bettingNumbers.delete(n); syncRemoveSpecial(n); document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.remove('is-active'); }); syncGlobalStateToHistory(rm,false); syncSpecialWithSelected(); addLog("select",`取消${lbl} ${formatNumbersForDisplay(rm)}`); }
-    else { marioCoinTick(); if(nums.every(n=>selectedNumbers.has(n))) return; const add=nums.filter(n=>!selectedNumbers.has(n)); const snapshot = captureFullSnapshot(add); recordAction('batch_select',lbl,add,true,0,snapshot); add.forEach(n=>{ selectedNumbers.add(n); document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.add('is-active'); }); syncGlobalStateToHistory(add,true); addLog("select",`选${lbl} ${formatNumbersForDisplay(add)}`); }
+    else { await SoundManager.playMarioCoinTick(); if(nums.every(n=>selectedNumbers.has(n))) return; const add=nums.filter(n=>!selectedNumbers.has(n)); const snapshot = captureFullSnapshot(add); recordAction('batch_select',lbl,add,true,0,snapshot); add.forEach(n=>{ selectedNumbers.add(n); document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.add('is-active'); }); syncGlobalStateToHistory(add,true); addLog("select",`选${lbl} ${formatNumbersForDisplay(add)}`); }
     updateAllStates();
 }
 async function handleBatchSelectBet(){ await playSound('click'); const b=document.getElementById('selectAllBetBtn'); if(b.classList.contains('grey')){ showToast(selectedNumbers.size?"ℹ️ 所有号码已选完":"⚠️ 暂无已选号码"); return; } const all=Array.from(selectedNumbers);
@@ -1219,14 +1247,14 @@ async function handleBatchSelectBet(){ await playSound('click'); const b=documen
         rm.forEach(n=>bettingNumbers.delete(n)); addLog("select", `${label} ${formatNumbersForDisplay(rm)}`);
     } else {
         const add=all.filter(n=>!betResults.hasOwnProperty(n)&&!bettingNumbers.has(n)); if(!add.length){ showToast("ℹ️ 这些号码已在待购或已购列表中"); return; }
-        marioCoinTick(); const snapshot = captureFullSnapshot(add); const label = b.textContent.includes('剩余')?'剩余全选':'全选';
+        await SoundManager.playMarioCoinTick(); const snapshot = captureFullSnapshot(add); const label = b.textContent.includes('剩余')?'剩余全选':'全选';
         recordAction('batch_betting_add', label, add, true, 0, snapshot);
         add.forEach(n=>bettingNumbers.add(n)); addLog("select", `${label} ${formatNumbersForDisplay(add)}`);
     } updateAllStates();
 }
 function updateBatchSelectButton(){ const b=document.getElementById('selectAllBetBtn'), total=selectedNumbers.size; for(const n of bettingNumbers) if(betResults.hasOwnProperty(n)) bettingNumbers.delete(n); let notBought=0, missing=0, inBet=0; for(const n of selectedNumbers){ if(betResults.hasOwnProperty(n)) continue; notBought++; if(bettingNumbers.has(n)) inBet++; else missing++; } b.className='batch-select-btn'; b.onclick=handleBatchSelectBet; b.style.opacity=b.style.cursor=''; if(!total){ b.classList.add('grey'); b.textContent='无号码'; b.style.opacity='0.5'; b.style.cursor='not-allowed'; } else if(!notBought){ b.classList.add('grey'); b.textContent='已选完'; b.style.opacity='0.5'; b.style.cursor='not-allowed'; } else { b.classList.add(missing===0&&inBet>0?'orange':'green'); b.textContent=(Object.keys(betResults).length?(missing===0?'取消剩余全选':'剩余全选'):(missing===0?'取消全选':'全选')); } }
 function renderKillControls(){ const hc=document.getElementById('kill-head-wuxing-controls'), pc=document.getElementById('kill-parity-controls'), tc=document.getElementById('kill-tail-controls'); const cf=(t,ty,v,h)=>{ const b=document.createElement('button'); b.className='filter-btn'; b.textContent=t; b.onclick=()=>h(v); return b; }; const cw=(t,c,p)=>{ const b=document.createElement('button'); b.className='wave-btn'; b.textContent=t; b.dataset.type=c; b.onclick=()=>handleWaveKill(c,p); return b; }; for(let i=0;i<=4;i++) hc.appendChild(cf(i.toString(),'head',i.toString(),handleHeadKill)); ['gold','wood','water','fire','earth'].forEach(t=>hc.appendChild(cf(wuxingChars[t],'wuxing',t,handleWuxingKill))); pc.appendChild(cw('红单','red','odd')); pc.appendChild(cw('红双','red','even')); pc.appendChild(cw('蓝单','blue','odd')); pc.appendChild(cw('蓝双','blue','even')); pc.appendChild(cw('绿单','green','odd')); pc.appendChild(cw('绿双','green','even')); ['大单','小单','大双','小双'].forEach(t=>{ const b=document.createElement('button'); b.className='filter-btn'; b.textContent=t; b.onclick=()=>handleSizeParityKill(t); pc.appendChild(b); }); for(let i=0;i<=9;i++) tc.appendChild(cf(i.toString(),'tail',i.toString(),handleTailKill)); }
-async function renderSelectZodiacButtons(){ const c=document.getElementById('selectZodiacButtons'); c.innerHTML=''; zodiacs.forEach((z,i)=>{ const b=document.createElement('button'); b.className='select-zodiac-btn'; b.textContent=z; b.setAttribute('data-color',zodiacColors[i%zodiacColors.length]); b.onclick=async ()=>{ const inp=document.getElementById('smartInput'); const isAdding=!inp.value.includes(z); if(isAdding){ marioCoinTick(); } else { await playSound('shutter'); } let v=inp.value; if(v.includes(z)){ v=v.replace(new RegExp(z,'g'),''); inp.value=v; addLog("select",`删${z}`); } else { inp.value=v+z; addLog("select",`加${z}`); } updateZodiacButtonsFromInput(inp.value); }; c.appendChild(b); }); }
+async function renderSelectZodiacButtons(){ const c=document.getElementById('selectZodiacButtons'); c.innerHTML=''; zodiacs.forEach((z,i)=>{ const b=document.createElement('button'); b.className='select-zodiac-btn'; b.textContent=z; b.setAttribute('data-color',zodiacColors[i%zodiacColors.length]); b.onclick=async ()=>{ const inp=document.getElementById('smartInput'); const isAdding=!inp.value.includes(z); if(isAdding){ await SoundManager.playMarioCoinTick(); } else { await playSound('shutter'); } let v=inp.value; if(v.includes(z)){ v=v.replace(new RegExp(z,'g'),''); inp.value=v; addLog("select",`删${z}`); } else { inp.value=v+z; addLog("select",`加${z}`); } updateZodiacButtonsFromInput(inp.value); }; c.appendChild(b); }); }
 function renderSelectWaveButtons(){ const c=document.getElementById('selectWaveButtons'); c.innerHTML=''; [{t:'红单',c:'red',p:'odd'},{t:'红双',c:'red',p:'even'},{t:'蓝单',c:'blue',p:'odd'},{t:'蓝双',c:'blue',p:'even'},{t:'绿单',c:'green',p:'odd'},{t:'绿双',c:'green',p:'even'}].forEach(w=>{ const b=document.createElement('button'); b.className='select-wave-btn'; b.textContent=w.t; b.setAttribute('data-type',w.c); b.onclick=()=>handleSelectWave(w.c,w.p); c.appendChild(b); }); updateSelectWaveButtonsState(); }
 async function handleSelectWave(c,p){ const v=`${c}-${p}`, nums=getGroupNumbers('parity',v); if(!nums.length) return; const allLit=nums.every(n=>selectedNumbers.has(n));
     if(!allLit){ await playSound('pop'); const add=nums.filter(n=>!selectedNumbers.has(n)); if(!add.length) return; const snapshot = captureFullSnapshot(add); recordAction('select_wave',getGroupLabel('parity',v),add,true,0,snapshot); add.forEach(n=>{ selectedNumbers.add(n); document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.add('is-active'); }); syncGlobalStateToHistory(add,true); addLog("select",`亮${getGroupLabel('parity',v)} ${formatNumbersForDisplay(add)}`); }
@@ -1244,7 +1272,7 @@ function updateAllStates(){ syncSpecialWithSelected(); updateNumberBalls(); upda
 function getColorClass(n){ if(redGroup.has(n)) return 'text-red'; if(greenGroup.has(n)) return 'text-green'; if(blueGroup.has(n)) return 'text-blue'; return ''; }
 async function handleResultNumClick(n){ if(!selectedNumbers.has(n)) return; if(betResults[n]!==undefined){ cancelBet(n); return; } const add=!bettingNumbers.has(n); const snapshot = captureFullSnapshot([n]);
     if(add){ 
-        marioCoinTick();
+        await SoundManager.playMarioCoinTick();
         bettingNumbers.add(n); 
         recordAction('manual_betting_toggle',fmtNum(n),[n],true,0,{...snapshot, number:n, wasAdded:true}); 
         addLog("select",`待购${fmtNum(n)}`); 
@@ -1269,14 +1297,14 @@ async function handleClearBetResults(){ await playSound('click'); if(!Object.key
 function calculateNumberFrequencies(){ const f={}; inputHistory.forEach(it=>{ if(it.isActive) it.sortedNumbers.forEach(n=>f[n]=(f[n]||0)+1); }); return f; }
 function getFreqStyle(fr){ if(fr===1) return { bg:'radial-gradient(circle at 30% 30%, #f7fafc 0%, #cbd5e0 40%, #a0aec0 100%)', text:'#4a5568', textClass:'light-text' }; if(globalFreqColorMap.has(fr)) return { bg:globalFreqColorMap.get(fr), text:'#fff', textClass:'dark-text' }; const bg=freqColorPalette[(fr-2)%freqColorPalette.length]; globalFreqColorMap.set(fr,bg); return { bg, text:'#fff', textClass:'dark-text' }; }
 function toggleNumbersByFrequency(fr){ const fm=calculateNumberFrequencies(), tgt=[]; for(let i=1;i<=49;i++) if((fm[i]||0)===fr) tgt.push(i); if(!tgt.length){ showToast(`ℹ️ 没有重复 ${fr} 次的号码`); return; } const any=tgt.some(n=>selectedNumbers.has(n)); const lbl=`${fr}次重复号`;
-    if(any){ marioCoinTick(); const rm = tgt.filter(n=>selectedNumbers.has(n)); const snapshot = captureFullSnapshot(rm); recordAction('freq_batch',lbl,rm,false,0,{...snapshot, wasAdding:false, originalSpecial:tgt.filter(n=>specialNumbersSet.has(n))}); rm.forEach(n=>{ selectedNumbers.delete(n); delete betResults[n]; bettingNumbers.delete(n); syncRemoveSpecial(n); if(currentHighlightedNumber===n) currentHighlightedNumber=null; document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.remove('is-active'); }); syncGlobalStateToHistory(rm,false); addLog("select",`熄${lbl} ${formatNumbersForDisplay(rm)}`); }
+    if(any){ SoundManager.playMarioCoinTick(); const rm = tgt.filter(n=>selectedNumbers.has(n)); const snapshot = captureFullSnapshot(rm); recordAction('freq_batch',lbl,rm,false,0,{...snapshot, wasAdding:false, originalSpecial:tgt.filter(n=>specialNumbersSet.has(n))}); rm.forEach(n=>{ selectedNumbers.delete(n); delete betResults[n]; bettingNumbers.delete(n); syncRemoveSpecial(n); if(currentHighlightedNumber===n) currentHighlightedNumber=null; document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.remove('is-active'); }); syncGlobalStateToHistory(rm,false); addLog("select",`熄${lbl} ${formatNumbersForDisplay(rm)}`); }
     else { playSound('shutter'); const add = tgt.filter(n=>!selectedNumbers.has(n)); const snapshot = captureFullSnapshot(add); recordAction('freq_batch',lbl,add,true,0,{...snapshot, wasAdding:true, originalSpecial:tgt.filter(n=>specialNumbersSet.has(n))}); add.forEach(n=>{ selectedNumbers.add(n); if(currentHighlightedNumber===n) currentHighlightedNumber=null; document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.add('is-active'); }); syncGlobalStateToHistory(add,true); addLog("select",`亮${lbl} ${formatNumbersForDisplay(add)}`); }
     syncSpecialWithSelected(); updateAllStates(); setTimeout(updateFrequencyButtonsPressedState,50);
 }
 function renderFrequencyButtons(){ const c=document.getElementById('sphereBtnContainer'); c.innerHTML=''; const fm=calculateNumberFrequencies(); if(!Object.keys(fm).length) return; const fc={}; Object.values(fm).forEach(v=>fc[v]=(fc[v]||0)+1); Object.keys(fc).sort((a,b)=>parseInt(a)-parseInt(b)).forEach(k=>{ const fr=parseInt(k); if(fc[fr]>0){ const b=document.createElement('button'); b.className='sphere-btn-base count-btn'; b.textContent=fc[fr]; const st=getFreqStyle(fr); b.style.background=st.bg; b.style.color=st.text; if(st.textClass) b.classList.add(st.textClass); b.setAttribute('data-freq',fr); b.title=`重复${fr}次的号码共${fc[fr]}个`; b.classList.toggle('is-pressed',!Object.entries(fm).filter(([n,f])=>f===fr).some(([n])=>selectedNumbers.has(parseInt(n)))); b.onclick=async (e)=>{ e.stopPropagation(); toggleNumbersByFrequency(fr); }; c.appendChild(b); } }); }
 function renderHistoryLog(){ const box=document.getElementById('historyLogBox'); if(!inputHistory.length){ box.style.display='none'; return; } box.style.display='flex'; box.innerHTML=''; inputHistory.forEach((it,idx)=>{ const row=document.createElement('div'); row.className='history-row'; const del=document.createElement('span'); del.className='history-delete-btn'; del.innerHTML='×'; del.onclick=()=>removeHistoryItem(idx); const lbl=document.createElement('span'); lbl.className='history-label'; const pure=it.isPureZodiac, cnt=pure?(it.labelPrefix.match(/^(\d+)肖/)?.[1]||it.numbers.length):it.numbers.length, unit=pure?'肖':'码'; if(it.isActive){ lbl.innerHTML=`<span class="label-number">${cnt}</span><span class="label-text">${unit}</span>`; lbl.classList.remove('all-lit'); } else { lbl.innerHTML='<span class="label-text">点亮</span>'; lbl.classList.add('all-lit'); } lbl.onclick=async ()=>{ const nums=it.sortedNumbers; const snapshot = captureFullSnapshot(nums);
         if(!it.isActive){ await playSound('shutter'); it.isActive=true; nums.forEach(n=>{ addNumberSource(n,it.id); selectedNumbers.add(n); }); recordAction('history_label_on',`亮${it.labelPrefix}`,nums,true,0,{...snapshot, historyId:it.id}); addLog("select",`亮历史${it.labelPrefix} ${formatNumbersForDisplay(nums)}`); }
-        else { marioCoinTick(); it.isActive=false; nums.forEach(n=>{ removeNumberSource(n,it.id); if(!numberSources.has(n)){ selectedNumbers.delete(n); syncRemoveSpecial(n); } }); recordAction('history_label_off',`熄${it.labelPrefix}`,nums,false,0,{...snapshot, historyId:it.id}); addLog("select",`熄历史${it.labelPrefix} ${formatNumbersForDisplay(nums)}`); }
+        else { await SoundManager.playMarioCoinTick(); it.isActive=false; nums.forEach(n=>{ removeNumberSource(n,it.id); if(!numberSources.has(n)){ selectedNumbers.delete(n); syncRemoveSpecial(n); } }); recordAction('history_label_off',`熄${it.labelPrefix}`,nums,false,0,{...snapshot, historyId:it.id}); addLog("select",`熄历史${it.labelPrefix} ${formatNumbersForDisplay(nums)}`); }
         updateAllStates();
     }; const nd=document.createElement('div'); nd.className='history-nums'; it.sortedNumbers.forEach(n=>{ const sp=document.createElement('span'); const fr=calculateNumberFrequencies()[n]||0, st=getFreqStyle(fr||1); sp.className='history-num-item'; if(!(it.isActive&&selectedNumbers.has(n))) sp.classList.add('flat'); if(currentHighlightedNumber===n&&it.isActive&&selectedNumbers.has(n)) sp.classList.add('highlighted'); sp.style.background=st.bg; sp.style.color=st.text; sp.style.textShadow=st.textClass==='light-text'?'0 1px 0 rgba(255,255,255,0.5)':'0 1px 2px rgba(0,0,0,0.4)'; sp.textContent=fmtNum(n); sp.title=`出现 ${fr} 次`; sp.onclick=async (e)=>{ e.stopPropagation(); await playSound('click'); document.querySelectorAll('.history-num-item.highlighted').forEach(el=>el.classList.remove('highlighted')); if(currentHighlightedNumber===n){ currentHighlightedNumber=null; recordAction('global_highlight','取消高亮',[n],false,0,{newValue:null,wasRemoved:true}); } else { currentHighlightedNumber=n; document.querySelectorAll('.history-num-item').forEach(el=>{ if(parseInt(el.textContent)===n) el.classList.add('highlighted'); }); recordAction('global_highlight',`高亮${fmtNum(n)}`,[n],true,0,{newValue:n,wasRemoved:false}); } save_data(); }; nd.appendChild(sp); }); row.appendChild(del); row.appendChild(lbl); row.appendChild(nd); box.appendChild(row); }); }
 async function removeHistoryItem(idx){ await playSound('shutter'); const it=inputHistory[idx]; if(!it) return; const snapshot = captureFullSnapshot(it.sortedNumbers); recordAction('history_delete','删除历史',[],false,0,{index:idx,deletedItem:it,...snapshot}); if(it.isActive) it.numbers.forEach(n=>{ removeNumberSource(n,it.id); if(!numberSources.has(n)){ selectedNumbers.delete(n); syncRemoveSpecial(n); } }); inputHistory.splice(idx,1); updateAllStates(); addLog("input",`删历史${it.numbers.length}码`); save_data(); }
