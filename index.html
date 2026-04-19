@@ -590,7 +590,7 @@ button, .num-btn, .action-grid-btn, .sphere-btn-base, .filter-btn, .wave-btn, .z
 </div>
 <div style="font-size: 0.65rem; font-weight: 700; color: #4a5568; margin-bottom: 2px; display:flex; justify-content:space-between; align-items:center;">
 <span>操作记录</span>
-<span style="font-weight: 600; color: #718096;">V2.02</span>
+<span style="font-weight: 600; color: #718096;">V2.03</span>
 </div>
 <div class="log-container" id="logContainer"><div class="log-item" style="color:#718096; justify-content:center;">暂无记录</div></div>
 </div>
@@ -706,7 +706,7 @@ button, .num-btn, .action-grid-btn, .sphere-btn-base, .filter-btn, .wave-btn, .z
 </div>
 
 <script>
-// ==================== 统一音效管理器 (V2.02) ====================
+// ==================== 统一音效管理器 (V2.03) ====================
 const SoundManager = (function(){
     let audioCtx = null;
     const N = { C3:130.81, E3:164.81, G3:196.00, C4:261.63, D4:293.66, E4:329.63, G4:392.00, A4:440.00, C5:523.25, D5:587.33, E5:659.25, G5:784.00, A5:880.00, B5:987.77, C6:1046.50, D6:1174.66, E6:1318.51, G6:1567.98, A6:1760.00, C7:2093.00, E7:2637.02, G7:3135.96, C8:4186.01 };
@@ -826,7 +826,7 @@ const SoundManager = (function(){
 
 async function playSound(t) { await SoundManager.play(t); }
 
-// ==================== 核心逻辑 (V2.02) ====================
+// ==================== 核心逻辑 (V2.03) ====================
 function generateIconSvg(text) {
 const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="#D90429"/><text x="50" y="68" font-family="'ZCOOL XiaoWei', serif" font-size="56" font-weight="900" fill="white" text-anchor="middle" style="filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.4));">${text}</text></svg>`;
 return 'data:image/svg+xml,' + encodeURIComponent(svg);
@@ -953,13 +953,10 @@ async function showConfirmModal(title, msg, onConfirm, isDanger=false, isHtml=fa
     } else { 
         mEl.innerHTML = msg.replace(/([^0-9\s\.]+)/g, '<span class="chinese-text">$1</span>'); 
     }
-    // 对齐规则：只有标题为"撤销"或"恢复"时才应用特殊规则
     if (title === '撤销' || title === '恢复') {
-        // 检测是否包含两位数号码（被colorizeText处理后会有span标签）
         const hasNumberBall = /\b\d{2}\b/.test(msg);
         mEl.style.textAlign = hasNumberBall ? 'left' : 'center';
     } else {
-        // 其他弹窗保持原逻辑：含数字左对齐，纯汉字居中
         const hasNumber = /\d/.test(msg);
         mEl.style.textAlign = hasNumber ? 'left' : 'center';
     }
@@ -1029,27 +1026,45 @@ async function showCopyPreviewModal(html, plain, onConfirm) {
     document.getElementById('modalCopyCancel').onclick = async () => { await playSound('click'); close(); };
     m.onclick = async (e) => { if(e.target === m) { await playSound('click'); close(); } };
 }
+
 async function showInputModal() {
-    await playSound('click'); const m = document.getElementById('inputModal'), ta = document.getElementById('modalInputArea'); ta.value = ''; m.style.display = 'flex'; ta.focus();
+    await playSound('click'); 
+    const m = document.getElementById('inputModal'), ta = document.getElementById('modalInputArea'); 
+    const inp = document.getElementById('smartInput');
+    ta.value = inp.value;
+    m.style.display = 'flex'; 
+    ta.focus();
     const resize = () => { ta.style.height = 'auto'; ta.style.height = Math.max(48, ta.scrollHeight) + 'px'; };
-    ta.addEventListener('input', resize); resize();
+    ta.addEventListener('input', resize); 
+    resize();
     const close = () => { m.style.display = 'none'; ta.removeEventListener('input', resize); };
     const confirm = () => {
-        const txt = ta.value.trim(); if(!txt) { close(); return; }
+        const txt = ta.value.trim(); 
+        if(!txt) { close(); return; }
         let pt = txt.replace(/[.,,;:;\\\/。.；：，、]/g, ' ');
         const invNums = (pt.match(/\d+/g)||[]).filter(m=>{ const n=parseInt(m); return n===0||n>49; });
         const invChars = [...pt.replace(/[\s]/g,'')].filter(c=>!/\d/.test(c)&&!ZODIAC_MAP.hasOwnProperty(c));
         if(invNums.length||invChars.length) {
-            let err = ''; if(invNums.length) err += `无效数字：${invNums.join('、')}`; if(invChars.length) err += (err?'\n':'') + `无效字符：${[...new Set(invChars)].join('、')}`;
-            playSound('slip'); const em = document.getElementById('inputErrorModal'); document.getElementById('inputErrorMessage').textContent = err; em.style.display = 'flex';
-            document.getElementById('modalErrorConfirm').onclick = async () => { await playSound('click'); em.style.display = 'none'; ta.focus(); }; return;
+            let err = ''; 
+            if(invNums.length) err += `无效数字：${invNums.join('、')}`; 
+            if(invChars.length) err += (err?'\n':'') + `无效字符：${[...new Set(invChars)].join('、')}`;
+            playSound('slip'); 
+            const em = document.getElementById('inputErrorModal'); 
+            document.getElementById('inputErrorMessage').textContent = err; 
+            em.style.display = 'flex';
+            document.getElementById('modalErrorConfirm').onclick = async () => { await playSound('click'); em.style.display = 'none'; ta.focus(); }; 
+            return;
         }
-        processInputAndAddToHistory(txt); close();
+        close();
+        inp.value = txt;
+        updateZodiacButtonsFromInput(txt);
+        processConfirm();
     };
     document.getElementById('modalInputConfirm').onclick = async () => { await playSound('click'); confirm(); };
     document.getElementById('modalInputCancel').onclick = async () => { await playSound('click'); close(); };
     m.onclick = async (e) => { if(e.target === m) { await playSound('click'); close(); } };
 }
+
 function updateZodiacButtonsFromInput(txt) { document.querySelectorAll('.select-zodiac-btn').forEach(b=>{ b.classList.toggle('is-active-zodiac', txt.includes(b.textContent)); }); }
 function syncGlobalStateToHistory(nums, st) { inputHistory.forEach(it=> nums.forEach(n=>{ if(it.groupState?.hasOwnProperty(n)) it.groupState[n]=st; })); renderHistoryLog(); }
 function fmtNum(n) { return n<10?'0'+n:''+n; }
@@ -1481,7 +1496,6 @@ async function processConfirm(){
     if(!txt){ await playSound('slip'); showToast("⚠️ 请输入号码或生肖"); return; } 
     await playSound('pop'); 
     
-    // 保存操作前的完整状态
     const prevSelected = [...selectedNumbers];
     const prevSpecial = [...specialNumbersSet];
     const prevBetting = [...bettingNumbers];
@@ -1492,10 +1506,8 @@ async function processConfirm(){
         sortedNumbers: [...h.sortedNumbers]
     }));
     
-    // 执行输入处理
     processInputAndAddToHistory(txt); 
     
-    // 保存操作后的完整状态
     const nextSelected = [...selectedNumbers];
     const nextSpecial = [...specialNumbersSet];
     const nextBetting = [...bettingNumbers];
@@ -1506,7 +1518,6 @@ async function processConfirm(){
         sortedNumbers: [...h.sortedNumbers]
     }));
     
-    // 记录操作，包含完整快照
     recordAction('input_text','输入确认',[],false,0,{
         prevText: txt, 
         nextText: '', 
