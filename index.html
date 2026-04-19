@@ -590,7 +590,7 @@ button, .num-btn, .action-grid-btn, .sphere-btn-base, .filter-btn, .wave-btn, .z
 </div>
 <div style="font-size: 0.65rem; font-weight: 700; color: #4a5568; margin-bottom: 2px; display:flex; justify-content:space-between; align-items:center;">
 <span>操作记录</span>
-<span style="font-weight: 600; color: #718096;">V2.08</span>
+<span style="font-weight: 600; color: #718096;">V2.09</span>
 </div>
 <div class="log-container" id="logContainer"><div class="log-item" style="color:#718096; justify-content:center;">暂无记录</div></div>
 </div>
@@ -706,7 +706,7 @@ button, .num-btn, .action-grid-btn, .sphere-btn-base, .filter-btn, .wave-btn, .z
 </div>
 
 <script>
-// ==================== 统一音效管理器 (V2.08) ====================
+// ==================== 统一音效管理器 (V2.09) ====================
 const SoundManager = (function(){
     let audioCtx = null;
     const N = { C3:130.81, E3:164.81, G3:196.00, C4:261.63, D4:293.66, E4:329.63, G4:392.00, A4:440.00, C5:523.25, D5:587.33, E5:659.25, G5:784.00, A5:880.00, B5:987.77, C6:1046.50, D6:1174.66, E6:1318.51, G6:1567.98, A6:1760.00, C7:2093.00, E7:2637.02, G7:3135.96, C8:4186.01 };
@@ -831,7 +831,7 @@ const SoundManager = (function(){
 // 快捷函数
 async function playSound(t) { await SoundManager.play(t); }
 
-// ==================== 核心逻辑 (V2.08) ====================
+// ==================== 核心逻辑 (V2.09) ====================
 function generateIconSvg(text) {
 const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="#D90429"/><text x="50" y="68" font-family="'ZCOOL XiaoWei', serif" font-size="56" font-weight="900" fill="white" text-anchor="middle" style="filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.4));">${text}</text></svg>`;
 return 'data:image/svg+xml,' + encodeURIComponent(svg);
@@ -931,7 +931,15 @@ const BlueRandomSoundManager = (function(){
     };
 })();
 
-function colorizeText(txt) { return txt.replace(/\b(\d{2})\b/g, (m,n)=>{ const c=parseInt(n); let col='#2d3748'; if(redGroup.has(c)) col='#e53e3e'; else if(blueGroup.has(c)) col='#3182ce'; else if(greenGroup.has(c)) col='#38a169'; return `<span style="color:${col};">${n}</span>`; }); }
+function colorizeText(txt) { 
+    return txt.replace(/\b(\d{2})\b/g, (m,n)=>{ 
+        const c=parseInt(n); let col='#2d3748'; 
+        if(redGroup.has(c)) col='#e53e3e'; 
+        else if(blueGroup.has(c)) col='#3182ce'; 
+        else if(greenGroup.has(c)) col='#38a169'; 
+        return `<span style="color:${col};">${n}</span>`; 
+    }); 
+}
 
 function formatNumbersForDisplay(numbers) {
     if (!numbers || numbers.length === 0) return '';
@@ -947,7 +955,9 @@ async function showConfirmModal(title, msg, onConfirm, isDanger=false, isHtml=fa
     const oBtn = isDanger ? document.getElementById('modalDangerConfirm') : document.getElementById('modalConfirmOk');
     tEl.textContent = title;
     if (isHtml) { mEl.innerHTML = msg; } else { mEl.innerHTML = msg.replace(/([^0-9\s\.]+)/g, '<span class="chinese-text">$1</span>'); }
-    mEl.style.textAlign = (title==='撤销'||title==='恢复')?'center':'left';
+    // 根据内容是否包含数字决定对齐方式：纯汉字居中，含数字左对齐
+    const hasNumber = /\d/.test(msg);
+    mEl.style.textAlign = hasNumber ? 'left' : 'center';
     m.style.display = 'flex';
     const close = () => { m.style.display = 'none'; };
     oBtn.onclick = async () => { await playSound('click'); close(); if(onConfirm) onConfirm(); };
@@ -1087,29 +1097,35 @@ function addNumberSource(n,gid){ if(!numberSources.has(n)) numberSources.set(n,n
 function removeNumberSource(n,gid){ const s=numberSources.get(n); if(s){ s.delete(gid); if(s.size===0) numberSources.delete(n); } }
 
 function getUndoActionDescription(a){
-    const isUndo = (a._context === 'undo');
-    
-    if(a.type==='input_text') {
-        const nums = a.prevNumbers || a.nextNumbers || [];
-        if (nums.length === 0) return '输入';
-        const pureZodiac = !a.rawText?.match(/\d/);
-        const label = pureZodiac ? `${nums.length}肖` : `${nums.length}码`;
-        return `输入栏 ${label}`;
+    // 基于 V2.07 原始逻辑，仅按规则调整描述文字（不包含"撤销""恢复"字样）
+    if(a.type==='input_text'){
+        const txt = a.prevText || a.nextText || '';
+        const pureZodiac = !txt.match(/\d/);
+        if (pureZodiac) {
+            // 纯生肖：显示"输入栏鼠"（取第一个生肖名，若多个也只显示第一个）
+            const match = txt.match(/[鼠牛虎兔龙蛇马羊猴鸡狗猪]/);
+            return match ? `输入栏${match[0]}` : '输入栏';
+        } else {
+            // 包含数字：显示"输入栏01.02.03"
+            const nums = txt.match(/\d+/g) || [];
+            const valid = nums.map(n=>parseInt(n)).filter(n=>n>=1&&n<=49);
+            if (valid.length) {
+                const sorted = [...new Set(valid)].sort((a,b)=>a-b);
+                return `输入栏${sorted.map(n=>fmtNum(n)).join('.')}`;
+            }
+            return '输入栏';
+        }
     }
-    if(a.type==='history_delete') {
+    if(a.type==='history_delete'){
         const it = a.deletedItem;
-        const label = it.isPureZodiac ? `${it.numbers.length}肖` : `${it.numbers.length}码`;
-        return `删除 ${label}`;
+        const pure = it.isPureZodiac;
+        const cnt = pure ? (it.labelPrefix.match(/^(\d+)肖/)?.[1] || it.numbers.length) : it.numbers.length;
+        const unit = pure ? '肖' : '码';
+        return `删除${cnt}${unit}`;
     }
     if(a.type==='global_highlight') return a.newValue?fmtNum(a.newValue):'高亮';
-    if(a.type==='bet_confirm') {
-        const numsStr = formatNumbersForDisplay(a.numbers);
-        return `买 ${numsStr}`;
-    }
-    if(a.type==='bet_cancel') {
-        const numsStr = formatNumbersForDisplay(a.numbers);
-        return `取消买 ${numsStr}`;
-    }
+    if(a.type==='bet_confirm') return `买 ${formatNumbersForDisplay(a.numbers)}`;
+    if(a.type==='bet_cancel') return `取消买 ${formatNumbersForDisplay(a.numbers)}`;
     if(a.type==='temp_store') return '暂存';
     if(a.type==='temp_restore') return '恢复暂存';
     if(a.type==='temp_clear') return '清空暂存';
@@ -1118,68 +1134,66 @@ function getUndoActionDescription(a){
     if(a.type==='manual_select') return fmtNum(a.number);
     if(a.type==='manual_deselect') return fmtNum(a.number);
     if(a.type==='manual_betting_toggle') return fmtNum(a.number);
-    if(a.type==='clear_betting') {
-        const numsStr = formatNumbersForDisplay(a.numbers);
-        return `清空待购 ${numsStr}`;
+    if(a.type==='clear_betting') return `清空待购 ${formatNumbersForDisplay(a.numbers)}`;
+    if(a.type==='clear_bet_results') return '清空结果';
+    if(a.type==='freq_batch'){
+        return `重复${a.label.match(/\d+/)?.[0] || ''}次的号码`;
     }
-    if(a.type==='clear_bet_results') return '结果';
-    if(a.type==='freq_batch') {
-        const prefix = a.wasAdding ? '点亮' : '熄灭';
-        return `${prefix} ${a.label}`;
+    if(a.type==='history_label_on'){
+        const pure = a.label.includes('肖');
+        const cnt = pure ? (a.label.match(/^(\d+)肖/)?.[1] || a.numbers.length) : a.numbers.length;
+        const unit = pure ? '肖' : '码';
+        return `${cnt}${unit}`;
     }
-    if(a.type==='history_label_on') {
-        const prefix = isUndo ? '点亮' : '点亮';
-        return `${prefix} ${a.label}`;
+    if(a.type==='history_label_off'){
+        const pure = a.label.includes('肖');
+        const cnt = pure ? (a.label.match(/^(\d+)肖/)?.[1] || a.numbers.length) : a.numbers.length;
+        const unit = pure ? '肖' : '码';
+        return `${cnt}${unit}`;
     }
-    if(a.type==='history_label_off') {
-        const prefix = isUndo ? '熄灭' : '熄灭';
-        return `${prefix} ${a.label}`;
-    }
-    if(a.type==='select_wave') {
+    if(a.type==='select_wave'){
         return `选${a.label}`;
     }
-    if(a.type==='batch_kill') {
+    if(a.type==='batch_kill'){
         if (a.label.includes('字头')) return `杀${a.label}`;
         if (a.label.includes('属性')) return `杀${a.label}`;
         if (a.label.includes('尾')) return `杀${a.label}`;
         if (a.label.includes('红')||a.label.includes('蓝')||a.label.includes('绿')) return `杀${a.label}`;
-        const numsStr = formatNumbersForDisplay(a.numbers);
-        return `杀号 ${numsStr}`;
+        return `杀号 ${formatNumbersForDisplay(a.numbers)}`;
     }
-    if(a.type==='batch_select') {
+    if(a.type==='batch_select'){
         if (a.label.includes('肖')) {
-            const prefix = a.wasAdded ? '点亮' : '熄灭';
-            return `${prefix} ${a.label}`;
+            return a.wasAdded ? `亮${a.label}` : `灭${a.label}`;
         }
         return `选号 ${formatNumbersForDisplay(a.numbers)}`;
     }
-    if(a.type==='batch_betting_add') {
-        const numsStr = formatNumbersForDisplay(a.numbers);
-        return a.label.includes('全选') ? `全选待购 ${numsStr}` : `待购 ${numsStr}`;
-    }
-    if(a.type==='batch_betting_remove') {
-        const numsStr = formatNumbersForDisplay(a.numbers);
-        return a.label.includes('取消') ? `取消待购 ${numsStr}` : `取消待购 ${numsStr}`;
-    }
-    if(a.type==='batch_input') {
+    if(a.type==='batch_betting_add') return `待购 ${formatNumbersForDisplay(a.numbers)}`;
+    if(a.type==='batch_betting_remove') return `取消待购 ${formatNumbersForDisplay(a.numbers)}`;
+    if(a.type==='batch_input'){
+        // 随机号码
         if (a.label.includes('随机')) return `随机号码 ${formatNumbersForDisplay(a.numbers)}`;
-        const pureZodiac = !a.rawText?.match(/\d/);
-        const label = pureZodiac ? `${a.numbers.length}肖` : `${a.numbers.length}码`;
-        return `输入栏 ${label}`;
+        // 输入栏确认
+        const txt = a.rawText || '';
+        const pureZodiac = !txt.match(/\d/);
+        if (pureZodiac) {
+            const match = txt.match(/[鼠牛虎兔龙蛇马羊猴鸡狗猪]/);
+            return match ? `输入栏${match[0]}` : '输入栏';
+        } else {
+            return `输入栏${formatNumbersForDisplay(a.numbers)}`;
+        }
     }
-    if(a.type==='zodiac_input') {
-        return `输入 ${a.label}`;
+    if(a.type==='zodiac_input'){
+        return `输入${a.label}`;
     }
     if(a.numbers?.length===1) return fmtNum(a.numbers[0]);
     return a.label || '';
 }
+
 async function performUndo(){ 
     await playSound('slip'); 
     if(!undoStack.length){ showToast("ℹ️ 没有可撤销的操作"); return; } 
-    const a=undoStack[undoStack.length-1]; 
-    a._context = 'undo';
-    const d=getUndoActionDescription(a); 
-    showConfirmModal('', colorizeText(d), async ()=>{
+    const a=undoStack[undoStack.length-1], d=getUndoActionDescription(a); 
+    showConfirmModal('撤销', colorizeText(d), async ()=>{
     const act=undoStack.pop(); redoStack.push({...act});
     if(act.type==='input_text'){ const inp=document.getElementById('smartInput'); inp.value=act.prevText||''; updateZodiacButtonsFromInput(inp.value); if(act.prevNumbers){ selectedNumbers.clear(); act.prevNumbers.forEach(n=>selectedNumbers.add(n)); } if(act.prevHistory) inputHistory=[...act.prevHistory]; updateAllStates(); save_data(); return; }
     if(act.type==='history_delete'){ const it=act.deletedItem; inputHistory.splice(act.index,0,it); if(it.isActive) it.numbers.forEach(n=>{ addNumberSource(n,it.id); selectedNumbers.add(n); }); updateAllStates(); addLog("undo","恢复历史"); save_data(); return; }
@@ -1203,17 +1217,17 @@ async function performUndo(){
         if(act.type==='history_label_on'||act.type==='history_label_off'){ const it=inputHistory.find(h=>h.id===act.historyId); if(it) it.isActive = !it.isActive; }
         syncSpecialWithSelected(); updateAllStates(); save_data(); return;
     }
+    else if(act.type==='zodiac_input'){ const inp=document.getElementById('smartInput'); inp.value=act.prevText||''; updateZodiacButtonsFromInput(inp.value); addLog("undo",`撤销输入${act.label}`); updateAllStates(); save_data(); return; }
     else if(act.type==='clear_bet_results'){ betResults={...(act.prevBetResults||{})}; addLog("undo","撤销清空结果"); }
     else { if(act.wasAdded){ act.numbers.forEach(n=>selectedNumbers.delete(n)); } else { act.numbers.forEach(n=>selectedNumbers.add(n)); } syncSpecialWithSelected(); }
     updateAllStates(); save_data();
 }, false, true); }
+
 async function performRedo(){ 
     await playSound('pop'); 
     if(!redoStack.length){ showToast("ℹ️ 没有可恢复的操作"); return; } 
-    const a=redoStack[redoStack.length-1]; 
-    a._context = 'redo';
-    const d=getUndoActionDescription(a); 
-    showConfirmModal('', colorizeText(d), async ()=>{
+    const a=redoStack[redoStack.length-1], d=getUndoActionDescription(a); 
+    showConfirmModal('恢复', colorizeText(d), async ()=>{
     const act=redoStack.pop(); undoStack.push({...act});
     if(act.type==='input_text'){ const inp=document.getElementById('smartInput'); inp.value=act.nextText||''; updateZodiacButtonsFromInput(inp.value); if(act.nextNumbers){ selectedNumbers.clear(); act.nextNumbers.forEach(n=>selectedNumbers.add(n)); } if(act.nextHistory) inputHistory=[...act.nextHistory]; updateAllStates(); save_data(); return; }
     if(act.type==='history_delete'){ const it=inputHistory[act.index]; if(it.isActive) it.numbers.forEach(n=>{ removeNumberSource(n,it.id); if(!numberSources.has(n)){ selectedNumbers.delete(n); syncRemoveSpecial(n); } }); inputHistory.splice(act.index,1); updateAllStates(); addLog("redo","重做删除历史"); save_data(); return; }
@@ -1237,6 +1251,7 @@ async function performRedo(){
         if(act.type==='history_label_on'||act.type==='history_label_off'){ const it=inputHistory.find(h=>h.id===act.historyId); if(it) it.isActive = !it.isActive; }
         syncSpecialWithSelected(); updateAllStates(); save_data(); return;
     }
+    else if(act.type==='zodiac_input'){ const inp=document.getElementById('smartInput'); inp.value=act.nextText||''; updateZodiacButtonsFromInput(inp.value); addLog("redo",`重做输入${act.label}`); updateAllStates(); save_data(); return; }
     else if(act.type==='clear_bet_results'){ betResults={}; addLog("redo","重做清空结果"); }
     else { if(act.wasAdded){ act.numbers.forEach(n=>selectedNumbers.add(n)); } else { act.numbers.forEach(n=>selectedNumbers.delete(n)); } syncSpecialWithSelected(); }
     updateAllStates(); save_data();
