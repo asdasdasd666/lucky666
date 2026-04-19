@@ -590,7 +590,7 @@ button, .num-btn, .action-grid-btn, .sphere-btn-base, .filter-btn, .wave-btn, .z
 </div>
 <div style="font-size: 0.65rem; font-weight: 700; color: #4a5568; margin-bottom: 2px; display:flex; justify-content:space-between; align-items:center;">
 <span>操作记录</span>
-<span style="font-weight: 600; color: #718096;">V2.09</span>
+<span style="font-weight: 600; color: #718096;">V2.02</span>
 </div>
 <div class="log-container" id="logContainer"><div class="log-item" style="color:#718096; justify-content:center;">暂无记录</div></div>
 </div>
@@ -706,7 +706,7 @@ button, .num-btn, .action-grid-btn, .sphere-btn-base, .filter-btn, .wave-btn, .z
 </div>
 
 <script>
-// ==================== 统一音效管理器 (V2.09) ====================
+// ==================== 统一音效管理器 (V2.02) ====================
 const SoundManager = (function(){
     let audioCtx = null;
     const N = { C3:130.81, E3:164.81, G3:196.00, C4:261.63, D4:293.66, E4:329.63, G4:392.00, A4:440.00, C5:523.25, D5:587.33, E5:659.25, G5:784.00, A5:880.00, B5:987.77, C6:1046.50, D6:1174.66, E6:1318.51, G6:1567.98, A6:1760.00, C7:2093.00, E7:2637.02, G7:3135.96, C8:4186.01 };
@@ -730,7 +730,6 @@ const SoundManager = (function(){
                 await audioCtx.resume();
                 return true;
             } catch(e) {
-                // iOS 上如果失败，稍后重试
                 await new Promise(r => setTimeout(r, 50));
                 try { await audioCtx.resume(); return true; } catch(e2) { return false; }
             }
@@ -761,7 +760,6 @@ const SoundManager = (function(){
         notes.forEach(f => playNote(f, when, dur, vol, type, 0));
     }
 
-    // ========== 标准音效 ==========
     async function play(type) {
         await activate();
         if (!audioCtx || audioCtx.state !== 'running') return;
@@ -776,7 +774,6 @@ const SoundManager = (function(){
         }
     }
 
-    // ========== 马里奥音效 (统一音量) ==========
     async function playMarioCoinTick() {
         await activate();
         if (!audioCtx || audioCtx.state !== 'running') return;
@@ -804,7 +801,6 @@ const SoundManager = (function(){
         });
     }
 
-    // ========== 动画音效 (保持不变) ==========
     const soundSchemes = {
         wave: { tick: () => { if(!audioCtx||audioCtx.state!=='running') return; const t=audioCtx.currentTime; playNote(800,t,0.03,0.3,'triangle'); playNote(1000,t+0.01,0.02,0.2,'sine'); }, reveal: () => { if(!audioCtx||audioCtx.state!=='running') return; const t=audioCtx.currentTime; [N.C3,N.E3,N.G3,N.C4,N.E4,N.G4,N.C5].forEach((f,i)=>playNote(f,t+i*0.04,0.12,0.2,'triangle')); } },
         rain: { tick: () => { if(!audioCtx||audioCtx.state!=='running') return; const t=audioCtx.currentTime; playNote(1200,t,0.02,0.25,'sine'); playNote(1400,t+0.01,0.02,0.15,'triangle'); }, reveal: () => { if(!audioCtx||audioCtx.state!=='running') return; const t=audioCtx.currentTime; [N.C4,N.D4,N.E4,N.G4,N.A4,N.C5].forEach((f,i)=>playNote(f,t+i*0.05,0.1,0.18,'sine')); } },
@@ -828,10 +824,9 @@ const SoundManager = (function(){
     };
 })();
 
-// 快捷函数
 async function playSound(t) { await SoundManager.play(t); }
 
-// ==================== 核心逻辑 (V2.09) ====================
+// ==================== 核心逻辑 (V2.02) ====================
 function generateIconSvg(text) {
 const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="#D90429"/><text x="50" y="68" font-family="'ZCOOL XiaoWei', serif" font-size="56" font-weight="900" fill="white" text-anchor="middle" style="filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.4));">${text}</text></svg>`;
 return 'data:image/svg+xml,' + encodeURIComponent(svg);
@@ -894,7 +889,6 @@ function syncRestoreSpecial(num, shouldBeSpecial) {
     }
 }
 
-// BlueRandomSoundManager 保持不变
 const BlueRandomSoundManager = (function(){
     let audioCtx = null, activated = false;
     const N = { C3:130.81, E3:164.81, G3:196.00, C4:261.63, D4:293.66, E4:329.63, G4:392.00, A4:440.00, C5:523.25, D5:587.33, E5:659.25, G5:784.00, A5:880.00, B5:987.77, C6:1046.50, D6:1174.66, E6:1318.51, G6:1567.98, A6:1760.00, C7:2093.00, E7:2637.02, G7:3135.96, C8:4186.01 };
@@ -954,10 +948,21 @@ async function showConfirmModal(title, msg, onConfirm, isDanger=false, isHtml=fa
     const cBtn = isDanger ? document.getElementById('modalDangerCancel') : document.getElementById('modalConfirmCancel');
     const oBtn = isDanger ? document.getElementById('modalDangerConfirm') : document.getElementById('modalConfirmOk');
     tEl.textContent = title;
-    if (isHtml) { mEl.innerHTML = msg; } else { mEl.innerHTML = msg.replace(/([^0-9\s\.]+)/g, '<span class="chinese-text">$1</span>'); }
-    // 根据内容是否包含数字决定对齐方式：纯汉字居中，含数字左对齐
-    const hasNumber = /\d/.test(msg);
-    mEl.style.textAlign = hasNumber ? 'left' : 'center';
+    if (isHtml) { 
+        mEl.innerHTML = msg; 
+    } else { 
+        mEl.innerHTML = msg.replace(/([^0-9\s\.]+)/g, '<span class="chinese-text">$1</span>'); 
+    }
+    // 对齐规则：只有标题为"撤销"或"恢复"时才应用特殊规则
+    if (title === '撤销' || title === '恢复') {
+        // 检测是否包含两位数号码（被colorizeText处理后会有span标签）
+        const hasNumberBall = /\b\d{2}\b/.test(msg);
+        mEl.style.textAlign = hasNumberBall ? 'left' : 'center';
+    } else {
+        // 其他弹窗保持原逻辑：含数字左对齐，纯汉字居中
+        const hasNumber = /\d/.test(msg);
+        mEl.style.textAlign = hasNumber ? 'left' : 'center';
+    }
     m.style.display = 'flex';
     const close = () => { m.style.display = 'none'; };
     oBtn.onclick = async () => { await playSound('click'); close(); if(onConfirm) onConfirm(); };
@@ -1097,23 +1102,22 @@ function addNumberSource(n,gid){ if(!numberSources.has(n)) numberSources.set(n,n
 function removeNumberSource(n,gid){ const s=numberSources.get(n); if(s){ s.delete(gid); if(s.size===0) numberSources.delete(n); } }
 
 function getUndoActionDescription(a){
-    // 基于 V2.07 原始逻辑，仅按规则调整描述文字（不包含"撤销""恢复"字样）
     if(a.type==='input_text'){
         const txt = a.prevText || a.nextText || '';
         const pureZodiac = !txt.match(/\d/);
         if (pureZodiac) {
-            // 纯生肖：显示"输入栏鼠"（取第一个生肖名，若多个也只显示第一个）
-            const match = txt.match(/[鼠牛虎兔龙蛇马羊猴鸡狗猪]/);
-            return match ? `输入栏${match[0]}` : '输入栏';
-        } else {
-            // 包含数字：显示"输入栏01.02.03"
-            const nums = txt.match(/\d+/g) || [];
-            const valid = nums.map(n=>parseInt(n)).filter(n=>n>=1&&n<=49);
-            if (valid.length) {
-                const sorted = [...new Set(valid)].sort((a,b)=>a-b);
-                return `输入栏${sorted.map(n=>fmtNum(n)).join('.')}`;
+            const zodiacChars = txt.match(/[鼠牛虎兔龙蛇马羊猴鸡狗猪]/g) || [];
+            if (zodiacChars.length) {
+                return `选${zodiacChars.join('')}`;
             }
-            return '输入栏';
+            return '选';
+        } else {
+            const zodiacChars = txt.match(/[鼠牛虎兔龙蛇马羊猴鸡狗猪]/g) || [];
+            const nums = txt.match(/\d+/g) || [];
+            const validNums = nums.map(n=>parseInt(n)).filter(n=>n>=1&&n<=49);
+            const numStr = validNums.map(n=>fmtNum(n)).join('');
+            const zodiacStr = zodiacChars.join('');
+            return `选${zodiacStr}${numStr}`;
         }
     }
     if(a.type==='history_delete'){
@@ -1170,16 +1174,22 @@ function getUndoActionDescription(a){
     if(a.type==='batch_betting_add') return `待购 ${formatNumbersForDisplay(a.numbers)}`;
     if(a.type==='batch_betting_remove') return `取消待购 ${formatNumbersForDisplay(a.numbers)}`;
     if(a.type==='batch_input'){
-        // 随机号码
         if (a.label.includes('随机')) return `随机号码 ${formatNumbersForDisplay(a.numbers)}`;
-        // 输入栏确认
         const txt = a.rawText || '';
         const pureZodiac = !txt.match(/\d/);
         if (pureZodiac) {
-            const match = txt.match(/[鼠牛虎兔龙蛇马羊猴鸡狗猪]/);
-            return match ? `输入栏${match[0]}` : '输入栏';
+            const zodiacChars = txt.match(/[鼠牛虎兔龙蛇马羊猴鸡狗猪]/g) || [];
+            if (zodiacChars.length) {
+                return `选${zodiacChars.join('')}`;
+            }
+            return '输入栏';
         } else {
-            return `输入栏${formatNumbersForDisplay(a.numbers)}`;
+            const zodiacChars = txt.match(/[鼠牛虎兔龙蛇马羊猴鸡狗猪]/g) || [];
+            const nums = txt.match(/\d+/g) || [];
+            const validNums = nums.map(n=>parseInt(n)).filter(n=>n>=1&&n<=49);
+            const numStr = validNums.map(n=>fmtNum(n)).join('');
+            const zodiacStr = zodiacChars.join('');
+            return `选${zodiacStr}${numStr}`;
         }
     }
     if(a.type==='zodiac_input'){
@@ -1195,7 +1205,40 @@ async function performUndo(){
     const a=undoStack[undoStack.length-1], d=getUndoActionDescription(a); 
     showConfirmModal('撤销', colorizeText(d), async ()=>{
     const act=undoStack.pop(); redoStack.push({...act});
-    if(act.type==='input_text'){ const inp=document.getElementById('smartInput'); inp.value=act.prevText||''; updateZodiacButtonsFromInput(inp.value); if(act.prevNumbers){ selectedNumbers.clear(); act.prevNumbers.forEach(n=>selectedNumbers.add(n)); } if(act.prevHistory) inputHistory=[...act.prevHistory]; updateAllStates(); save_data(); return; }
+    if(act.type==='input_text'){ 
+        const inp=document.getElementById('smartInput'); 
+        inp.value=act.prevText||''; 
+        updateZodiacButtonsFromInput(inp.value); 
+        
+        selectedNumbers.clear();
+        if(act.prevNumbers) act.prevNumbers.forEach(n=>selectedNumbers.add(n));
+        
+        specialNumbersSet.clear();
+        if(act.prevSpecial) act.prevSpecial.forEach(n=>specialNumbersSet.add(n));
+        
+        bettingNumbers.clear();
+        if(act.prevBetting) act.prevBetting.forEach(n=>bettingNumbers.add(n));
+        
+        betResults = {};
+        if(act.prevBetResults) Object.assign(betResults, act.prevBetResults);
+        
+        if(act.prevHistory) {
+            inputHistory = act.prevHistory.map(h => ({
+                ...h,
+                numbers: [...h.numbers],
+                sortedNumbers: [...h.sortedNumbers]
+            }));
+        }
+        
+        document.querySelectorAll('.num-btn.is-active').forEach(b=>b.classList.remove('is-active'));
+        selectedNumbers.forEach(n=>{
+            document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.add('is-active');
+        });
+        
+        updateAllStates(); 
+        save_data(); 
+        return; 
+    }
     if(act.type==='history_delete'){ const it=act.deletedItem; inputHistory.splice(act.index,0,it); if(it.isActive) it.numbers.forEach(n=>{ addNumberSource(n,it.id); selectedNumbers.add(n); }); updateAllStates(); addLog("undo","恢复历史"); save_data(); return; }
     if(act.type==='global_highlight'){ currentHighlightedNumber=act.newValue; renderHistoryLog(); updateAllStates(); save_data(); return; }
     if(act.type==='bet_confirm'){ act.numbers.forEach(n=>{ delete betResults[n]; }); applySnapshot(act, selectedNumbers, bettingNumbers, betResults, specialNumbersSet); addLog("undo",`撤销买 ${act.label}`); }
@@ -1229,7 +1272,40 @@ async function performRedo(){
     const a=redoStack[redoStack.length-1], d=getUndoActionDescription(a); 
     showConfirmModal('恢复', colorizeText(d), async ()=>{
     const act=redoStack.pop(); undoStack.push({...act});
-    if(act.type==='input_text'){ const inp=document.getElementById('smartInput'); inp.value=act.nextText||''; updateZodiacButtonsFromInput(inp.value); if(act.nextNumbers){ selectedNumbers.clear(); act.nextNumbers.forEach(n=>selectedNumbers.add(n)); } if(act.nextHistory) inputHistory=[...act.nextHistory]; updateAllStates(); save_data(); return; }
+    if(act.type==='input_text'){ 
+        const inp=document.getElementById('smartInput'); 
+        inp.value=act.nextText||''; 
+        updateZodiacButtonsFromInput(inp.value); 
+        
+        selectedNumbers.clear();
+        if(act.nextNumbers) act.nextNumbers.forEach(n=>selectedNumbers.add(n));
+        
+        specialNumbersSet.clear();
+        if(act.nextSpecial) act.nextSpecial.forEach(n=>specialNumbersSet.add(n));
+        
+        bettingNumbers.clear();
+        if(act.nextBetting) act.nextBetting.forEach(n=>bettingNumbers.add(n));
+        
+        betResults = {};
+        if(act.nextBetResults) Object.assign(betResults, act.nextBetResults);
+        
+        if(act.nextHistory) {
+            inputHistory = act.nextHistory.map(h => ({
+                ...h,
+                numbers: [...h.numbers],
+                sortedNumbers: [...h.sortedNumbers]
+            }));
+        }
+        
+        document.querySelectorAll('.num-btn.is-active').forEach(b=>b.classList.remove('is-active'));
+        selectedNumbers.forEach(n=>{
+            document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.add('is-active');
+        });
+        
+        updateAllStates(); 
+        save_data(); 
+        return; 
+    }
     if(act.type==='history_delete'){ const it=inputHistory[act.index]; if(it.isActive) it.numbers.forEach(n=>{ removeNumberSource(n,it.id); if(!numberSources.has(n)){ selectedNumbers.delete(n); syncRemoveSpecial(n); } }); inputHistory.splice(act.index,1); updateAllStates(); addLog("redo","重做删除历史"); save_data(); return; }
     if(act.type==='global_highlight'){ currentHighlightedNumber=act.newValue; renderHistoryLog(); updateAllStates(); save_data(); return; }
     if(act.type==='bet_confirm'){ act.numbers.forEach(n=>{ betResults[n]=act.amount; bettingNumbers.delete(n); }); addLog("redo",`恢复买 ${act.label}`); }
@@ -1257,7 +1333,13 @@ async function performRedo(){
     updateAllStates(); save_data();
 }, false, true); }
 
-function recordAction(type, label, numbers, wasAdded, amount=0, extra={}) { redoStack=[]; const a={type, label, numbers:[...numbers], wasAdded, amount, ...extra}; undoStack.push(a); if(undoStack.length>50) undoStack.shift(); save_data(); }
+function recordAction(type, label, numbers, wasAdded, amount=0, extra={}) { 
+    redoStack=[]; 
+    const a={type, label, numbers:[...numbers], wasAdded, amount, ...extra}; 
+    undoStack.push(a); 
+    if(undoStack.length>50) undoStack.shift(); 
+    save_data(); 
+}
 async function handleWaveKill(c,p){
     const btn = event.target; if (btn.classList.contains('wave-active')) return;
     await playSound('slip'); const v=`${c}-${p}`, nums=getGroupNumbers('parity',v), lbl=getGroupLabel('parity',v); if(!nums.length||!nums.some(n=>selectedNumbers.has(n))) return;
@@ -1394,8 +1476,89 @@ async function toggleNumber(n){ const specialState = specialNumbersSet.has(n);
     }
     syncSpecialWithSelected(); updateAllStates();
 }
-async function processConfirm(){ const inp=document.getElementById('smartInput'), txt=inp.value.trim(); if(!txt){ await playSound('slip'); showToast("⚠️ 请输入号码或生肖"); return; } await playSound('pop'); processInputAndAddToHistory(txt); inp.value=''; updateZodiacButtonsFromInput(''); recordAction('input_text','输入确认',[],false,0,{prevText:txt,nextText:''}); }
-function processInputAndAddToHistory(txt){ const dm=txt.match(/\d+/g); const valid=[], orig=[]; let dc=0; if(dm) dm.forEach(m=>{ let n=parseInt(m); if(n>=1&&n<=49){ if(!valid.includes(n)) valid.push(n); orig.push(n); dc++; } }); let zc=0; const found=new Set(); for(let c of txt){ if(ZODIAC_MAP.hasOwnProperty(c)){ if(!found.has(c)){ found.add(c); zc++; } getGroupNumbers('zodiac',ZODIAC_MAP[c].toString()).forEach(n=>{ if(!valid.includes(n)){ valid.push(n); orig.push(n); } }); } } if(valid.length){ let chg=false; const add=[], already=[], gid=Date.now(); valid.forEach(n=>{ addNumberSource(n,gid); if(selectedNumbers.has(n)) already.push(n); else { selectedNumbers.add(n); chg=true; add.push(n); document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.add('is-active'); } }); const sorted=[...valid].sort((a,b)=>a-b), pure=dc===0&&zc>0; inputHistory.push({id:gid,rawText:txt,numbers:orig,sortedNumbers:sorted,labelPrefix:pure?`${zc}肖`:`${valid.length}码`,isPureZodiac:pure,isActive:true}); if(chg){ recordAction('batch_input',`${add.length}码`,add,true,0,{rawText:txt}); updateAllStates(); addLog("input",`输入 ${formatNumbersForDisplay(add)}`); let msg=`✅ 已点亮 ${add.map(fmtNum).join('.')}`; if(already.length) msg+=`（${already.map(fmtNum).join('.')}已选中）`; showToast(msg); } else { updateAllStates(); showToast(`ℹ️ 这些号码（${valid.map(fmtNum).join('.')}）已选中`); } } else showToast("⚠️ 无有效号码（1-49）或生肖"); }
+async function processConfirm(){ 
+    const inp=document.getElementById('smartInput'), txt=inp.value.trim(); 
+    if(!txt){ await playSound('slip'); showToast("⚠️ 请输入号码或生肖"); return; } 
+    await playSound('pop'); 
+    
+    // 保存操作前的完整状态
+    const prevSelected = [...selectedNumbers];
+    const prevSpecial = [...specialNumbersSet];
+    const prevBetting = [...bettingNumbers];
+    const prevBetResults = {...betResults};
+    const prevHistory = inputHistory.map(h => ({
+        ...h,
+        numbers: [...h.numbers],
+        sortedNumbers: [...h.sortedNumbers]
+    }));
+    
+    // 执行输入处理
+    processInputAndAddToHistory(txt); 
+    
+    // 保存操作后的完整状态
+    const nextSelected = [...selectedNumbers];
+    const nextSpecial = [...specialNumbersSet];
+    const nextBetting = [...bettingNumbers];
+    const nextBetResults = {...betResults};
+    const nextHistory = inputHistory.map(h => ({
+        ...h,
+        numbers: [...h.numbers],
+        sortedNumbers: [...h.sortedNumbers]
+    }));
+    
+    // 记录操作，包含完整快照
+    recordAction('input_text','输入确认',[],false,0,{
+        prevText: txt, 
+        nextText: '', 
+        prevNumbers: prevSelected,
+        nextNumbers: nextSelected,
+        prevSpecial: prevSpecial,
+        nextSpecial: nextSpecial,
+        prevBetting: prevBetting,
+        nextBetting: nextBetting,
+        prevBetResults: prevBetResults,
+        nextBetResults: nextBetResults,
+        prevHistory: prevHistory,
+        nextHistory: nextHistory
+    });
+    inp.value=''; 
+    updateZodiacButtonsFromInput(''); 
+}
+function processInputAndAddToHistory(txt){ 
+    const dm=txt.match(/\d+/g); 
+    const valid=[], orig=[]; 
+    let dc=0; 
+    if(dm) dm.forEach(m=>{ let n=parseInt(m); if(n>=1&&n<=49){ if(!valid.includes(n)) valid.push(n); orig.push(n); dc++; } }); 
+    let zc=0; 
+    const found=new Set(); 
+    for(let c of txt){ 
+        if(ZODIAC_MAP.hasOwnProperty(c)){ 
+            if(!found.has(c)){ found.add(c); zc++; } 
+            getGroupNumbers('zodiac',ZODIAC_MAP[c].toString()).forEach(n=>{ if(!valid.includes(n)){ valid.push(n); orig.push(n); } }); 
+        } 
+    } 
+    if(valid.length){ 
+        let chg=false; 
+        const add=[], already=[], gid=Date.now(); 
+        valid.forEach(n=>{ 
+            addNumberSource(n,gid); 
+            if(selectedNumbers.has(n)) already.push(n); 
+            else { selectedNumbers.add(n); chg=true; add.push(n); document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.add('is-active'); } 
+        }); 
+        const sorted=[...valid].sort((a,b)=>a-b), pure=dc===0&&zc>0; 
+        inputHistory.push({id:gid,rawText:txt,numbers:orig,sortedNumbers:sorted,labelPrefix:pure?`${zc}肖`:`${valid.length}码`,isPureZodiac:pure,isActive:true}); 
+        if(chg){ 
+            updateAllStates(); 
+            addLog("input",`输入 ${formatNumbersForDisplay(add)}`); 
+            let msg=`✅ 已点亮 ${add.map(fmtNum).join('.')}`; 
+            if(already.length) msg+=`（${already.map(fmtNum).join('.')}已选中）`; 
+            showToast(msg); 
+        } else { 
+            updateAllStates(); 
+            showToast(`ℹ️ 这些号码（${valid.map(fmtNum).join('.')}）已选中`); 
+        } 
+    } else showToast("⚠️ 无有效号码（1-49）或生肖"); 
+}
 function renderTempStorage(){ const c=document.getElementById('tempStorageContent'); if(!tempStorageData.length){ c.innerHTML=''; return; } const s=[...tempStorageData].sort((a,b)=>a.num-b.num), odd=s.filter(i=>i.num%2), even=s.filter(i=>i.num%2===0); const sp=(n)=>`<span class="temp-num-item ${redGroup.has(n)?'text-red':blueGroup.has(n)?'text-blue':'text-green'}">${fmtNum(n)}</span>`; let h=''; if(odd.length) h+=`<div class="temp-storage-row"><span class="temp-storage-label">单号:</span> ${odd.map(i=>sp(i.num)).join('')}</div>`; if(even.length) h+=`<div class="temp-storage-row"><span class="temp-storage-label">双号:</span> ${even.map(i=>sp(i.num)).join('')}</div>`; c.innerHTML=h; }
 function updateTempCountBadge(){ document.getElementById('tempCountBadge').textContent=tempStorageData.length+'个'; }
 function updateTempStoreBtn(){ const b=document.getElementById('tempStoreBtn'), arr=Array.from(selectedNumbers); if(!arr.length){ b.className='temp-action-btn grey'; b.textContent='无号码'; b.style.opacity='0.5'; return; } const ex=new Set(tempStorageData.map(i=>i.num)), add=arr.filter(n=>!ex.has(n)); if(!add.length){ b.className='temp-action-btn grey'; b.textContent='已暂存'; b.style.opacity='0.5'; } else { b.className='temp-action-btn green'; b.textContent=tempStorageData.length?'继续暂存':'暂存'; b.style.opacity=''; } }
