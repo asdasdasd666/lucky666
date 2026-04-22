@@ -590,7 +590,7 @@ button, .num-btn, .action-grid-btn, .sphere-btn-base, .filter-btn, .wave-btn, .z
 </div>
 <div style="font-size: 0.65rem; font-weight: 700; color: #4a5568; margin-bottom: 2px; display:flex; justify-content:space-between; align-items:center;">
 <span>操作记录</span>
-<span style="font-weight: 600; color: #718096;">V2.12</span>
+<span style="font-weight: 600; color: #718096;">V2.08</span>
 </div>
 <div class="log-container" id="logContainer"><div class="log-item" style="color:#718096; justify-content:center;">暂无记录</div></div>
 </div>
@@ -706,7 +706,7 @@ button, .num-btn, .action-grid-btn, .sphere-btn-base, .filter-btn, .wave-btn, .z
 </div>
 
 <script>
-// ==================== 统一弹窗管理器 (V2.12) ====================
+// ==================== 统一弹窗管理器 (V2.08) ====================
 const ModalManager = (function() {
     const modals = {
         confirm: {
@@ -1274,6 +1274,19 @@ function getUndoActionDescription(a){
         return `选${a.label}`;
     }
     if(a.type==='batch_kill'){
+        if (a.label.includes('肖')) {
+            const zodiacIndex = zodiacs.indexOf(a.label.replace('肖', ''));
+            if (zodiacIndex !== -1) {
+                const allZodiacNums = getGroupNumbers('zodiac', zodiacIndex.toString());
+                const isFullSet = a.numbers.length === allZodiacNums.length && 
+                                  allZodiacNums.every(n => a.numbers.includes(n));
+                if (isFullSet) {
+                    return `灭${a.label}`;
+                } else {
+                    return `灭${a.label} ${formatNumbersForDisplay(a.numbers)}`;
+                }
+            }
+        }
         if (a.label.includes('字头')) return `杀${a.label}`;
         if (a.label.includes('属性')) return `杀${a.label}`;
         if (a.label.includes('尾')) return `杀${a.label}`;
@@ -1282,19 +1295,29 @@ function getUndoActionDescription(a){
     }
     if(a.type==='batch_select'){
         if (a.label.includes('肖')) {
-            return a.wasAdded ? `亮${a.label}` : `灭${a.label}`;
+            const zodiacIndex = zodiacs.indexOf(a.label.replace('肖', ''));
+            if (zodiacIndex !== -1) {
+                const allZodiacNums = getGroupNumbers('zodiac', zodiacIndex.toString());
+                const isFullSet = a.numbers.length === allZodiacNums.length && 
+                                  allZodiacNums.every(n => a.numbers.includes(n));
+                if (isFullSet) {
+                    return a.wasAdded ? `亮${a.label}` : `灭${a.label}`;
+                } else {
+                    return a.wasAdded ? `亮${a.label} ${formatNumbersForDisplay(a.numbers)}` : `灭${a.label} ${formatNumbersForDisplay(a.numbers)}`;
+                }
+            }
         }
         return `选号 ${formatNumbersForDisplay(a.numbers)}`;
     }
     if(a.type==='batch_betting_add') {
         if (a.label.includes('全选')) {
-            return `全选${formatNumbersForDisplay(a.numbers)}`;
+            return `${a.label} ${formatNumbersForDisplay(a.numbers)}`;
         }
         return `待购 ${formatNumbersForDisplay(a.numbers)}`;
     }
     if(a.type==='batch_betting_remove') {
         if (a.label.includes('全选')) {
-            return `取消全选${formatNumbersForDisplay(a.numbers)}`;
+            return `取消${a.label} ${formatNumbersForDisplay(a.numbers)}`;
         }
         return `取消待购 ${formatNumbersForDisplay(a.numbers)}`;
     }
