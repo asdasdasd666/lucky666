@@ -388,8 +388,8 @@ margin-bottom: env(safe-area-inset-bottom, 10px);
 .log-action.select { color: #2b6cb0; } .log-action.input { color: #d69e2e; } .log-action.clear { color: #c53030; } .log-action.random { color: #d69e2e; } .log-action.undo { color: #718096; } .log-action.redo { color: #2b6cb0; }
 .toast {
 position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.9); background: rgba(255, 255, 255, 0.95); color: #1a202c;
-padding: 10px 20px; border-radius: 50px; display: none; z-index: 1000; font-size: 1rem; font-weight: 600;
-box-shadow: 0 10px 25px rgba(0,0,0,0.2); opacity: 0; transition: all 0.3s; pointer-events: none; white-space: nowrap; max-width: 90%; text-align: center;
+padding: 12px 24px; border-radius: 50px; display: none; z-index: 1000; font-size: 1.2rem; font-weight: 600;
+box-shadow: 0 10px 25px rgba(0,0,0,0.2); opacity: 0; transition: all 0.3s; pointer-events: none; white-space: normal; max-width: 90%; text-align: center;
 }
 .toast.show { display: block; opacity: 1; transform: translate(-50%, -50%) scale(1); }
 .log-container::-webkit-scrollbar { width: 4px; }
@@ -706,6 +706,9 @@ button, .num-btn, .action-grid-btn, .sphere-btn-base, .filter-btn, .wave-btn, .z
 </div>
 
 <script>
+// ==================== Toast 定时器管理 ====================
+let toastTimer = null;
+
 // ==================== 统一弹窗管理器 (V2.10) ====================
 const ModalManager = (function() {
     const modals = {
@@ -1115,6 +1118,28 @@ function formatNumbersForDisplay(numbers) {
     return sorted.map(n => fmtNum(n)).join('.');
 }
 
+function colorizeToastText(text) {
+    // 先提取中文部分和号码部分，分别处理
+    const parts = [];
+    let lastIndex = 0;
+    // 匹配中文和号码
+    const regex = /(\d{2})|([^\d]+)/g;
+    let match;
+    while ((match = regex.exec(text)) !== null) {
+        if (match[1]) {
+            // 号码
+            const num = parseInt(match[1]);
+            const col = redGroup.has(num) ? '#e53e3e' : blueGroup.has(num) ? '#3182ce' : '#38a169';
+            parts.push(`<span style="color:${col}; font-weight:900;">${match[1]}</span>`);
+        } else if (match[2]) {
+            // 中文或其他字符
+            parts.push(`<span style="color:#1a202c;">${match[2]}</span>`);
+        }
+        lastIndex = match.index + match[0].length;
+    }
+    return parts.join('');
+}
+
 async function showConfirmModal(title, msg, onConfirm, isDanger = false, isHtml = false, hideMessage = false) {
     await ModalManager.showConfirm({ title, message: msg, onConfirm, isDanger, isHtml, hideMessage });
 }
@@ -1165,7 +1190,25 @@ async function showNumberModal(cb){ await playSound('click'); const m=document.g
 function updateZodiacButtonsFromInput(txt) { document.querySelectorAll('.select-zodiac-btn').forEach(b=>{ b.classList.toggle('is-active-zodiac', txt.includes(b.textContent)); }); }
 function syncGlobalStateToHistory(nums, st) { inputHistory.forEach(it=> nums.forEach(n=>{ if(it.groupState?.hasOwnProperty(n)) it.groupState[n]=st; })); renderHistoryLog(); }
 function fmtNum(n) { return n<10?'0'+n:''+n; }
-function showToast(msg, d=3000) { const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'), d); }
+function showToast(msg, d=2000) { 
+    const t = document.getElementById('toast'); 
+    // 清除之前的定时器
+    if (toastTimer) {
+        clearTimeout(toastTimer);
+        toastTimer = null;
+    }
+    // 检测是否包含号码，如果有则进行彩色处理
+    if (/\d{2}/.test(msg)) {
+        t.innerHTML = colorizeToastText(msg);
+    } else {
+        t.innerHTML = `<span style="color:#1a202c;">${msg}</span>`;
+    }
+    t.classList.add('show'); 
+    toastTimer = setTimeout(() => {
+        t.classList.remove('show');
+        toastTimer = null;
+    }, d); 
+}
 function addLog(type, msg) {
     const c=document.getElementById('logContainer'); if(c.children.length===1&&c.children[0].textContent.includes("暂无")) c.innerHTML='';
     const time=`${new Date().getHours().toString().padStart(2,'0')}:${new Date().getMinutes().toString().padStart(2,'0')}`;
