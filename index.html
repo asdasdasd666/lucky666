@@ -387,9 +387,9 @@ margin-bottom: env(safe-area-inset-bottom, 10px);
 .log-action { font-weight: 600; }
 .log-action.select { color: #2b6cb0; } .log-action.input { color: #d69e2e; } .log-action.clear { color: #c53030; } .log-action.random { color: #d69e2e; } .log-action.undo { color: #718096; } .log-action.redo { color: #2b6cb0; }
 .toast {
-position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.9); background: rgba(26, 32, 44, 0.95); color: #fff;
-padding: 10px 20px; border-radius: 50px; display: none; z-index: 1000; font-size: 0.8rem; font-weight: 600;
-box-shadow: 0 10px 25px rgba(0,0,0,0.3); opacity: 0; transition: all 0.3s; pointer-events: none; white-space: nowrap; max-width: 90%; text-align: center;
+position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.9); background: rgba(255, 255, 255, 0.95); color: #1a202c;
+padding: 10px 20px; border-radius: 50px; display: none; z-index: 1000; font-size: 1rem; font-weight: 600;
+box-shadow: 0 10px 25px rgba(0,0,0,0.2); opacity: 0; transition: all 0.3s; pointer-events: none; white-space: nowrap; max-width: 90%; text-align: center;
 }
 .toast.show { display: block; opacity: 1; transform: translate(-50%, -50%) scale(1); }
 .log-container::-webkit-scrollbar { width: 4px; }
@@ -590,7 +590,7 @@ button, .num-btn, .action-grid-btn, .sphere-btn-base, .filter-btn, .wave-btn, .z
 </div>
 <div style="font-size: 0.65rem; font-weight: 700; color: #4a5568; margin-bottom: 2px; display:flex; justify-content:space-between; align-items:center;">
 <span>操作记录</span>
-<span style="font-weight: 600; color: #718096;">V2.09</span>
+<span style="font-weight: 600; color: #718096;">V2.10</span>
 </div>
 <div class="log-container" id="logContainer"><div class="log-item" style="color:#718096; justify-content:center;">暂无记录</div></div>
 </div>
@@ -706,7 +706,7 @@ button, .num-btn, .action-grid-btn, .sphere-btn-base, .filter-btn, .wave-btn, .z
 </div>
 
 <script>
-// ==================== 统一弹窗管理器 (V2.09) ====================
+// ==================== 统一弹窗管理器 (V2.10) ====================
 const ModalManager = (function() {
     const modals = {
         confirm: {
@@ -1347,11 +1347,34 @@ function getUndoActionDescription(a){
     return a.label || '';
 }
 
+// 辅助函数：为撤销/恢复弹窗生成与杀号区统一格式的消息内容
+function formatUndoRedoMessage(action) {
+    const desc = getUndoActionDescription(action);
+    const numbers = action.numbers || [];
+    
+    if (!numbers.length) {
+        return `<span class="chinese-text">${desc}</span>`;
+    }
+    
+    const sorted = [...numbers].sort((a, b) => a - b);
+    const numsHtml = sorted.map(n => {
+        const col = redGroup.has(n) ? '#e53e3e' : blueGroup.has(n) ? '#3182ce' : '#38a169';
+        return `<span style="color:${col}; font-weight:900;">${fmtNum(n)}</span>`;
+    }).join('<span style="color:#2d3748;">.</span>');
+    
+    let chineseLabel = desc;
+    chineseLabel = chineseLabel.replace(/\s*\d{2}(\.\d{2})*$/g, '');
+    if (!chineseLabel.trim()) chineseLabel = desc;
+    
+    return `<span class="chinese-text">${chineseLabel}</span> ${numsHtml}`;
+}
+
 async function performUndo(){ 
     await playSound('slip'); 
     if(!undoStack.length){ showToast("ℹ️ 没有可撤销的操作"); return; } 
-    const a=undoStack[undoStack.length-1], d=getUndoActionDescription(a); 
-    showConfirmModal('撤销', colorizeText(d), async ()=>{
+    const a=undoStack[undoStack.length-1];
+    const message = formatUndoRedoMessage(a);
+    showConfirmModal('撤销', message, async ()=>{
     const act=undoStack.pop(); redoStack.push({...act});
     if(act.type==='input_text'){ 
         const inp=document.getElementById('smartInput'); 
@@ -1436,8 +1459,9 @@ async function performUndo(){
 async function performRedo(){ 
     await playSound('pop'); 
     if(!redoStack.length){ showToast("ℹ️ 没有可恢复的操作"); return; } 
-    const a=redoStack[redoStack.length-1], d=getUndoActionDescription(a); 
-    showConfirmModal('恢复', colorizeText(d), async ()=>{
+    const a=redoStack[redoStack.length-1];
+    const message = formatUndoRedoMessage(a);
+    showConfirmModal('恢复', message, async ()=>{
     const act=redoStack.pop(); undoStack.push({...act});
     if(act.type==='input_text'){ 
         const inp=document.getElementById('smartInput'); 
@@ -1626,9 +1650,31 @@ async function handleTailKill(t){
         syncGlobalStateToHistory(rm,false); syncSpecialWithSelected(); addLog("select",`杀${lbl} ${formatNumbersForDisplay(rm)}`); updateAllStates();
     }, false, true);
 }
-async function handleZodiacSelect(idx,lbl){ const nums=getGroupNumbers('zodiac',idx.toString()); if(!nums.length) return; const has=nums.some(n=>selectedNumbers.has(n));
-    if(has){ await playSound('shutter'); const rm=nums.filter(n=>selectedNumbers.has(n)); if(!rm.length) return; const snapshot = captureFullSnapshot(rm); recordAction('batch_kill',lbl,rm,false,0,snapshot); rm.forEach(n=>{ selectedNumbers.delete(n); delete betResults[n]; bettingNumbers.delete(n); syncRemoveSpecial(n); document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.remove('is-active'); }); syncGlobalStateToHistory(rm,false); syncSpecialWithSelected(); addLog("select",`取消${lbl} ${formatNumbersForDisplay(rm)}`); }
-    else { await SoundManager.playMarioCoinTick(); if(nums.every(n=>selectedNumbers.has(n))) return; const add=nums.filter(n=>!selectedNumbers.has(n)); const snapshot = captureFullSnapshot(add); recordAction('batch_select',lbl,add,true,0,snapshot); add.forEach(n=>{ selectedNumbers.add(n); document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.add('is-active'); }); syncGlobalStateToHistory(add,true); addLog("select",`选${lbl} ${formatNumbersForDisplay(add)}`); }
+async function handleZodiacSelect(idx,lbl){ 
+    const nums=getGroupNumbers('zodiac',idx.toString()); 
+    if(!nums.length) return; 
+    const has=nums.some(n=>selectedNumbers.has(n));
+    if(has){ 
+        await playSound('shutter'); 
+        const rm=nums.filter(n=>selectedNumbers.has(n)); 
+        if(!rm.length) return; 
+        const snapshot = captureFullSnapshot(rm); 
+        recordAction('batch_kill',lbl,rm,false,0,snapshot); 
+        rm.forEach(n=>{ selectedNumbers.delete(n); delete betResults[n]; bettingNumbers.delete(n); syncRemoveSpecial(n); document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.remove('is-active'); }); 
+        syncGlobalStateToHistory(rm,false); syncSpecialWithSelected(); 
+        addLog("select",`取消${lbl} ${formatNumbersForDisplay(rm)}`); 
+        showToast(`灭${lbl} ${formatNumbersForDisplay(rm)}`);
+    } else { 
+        await SoundManager.playMarioCoinTick(); 
+        if(nums.every(n=>selectedNumbers.has(n))) return; 
+        const add=nums.filter(n=>!selectedNumbers.has(n)); 
+        const snapshot = captureFullSnapshot(add); 
+        recordAction('batch_select',lbl,add,true,0,snapshot); 
+        add.forEach(n=>{ selectedNumbers.add(n); document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.add('is-active'); }); 
+        syncGlobalStateToHistory(add,true); 
+        addLog("select",`选${lbl} ${formatNumbersForDisplay(add)}`); 
+        showToast(`亮${lbl} ${formatNumbersForDisplay(add)}`);
+    }
     updateAllStates();
 }
 async function handleBatchSelectBet(){ await playSound('click'); const b=document.getElementById('selectAllBetBtn'); if(b.classList.contains('grey')){ showToast(selectedNumbers.size?"ℹ️ 所有号码已选完":"⚠️ 暂无已选号码"); return; } const all=Array.from(selectedNumbers);
@@ -1654,8 +1700,24 @@ async function handleSelectWave(c,p){ const v=`${c}-${p}`, nums=getGroupNumbers(
     syncSpecialWithSelected(); updateAllStates();
 }
 function updateSelectWaveButtonsState(){ const ws=[{c:'red',p:'odd',t:'红单'},{c:'red',p:'even',t:'红双'},{c:'blue',p:'odd',t:'蓝单'},{c:'blue',p:'even',t:'蓝双'},{c:'green',p:'odd',t:'绿单'},{c:'green',p:'even',t:'绿双'}]; ws.forEach(w=>{ const b=Array.from(document.querySelectorAll('.select-wave-btn')).find(x=>x.textContent===w.t); if(!b) return; const allLit=getGroupNumbers('parity',`${w.c}-${w.p}`).every(n=>selectedNumbers.has(n)); b.classList.toggle('select-wave-active',allLit); }); }
-function updateNumberBalls(){ document.querySelectorAll('.num-btn').forEach(b=>{ const n=parseInt(b.dataset.num); if(!isNaN(n)) b.classList.toggle('is-active',selectedNumbers.has(n)); }); }
-function updateZodiacButtons(){ zodiacs.forEach((z,i)=>{ const col=[]; customGridRows.forEach(r=>{ if(r[i]!==null) col.push(r[i]); }); const has=col.some(n=>selectedNumbers.has(n)); document.querySelectorAll(`.zodiac-btn[data-zodiac-index="${i}"]`).forEach(b=>b.classList.toggle('is-active-zodiac',has)); }); }
+function updateNumberBalls(){ 
+    document.querySelectorAll('.num-btn').forEach(b=>{ 
+        const n=parseInt(b.dataset.num); 
+        if(!isNaN(n)) {
+            b.classList.toggle('is-active', selectedNumbers.has(n));
+        }
+    }); 
+}
+function updateZodiacButtons(){ 
+    zodiacs.forEach((z,i)=>{ 
+        const col=[]; 
+        customGridRows.forEach(r=>{ if(r[i]!==null) col.push(r[i]); }); 
+        const has=col.some(n=>selectedNumbers.has(n)); 
+        document.querySelectorAll(`.zodiac-btn[data-zodiac-index="${i}"]`).forEach(b=>{
+            b.classList.toggle('is-active-zodiac', has);
+        }); 
+    }); 
+}
 function updateFilterButtons(){ document.querySelectorAll('#kill-head-wuxing-controls .filter-btn').forEach(b=>{ const t=b.textContent; let ty,v; if(['金','木','水','火','土'].includes(t)){ ty='wuxing'; v={金:'gold',木:'wood',水:'water',火:'fire',土:'earth'}[t]; } else { ty='head'; v=t; } b.classList.toggle('active',!getGroupNumbers(ty,v).some(n=>selectedNumbers.has(n))); }); document.querySelectorAll('#kill-parity-controls .filter-btn, #kill-parity-controls .wave-btn').forEach(b=>{ const t=b.textContent; if(['大单','小单','大双','小双'].includes(t)) b.classList.toggle('active',!getGroupNumbers('size_parity',t).some(n=>selectedNumbers.has(n))); else if(b.classList.contains('wave-btn')){ const c=b.dataset.type, p=t.includes('单')?'odd':'even'; b.classList.toggle('wave-active',!getGroupNumbers('parity',`${c}-${p}`).some(n=>selectedNumbers.has(n))); } }); document.querySelectorAll('#kill-tail-controls .filter-btn').forEach(b=>b.classList.toggle('active',!getGroupNumbers('tail',b.textContent).some(n=>selectedNumbers.has(n)))); }
 function updateTailButtons(){ for(let t=0;t<=9;t++){ const b=document.getElementById(`tailBtn${t}`); if(!b) continue; const nums=Array.from(selectedNumbers).filter(n=>n%10===t); b.classList.remove('tail-silver-btn','is-depressed','tail-btn-empty'); if(!nums.length){ b.classList.add('tail-btn-empty'); continue; } b.classList.add('tail-silver-btn'); b.style.opacity='1'; b.classList.toggle('is-depressed',nums.every(n=>betResults.hasOwnProperty(n)||bettingNumbers.has(n))); } }
 function updateFrequencyButtonsPressedState(){ const fm=calculateNumberFrequencies(), fn={}; for(let i=1;i<=49;i++){ const f=fm[i]; if(f!==undefined){ if(!fn[f]) fn[f]=[]; fn[f].push(i); } } document.querySelectorAll('#sphereBtnContainer .count-btn').forEach(b=>{ const f=parseInt(b.getAttribute('data-freq')), nums=fn[f]||[]; b.classList.toggle('is-pressed',!nums.some(n=>selectedNumbers.has(n))); }); }
@@ -1702,16 +1764,20 @@ function renderHistoryLog(){ const box=document.getElementById('historyLogBox');
 async function removeHistoryItem(idx){ await playSound('shutter'); const it=inputHistory[idx]; if(!it) return; const snapshot = captureFullSnapshot(it.sortedNumbers); recordAction('history_delete','删除历史',[],false,0,{index:idx,deletedItem:it,...snapshot}); if(it.isActive) it.numbers.forEach(n=>{ removeNumberSource(n,it.id); if(!numberSources.has(n)){ selectedNumbers.delete(n); syncRemoveSpecial(n); } }); inputHistory.splice(idx,1); updateAllStates(); addLog("input",`删历史${it.numbers.length}码`); save_data(); }
 function updateResultText(){ const d=document.getElementById('resultDisplay'), badge=document.getElementById('countBadge'), cnt=selectedNumbers.size; badge.textContent=cnt+'个'; if(!cnt){ d.innerHTML=""; d.style.color="#9a9a9a"; return; } d.style.color="#2d3748"; const all=Array.from(selectedNumbers).sort((a,b)=>a-b), normal=all.filter(n=>!specialNumbersSet.has(n)), special=all.filter(n=>specialNumbersSet.has(n)); const sp=(n)=>{ const c=getColorClass(n), bought=betResults.hasOwnProperty(n), bet=bettingNumbers.has(n); let cls='list-num-base'; if(bought) cls+=` result-num-sold ${c.replace('text-','bg-')}-solid`; else if(bet) cls+=` result-num-betting ${c}`; else cls+=` result-num-selected ${c}`; return `<span class="${cls}" onclick="handleResultNumClick(${n})" title="${bought?'已购买':bet?'待购买':'点击加入待买'}">${fmtNum(n)}</span>`; }; let h=''; const nOdd=normal.filter(n=>n%2), nEven=normal.filter(n=>n%2===0); if(nOdd.length) h+=`<div class="result-column"><span class="result-col-label">单号</span> ${nOdd.map(sp).join('')}</div>`; if(nEven.length) h+=`<div class="result-column"><span class="result-col-label">双号</span> ${nEven.map(sp).join('')}</div>`; const specialAll = special.sort((a,b)=>a-b); if(specialAll.length) { h += `<div class="result-column"><span class="result-col-label">特码</span> ${specialAll.map(sp).join('')}</div>`; } d.innerHTML=h; }
 function renderGrid(){ const g=document.getElementById('grid'); g.innerHTML=''; zodiacs.forEach((z,i)=>{ const b=document.createElement('div'); b.className='zodiac-btn'; b.setAttribute('data-color',zodiacColors[i%zodiacColors.length]); b.textContent=z; b.dataset.zodiacIndex=i; b.onclick=()=>{ handleZodiacSelect(i,z+"肖"); }; g.appendChild(b); }); customGridRows.forEach(r=>r.forEach(n=>{ if(n===null){ const s=document.createElement('div'); s.style.visibility='hidden'; g.appendChild(s); } else { const b=document.createElement('button'); b.className=`num-btn ${getColorClass(n).replace('text-','bg-')}`; b.innerHTML=`<span class="num-val">${fmtNum(n)}</span><span class="num-wx">${wuxingChars[numToWuxing[n]]||''}</span>`; b.dataset.num=n; b.onclick=()=>{ toggleNumber(n); }; g.appendChild(b); } })); const ub=document.createElement('button'); ub.className='action-grid-btn bg-action undo-btn-grid'; ub.innerHTML='<span class="btn-text">撤销</span>'; ub.onclick=performUndo; g.appendChild(ub); const rb=document.createElement('button'); rb.className='action-grid-btn bg-reset reset-btn-grid'; rb.innerHTML='<span class="btn-text">全部重置</span>'; rb.onclick=handleReset; g.appendChild(rb); const db=document.createElement('button'); db.className='action-grid-btn bg-action redo-btn-grid'; db.innerHTML='<span class="btn-text">恢复</span>'; db.onclick=performRedo; g.appendChild(db); restoreSpecialEffects(); updateAllStates(); }
-async function toggleNumber(n){ const specialState = specialNumbersSet.has(n);
+async function toggleNumber(n){ 
+    const specialState = specialNumbersSet.has(n);
     if(specialNumbersSet.has(n)){
         recordAction('special_remove',fmtNum(n),[n],false,0,{specialState}); specialNumbersSet.delete(n);
-        document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.remove('is-special'); addLog("select",`取消特码${fmtNum(n)}`);
+        document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.remove('is-special'); 
+        addLog("select",`取消特码${fmtNum(n)}`);
+        showToast(`取消特码 ${fmtNum(n)}`);
         updateAllStates(); return;
     }
     if(!selectedNumbers.has(n)){
         await playSound('pop'); selectedNumbers.add(n); document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.add('is-active');
         recordAction('manual_select',fmtNum(n),[n],true,0,{number:n, wasAdded:true, specialState});
         addLog("select",`选${fmtNum(n)}`);
+        showToast(`点亮 ${fmtNum(n)}`);
     } else {
         await playSound('slip'); const wasBetting = bettingNumbers.has(n); const hadBet = betResults.hasOwnProperty(n);
         selectedNumbers.delete(n); if(wasBetting) bettingNumbers.delete(n); if(hadBet) delete betResults[n];
@@ -1719,6 +1785,7 @@ async function toggleNumber(n){ const specialState = specialNumbersSet.has(n);
         recordAction('manual_deselect',fmtNum(n),[n],false,0,{number:n, wasAdded:false, specialState, bettingState: wasBetting, betState: hadBet ? betResults[n] : undefined});
         syncRemoveSpecial(n); if(wasBetting||hadBet){ updateBetActionArea(); updateBettingCountBadge(); renderBetResults(); updateBatchSelectButton(); updateTailButtons(); updateClearBettingButtonState(); updateAmountButtonState(); updateClearResultBtn(); updateCopyButtonsState(); }
         addLog("select",`取消${fmtNum(n)}`);
+        showToast(`熄灭 ${fmtNum(n)}`);
     }
     syncSpecialWithSelected(); updateAllStates();
 }
