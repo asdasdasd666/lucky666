@@ -441,31 +441,39 @@ position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0,
 }
 .modal-card {
 background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-radius: 16px;
-padding: 24px 20px 20px; width: 280px; max-width: 90vw; max-height: 80vh; overflow-y: auto; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+padding: 24px 20px 20px; width: 320px; max-width: 92vw; max-height: 80vh; overflow-y: auto; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
 border: 1px solid rgba(255, 255, 255, 0.3);
 }
-.modal-title { text-align: center; font-size: 1rem; font-weight: 700; color: #2d3748; margin-bottom: 20px; word-break: break-word; }
+.modal-title { text-align: center; font-size: 1.2rem; font-weight: 600; color: #2d3748; margin-bottom: 20px; word-break: break-word; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
 .modal-message {
-text-align: left; font-size: 1rem; font-weight: 700; color: #4a5568; margin-bottom: 20px; word-break: break-word; max-height: 200px;
-overflow-y: auto; background: #f8f9fa; padding: 10px; border-radius: 8px; font-family: "Courier New", monospace;
+text-align: center; font-size: 1.2rem; font-weight: 600; color: #4a5568; margin-bottom: 20px; word-break: break-word; max-height: 300px;
+overflow-y: auto; background: #f8f9fa; padding: 10px; border-radius: 8px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.6;
 }
-.modal-message span { display: inline-block; white-space: nowrap; }
+.modal-message span { display: inline; white-space: normal; }
+.modal-message .chinese-text {
+    font-weight: 600 !important;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+    white-space: normal !important;
+}
+.modal-message .wrap-num { white-space: normal !important; word-break: break-word !important; }
+.modal-message .wrap-num span { white-space: normal !important; }
 .modal-input {
 width: 100%; padding: 12px 16px; border: 1px solid #cbd5e0; border-radius: 10px; font-size: 1.2rem; text-align: center;
-font-weight: 700; color: #2d3748; background: #f8f9fa; outline: none; box-sizing: border-box; margin-bottom: 20px;
+font-weight: 600; color: #2d3748; background: #f8f9fa; outline: none; box-sizing: border-box; margin-bottom: 20px;
+font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 .modal-input:focus { border-color: #4299e1; box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2); }
 .modal-textarea {
-width: 100%; padding: 12px 16px; border: 1px solid #cbd5e0; border-radius: 10px; font-size: 1rem; font-weight: 600;
-color: #2d3748; background: #f8f9fa; outline: none; box-sizing: border-box; margin-bottom: 20px; font-family: "Courier New", monospace;
+width: 100%; padding: 12px 16px; border: 1px solid #cbd5e0; border-radius: 10px; font-size: 1.2rem; font-weight: 600;
+color: #2d3748; background: #f8f9fa; outline: none; box-sizing: border-box; margin-bottom: 20px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 resize: none; line-height: 1.5; min-height: 48px; overflow: hidden;
 }
 .modal-textarea:focus { border-color: #4299e1; box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2); }
 .modal-buttons { display: flex; gap: 8px; }
 .modal-buttons.three-buttons { gap: 6px; }
 .modal-btn {
-flex: 1; height: 44px; border: none; border-radius: 10px; font-size: 0.9rem; font-weight: 700; cursor: pointer;
-transition: all 0.15s; padding: 0 4px; white-space: nowrap;
+flex: 1; height: 44px; border: none; border-radius: 10px; font-size: 1.2rem; font-weight: 600; cursor: pointer;
+transition: all 0.15s; padding: 0 4px; white-space: nowrap; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 .modal-btn-cancel { background: #e2e8f0; color: #4a5568; } .modal-btn-cancel:active { background: #cbd5e0; }
 .modal-btn-confirm { background: linear-gradient(145deg, #4299e1, #2b6cb0); color: white; box-shadow: 0 2px 0 #1a4f8a; }
@@ -477,13 +485,10 @@ transition: all 0.15s; padding: 0 4px; white-space: nowrap;
 .modal-btn-danger { background: linear-gradient(145deg, #e53e3e, #c53030); color: white; box-shadow: 0 2px 0 #9b2c2c; }
 .modal-btn-danger:active { transform: translateY(2px); box-shadow: none; }
 
-.modal-message .chinese-text {
-    font-weight: 900 !important;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
-}
 #inputErrorMessage {
-    font-size: 1rem;
-    font-weight: 700;
+    font-size: 1.2rem;
+    font-weight: 600;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 button, .num-btn, .action-grid-btn, .sphere-btn-base, .filter-btn, .wave-btn, .zodiac-btn, .select-zodiac-btn, .select-wave-btn {
     touch-action: manipulation;
@@ -591,7 +596,7 @@ button, .num-btn, .action-grid-btn, .sphere-btn-base, .filter-btn, .wave-btn, .z
 </div>
 <div style="font-size: 0.65rem; font-weight: 700; color: #4a5568; margin-bottom: 2px; display:flex; justify-content:space-between; align-items:center;">
 <span>操作记录</span>
-<span style="font-weight: 600; color: #718096;">V2.10</span>
+<span style="font-weight: 600; color: #718096;">V2.13</span>
 </div>
 <div class="log-container" id="logContainer"><div class="log-item" style="color:#718096; justify-content:center;">暂无记录</div></div>
 </div>
@@ -655,7 +660,7 @@ button, .num-btn, .action-grid-btn, .sphere-btn-base, .filter-btn, .wave-btn, .z
 <div class="modal-overlay" id="resetModal">
     <div class="modal-card">
         <div class="modal-title">⚠️ 确定全部重置？</div>
-        <div class="modal-title" style="font-size:0.8rem; font-weight:400; margin-top:-10px;">这将清空所有选号、买号记录以及撤销/恢复历史，且无法恢复！</div>
+        <div class="modal-title" style="font-size:0.8rem; font-weight:400; margin-top:-10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">这将清空所有选号、买号记录以及撤销/恢复历史，且无法恢复！</div>
         <div class="modal-buttons">
             <button class="modal-btn modal-btn-cancel" id="modalResetCancel">取消</button>
             <button class="modal-btn modal-btn-danger" id="modalResetConfirm">确定重置</button>
@@ -677,7 +682,7 @@ button, .num-btn, .action-grid-btn, .sphere-btn-base, .filter-btn, .wave-btn, .z
 <div class="modal-overlay" id="betConfirmModal">
     <div class="modal-card">
         <div class="modal-title">确认购买</div>
-        <div class="modal-message" id="betConfirmMessage" style="text-align:left;"></div>
+        <div class="modal-message" id="betConfirmMessage"></div>
         <div class="modal-buttons">
             <button class="modal-btn modal-btn-cancel" id="modalBetCancel">取消</button>
             <button class="modal-btn modal-btn-confirm" id="modalBetConfirm">确定</button>
@@ -686,7 +691,7 @@ button, .num-btn, .action-grid-btn, .sphere-btn-base, .filter-btn, .wave-btn, .z
 </div>
 
 <div class="modal-overlay" id="inputModal">
-    <div class="modal-card" style="width: 320px;">
+    <div class="modal-card" style="width: 340px;">
         <div class="modal-title">请输入号码或生肖</div>
         <textarea id="modalInputArea" class="modal-textarea" rows="1"></textarea>
         <div class="modal-buttons">
@@ -710,7 +715,7 @@ button, .num-btn, .action-grid-btn, .sphere-btn-base, .filter-btn, .wave-btn, .z
 // ==================== Toast 定时器管理 ====================
 let toastTimer = null;
 
-// ==================== 统一弹窗管理器 (V2.10) ====================
+// ==================== 统一弹窗管理器 (V2.13) ====================
 const ModalManager = (function() {
     const modals = {
         confirm: {
@@ -760,7 +765,11 @@ const ModalManager = (function() {
     
     function applyAlignment(element, html) {
         if (!element) return;
-        element.style.textAlign = isMultiLineContent(html) ? 'left' : 'center';
+        if (isMultiLineContent(html)) {
+            element.style.textAlign = 'left';
+        } else {
+            element.style.textAlign = 'center';
+        }
     }
     
     function close() {
@@ -861,7 +870,7 @@ const ModalManager = (function() {
         const sorted = [...nums].sort((a, b) => a - b);
         const numsHtml = sorted.map(n => {
             const col = redGroup.has(n) ? '#e53e3e' : blueGroup.has(n) ? '#3182ce' : '#38a169';
-            return `<span style="color:${col}; font-weight:900;">${fmtNum(n)}</span>`;
+            return `<span style="color:${col}; font-weight:600;">${fmtNum(n)}</span>`;
         }).join('<span style="color:#2d3748;">.</span>');
         const unit = nums.size === 1 ? '买' : '各';
         const finalHtml = `<div>${numsHtml} ${unit}${amount}元</div>`;
@@ -887,7 +896,7 @@ const ModalManager = (function() {
         };
     }
     
-    return { showConfirm, showCopyPreview, showBetConfirm, close };
+    return { showConfirm, showCopyPreview, showBetConfirm, close, isMultiLineContent, applyAlignment };
 })();
 
 // ==================== 统一音效管理器 ====================
@@ -1127,7 +1136,7 @@ function colorizeToastText(text) {
         if (match[1]) {
             const num = parseInt(match[1]);
             const col = redGroup.has(num) ? '#e53e3e' : blueGroup.has(num) ? '#3182ce' : '#38a169';
-            parts.push(`<span style="color:${col}; font-weight:900;">${match[1]}</span>`);
+            parts.push(`<span style="color:${col}; font-weight:600;">${match[1]}</span>`);
         } else if (match[2]) {
             parts.push(`<span style="color:#1a202c;">${match[2]}</span>`);
         }
@@ -1191,7 +1200,6 @@ function showToast(msg, d=1500) {
         clearTimeout(toastTimer);
         toastTimer = null;
     }
-    // 特定长消息添加类名
     const longMessages = ['没有可撤销的操作', '没有可恢复的操作', '已重置所有数据'];
     if (longMessages.includes(msg)) {
         t.classList.add('toast-long');
@@ -1390,30 +1398,68 @@ function getUndoActionDescription(a){
     return a.label || '';
 }
 
-// 辅助函数：为撤销/恢复弹窗生成与杀号区统一格式的消息内容
+// 辅助函数：为撤销/恢复弹窗生成消息内容 (V2.13 彻底修复)
 function formatUndoRedoMessage(action) {
-    const desc = getUndoActionDescription(action);
-    const numbers = action.numbers || [];
+    // 获取实际号码列表
+    let numbers = action.numbers || [];
     
+    // 对于 input_text 类型，numbers 可能是空数组，需要从 prevNumbers/nextNumbers 中取
+    if ((action.type === 'input_text' || action.type === 'batch_input') && numbers.length === 0) {
+        if (action.prevNumbers && action.prevNumbers.length > 0) {
+            numbers = action.prevNumbers;
+        } else if (action.nextNumbers && action.nextNumbers.length > 0) {
+            numbers = action.nextNumbers;
+        } else if (action.rawText) {
+            // 从 rawText 中解析号码
+            const nums = action.rawText.match(/\d+/g) || [];
+            numbers = nums.map(n => parseInt(n)).filter(n => n >= 1 && n <= 49);
+        }
+    }
+    
+    // 如果没有号码，直接返回纯中文标签
     if (!numbers.length) {
+        const desc = getUndoActionDescription(action);
         return `<span class="chinese-text">${desc}</span>`;
     }
     
+    // 去重并排序
+    const uniqueNumbers = [...new Set(numbers)];
+    const sorted = [...uniqueNumbers].sort((a, b) => a - b);
+    
+    // 生成彩色号码 HTML
+    const numsHtml = sorted.map(n => {
+        const col = redGroup.has(n) ? '#e53e3e' : blueGroup.has(n) ? '#3182ce' : '#38a169';
+        return `<span style="color:${col}; font-weight:600;">${fmtNum(n)}</span>`;
+    }).join('<span style="color:#2d3748;">.</span>');
+    
     // 提取中文标签
+    const desc = getUndoActionDescription(action);
+    const numStr = formatNumbersForDisplay(uniqueNumbers);
     let chineseLabel = desc;
-    chineseLabel = chineseLabel.replace(/\s*\d{2}(\.\d{2})*$/g, '').trim();
+    
+    // 尝试移除末尾的号码串
+    const escapedNumStr = numStr.replace(/\./g, '\\.');
+    chineseLabel = chineseLabel.replace(new RegExp(`\\s*${escapedNumStr}\\s*$`), '').trim();
+    
+    // 如果移除后没有剩余，使用原始描述的纯中文部分
+    if (!chineseLabel) {
+        chineseLabel = desc.replace(/[\d\.\s]+/g, '').trim();
+    }
+    
+    // 如果还是没有，使用整个 desc
     if (!chineseLabel) {
         chineseLabel = desc;
     }
     
-    // 生成彩色号码HTML
-    const sorted = [...numbers].sort((a, b) => a - b);
-    const numsHtml = sorted.map(n => {
-        const col = redGroup.has(n) ? '#e53e3e' : blueGroup.has(n) ? '#3182ce' : '#38a169';
-        return `<span style="color:${col}; font-weight:900;">${fmtNum(n)}</span>`;
-    }).join('<span style="color:#2d3748;">.</span>');
+    // 组装消息
+    const content = `<span class="chinese-text">${chineseLabel}</span> ${numsHtml}`;
     
-    return `<span class="chinese-text">${chineseLabel}</span> ${numsHtml}`;
+    // 对于 input_text 或 batch_input 类型，包裹 wrap-num 以允许换行
+    if (action.type === 'input_text' || action.type === 'batch_input') {
+        return `<span class="wrap-num">${content}</span>`;
+    }
+    
+    return content;
 }
 
 async function performUndo(){ 
@@ -1606,7 +1652,7 @@ async function handleWaveKill(c,p){
     const sorted = [...rm].sort((a,b)=>a-b);
     const numsHtml = sorted.map(n=>{
         const col = redGroup.has(n) ? '#e53e3e' : blueGroup.has(n) ? '#3182ce' : '#38a169';
-        return `<span style="color:${col}; font-weight:900;">${fmtNum(n)}</span>`;
+        return `<span style="color:${col}; font-weight:600;">${fmtNum(n)}</span>`;
     }).join('<span style="color:#2d3748;">.</span>');
     const message = `<span class="chinese-text">杀${lbl}</span> ${numsHtml}`;
     
@@ -1626,7 +1672,7 @@ async function handleSizeParityKill(t){
     const sorted = [...rm].sort((a,b)=>a-b);
     const numsHtml = sorted.map(n=>{
         const col = redGroup.has(n) ? '#e53e3e' : blueGroup.has(n) ? '#3182ce' : '#38a169';
-        return `<span style="color:${col}; font-weight:900;">${fmtNum(n)}</span>`;
+        return `<span style="color:${col}; font-weight:600;">${fmtNum(n)}</span>`;
     }).join('<span style="color:#2d3748;">.</span>');
     const message = `<span class="chinese-text">杀${t}</span> ${numsHtml}`;
     
@@ -1646,7 +1692,7 @@ async function handleHeadKill(h){
     const sorted = [...rm].sort((a,b)=>a-b);
     const numsHtml = sorted.map(n=>{
         const col = redGroup.has(n) ? '#e53e3e' : blueGroup.has(n) ? '#3182ce' : '#38a169';
-        return `<span style="color:${col}; font-weight:900;">${fmtNum(n)}</span>`;
+        return `<span style="color:${col}; font-weight:600;">${fmtNum(n)}</span>`;
     }).join('<span style="color:#2d3748;">.</span>');
     const message = `<span class="chinese-text">杀${lbl}</span> ${numsHtml}`;
     
@@ -1666,7 +1712,7 @@ async function handleWuxingKill(w){
     const sorted = [...rm].sort((a,b)=>a-b);
     const numsHtml = sorted.map(n=>{
         const col = redGroup.has(n) ? '#e53e3e' : blueGroup.has(n) ? '#3182ce' : '#38a169';
-        return `<span style="color:${col}; font-weight:900;">${fmtNum(n)}</span>`;
+        return `<span style="color:${col}; font-weight:600;">${fmtNum(n)}</span>`;
     }).join('<span style="color:#2d3748;">.</span>');
     const message = `<span class="chinese-text">杀${lbl}</span> ${numsHtml}`;
     
@@ -1686,7 +1732,7 @@ async function handleTailKill(t){
     const sorted = [...rm].sort((a,b)=>a-b);
     const numsHtml = sorted.map(n=>{
         const col = redGroup.has(n) ? '#e53e3e' : blueGroup.has(n) ? '#3182ce' : '#38a169';
-        return `<span style="color:${col}; font-weight:900;">${fmtNum(n)}</span>`;
+        return `<span style="color:${col}; font-weight:600;">${fmtNum(n)}</span>`;
     }).join('<span style="color:#2d3748;">.</span>');
     const message = `<span class="chinese-text">杀${lbl}</span> ${numsHtml}`;
     
@@ -1793,7 +1839,7 @@ async function handleTailBetAction(t){ const nums=Array.from(selectedNumbers).fi
 }
 function updateBetActionArea(){ const d=document.getElementById('betNumsDisplay'); if(!bettingNumbers.size){ d.textContent=""; d.style.color="#9a9a9a"; } else { const s=Array.from(bettingNumbers).sort((a,b)=>a-b); d.innerHTML=s.map((n,i)=>`<span class="${getColorClass(n)}" style="display:inline-block; white-space:nowrap; font-size:0.9em;">${fmtNum(n)}${i<s.length-1?'.':''}</span>`).join(''); d.style.color=""; } }
 function updateBettingCountBadge(){ document.getElementById('bettingCountBadge').textContent=bettingNumbers.size+'个'; }
-function renderBetResults(){ const items=document.getElementById('betResultItems'), keys=Object.keys(betResults).map(Number); document.getElementById('betCountBadge').textContent=keys.length+'个'; document.getElementById('betTotalAmount').textContent=`共 ${keys.reduce((s,n)=>s+(betResults[n]||0),0)} 元`; if(!keys.length){ items.innerHTML=''; return; } const grp={}; keys.forEach(n=>{ const a=betResults[n]; if(!grp[a]) grp[a]=[]; grp[a].push(n); }); let h=''; Object.keys(grp).sort((a,b)=>parseInt(a)-parseInt(b)).forEach((a,idx)=>{ const nums=grp[a].sort((a,b)=>a-b); if(idx) h+=', '; if(nums.length===1){ h+=`<span class="${getColorClass(nums[0])}" style="font-weight:900; font-size:0.9em;">${fmtNum(nums[0])}</span><span class="amt-tag">买${a}块</span>`; } else { nums.forEach((n,i)=>{ h+=`<span class="${getColorClass(n)}" style="font-weight:900; font-size:0.9em;">${fmtNum(n)}</span>`; if(i<nums.length-1) h+='<span class="amt-tag" style="color:#2d3748;">.</span>'; }); h+=`<span class="amt-tag">各${a}块</span>`; } }); items.innerHTML=h; }
+function renderBetResults(){ const items=document.getElementById('betResultItems'), keys=Object.keys(betResults).map(Number); document.getElementById('betCountBadge').textContent=keys.length+'个'; document.getElementById('betTotalAmount').textContent=`共 ${keys.reduce((s,n)=>s+(betResults[n]||0),0)} 元`; if(!keys.length){ items.innerHTML=''; return; } const grp={}; keys.forEach(n=>{ const a=betResults[n]; if(!grp[a]) grp[a]=[]; grp[a].push(n); }); let h=''; Object.keys(grp).sort((a,b)=>parseInt(a)-parseInt(b)).forEach((a,idx)=>{ const nums=grp[a].sort((a,b)=>a-b); if(idx) h+=', '; if(nums.length===1){ h+=`<span class="${getColorClass(nums[0])}" style="font-weight:600; font-size:0.9em;">${fmtNum(nums[0])}</span><span class="amt-tag">买${a}块</span>`; } else { nums.forEach((n,i)=>{ h+=`<span class="${getColorClass(n)}" style="font-weight:600; font-size:0.9em;">${fmtNum(n)}</span>`; if(i<nums.length-1) h+='<span class="amt-tag" style="color:#2d3748;">.</span>'; }); h+=`<span class="amt-tag">各${a}块</span>`; } }); items.innerHTML=h; }
 async function handleClearBetResults(){ await playSound('click'); if(!Object.keys(betResults).length){ showToast("暂无买号结果"); return; } showConfirmModal('清空结果', '', async ()=>{ await playSound('shutter'); const prev={...betResults}; const keys = Object.keys(prev).map(Number); recordAction('clear_bet_results','清空结果',[],false,0,{prevBetResults:prev}); betResults={}; updateAllStates(); addLog("clear",`清空结果 ${formatNumbersForDisplay(keys)}`); }, true, false, true); }
 function calculateNumberFrequencies(){ const f={}; inputHistory.forEach(it=>{ if(it.isActive) it.sortedNumbers.forEach(n=>f[n]=(f[n]||0)+1); }); return f; }
 function getFreqStyle(fr){ if(fr===1) return { bg:'radial-gradient(circle at 30% 30%, #f7fafc 0%, #cbd5e0 40%, #a0aec0 100%)', text:'#4a5568', textClass:'light-text' }; if(globalFreqColorMap.has(fr)) return { bg:globalFreqColorMap.get(fr), text:'#fff', textClass:'dark-text' }; const bg=freqColorPalette[(fr-2)%freqColorPalette.length]; globalFreqColorMap.set(fr,bg); return { bg, text:'#fff', textClass:'dark-text' }; }
@@ -1916,11 +1962,11 @@ function updateTempCountBadge(){ document.getElementById('tempCountBadge').textC
 function updateTempStoreBtn(){ const b=document.getElementById('tempStoreBtn'), arr=Array.from(selectedNumbers); if(!arr.length){ b.className='temp-action-btn grey'; b.textContent='无号码'; b.style.opacity='0.5'; return; } const ex=new Set(tempStorageData.map(i=>i.num)), add=arr.filter(n=>!ex.has(n)); if(!add.length){ b.className='temp-action-btn grey'; b.textContent='已暂存'; b.style.opacity='0.5'; } else { b.className='temp-action-btn green'; b.textContent=tempStorageData.length?'继续暂存':'暂存'; b.style.opacity=''; } }
 function updateTempRestoreBtn(){ const b=document.getElementById('tempRestoreBtn'); if(!tempStorageData.length){ b.className='temp-action-btn grey'; b.textContent='无号码'; b.style.opacity='0.5'; } else { b.className='temp-action-btn green'; b.textContent='恢复'; b.style.opacity=''; } }
 function updateTempClearBtn(){ const b=document.getElementById('tempClearBtn'); if(!tempStorageData.length){ b.className='temp-action-btn grey'; b.textContent='清空暂存'; b.style.opacity='0.5'; } else { b.className='temp-action-btn orange'; b.textContent='清空暂存'; b.style.opacity=''; } }
-async function handleTempStore(){ await playSound('click'); const arr=Array.from(selectedNumbers); if(!arr.length){ showToast("暂无已选号码"); return; } const ex=new Set(tempStorageData.map(i=>i.num)), add=arr.filter(n=>!ex.has(n)); if(!add.length){ showToast("所有号码已暂存"); return; } const sorted=[...add].sort((a,b)=>a-b), numsHtml=sorted.map(n=>`<span style="color:${redGroup.has(n)?'#e53e3e':blueGroup.has(n)?'#3182ce':'#38a169'}; font-weight:900;">${fmtNum(n)}</span>`).join('<span style="color:#2d3748;">.</span>'); const actionLabel = tempStorageData.length?'继续暂存':'暂存'; showConfirmModal(actionLabel, numsHtml, async ()=>{ add.forEach(n=>tempStorageData.push({num:n,isSpecial:specialNumbersSet.has(n),isBetting:bettingNumbers.has(n)})); tempStorageData.sort((a,b)=>a.num-b.num); recordAction('temp_store',actionLabel,[],true,0,{addedNums:add,prevTempData:[...tempStorageData]}); renderTempStorage(); updateTempCountBadge(); updateTempStoreBtn(); updateTempRestoreBtn(); updateTempClearBtn(); save_data(); addLog("select",`${actionLabel} ${formatNumbersForDisplay(add)}`); }, false, true); }
-async function handleTempRestore(){ await playSound('click'); if(!tempStorageData.length){ showToast("无恢复号码"); return; } const sorted=[...tempStorageData].sort((a,b)=>a.num-b.num), numsHtml=sorted.map(i=>`<span style="color:${redGroup.has(i.num)?'#e53e3e':blueGroup.has(i.num)?'#3182ce':'#38a169'}; font-weight:900;">${fmtNum(i.num)}</span>`).join('<span style="color:#2d3748;">.</span>'); showConfirmModal('恢复暂存', numsHtml, async ()=>{ const cur=[...tempStorageData], restored=[], already=[]; cur.forEach(i=>{ const n=i.num; if(selectedNumbers.has(n)) already.push(n); else { selectedNumbers.add(n); restored.push(n); document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.add('is-active'); } syncRemoveSpecial(n); if(i.isBetting) bettingNumbers.add(n); else bettingNumbers.delete(n); }); recordAction('temp_restore','恢复暂存',restored,true,0,{restoredNums:restored,prevTempData:cur,alreadySelectedHas:already}); tempStorageData=[]; renderTempStorage(); updateTempCountBadge(); updateTempStoreBtn(); updateTempRestoreBtn(); updateTempClearBtn(); updateAllStates(); save_data(); addLog("select",`恢复暂存 ${formatNumbersForDisplay(restored)}`); }, false, true); }
+async function handleTempStore(){ await playSound('click'); const arr=Array.from(selectedNumbers); if(!arr.length){ showToast("暂无已选号码"); return; } const ex=new Set(tempStorageData.map(i=>i.num)), add=arr.filter(n=>!ex.has(n)); if(!add.length){ showToast("所有号码已暂存"); return; } const sorted=[...add].sort((a,b)=>a-b), numsHtml=sorted.map(n=>`<span style="color:${redGroup.has(n)?'#e53e3e':blueGroup.has(n)?'#3182ce':'#38a169'}; font-weight:600;">${fmtNum(n)}</span>`).join('<span style="color:#2d3748;">.</span>'); const actionLabel = tempStorageData.length?'继续暂存':'暂存'; showConfirmModal(actionLabel, numsHtml, async ()=>{ add.forEach(n=>tempStorageData.push({num:n,isSpecial:specialNumbersSet.has(n),isBetting:bettingNumbers.has(n)})); tempStorageData.sort((a,b)=>a.num-b.num); recordAction('temp_store',actionLabel,[],true,0,{addedNums:add,prevTempData:[...tempStorageData]}); renderTempStorage(); updateTempCountBadge(); updateTempStoreBtn(); updateTempRestoreBtn(); updateTempClearBtn(); save_data(); addLog("select",`${actionLabel} ${formatNumbersForDisplay(add)}`); }, false, true); }
+async function handleTempRestore(){ await playSound('click'); if(!tempStorageData.length){ showToast("无恢复号码"); return; } const sorted=[...tempStorageData].sort((a,b)=>a.num-b.num), numsHtml=sorted.map(i=>`<span style="color:${redGroup.has(i.num)?'#e53e3e':blueGroup.has(i.num)?'#3182ce':'#38a169'}; font-weight:600;">${fmtNum(i.num)}</span>`).join('<span style="color:#2d3748;">.</span>'); showConfirmModal('恢复暂存', numsHtml, async ()=>{ const cur=[...tempStorageData], restored=[], already=[]; cur.forEach(i=>{ const n=i.num; if(selectedNumbers.has(n)) already.push(n); else { selectedNumbers.add(n); restored.push(n); document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.add('is-active'); } syncRemoveSpecial(n); if(i.isBetting) bettingNumbers.add(n); else bettingNumbers.delete(n); }); recordAction('temp_restore','恢复暂存',restored,true,0,{restoredNums:restored,prevTempData:cur,alreadySelectedHas:already}); tempStorageData=[]; renderTempStorage(); updateTempCountBadge(); updateTempStoreBtn(); updateTempRestoreBtn(); updateTempClearBtn(); updateAllStates(); save_data(); addLog("select",`恢复暂存 ${formatNumbersForDisplay(restored)}`); }, false, true); }
 async function handleTempClear(){ await playSound('click'); if(!tempStorageData.length){ showToast("暂存区已空"); return; } const clearedNums = tempStorageData.map(i => i.num); showConfirmModal('清空暂存', '', async ()=>{ await playSound('shutter'); recordAction('temp_clear','清空暂存',[],false,0,{prevTempData:[...tempStorageData]}); tempStorageData=[]; renderTempStorage(); updateTempCountBadge(); updateTempStoreBtn(); updateTempRestoreBtn(); updateTempClearBtn(); save_data(); addLog("clear",`清空暂存 ${formatNumbersForDisplay(clearedNums)}`); }, true, false, true); }
-async function copySelectedNumbers(){ if(!selectedNumbers.size){ showToast("暂无已选号码"); return; } await playSound('coin'); const s=Array.from(selectedNumbers).sort((a,b)=>a-b), plain=s.map(fmtNum).join('.'), html=s.map(n=>`<span style="color:${redGroup.has(n)?'#e53e3e':blueGroup.has(n)?'#3182ce':'#38a169'}; font-weight:900; font-size:1.1em;">${fmtNum(n)}</span>`).join('<span style="color:#2d3748;">.</span>'); showCopyPreviewModal(html,plain,(txt)=>{ navigator.clipboard?.writeText(txt).then(()=>{ showToast("✅ 已复制"); addLog("system","复制已选"); }).catch(()=>{ const ta=document.createElement('textarea'); ta.value=txt; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); showToast("✅ 已复制"); addLog("system","复制已选(降级)"); }); }); }
-async function copyBetResults(){ if(selectedNumbers.size&&Array.from(selectedNumbers).some(n=>betResults[n]===undefined)){ showToast("还有号码没有购买，不能复制"); return; } const keys=Object.keys(betResults).map(Number); if(!keys.length){ showToast("暂无买号结果"); return; } await playSound('coin'); const grp={}; keys.forEach(n=>{ const a=betResults[n]; if(!grp[a]) grp[a]=[]; grp[a].push(n); }); let plain=[], html=[]; Object.keys(grp).sort((a,b)=>parseInt(a)-parseInt(b)).forEach(a=>{ const nums=grp[a].sort((a,b)=>a-b); if(nums.length===1) plain.push(`${fmtNum(nums[0])}买${a}块`); else plain.push(`${nums.map(fmtNum).join('.')}各${a}块`); let gh=nums.map(n=>`<span style="color:${redGroup.has(n)?'#e53e3e':blueGroup.has(n)?'#3182ce':'#38a169'}; font-weight:900;">${fmtNum(n)}</span>`).join('<span style="color:#2d3748;">.</span>'); gh+=`<span style="color:#718096;"> ${nums.length===1?`买${a}块`:`各${a}块`}</span>`; html.push(gh); }); showCopyPreviewModal('<span style="color:#2d3748; font-weight:700;">新奥</span> '+html.join('<span style="color:#718096;">, </span>'),"新奥"+plain.join(', '),(txt)=>{ navigator.clipboard?.writeText(txt).then(()=>{ showToast("✅ 已复制买号结果"); addLog("system","复制结果"); }).catch(()=>{ const ta=document.createElement('textarea'); ta.value=txt; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); showToast("✅ 已复制买号结果"); addLog("system","复制结果(降级)"); }); }); }
+async function copySelectedNumbers(){ if(!selectedNumbers.size){ showToast("暂无已选号码"); return; } await playSound('coin'); const s=Array.from(selectedNumbers).sort((a,b)=>a-b), plain=s.map(fmtNum).join('.'), html=s.map(n=>`<span style="color:${redGroup.has(n)?'#e53e3e':blueGroup.has(n)?'#3182ce':'#38a169'}; font-weight:600; font-size:1.1em;">${fmtNum(n)}</span>`).join('<span style="color:#2d3748;">.</span>'); showCopyPreviewModal(html,plain,(txt)=>{ navigator.clipboard?.writeText(txt).then(()=>{ showToast("✅ 已复制"); addLog("system","复制已选"); }).catch(()=>{ const ta=document.createElement('textarea'); ta.value=txt; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); showToast("✅ 已复制"); addLog("system","复制已选(降级)"); }); }); }
+async function copyBetResults(){ if(selectedNumbers.size&&Array.from(selectedNumbers).some(n=>betResults[n]===undefined)){ showToast("还有号码没有购买，不能复制"); return; } const keys=Object.keys(betResults).map(Number); if(!keys.length){ showToast("暂无买号结果"); return; } await playSound('coin'); const grp={}; keys.forEach(n=>{ const a=betResults[n]; if(!grp[a]) grp[a]=[]; grp[a].push(n); }); let plain=[], html=[]; Object.keys(grp).sort((a,b)=>parseInt(a)-parseInt(b)).forEach(a=>{ const nums=grp[a].sort((a,b)=>a-b); if(nums.length===1) plain.push(`${fmtNum(nums[0])}买${a}块`); else plain.push(`${nums.map(fmtNum).join('.')}各${a}块`); let gh=nums.map(n=>`<span style="color:${redGroup.has(n)?'#e53e3e':blueGroup.has(n)?'#3182ce':'#38a169'}; font-weight:600;">${fmtNum(n)}</span>`).join('<span style="color:#2d3748;">.</span>'); gh+=`<span style="color:#718096;"> ${nums.length===1?`买${a}块`:`各${a}块`}</span>`; html.push(gh); }); showCopyPreviewModal('<span style="color:#2d3748; font-weight:600;">新奥</span> '+html.join('<span style="color:#718096;">, </span>'),"新奥"+plain.join(', '),(txt)=>{ navigator.clipboard?.writeText(txt).then(()=>{ showToast("✅ 已复制买号结果"); addLog("system","复制结果"); }).catch(()=>{ const ta=document.createElement('textarea'); ta.value=txt; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); showToast("✅ 已复制买号结果"); addLog("system","复制结果(降级)"); }); }); }
 async function handleReset(){ await playSound('click'); const m=document.getElementById('resetModal'); m.style.display='flex'; const close=()=>m.style.display='none'; document.getElementById('modalResetConfirm').onclick=async ()=>{ await playSound('slip'); selectedNumbers.clear(); bettingNumbers.clear(); betResults={}; undoStack=[]; redoStack=[]; inputHistory=[]; tempStorageData=[]; specialNumbersSet.clear(); currentHighlightedNumber=null; numberSources.clear(); globalFreqColorMap.clear(); document.getElementById('smartInput').value=''; updateZodiacButtonsFromInput(''); document.querySelectorAll('.num-btn.is-special, .num-btn.is-active').forEach(b=>b.classList.remove('is-special','is-active')); renderTempStorage(); updateTempCountBadge(); updateTempStoreBtn(); updateTempRestoreBtn(); updateTempClearBtn(); document.getElementById('logContainer').innerHTML='<div class="log-item" style="color:#718096; justify-content:center;">暂无记录</div>'; save_data(); renderBetResults(); updateAllStates(); showToast("已重置所有数据"); addLog("clear","重置"); close(); }; document.getElementById('modalResetCancel').onclick = async () => { await playSound('click'); close(); addLog("system","取消重置"); }; m.onclick = async (e) => { if(e.target === m) { await playSound('click'); close(); } }; }
 
 const allAnimationSounds = ['wave','rain','slot','bright','magic','scifi','deep'];
