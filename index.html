@@ -389,7 +389,8 @@ margin-bottom: env(safe-area-inset-bottom, 10px);
 .toast {
 position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.9); background: rgba(255, 255, 255, 0.95); color: #1a202c;
 padding: 12px 24px; border-radius: 50px; display: none; z-index: 1000; font-size: 1.2rem; font-weight: 600;
-box-shadow: 0 10px 25px rgba(0,0,0,0.2); opacity: 0; transition: all 0.3s; pointer-events: none; white-space: normal; max-width: 90%; text-align: center;
+box-shadow: 0 10px 25px rgba(0,0,0,0.2); opacity: 0; transition: all 0.3s; pointer-events: none; max-width: 90%; text-align: center;
+box-sizing: border-box;
 }
 .toast.show { display: block; opacity: 1; transform: translate(-50%, -50%) scale(1); }
 .toast-long { min-width: 220px; white-space: nowrap; }
@@ -596,7 +597,7 @@ button, .num-btn, .action-grid-btn, .sphere-btn-base, .filter-btn, .wave-btn, .z
 </div>
 <div style="font-size: 0.65rem; font-weight: 700; color: #4a5568; margin-bottom: 2px; display:flex; justify-content:space-between; align-items:center;">
 <span>操作记录</span>
-<span style="font-weight: 600; color: #718096;">V2.13</span>
+<span style="font-weight: 600; color: #718096;">V2.08</span>
 </div>
 <div class="log-container" id="logContainer"><div class="log-item" style="color:#718096; justify-content:center;">暂无记录</div></div>
 </div>
@@ -715,7 +716,7 @@ button, .num-btn, .action-grid-btn, .sphere-btn-base, .filter-btn, .wave-btn, .z
 // ==================== Toast 定时器管理 ====================
 let toastTimer = null;
 
-// ==================== 统一弹窗管理器 (V2.13) ====================
+// ==================== 统一弹窗管理器 (V2.08) ====================
 const ModalManager = (function() {
     const modals = {
         confirm: {
@@ -749,28 +750,6 @@ const ModalManager = (function() {
     };
     
     let activeModal = null;
-    
-    function isMultiLineContent(html) {
-        if (!html) return false;
-        if (html.includes('<br>') || html.includes('\n')) return true;
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = html;
-        const plainText = tempDiv.textContent || '';
-        let visualWidth = 0;
-        for (const char of plainText) {
-            visualWidth += /[\u4e00-\u9fff]/.test(char) ? 2 : 1;
-        }
-        return visualWidth > 25;
-    }
-    
-    function applyAlignment(element, html) {
-        if (!element) return;
-        if (isMultiLineContent(html)) {
-            element.style.textAlign = 'left';
-        } else {
-            element.style.textAlign = 'center';
-        }
-    }
     
     function close() {
         if (activeModal) {
@@ -807,10 +786,9 @@ const ModalManager = (function() {
             if (isHtml) {
                 finalHtml = message;
             } else if (message) {
-                finalHtml = message.replace(/([^0-9\s\.]+)/g, '<span class="chinese-text">$1</span>');
+                finalHtml = message.replace(/([^0-9\s\.<>\/]+)/g, '<span class="chinese-text">$1</span>');
             }
             m.message.innerHTML = finalHtml;
-            applyAlignment(m.message, finalHtml);
         }
         
         m.overlay.style.display = 'flex';
@@ -840,7 +818,6 @@ const ModalManager = (function() {
         activeModal = 'copy';
         
         m.message.innerHTML = html;
-        applyAlignment(m.message, html);
         m.overlay.style.display = 'flex';
         
         m.confirmBtn.onclick = async () => {
@@ -868,15 +845,11 @@ const ModalManager = (function() {
         activeModal = 'bet';
         
         const sorted = [...nums].sort((a, b) => a - b);
-        const numsHtml = sorted.map(n => {
-            const col = redGroup.has(n) ? '#e53e3e' : blueGroup.has(n) ? '#3182ce' : '#38a169';
-            return `<span style="color:${col}; font-weight:600;">${fmtNum(n)}</span>`;
-        }).join('<span style="color:#2d3748;">.</span>');
+        const numsHtml = buildNumsHtml(sorted);
         const unit = nums.size === 1 ? '买' : '各';
-        const finalHtml = `<div>${numsHtml} ${unit}${amount}元</div>`;
+        const finalHtml = `<div style="text-align:center">确认购买</div><div style="text-align:center">${numsHtml} ${unit}${amount}元</div>`;
         
         m.message.innerHTML = finalHtml;
-        applyAlignment(m.message, finalHtml);
         m.overlay.style.display = 'flex';
         
         m.confirmBtn.onclick = async () => {
@@ -896,37 +869,42 @@ const ModalManager = (function() {
         };
     }
     
-    return { showConfirm, showCopyPreview, showBetConfirm, close, isMultiLineContent, applyAlignment };
+    return { showConfirm, showCopyPreview, showBetConfirm, close };
 })();
 
-// ==================== 统一音效管理器 ====================
+// ==================== 统一音效管理器 (V2.08 iOS修复版) ====================
 const SoundManager = (function(){
     let audioCtx = null;
     const N = { C3:130.81, E3:164.81, G3:196.00, C4:261.63, D4:293.66, E4:329.63, G4:392.00, A4:440.00, C5:523.25, D5:587.33, E5:659.25, G5:784.00, A5:880.00, B5:987.77, C6:1046.50, D6:1174.66, E6:1318.51, G6:1567.98, A6:1760.00, C7:2093.00, E7:2637.02, G7:3135.96, C8:4186.01 };
     
-    function init() { 
-        if (!audioCtx) {
-            try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
-        }
-    }
-    
     async function activate() {
-        init();
-        if (!audioCtx) return false;
-        if (audioCtx.state === 'closed') {
+        if (audioCtx && audioCtx.state === 'running') return true;
+        
+        if (audioCtx && audioCtx.state === 'suspended') {
+            try {
+                await Promise.race([
+                    audioCtx.resume(),
+                    new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 500))
+                ]);
+                if (audioCtx.state === 'running') return true;
+            } catch(e) {}
+            try { audioCtx.close(); } catch(e) {}
             audioCtx = null;
-            init();
-            if (!audioCtx) return false;
         }
+        
+        if (!audioCtx) {
+            try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) { return false; }
+        }
+        
         if (audioCtx.state === 'suspended') {
             try {
-                await audioCtx.resume();
-                return true;
-            } catch(e) {
-                await new Promise(r => setTimeout(r, 50));
-                try { await audioCtx.resume(); return true; } catch(e2) { return false; }
-            }
+                await Promise.race([
+                    audioCtx.resume(),
+                    new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 500))
+                ]);
+            } catch(e) { return false; }
         }
+        
         return audioCtx.state === 'running';
     }
     
@@ -954,8 +932,8 @@ const SoundManager = (function(){
     }
 
     async function play(type) {
-        await activate();
-        if (!audioCtx || audioCtx.state !== 'running') return;
+        const ok = await activate();
+        if (!ok || !audioCtx || audioCtx.state !== 'running') return;
         const t = audioCtx.currentTime;
         switch(type) {
             case 'click': playNote(1600, t, 0.04, 0.5, 'triangle'); playNote(2400, t+0.005, 0.03, 0.25, 'sine'); break;
@@ -963,21 +941,21 @@ const SoundManager = (function(){
             case 'coin': playNote(523,t,0.12,0.4,'sine'); playNote(659,t,0.12,0.3,'sine'); playNote(1046,t+0.02,0.1,0.2,'triangle'); break;
             case 'shutter': playNote(2400,t,0.03,0.42,'triangle'); playNote(800,t+0.01,0.05,0.25,'sine'); playNote(400,t+0.02,0.04,0.17,'sawtooth'); break;
             case 'slip': { const o=audioCtx.createOscillator(), g=audioCtx.createGain(); o.type='triangle'; o.frequency.setValueAtTime(500,t); o.frequency.exponentialRampToValueAtTime(150,t+0.2); g.gain.setValueAtTime(0.42,t); g.gain.exponentialRampToValueAtTime(0.001,t+0.28); o.connect(g); g.connect(audioCtx.destination); o.start(t); o.stop(t+0.28); playNote(80,t+0.18,0.1,0.3,'sine'); } break;
-            case 'cash': playNote(120,t,0.06,0.5,'triangle'); playNote(80,t+0.01,0.04,0.3,'sine'); [N.C5,N.E5,N.G5,N.C6,N.E6,N.G6,N.C7,N.G6,N.E6,N.C6,N.G5,N.E5].forEach((f,i)=>playNote(f,t+0.08+i*0.03,0.12,0.2,'triangle')); setTimeout(()=>{ if(audioCtx) playChord([N.C4,N.E4,N.G4,N.C5], audioCtx.currentTime, 0.6, 0.25, 'triangle'); },500); break;
+            case 'cash': playNote(120,t,0.06,0.5,'triangle'); playNote(80,t+0.01,0.04,0.3,'sine'); [N.C5,N.E5,N.G5,N.C6,N.E6,N.G6,N.C7,N.G6,N.E6,N.C6,N.G5,N.E5].forEach((f,i)=>playNote(f,t+0.08+i*0.03,0.12,0.2,'triangle')); setTimeout(()=>{ if(audioCtx && audioCtx.state === 'running') playChord([N.C4,N.E4,N.G4,N.C5], audioCtx.currentTime, 0.6, 0.25, 'triangle'); },500); break;
         }
     }
 
     async function playMarioCoinTick() {
-        await activate();
-        if (!audioCtx || audioCtx.state !== 'running') return;
+        const ok = await activate();
+        if (!ok || !audioCtx || audioCtx.state !== 'running') return;
         const t = audioCtx.currentTime;
         playNote(1318, t, 0.05, 0.1, 'square');
         playNote(1760, t+0.02, 0.05, 0.1, 'square');
     }
     
     async function playMarioCoinReveal() {
-        await activate();
-        if (!audioCtx || audioCtx.state !== 'running') return;
+        const ok = await activate();
+        if (!ok || !audioCtx || audioCtx.state !== 'running') return;
         const t = audioCtx.currentTime;
         playNote(1046, t, 0.08, 0.3, 'square');
         playNote(1318, t+0.03, 0.08, 0.3, 'square');
@@ -986,8 +964,8 @@ const SoundManager = (function(){
     }
     
     async function playMarioPowerupReveal() {
-        await activate();
-        if (!audioCtx || audioCtx.state !== 'running') return;
+        const ok = await activate();
+        if (!ok || !audioCtx || audioCtx.state !== 'running') return;
         const t = audioCtx.currentTime;
         [392, 523, 659, 784, 1046].forEach((f, i) => {
             playNote(f, t + i * 0.06, 0.12, 0.1, 'square');
@@ -1009,12 +987,58 @@ const SoundManager = (function(){
         playMarioPowerupReveal,
         activate,
         initScheme: (name) => { currentScheme = soundSchemes[name] || soundSchemes.wave; },
-        playTick: async () => { await activate(); if (currentScheme) currentScheme.tick(); },
-        playReveal: async () => { await activate(); if (currentScheme) currentScheme.reveal(); }
+        playTick: async () => { 
+            await activate(); 
+            if (!audioCtx || audioCtx.state !== 'running') return;
+            if (currentScheme) currentScheme.tick(); 
+        },
+        playReveal: async () => { 
+            await activate(); 
+            if (!audioCtx || audioCtx.state !== 'running') return;
+            if (currentScheme) currentScheme.reveal(); 
+        }
     };
 })();
 
 async function playSound(t) { await SoundManager.play(t); }
+
+// ==================== 页面可见性监听 ====================
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+        setTimeout(() => SoundManager.activate(), 300);
+    }
+});
+
+// ==================== 工具函数 ====================
+function fmtNum(n) { return n<10?'0'+n:''+n; }
+
+function getNumColor(n) {
+    if(redGroup.has(n)) return '#e53e3e';
+    if(blueGroup.has(n)) return '#3182ce';
+    return '#38a169';
+}
+
+function buildNumsHtml(numbers) {
+    if (!numbers || !numbers.length) return '';
+    const sorted = [...new Set(numbers)].sort((a, b) => a - b);
+    return sorted.map(n => `<span style="color:${getNumColor(n)}; font-weight:600; white-space:nowrap;">${fmtNum(n)}</span>`).join('.');
+}
+
+function buildTwoLineMessage(label, numbers) {
+    if (!numbers || !numbers.length) return `<div style="text-align:center">${label}</div>`;
+    return `<div style="text-align:center">${label}</div><div style="text-align:center">${buildNumsHtml(numbers)}</div>`;
+}
+
+function parseNumbersFromText(txt) {
+    if (!txt) return [];
+    const nums = txt.match(/\d+/g) || [];
+    return [...new Set(nums.map(n => parseInt(n)).filter(n => n >= 1 && n <= 49))];
+}
+
+function extractChineseLabel(txt) {
+    if (!txt) return '';
+    return txt.replace(/[\d\.\s]+/g, '').trim();
+}
 
 // ==================== 核心逻辑 ====================
 function generateIconSvg(text) {
@@ -1084,14 +1108,39 @@ const BlueRandomSoundManager = (function(){
     const N = { C3:130.81, E3:164.81, G3:196.00, C4:261.63, D4:293.66, E4:329.63, G4:392.00, A4:440.00, C5:523.25, D5:587.33, E5:659.25, G5:784.00, A5:880.00, B5:987.77, C6:1046.50, D6:1174.66, E6:1318.51, G6:1567.98, A6:1760.00, C7:2093.00, E7:2637.02, G7:3135.96, C8:4186.01 };
     function getAudioCtx() { if (!audioCtx) try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {} return audioCtx; }
     async function activate() {
-        const ctx = getAudioCtx(); if (!ctx) return false;
-        if (ctx.state === 'closed') { audioCtx = null; getAudioCtx(); if (!audioCtx) return false; }
+        const ctx = getAudioCtx(); 
+        if (!ctx) return false;
+        
+        if (ctx.state === 'closed') { 
+            audioCtx = null; 
+            getAudioCtx(); 
+            if (!audioCtx) return false; 
+        }
         if (ctx.state === 'suspended') {
-            try { await ctx.resume(); activated = true; return true; } catch(e) {
-                await new Promise(r => setTimeout(r, 100));
-                try { await ctx.resume(); activated = true; return true; } catch(e2) { return false; }
+            try {
+                await Promise.race([
+                    ctx.resume(),
+                    new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 500))
+                ]);
+                if (ctx.state === 'running') { activated = true; return true; }
+            } catch(e) {}
+            try { ctx.close(); } catch(e) {}
+            audioCtx = null;
+            getAudioCtx();
+            if (audioCtx && audioCtx.state === 'suspended') {
+                try { 
+                    await Promise.race([
+                        audioCtx.resume(), 
+                        new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 500))
+                    ]); 
+                } catch(e) {}
             }
-        } else if (ctx.state === 'running') { activated = true; return true; }
+            activated = audioCtx && audioCtx.state === 'running';
+            return activated;
+        } else if (ctx.state === 'running') { 
+            activated = true; 
+            return true; 
+        }
         return false;
     }
     function playNote(freq, when, dur, vol, type='sine', pan=0) {
@@ -1100,27 +1149,21 @@ const BlueRandomSoundManager = (function(){
     }
     function playChord(notes, when, dur, vol, type='triangle') { notes.forEach(f => playNote(f, when, dur, vol, type, 0)); }
     const blueRandomSchemes = {
-        wave: { reveal: () => { const ctx=getAudioCtx(); if(!ctx||ctx.state!=='running') return; const t=ctx.currentTime; [N.C3,N.E3,N.G3,N.C4,N.E4,N.G4,N.C5,N.E5,N.G5,N.C6,N.G5,N.E5,N.C5,N.G4,N.E4,N.C4,N.G3,N.E3,N.C3].forEach((freq,i)=>playNote(freq,t+i*0.25,0.35,0.4,'triangle')); setTimeout(()=>{ if(getAudioCtx()) playChord([N.C4,N.E4,N.G4,N.C5], getAudioCtx().currentTime, 1.0, 0.4, 'triangle'); },5000); } },
-        rain: { reveal: () => { const ctx=getAudioCtx(); if(!ctx||ctx.state!=='running') return; const t=ctx.currentTime; [N.C4,N.D4,N.E4,N.G4,N.A4,N.C5,N.D5,N.E5,N.G5,N.A5,N.C6].forEach((freq,i)=>playNote(freq,t+i*0.12,0.35,0.4,'sine',(i%3-1)*0.3)); for(let i=0;i<30;i++){ const rainNotes=[N.C5,N.D5,N.E5,N.G5,N.A5,N.C6,N.D6,N.E6,N.G6]; setTimeout(()=>{ if(getAudioCtx()) playNote(rainNotes[Math.floor(Math.random()*rainNotes.length)], getAudioCtx().currentTime, 0.1, 0.4, 'sine', (Math.random()-0.5)*0.8); }, (0.5+Math.random()*4.2)*1000); } setTimeout(()=>{ if(getAudioCtx()) playChord([N.C5,N.E5,N.G5,N.C6], getAudioCtx().currentTime, 1.2, 0.4, 'sine'); },5000); } },
-        slot: { reveal: () => { const ctx=getAudioCtx(); if(!ctx||ctx.state!=='running') return; const t=ctx.currentTime; const osc1=ctx.createOscillator(); const gain1=ctx.createGain(); osc1.type='sawtooth'; osc1.frequency.setValueAtTime(400,t); osc1.frequency.exponentialRampToValueAtTime(80,t+0.15); gain1.gain.setValueAtTime(0.4,t); gain1.gain.exponentialRampToValueAtTime(0.001,t+0.15); osc1.connect(gain1); gain1.connect(ctx.destination); osc1.start(t); osc1.stop(t+0.15); for(let i=0;i<50;i++){ playNote(600+(i%10)*40, t+0.15+i*0.053, 0.03, 0.4, 'square'); } [0,70,80,90,100,115,130,150,175,205,240,280,330,390,460].forEach((d,i)=>{ setTimeout(()=>{ if(getAudioCtx()) playNote(700+i*25, getAudioCtx().currentTime, 0.04, 0.4*(1-i*0.05), 'square'); }, 2800+d); }); setTimeout(()=>{ const ctx=getAudioCtx(); if(ctx){ const t2=ctx.currentTime; [N.C5,N.E5,N.G5,N.B5,N.C6,N.E6,N.G6,N.C7,N.G6,N.E6,N.C6,N.G5,N.E5,N.C5].forEach((freq,i)=>playNote(freq,t2+i*0.04,0.15,0.4,'triangle')); setTimeout(()=>{ if(getAudioCtx()) playChord([N.C4,N.E4,N.G4,N.C5], getAudioCtx().currentTime, 0.6, 0.4, 'triangle'); },600); } },4200); } },
-        scifi: { reveal: () => { const ctx=getAudioCtx(); if(!ctx||ctx.state!=='running') return; const t=ctx.currentTime; for(let i=0;i<30;i++){ playNote(600+(i%8)*60, t+i*0.12, 0.04, 0.4, 'sawtooth', Math.sin(i*0.5)*0.8); } setTimeout(()=>{ for(let i=0;i<6;i++){ setTimeout(()=>{ if(getAudioCtx()) playNote(1000+i*50, getAudioCtx().currentTime, 0.06, 0.4, 'square'); }, i*120); } },3800); setTimeout(()=>{ const ctx=getAudioCtx(); if(!ctx) return; const t2=ctx.currentTime; playNote(N.C6,t2,0.15,0.4,'triangle'); playNote(N.G6,t2+0.08,0.12,0.4,'sine'); setTimeout(()=>{ if(getAudioCtx()) playChord([N.C5,N.E5,N.G5], getAudioCtx().currentTime, 0.4, 0.4); },200); },4600); } }
+        wave: { reveal: () => { const ctx=getAudioCtx(); if(!ctx||ctx.state!=='running') return; const t=ctx.currentTime; [N.C3,N.E3,N.G3,N.C4,N.E4,N.G4,N.C5,N.E5,N.G5,N.C6,N.G5,N.E5,N.C5,N.G4,N.E4,N.C4,N.G3,N.E3,N.C3].forEach((freq,i)=>playNote(freq,t+i*0.25,0.35,0.4,'triangle')); setTimeout(()=>{ if(getAudioCtx() && getAudioCtx().state==='running') playChord([N.C4,N.E4,N.G4,N.C5], getAudioCtx().currentTime, 1.0, 0.4, 'triangle'); },5000); } },
+        rain: { reveal: () => { const ctx=getAudioCtx(); if(!ctx||ctx.state!=='running') return; const t=ctx.currentTime; [N.C4,N.D4,N.E4,N.G4,N.A4,N.C5,N.D5,N.E5,N.G5,N.A5,N.C6].forEach((freq,i)=>playNote(freq,t+i*0.12,0.35,0.4,'sine',(i%3-1)*0.3)); for(let i=0;i<30;i++){ const rainNotes=[N.C5,N.D5,N.E5,N.G5,N.A5,N.C6,N.D6,N.E6,N.G6]; setTimeout(()=>{ const ctx=getAudioCtx(); if(ctx&&ctx.state==='running') playNote(rainNotes[Math.floor(Math.random()*rainNotes.length)], ctx.currentTime, 0.1, 0.4, 'sine', (Math.random()-0.5)*0.8); }, (0.5+Math.random()*4.2)*1000); } setTimeout(()=>{ const ctx=getAudioCtx(); if(ctx&&ctx.state==='running') playChord([N.C5,N.E5,N.G5,N.C6], ctx.currentTime, 1.2, 0.4, 'sine'); },5000); } },
+        slot: { reveal: () => { const ctx=getAudioCtx(); if(!ctx||ctx.state!=='running') return; const t=ctx.currentTime; const osc1=ctx.createOscillator(); const gain1=ctx.createGain(); osc1.type='sawtooth'; osc1.frequency.setValueAtTime(400,t); osc1.frequency.exponentialRampToValueAtTime(80,t+0.15); gain1.gain.setValueAtTime(0.4,t); gain1.gain.exponentialRampToValueAtTime(0.001,t+0.15); osc1.connect(gain1); gain1.connect(ctx.destination); osc1.start(t); osc1.stop(t+0.15); for(let i=0;i<50;i++){ playNote(600+(i%10)*40, t+0.15+i*0.053, 0.03, 0.4, 'square'); } [0,70,80,90,100,115,130,150,175,205,240,280,330,390,460].forEach((d,i)=>{ setTimeout(()=>{ const ctx=getAudioCtx(); if(ctx&&ctx.state==='running') playNote(700+i*25, ctx.currentTime, 0.04, 0.4*(1-i*0.05), 'square'); }, 2800+d); }); setTimeout(()=>{ const ctx=getAudioCtx(); if(ctx){ const t2=ctx.currentTime; [N.C5,N.E5,N.G5,N.B5,N.C6,N.E6,N.G6,N.C7,N.G6,N.E6,N.C6,N.G5,N.E5,N.C5].forEach((freq,i)=>playNote(freq,t2+i*0.04,0.15,0.4,'triangle')); setTimeout(()=>{ const ctx=getAudioCtx(); if(ctx&&ctx.state==='running') playChord([N.C4,N.E4,N.G4,N.C5], ctx.currentTime, 0.6, 0.4, 'triangle'); },600); } },4200); } },
+        scifi: { reveal: () => { const ctx=getAudioCtx(); if(!ctx||ctx.state!=='running') return; const t=ctx.currentTime; for(let i=0;i<30;i++){ playNote(600+(i%8)*60, t+i*0.12, 0.04, 0.4, 'sawtooth', Math.sin(i*0.5)*0.8); } setTimeout(()=>{ for(let i=0;i<6;i++){ setTimeout(()=>{ const ctx=getAudioCtx(); if(ctx&&ctx.state==='running') playNote(1000+i*50, ctx.currentTime, 0.06, 0.4, 'square'); }, i*120); } },3800); setTimeout(()=>{ const ctx=getAudioCtx(); if(!ctx) return; const t2=ctx.currentTime; playNote(N.C6,t2,0.15,0.4,'triangle'); playNote(N.G6,t2+0.08,0.12,0.4,'sine'); setTimeout(()=>{ const ctx=getAudioCtx(); if(ctx&&ctx.state==='running') playChord([N.C5,N.E5,N.G5], ctx.currentTime, 0.4, 0.4); },200); },4600); } }
     };
     let currentScheme = null;
     return {
         initScheme: async (name) => { await activate(); currentScheme = blueRandomSchemes[name] || blueRandomSchemes.wave; },
-        playReveal: async () => { await activate(); if (currentScheme) currentScheme.reveal(); }
+        playReveal: async () => { 
+            await activate(); 
+            if (!audioCtx || audioCtx.state !== 'running') return;
+            if (currentScheme) currentScheme.reveal(); 
+        }
     };
 })();
-
-function colorizeText(txt) { 
-    return txt.replace(/\b(\d{2})\b/g, (m,n)=>{ 
-        const c=parseInt(n); let col='#2d3748'; 
-        if(redGroup.has(c)) col='#e53e3e'; 
-        else if(blueGroup.has(c)) col='#3182ce'; 
-        else if(greenGroup.has(c)) col='#38a169'; 
-        return `<span style="color:${col};">${n}</span>`; 
-    }); 
-}
 
 function formatNumbersForDisplay(numbers) {
     if (!numbers || numbers.length === 0) return '';
@@ -1128,95 +1171,38 @@ function formatNumbersForDisplay(numbers) {
     return sorted.map(n => fmtNum(n)).join('.');
 }
 
-function colorizeToastText(text) {
-    const parts = [];
-    const regex = /(\d{2})|([^\d]+)/g;
-    let match;
-    while ((match = regex.exec(text)) !== null) {
-        if (match[1]) {
-            const num = parseInt(match[1]);
-            const col = redGroup.has(num) ? '#e53e3e' : blueGroup.has(num) ? '#3182ce' : '#38a169';
-            parts.push(`<span style="color:${col}; font-weight:600;">${match[1]}</span>`);
-        } else if (match[2]) {
-            parts.push(`<span style="color:#1a202c;">${match[2]}</span>`);
-        }
-    }
-    return parts.join('');
-}
-
-async function showConfirmModal(title, msg, onConfirm, isDanger = false, isHtml = false, hideMessage = false) {
-    await ModalManager.showConfirm({ title, message: msg, onConfirm, isDanger, isHtml, hideMessage });
-}
-
-async function showCopyPreviewModal(html, plain, onConfirm) {
-    await ModalManager.showCopyPreview({ html, plain, onConfirm });
-}
-
-async function showBetConfirmModal(nums, amt) {
-    const sorted = [...nums].sort((a, b) => a - b);
-    const unit = nums.size === 1 ? '买' : '各';
-    
-    await ModalManager.showBetConfirm({
-        nums,
-        amount: amt,
-        onConfirm: () => {
-            const snapshot = captureFullSnapshot([...nums]);
-            recordAction('bet_confirm', `买${nums.size}码`, [...nums], true, amt, snapshot);
-            nums.forEach(n => { betResults[n] = amt; bettingNumbers.delete(n); });
-            updateAllStates();
-            showToast(`已下单：${nums.size}个号码，${unit}${amt}块`);
-            addLog("bet", `买${sorted.map(fmtNum).join('.')} ${unit}${amt}`);
-            save_data();
-        }
-    });
-}
-
-async function showChoiceModal(cb){ await playSound('click'); const m=document.getElementById('choiceModal'); m.style.display='flex'; const close=()=>m.style.display='none'; document.getElementById('modalClear').onclick=()=>{ close(); showNumberModal(c=>{ if(c!==null){ selectedNumbers.clear(); bettingNumbers.clear(); betResults={}; specialNumbersSet.clear(); updateAllStates(); addLog("clear","清空已选"); startRandomAnimation(c); } }); }; document.getElementById('modalKeep').onclick=()=>{ close(); cb('keep'); }; document.getElementById('modalChoiceCancel').onclick = async () => { await playSound('click'); close(); cb('cancel'); }; m.onclick = async (e) => { if(e.target === m) { await playSound('click'); close(); cb('cancel'); } }; }
-async function showNumberModal(cb){ await playSound('click'); const m=document.getElementById('numberModal'), inp=document.getElementById('numberInput'); inp.value=''; m.style.display='flex'; inp.focus();
-    let lastValid = '';
-    inp.addEventListener('input', function(e) {
-        let val = this.value;
-        val = val.replace(/\D/g, '');
-        if (val === '') { lastValid = ''; this.value = ''; return; }
-        if (val === '0') { this.value = lastValid; return; }
-        let num = parseInt(val);
-        if (num > 49) { this.value = lastValid; return; }
-        lastValid = val;
-        this.value = val;
-    });
-    const close=()=>{ m.style.display='none'; }, conf=()=>{ const v=parseInt(inp.value); close(); cb(v); };
-    document.getElementById('modalNumberConfirm').onclick=conf;
-    document.getElementById('modalNumberCancel').onclick = async () => { await playSound('click'); close(); cb(null); };
-    m.onclick = async (e) => { if(e.target === m) { await playSound('click'); close(); cb(null); } };
-    inp.onkeydown=e=>{ if(e.key==='Enter') conf(); };
-}
-
-function updateZodiacButtonsFromInput(txt) { document.querySelectorAll('.select-zodiac-btn').forEach(b=>{ b.classList.toggle('is-active-zodiac', txt.includes(b.textContent)); }); }
-function syncGlobalStateToHistory(nums, st) { inputHistory.forEach(it=> nums.forEach(n=>{ if(it.groupState?.hasOwnProperty(n)) it.groupState[n]=st; })); renderHistoryLog(); }
-function fmtNum(n) { return n<10?'0'+n:''+n; }
 function showToast(msg, d=1500) { 
     const t = document.getElementById('toast'); 
-    if (toastTimer) {
-        clearTimeout(toastTimer);
-        toastTimer = null;
-    }
-    const longMessages = ['没有可撤销的操作', '没有可恢复的操作', '已重置所有数据'];
-    if (longMessages.includes(msg)) {
-        t.classList.add('toast-long');
-    } else {
-        t.classList.remove('toast-long');
-    }
-    if (/\d{2}/.test(msg)) {
-        t.innerHTML = colorizeToastText(msg);
-    } else {
-        t.innerHTML = `<span style="color:#1a202c;">${msg}</span>`;
-    }
+    if (toastTimer) { clearTimeout(toastTimer); toastTimer = null; }
+    t.classList.remove('toast-long');
+    t.style.width = '8rem';
+    t.innerHTML = `<span style="color:#1a202c;">${msg}</span>`;
     t.classList.add('show'); 
-    toastTimer = setTimeout(() => {
-        t.classList.remove('show');
-        toastTimer = null;
-    }, d); 
+    toastTimer = setTimeout(() => { t.classList.remove('show'); toastTimer = null; }, d); 
 }
+
+function showToastWithNums(label, numbers) {
+    const t = document.getElementById('toast');
+    if (toastTimer) { clearTimeout(toastTimer); toastTimer = null; }
+    t.classList.remove('toast-long');
+    if(!numbers || !numbers.length) {
+        t.style.width = '8rem';
+        t.innerHTML = `<span style="color:#1a202c;">${label}</span>`;
+    } else {
+        // 1-3个号码用8rem，4个及以上用auto
+        if (numbers.length <= 3) {
+            t.style.width = '8rem';
+        } else {
+            t.style.width = 'auto';
+        }
+        const sorted = [...new Set(numbers)].sort((a,b)=>a-b);
+        const numsHtml = sorted.map(n => `<span style="color:${getNumColor(n)}; font-weight:600; white-space:nowrap;">${fmtNum(n)}</span>`).join('.');
+        t.innerHTML = `<div style="text-align:center">${label}</div><div style="text-align:center">${numsHtml}</div>`;
+    }
+    t.classList.add('show');
+    toastTimer = setTimeout(() => { t.classList.remove('show'); toastTimer = null; }, 1500);
+}
+
 function addLog(type, msg) {
     const c=document.getElementById('logContainer'); if(c.children.length===1&&c.children[0].textContent.includes("暂无")) c.innerHTML='';
     const time=`${new Date().getHours().toString().padStart(2,'0')}:${new Date().getMinutes().toString().padStart(2,'0')}`;
@@ -1250,7 +1236,7 @@ function getGroupNumbers(type, val) {
         if(m) nums.push(i);
     } return nums;
 }
-function getGroupLabel(type, val){ if(type==='zodiac') return zodiacs[val]+"肖"; if(type==='wuxing') return wuxingChars[val]+"属性"; if(type==='head') return val+"字头"; if(type==='tail') return val+"尾"; if(type==='parity'){ const [c,p]=val.split('-'); return {red:'红',blue:'蓝',green:'绿'}[c]+{odd:'单',even:'双'}[p]; } if(type==='size_parity') return val; return type+val; }
+function getGroupLabel(type, val){ if(type==='zodiac') return zodiacs[val]; if(type==='wuxing') return wuxingChars[val]+"属性"; if(type==='head') return val+"字头"; if(type==='tail') return val+"尾"; if(type==='parity'){ const [c,p]=val.split('-'); return {red:'红',blue:'蓝',green:'绿'}[c]+{odd:'单',even:'双'}[p]; } if(type==='size_parity') return val; return type+val; }
 function updateRandomSpecialButtonState(){ const b=document.getElementById('randomSpecialBtn'); if(!b) return; if(selectedNumbers.size===0){ b.textContent='无号码'; b.classList.add('disabled'); } else { b.textContent='随机特码'; b.classList.remove('disabled'); } }
 function updateCopyButtonsState(){ const cs=document.getElementById('copySelectedBtn'), cr=document.getElementById('copyBetResultBtn'); if(cs) cs.classList.toggle('disabled', selectedNumbers.size===0); if(cr){ let all=selectedNumbers.size>0; if(all) for(const n of selectedNumbers) if(betResults[n]===undefined){ all=false; break; } cr.classList.toggle('disabled', !all); cr.title=all?"":"还有号码没有购买，不能复制"; } }
 function updateClearBettingButtonState(){ const b=document.getElementById('clearBettingBtn'); if(!b) return; if(bettingNumbers.size===0){ b.textContent='无号码'; b.className='temp-action-btn grey'; b.style.opacity='0.5'; } else { b.textContent='清空'; b.className='temp-action-btn orange'; b.style.opacity=''; } }
@@ -1266,22 +1252,10 @@ function removeNumberSource(n,gid){ const s=numberSources.get(n); if(s){ s.delet
 
 function getUndoActionDescription(a){
     if(a.type==='input_text'){
-        const txt = a.prevText || a.nextText || '';
-        const pureZodiac = !txt.match(/\d/);
-        if (pureZodiac) {
-            const zodiacChars = txt.match(/[鼠牛虎兔龙蛇马羊猴鸡狗猪]/g) || [];
-            if (zodiacChars.length) {
-                return `输入${zodiacChars.join('')}`;
-            }
-            return '输入';
-        } else {
-            const zodiacChars = txt.match(/[鼠牛虎兔龙蛇马羊猴鸡狗猪]/g) || [];
-            const nums = txt.match(/\d+/g) || [];
-            const validNums = nums.map(n=>parseInt(n)).filter(n=>n>=1&&n<=49);
-            const numStr = validNums.map(n=>fmtNum(n)).join('.');
-            const zodiacStr = zodiacChars.join('');
-            return `输入${zodiacStr}${numStr}`;
-        }
+        const txt = a.prevText || '';
+        if(!txt) return '输入';
+        const chineseOnly = extractChineseLabel(txt);
+        return chineseOnly || '输入';
     }
     if(a.type==='history_delete'){
         const it = a.deletedItem;
@@ -1291,176 +1265,103 @@ function getUndoActionDescription(a){
         return `删除选号历史${cnt}${unit}`;
     }
     if(a.type==='global_highlight') return a.newValue?fmtNum(a.newValue):'高亮';
-    if(a.type==='bet_confirm') return `买 ${formatNumbersForDisplay(a.numbers)}`;
-    if(a.type==='bet_cancel') return `取消买 ${formatNumbersForDisplay(a.numbers)}`;
+    if(a.type==='bet_confirm') return '买';
+    if(a.type==='bet_cancel') return '取消买';
     if(a.type==='temp_store') return '暂存号码';
     if(a.type==='temp_restore') return '恢复暂存';
     if(a.type==='temp_clear') return '清空暂存';
-    if(a.type==='special_add') return `随机特码${fmtNum(a.numbers[0])}`;
-    if(a.type==='special_remove') return `取消特码${fmtNum(a.numbers[0])}`;
-    if(a.type==='manual_select') return `点亮${fmtNum(a.number)}`;
-    if(a.type==='manual_deselect') return `熄灭${fmtNum(a.number)}`;
-    if(a.type==='manual_betting_toggle') {
-        return a.wasAdded ? `待购${fmtNum(a.number)}` : `取消待购${fmtNum(a.number)}`;
-    }
-    if(a.type==='clear_betting') return `清空待购 ${formatNumbersForDisplay(a.numbers)}`;
+    if(a.type==='special_add') return '随机特码';
+    if(a.type==='special_remove') return '取消特码';
+    if(a.type==='manual_select') return '点亮';
+    if(a.type==='manual_deselect') return '熄灭';
+    if(a.type==='manual_betting_toggle') return a.wasAdded ? '待购' : '取消待购';
+    if(a.type==='clear_betting') return '清空待购';
     if(a.type==='clear_bet_results') return '清空结果';
     if(a.type==='freq_batch'){
-        const prefix = a.wasAdded ? '点亮' : '熄灭';
+        const prefix = a.wasAdded ? '亮' : '熄';
         return `${prefix}重复${a.label.match(/\d+/)?.[0] || ''}次的号码`;
     }
-    if(a.type==='history_label_on'){
-        const pure = a.label.includes('肖');
-        const cnt = pure ? (a.label.match(/^(\d+)肖/)?.[1] || a.numbers.length) : a.numbers.length;
-        const unit = pure ? '肖' : '码';
-        return `点亮选号历史${cnt}${unit}`;
-    }
-    if(a.type==='history_label_off'){
-        const pure = a.label.includes('肖');
-        const cnt = pure ? (a.label.match(/^(\d+)肖/)?.[1] || a.numbers.length) : a.numbers.length;
-        const unit = pure ? '肖' : '码';
-        return `熄灭选号历史${cnt}${unit}`;
-    }
-    if(a.type==='select_wave'){
-        return `选${a.label}`;
-    }
+    if(a.type==='history_label_on') return '点亮选号历史';
+    if(a.type==='history_label_off') return '熄灭选号历史';
+    if(a.type==='select_wave') return a.wasAdded ? `亮${a.label}` : `熄${a.label}`;
     if(a.type==='batch_kill'){
-        if (a.label.includes('肖')) {
-            const zodiacIndex = zodiacs.indexOf(a.label.replace('肖', ''));
-            if (zodiacIndex !== -1) {
-                const allZodiacNums = getGroupNumbers('zodiac', zodiacIndex.toString());
-                const isFullSet = a.numbers.length === allZodiacNums.length && 
-                                  allZodiacNums.every(n => a.numbers.includes(n));
-                if (isFullSet) {
-                    return `灭${a.label}`;
-                } else {
-                    return `灭${a.label} ${formatNumbersForDisplay(a.numbers)}`;
-                }
-            }
-        }
+        if (zodiacs.includes(a.label)) return `灭${a.label}`;
         if (a.label.includes('字头')) return `杀${a.label}`;
         if (a.label.includes('属性')) return `杀${a.label}`;
         if (a.label.includes('尾')) return `杀${a.label}`;
         if (a.label.includes('红')||a.label.includes('蓝')||a.label.includes('绿')) return `杀${a.label}`;
-        return `杀号 ${formatNumbersForDisplay(a.numbers)}`;
+        return a.label;
     }
     if(a.type==='batch_select'){
-        if (a.label.includes('肖')) {
-            const zodiacIndex = zodiacs.indexOf(a.label.replace('肖', ''));
-            if (zodiacIndex !== -1) {
-                const allZodiacNums = getGroupNumbers('zodiac', zodiacIndex.toString());
-                const isFullSet = a.numbers.length === allZodiacNums.length && 
-                                  allZodiacNums.every(n => a.numbers.includes(n));
-                if (isFullSet) {
-                    return a.wasAdded ? `亮${a.label}` : `灭${a.label}`;
-                } else {
-                    return a.wasAdded ? `亮${a.label} ${formatNumbersForDisplay(a.numbers)}` : `灭${a.label} ${formatNumbersForDisplay(a.numbers)}`;
-                }
-            }
-        }
-        return `选号 ${formatNumbersForDisplay(a.numbers)}`;
+        if (zodiacs.includes(a.label)) return a.wasAdded ? `亮${a.label}` : `灭${a.label}`;
+        return a.wasAdded ? `亮${a.label}` : `熄${a.label}`;
     }
-    if(a.type==='batch_betting_add') {
-        if (a.label.includes('全选')) {
-            return `${a.label} ${formatNumbersForDisplay(a.numbers)}`;
-        }
-        return `待购 ${formatNumbersForDisplay(a.numbers)}`;
-    }
-    if(a.type==='batch_betting_remove') {
-        if (a.label.includes('全选')) {
-            return `取消${a.label} ${formatNumbersForDisplay(a.numbers)}`;
-        }
-        return `取消待购 ${formatNumbersForDisplay(a.numbers)}`;
-    }
+    if(a.type==='batch_betting_add') return a.label.includes('全选') ? a.label : '待购';
+    if(a.type==='batch_betting_remove') return a.label.includes('全选') ? `取消${a.label}` : '取消待购';
     if(a.type==='batch_input'){
-        if (a.label.includes('随机')) return `随机号码 ${formatNumbersForDisplay(a.numbers)}`;
+        if (a.label.includes('随机')) return '随机号码';
         const txt = a.rawText || '';
-        const pureZodiac = !txt.match(/\d/);
-        if (pureZodiac) {
-            const zodiacChars = txt.match(/[鼠牛虎兔龙蛇马羊猴鸡狗猪]/g) || [];
-            if (zodiacChars.length) {
-                return `输入${zodiacChars.join('')}`;
-            }
-            return '输入栏';
-        } else {
-            const zodiacChars = txt.match(/[鼠牛虎兔龙蛇马羊猴鸡狗猪]/g) || [];
-            const nums = txt.match(/\d+/g) || [];
-            const validNums = nums.map(n=>parseInt(n)).filter(n=>n>=1&&n<=49);
-            const numStr = validNums.map(n=>fmtNum(n)).join('.');
-            const zodiacStr = zodiacChars.join('');
-            return `输入${zodiacStr}${numStr}`;
-        }
+        return extractChineseLabel(txt) || '输入';
     }
-    if(a.type==='zodiac_input'){
-        return `输入${a.label}`;
-    }
+    if(a.type==='zodiac_input') return `输入${a.label}`;
     if(a.numbers?.length===1) return fmtNum(a.numbers[0]);
     return a.label || '';
 }
 
-// 辅助函数：为撤销/恢复弹窗生成消息内容 (V2.13 彻底修复)
 function formatUndoRedoMessage(action) {
-    // 获取实际号码列表
     let numbers = action.numbers || [];
-    
-    // 对于 input_text 类型，numbers 可能是空数组，需要从 prevNumbers/nextNumbers 中取
     if ((action.type === 'input_text' || action.type === 'batch_input') && numbers.length === 0) {
-        if (action.prevNumbers && action.prevNumbers.length > 0) {
-            numbers = action.prevNumbers;
-        } else if (action.nextNumbers && action.nextNumbers.length > 0) {
-            numbers = action.nextNumbers;
-        } else if (action.rawText) {
-            // 从 rawText 中解析号码
-            const nums = action.rawText.match(/\d+/g) || [];
-            numbers = nums.map(n => parseInt(n)).filter(n => n >= 1 && n <= 49);
-        }
+        const txt = action.prevText || action.nextText || action.rawText || '';
+        numbers = parseNumbersFromText(txt);
     }
-    
-    // 如果没有号码，直接返回纯中文标签
-    if (!numbers.length) {
-        const desc = getUndoActionDescription(action);
-        return `<span class="chinese-text">${desc}</span>`;
-    }
-    
-    // 去重并排序
-    const uniqueNumbers = [...new Set(numbers)];
-    const sorted = [...uniqueNumbers].sort((a, b) => a - b);
-    
-    // 生成彩色号码 HTML
-    const numsHtml = sorted.map(n => {
-        const col = redGroup.has(n) ? '#e53e3e' : blueGroup.has(n) ? '#3182ce' : '#38a169';
-        return `<span style="color:${col}; font-weight:600;">${fmtNum(n)}</span>`;
-    }).join('<span style="color:#2d3748;">.</span>');
-    
-    // 提取中文标签
-    const desc = getUndoActionDescription(action);
-    const numStr = formatNumbersForDisplay(uniqueNumbers);
-    let chineseLabel = desc;
-    
-    // 尝试移除末尾的号码串
-    const escapedNumStr = numStr.replace(/\./g, '\\.');
-    chineseLabel = chineseLabel.replace(new RegExp(`\\s*${escapedNumStr}\\s*$`), '').trim();
-    
-    // 如果移除后没有剩余，使用原始描述的纯中文部分
-    if (!chineseLabel) {
-        chineseLabel = desc.replace(/[\d\.\s]+/g, '').trim();
-    }
-    
-    // 如果还是没有，使用整个 desc
-    if (!chineseLabel) {
-        chineseLabel = desc;
-    }
-    
-    // 组装消息
-    const content = `<span class="chinese-text">${chineseLabel}</span> ${numsHtml}`;
-    
-    // 对于 input_text 或 batch_input 类型，包裹 wrap-num 以允许换行
-    if (action.type === 'input_text' || action.type === 'batch_input') {
-        return `<span class="wrap-num">${content}</span>`;
-    }
-    
-    return content;
+    const label = getUndoActionDescription(action);
+    return buildTwoLineMessage(label, numbers);
 }
+
+async function showConfirmModal(title, msg, onConfirm, isDanger = false, isHtml = false, hideMessage = false) {
+    await ModalManager.showConfirm({ title, message: msg, onConfirm, isDanger, isHtml, hideMessage });
+}
+
+async function showCopyPreviewModal(html, plain, onConfirm) {
+    await ModalManager.showCopyPreview({ html, plain, onConfirm });
+}
+
+async function showBetConfirmModal(nums, amt) {
+    await ModalManager.showBetConfirm({ nums, amount: amt, onConfirm: () => {
+        const snapshot = captureFullSnapshot([...nums]);
+        recordAction('bet_confirm', `买${nums.size}码`, [...nums], true, amt, snapshot);
+        nums.forEach(n => { betResults[n] = amt; bettingNumbers.delete(n); });
+        updateAllStates();
+        const sorted = [...nums].sort((a,b)=>a-b);
+        const unit = nums.size === 1 ? '买' : '各';
+        showToast(`已下单：${nums.size}个号码，${unit}${amt}块`);
+        addLog("bet", `买${sorted.map(fmtNum).join('.')} ${unit}${amt}`);
+        save_data();
+    }});
+}
+
+async function showChoiceModal(cb){ await playSound('click'); const m=document.getElementById('choiceModal'); m.style.display='flex'; const close=()=>m.style.display='none'; document.getElementById('modalClear').onclick=()=>{ close(); showNumberModal(c=>{ if(c!==null){ selectedNumbers.clear(); bettingNumbers.clear(); betResults={}; specialNumbersSet.clear(); updateAllStates(); addLog("clear","清空已选"); startRandomAnimation(c); } }); }; document.getElementById('modalKeep').onclick=()=>{ close(); cb('keep'); }; document.getElementById('modalChoiceCancel').onclick = async () => { await playSound('click'); close(); cb('cancel'); }; m.onclick = async (e) => { if(e.target === m) { await playSound('click'); close(); cb('cancel'); } }; }
+async function showNumberModal(cb){ await playSound('click'); const m=document.getElementById('numberModal'), inp=document.getElementById('numberInput'); inp.value=''; m.style.display='flex'; inp.focus();
+    let lastValid = '';
+    inp.addEventListener('input', function(e) {
+        let val = this.value;
+        val = val.replace(/\D/g, '');
+        if (val === '') { lastValid = ''; this.value = ''; return; }
+        if (val === '0') { this.value = lastValid; return; }
+        let num = parseInt(val);
+        if (num > 49) { this.value = lastValid; return; }
+        lastValid = val;
+        this.value = val;
+    });
+    const close=()=>{ m.style.display='none'; }, conf=()=>{ const v=parseInt(inp.value); close(); cb(v); };
+    document.getElementById('modalNumberConfirm').onclick=conf;
+    document.getElementById('modalNumberCancel').onclick = async () => { await playSound('click'); close(); cb(null); };
+    m.onclick = async (e) => { if(e.target === m) { await playSound('click'); close(); cb(null); } };
+    inp.onkeydown=e=>{ if(e.key==='Enter') conf(); };
+}
+
+function updateZodiacButtonsFromInput(txt) { document.querySelectorAll('.select-zodiac-btn').forEach(b=>{ b.classList.toggle('is-active-zodiac', txt.includes(b.textContent)); }); }
+function syncGlobalStateToHistory(nums, st) { inputHistory.forEach(it=> nums.forEach(n=>{ if(it.groupState?.hasOwnProperty(n)) it.groupState[n]=st; })); renderHistoryLog(); }
 
 async function performUndo(){ 
     await playSound('slip'); 
@@ -1473,46 +1374,23 @@ async function performUndo(){
         const inp=document.getElementById('smartInput'); 
         inp.value = ''; 
         updateZodiacButtonsFromInput(''); 
-        
         selectedNumbers.clear();
         if(act.prevNumbers) act.prevNumbers.forEach(n=>selectedNumbers.add(n));
-        
         specialNumbersSet.clear();
         if(act.prevSpecial) act.prevSpecial.forEach(n=>specialNumbersSet.add(n));
-        
         bettingNumbers.clear();
         if(act.prevBetting) act.prevBetting.forEach(n=>bettingNumbers.add(n));
-        
         betResults = {};
         if(act.prevBetResults) Object.assign(betResults, act.prevBetResults);
-        
-        if(act.prevHistory) {
-            inputHistory = act.prevHistory.map(h => ({
-                ...h,
-                numbers: [...h.numbers],
-                sortedNumbers: [...h.sortedNumbers]
-            }));
-        }
-        
+        if(act.prevHistory) inputHistory = act.prevHistory.map(h=>({...h, numbers:[...h.numbers], sortedNumbers:[...h.sortedNumbers]}));
         document.querySelectorAll('.num-btn.is-active').forEach(b=>b.classList.remove('is-active'));
-        selectedNumbers.forEach(n=>{
-            document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.add('is-active');
-        });
-        
+        selectedNumbers.forEach(n=>{ document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.add('is-active'); });
         updateAllStates(); 
         addLog("undo", `撤销输入 ${act.prevText?.substring(0,10)||''}...`);
-        save_data(); 
-        return; 
+        save_data(); return; 
     }
     if(act.type==='history_delete'){ const it=act.deletedItem; inputHistory.splice(act.index,0,it); if(it.isActive) it.numbers.forEach(n=>{ addNumberSource(n,it.id); selectedNumbers.add(n); }); updateAllStates(); addLog("undo","恢复历史"); save_data(); return; }
-    if(act.type==='global_highlight'){ 
-        currentHighlightedNumber=act.prevValue; 
-        renderHistoryLog(); 
-        updateAllStates();
-        addLog("undo", currentHighlightedNumber ? `撤销高亮${fmtNum(currentHighlightedNumber)}` : '撤销高亮');
-        save_data(); 
-        return; 
-    }
+    if(act.type==='global_highlight'){ currentHighlightedNumber=act.prevValue; renderHistoryLog(); updateAllStates(); addLog("undo", currentHighlightedNumber ? `撤销高亮${fmtNum(currentHighlightedNumber)}` : '撤销高亮'); save_data(); return; }
     if(act.type==='bet_confirm'){ act.numbers.forEach(n=>{ delete betResults[n]; }); applySnapshot(act, selectedNumbers, bettingNumbers, betResults, specialNumbersSet); addLog("undo",`撤销买 ${act.label}`); }
     else if(act.type==='bet_cancel'){ act.numbers.forEach(n=>{ betResults[n]=act.amount; }); addLog("undo",`恢复买 ${act.label}`); }
     else if(act.type==='temp_store'){ const added=act.addedNums||[]; tempStorageData=tempStorageData.filter(i=>!added.includes(i.num)); renderTempStorage(); updateTempCountBadge(); updateTempStoreBtn(); updateTempRestoreBtn(); updateTempClearBtn(); addLog("undo","撤销暂存"); }
@@ -1531,18 +1409,12 @@ async function performUndo(){
         if(currentHighlightedNumber&&act.numbers.includes(currentHighlightedNumber)) currentHighlightedNumber=null;
         if(act.type==='history_label_on'||act.type==='history_label_off'){ const it=inputHistory.find(h=>h.id===act.historyId); if(it) it.isActive = !it.isActive; }
         syncSpecialWithSelected(); updateAllStates();
-        const undoDesc = getUndoActionDescription(act);
-        addLog("undo", `撤销${undoDesc}`);
+        addLog("undo", `撤销${getUndoActionDescription(act)}`);
         save_data(); return;
     }
     else if(act.type==='zodiac_input'){ 
-        const inp=document.getElementById('smartInput'); 
-        inp.value=act.prevText||''; 
-        updateZodiacButtonsFromInput(inp.value); 
-        addLog("undo",`撤销输入${act.label}`); 
-        updateAllStates(); 
-        save_data(); 
-        return; 
+        const inp=document.getElementById('smartInput'); inp.value=act.prevText||''; updateZodiacButtonsFromInput(inp.value); 
+        addLog("undo",`撤销输入${act.label}`); updateAllStates(); save_data(); return; 
     }
     else if(act.type==='clear_bet_results'){ betResults={...(act.prevBetResults||{})}; addLog("undo","撤销清空结果"); }
     else { if(act.wasAdded){ act.numbers.forEach(n=>selectedNumbers.delete(n)); } else { act.numbers.forEach(n=>selectedNumbers.add(n)); } syncSpecialWithSelected(); }
@@ -1557,49 +1429,24 @@ async function performRedo(){
     showConfirmModal('恢复', message, async ()=>{
     const act=redoStack.pop(); undoStack.push({...act});
     if(act.type==='input_text'){ 
-        const inp=document.getElementById('smartInput'); 
-        inp.value = ''; 
-        updateZodiacButtonsFromInput(''); 
-        
+        const inp=document.getElementById('smartInput'); inp.value = ''; updateZodiacButtonsFromInput(''); 
         selectedNumbers.clear();
         if(act.nextNumbers) act.nextNumbers.forEach(n=>selectedNumbers.add(n));
-        
         specialNumbersSet.clear();
         if(act.nextSpecial) act.nextSpecial.forEach(n=>specialNumbersSet.add(n));
-        
         bettingNumbers.clear();
         if(act.nextBetting) act.nextBetting.forEach(n=>bettingNumbers.add(n));
-        
         betResults = {};
         if(act.nextBetResults) Object.assign(betResults, act.nextBetResults);
-        
-        if(act.nextHistory) {
-            inputHistory = act.nextHistory.map(h => ({
-                ...h,
-                numbers: [...h.numbers],
-                sortedNumbers: [...h.sortedNumbers]
-            }));
-        }
-        
+        if(act.nextHistory) inputHistory = act.nextHistory.map(h=>({...h, numbers:[...h.numbers], sortedNumbers:[...h.sortedNumbers]}));
         document.querySelectorAll('.num-btn.is-active').forEach(b=>b.classList.remove('is-active'));
-        selectedNumbers.forEach(n=>{
-            document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.add('is-active');
-        });
-        
+        selectedNumbers.forEach(n=>{ document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.add('is-active'); });
         updateAllStates(); 
         addLog("redo", `重做输入 ${act.nextText?.substring(0,10)||''}...`);
-        save_data(); 
-        return; 
+        save_data(); return; 
     }
     if(act.type==='history_delete'){ const it=inputHistory[act.index]; if(it.isActive) it.numbers.forEach(n=>{ removeNumberSource(n,it.id); if(!numberSources.has(n)){ selectedNumbers.delete(n); syncRemoveSpecial(n); } }); inputHistory.splice(act.index,1); updateAllStates(); addLog("redo","重做删除历史"); save_data(); return; }
-    if(act.type==='global_highlight'){ 
-        currentHighlightedNumber=act.newValue; 
-        renderHistoryLog(); 
-        updateAllStates(); 
-        addLog("redo", currentHighlightedNumber ? `重做高亮${fmtNum(currentHighlightedNumber)}` : '重做高亮');
-        save_data(); 
-        return; 
-    }
+    if(act.type==='global_highlight'){ currentHighlightedNumber=act.newValue; renderHistoryLog(); updateAllStates(); addLog("redo", currentHighlightedNumber ? `重做高亮${fmtNum(currentHighlightedNumber)}` : '重做高亮'); save_data(); return; }
     if(act.type==='bet_confirm'){ act.numbers.forEach(n=>{ betResults[n]=act.amount; bettingNumbers.delete(n); }); addLog("redo",`恢复买 ${act.label}`); }
     else if(act.type==='bet_cancel'){ act.numbers.forEach(n=>delete betResults[n]); addLog("redo",`再次取消买 ${act.label}`); }
     else if(act.type==='temp_store'){ const added=act.addedNums||[]; added.forEach(n=>{ if(!tempStorageData.some(i=>i.num===n)) tempStorageData.push({num:n}); }); tempStorageData.sort((a,b)=>a.num-b.num); renderTempStorage(); updateTempCountBadge(); updateTempStoreBtn(); updateTempRestoreBtn(); updateTempClearBtn(); addLog("redo","重做暂存"); }
@@ -1618,18 +1465,12 @@ async function performRedo(){
         if(currentHighlightedNumber&&act.numbers.includes(currentHighlightedNumber)) currentHighlightedNumber=null;
         if(act.type==='history_label_on'||act.type==='history_label_off'){ const it=inputHistory.find(h=>h.id===act.historyId); if(it) it.isActive = !it.isActive; }
         syncSpecialWithSelected(); updateAllStates();
-        const redoDesc = getUndoActionDescription(act);
-        addLog("redo", `重做${redoDesc}`);
+        addLog("redo", `重做${getUndoActionDescription(act)}`);
         save_data(); return;
     }
     else if(act.type==='zodiac_input'){ 
-        const inp=document.getElementById('smartInput'); 
-        inp.value=act.nextText||''; 
-        updateZodiacButtonsFromInput(inp.value); 
-        addLog("redo",`重做输入${act.label}`); 
-        updateAllStates(); 
-        save_data(); 
-        return; 
+        const inp=document.getElementById('smartInput'); inp.value=act.nextText||''; updateZodiacButtonsFromInput(inp.value); 
+        addLog("redo",`重做输入${act.label}`); updateAllStates(); save_data(); return; 
     }
     else if(act.type==='clear_bet_results'){ betResults={}; addLog("redo","重做清空结果"); }
     else { if(act.wasAdded){ act.numbers.forEach(n=>selectedNumbers.add(n)); } else { act.numbers.forEach(n=>selectedNumbers.delete(n)); } syncSpecialWithSelected(); }
@@ -1648,14 +1489,7 @@ async function handleWaveKill(c,p){
     await playSound('slip'); const v=`${c}-${p}`, nums=getGroupNumbers('parity',v), lbl=getGroupLabel('parity',v); 
     const rm=nums.filter(n=>selectedNumbers.has(n)); 
     if(!rm.length) return;
-    
-    const sorted = [...rm].sort((a,b)=>a-b);
-    const numsHtml = sorted.map(n=>{
-        const col = redGroup.has(n) ? '#e53e3e' : blueGroup.has(n) ? '#3182ce' : '#38a169';
-        return `<span style="color:${col}; font-weight:600;">${fmtNum(n)}</span>`;
-    }).join('<span style="color:#2d3748;">.</span>');
-    const message = `<span class="chinese-text">杀${lbl}</span> ${numsHtml}`;
-    
+    const message = buildTwoLineMessage(`杀${lbl}`, rm);
     showConfirmModal('', message, async ()=>{
         const snapshot = captureFullSnapshot(rm);
         recordAction('batch_kill',lbl,rm,false,0,snapshot);
@@ -1668,14 +1502,7 @@ async function handleSizeParityKill(t){
     await playSound('slip'); const nums=getGroupNumbers('size_parity',t); 
     const rm=nums.filter(n=>selectedNumbers.has(n)); 
     if(!rm.length) return;
-    
-    const sorted = [...rm].sort((a,b)=>a-b);
-    const numsHtml = sorted.map(n=>{
-        const col = redGroup.has(n) ? '#e53e3e' : blueGroup.has(n) ? '#3182ce' : '#38a169';
-        return `<span style="color:${col}; font-weight:600;">${fmtNum(n)}</span>`;
-    }).join('<span style="color:#2d3748;">.</span>');
-    const message = `<span class="chinese-text">杀${t}</span> ${numsHtml}`;
-    
+    const message = buildTwoLineMessage(`杀${t}`, rm);
     showConfirmModal('', message, async ()=>{
         const snapshot = captureFullSnapshot(rm);
         recordAction('batch_kill',t,rm,false,0,snapshot);
@@ -1688,14 +1515,7 @@ async function handleHeadKill(h){
     await playSound('slip'); const nums=getGroupNumbers('head',h), lbl=getGroupLabel('head',h); 
     const rm=nums.filter(n=>selectedNumbers.has(n)); 
     if(!rm.length) return;
-    
-    const sorted = [...rm].sort((a,b)=>a-b);
-    const numsHtml = sorted.map(n=>{
-        const col = redGroup.has(n) ? '#e53e3e' : blueGroup.has(n) ? '#3182ce' : '#38a169';
-        return `<span style="color:${col}; font-weight:600;">${fmtNum(n)}</span>`;
-    }).join('<span style="color:#2d3748;">.</span>');
-    const message = `<span class="chinese-text">杀${lbl}</span> ${numsHtml}`;
-    
+    const message = buildTwoLineMessage(`杀${lbl}`, rm);
     showConfirmModal('', message, async ()=>{
         const snapshot = captureFullSnapshot(rm);
         recordAction('batch_kill',lbl,rm,false,0,snapshot);
@@ -1708,14 +1528,7 @@ async function handleWuxingKill(w){
     await playSound('slip'); const nums=getGroupNumbers('wuxing',w), lbl=getGroupLabel('wuxing',w); 
     const rm=nums.filter(n=>selectedNumbers.has(n)); 
     if(!rm.length) return;
-    
-    const sorted = [...rm].sort((a,b)=>a-b);
-    const numsHtml = sorted.map(n=>{
-        const col = redGroup.has(n) ? '#e53e3e' : blueGroup.has(n) ? '#3182ce' : '#38a169';
-        return `<span style="color:${col}; font-weight:600;">${fmtNum(n)}</span>`;
-    }).join('<span style="color:#2d3748;">.</span>');
-    const message = `<span class="chinese-text">杀${lbl}</span> ${numsHtml}`;
-    
+    const message = buildTwoLineMessage(`杀${lbl}`, rm);
     showConfirmModal('', message, async ()=>{
         const snapshot = captureFullSnapshot(rm);
         recordAction('batch_kill',lbl,rm,false,0,snapshot);
@@ -1728,14 +1541,7 @@ async function handleTailKill(t){
     await playSound('slip'); const nums=getGroupNumbers('tail',t), lbl=getGroupLabel('tail',t); 
     const rm=nums.filter(n=>selectedNumbers.has(n)); 
     if(!rm.length) return;
-    
-    const sorted = [...rm].sort((a,b)=>a-b);
-    const numsHtml = sorted.map(n=>{
-        const col = redGroup.has(n) ? '#e53e3e' : blueGroup.has(n) ? '#3182ce' : '#38a169';
-        return `<span style="color:${col}; font-weight:600;">${fmtNum(n)}</span>`;
-    }).join('<span style="color:#2d3748;">.</span>');
-    const message = `<span class="chinese-text">杀${lbl}</span> ${numsHtml}`;
-    
+    const message = buildTwoLineMessage(`杀${lbl}`, rm);
     showConfirmModal('', message, async ()=>{
         const snapshot = captureFullSnapshot(rm);
         recordAction('batch_kill',lbl,rm,false,0,snapshot);
@@ -1747,26 +1553,27 @@ async function handleZodiacSelect(idx,lbl){
     const nums=getGroupNumbers('zodiac',idx.toString()); 
     if(!nums.length) return; 
     const has=nums.some(n=>selectedNumbers.has(n));
+    const shortLbl = zodiacs[idx];
     if(has){ 
         await playSound('shutter'); 
         const rm=nums.filter(n=>selectedNumbers.has(n)); 
         if(!rm.length) return; 
         const snapshot = captureFullSnapshot(rm); 
-        recordAction('batch_kill',lbl,rm,false,0,snapshot); 
+        recordAction('batch_kill',shortLbl,rm,false,0,snapshot); 
         rm.forEach(n=>{ selectedNumbers.delete(n); delete betResults[n]; bettingNumbers.delete(n); syncRemoveSpecial(n); document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.remove('is-active'); }); 
         syncGlobalStateToHistory(rm,false); syncSpecialWithSelected(); 
-        addLog("select",`取消${lbl} ${formatNumbersForDisplay(rm)}`); 
-        showToast(`灭${lbl} ${formatNumbersForDisplay(rm)}`);
+        addLog("select",`取消${shortLbl} ${formatNumbersForDisplay(rm)}`); 
+        showToastWithNums(`灭${shortLbl}`, rm);
     } else { 
         await SoundManager.playMarioCoinTick(); 
         if(nums.every(n=>selectedNumbers.has(n))) return; 
         const add=nums.filter(n=>!selectedNumbers.has(n)); 
         const snapshot = captureFullSnapshot(add); 
-        recordAction('batch_select',lbl,add,true,0,snapshot); 
+        recordAction('batch_select',shortLbl,add,true,0,snapshot); 
         add.forEach(n=>{ selectedNumbers.add(n); document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.add('is-active'); }); 
         syncGlobalStateToHistory(add,true); 
-        addLog("select",`选${lbl} ${formatNumbersForDisplay(add)}`); 
-        showToast(`亮${lbl} ${formatNumbersForDisplay(add)}`);
+        addLog("select",`选${shortLbl} ${formatNumbersForDisplay(add)}`); 
+        showToastWithNums(`亮${shortLbl}`, add);
     }
     updateAllStates();
 }
@@ -1787,30 +1594,14 @@ function updateBatchSelectButton(){ const b=document.getElementById('selectAllBe
 function renderKillControls(){ const hc=document.getElementById('kill-head-wuxing-controls'), pc=document.getElementById('kill-parity-controls'), tc=document.getElementById('kill-tail-controls'); const cf=(t,ty,v,h)=>{ const b=document.createElement('button'); b.className='filter-btn'; b.textContent=t; b.onclick=()=>h(v); return b; }; const cw=(t,c,p)=>{ const b=document.createElement('button'); b.className='wave-btn'; b.textContent=t; b.dataset.type=c; b.onclick=()=>handleWaveKill(c,p); return b; }; for(let i=0;i<=4;i++) hc.appendChild(cf(i.toString(),'head',i.toString(),handleHeadKill)); ['gold','wood','water','fire','earth'].forEach(t=>hc.appendChild(cf(wuxingChars[t],'wuxing',t,handleWuxingKill))); pc.appendChild(cw('红单','red','odd')); pc.appendChild(cw('红双','red','even')); pc.appendChild(cw('蓝单','blue','odd')); pc.appendChild(cw('蓝双','blue','even')); pc.appendChild(cw('绿单','green','odd')); pc.appendChild(cw('绿双','green','even')); ['大单','小单','大双','小双'].forEach(t=>{ const b=document.createElement('button'); b.className='filter-btn'; b.textContent=t; b.onclick=()=>handleSizeParityKill(t); pc.appendChild(b); }); for(let i=0;i<=9;i++) tc.appendChild(cf(i.toString(),'tail',i.toString(),handleTailKill)); }
 async function renderSelectZodiacButtons(){ const c=document.getElementById('selectZodiacButtons'); c.innerHTML=''; zodiacs.forEach((z,i)=>{ const b=document.createElement('button'); b.className='select-zodiac-btn'; b.textContent=z; b.setAttribute('data-color',zodiacColors[i%zodiacColors.length]); b.onclick=async ()=>{ const inp=document.getElementById('smartInput'); const isAdding=!inp.value.includes(z); if(isAdding){ await SoundManager.playMarioCoinTick(); } else { await playSound('shutter'); } let v=inp.value; const prevVal = v; if(v.includes(z)){ v=v.replace(new RegExp(z,'g'),''); inp.value=v; addLog("select",`删${z}`); } else { inp.value=v+z; addLog("select",`加${z}`); } recordAction('zodiac_input', z, [], isAdding, 0, { prevText: prevVal, nextText: inp.value }); updateZodiacButtonsFromInput(inp.value); }; c.appendChild(b); }); }
 function renderSelectWaveButtons(){ const c=document.getElementById('selectWaveButtons'); c.innerHTML=''; [{t:'红单',c:'red',p:'odd'},{t:'红双',c:'red',p:'even'},{t:'蓝单',c:'blue',p:'odd'},{t:'蓝双',c:'blue',p:'even'},{t:'绿单',c:'green',p:'odd'},{t:'绿双',c:'green',p:'even'}].forEach(w=>{ const b=document.createElement('button'); b.className='select-wave-btn'; b.textContent=w.t; b.setAttribute('data-type',w.c); b.onclick=()=>handleSelectWave(w.c,w.p); c.appendChild(b); }); updateSelectWaveButtonsState(); }
-async function handleSelectWave(c,p){ const v=`${c}-${p}`, nums=getGroupNumbers('parity',v); if(!nums.length) return; const allLit=nums.every(n=>selectedNumbers.has(n));
-    if(!allLit){ await playSound('pop'); const add=nums.filter(n=>!selectedNumbers.has(n)); if(!add.length) return; const snapshot = captureFullSnapshot(add); recordAction('select_wave',getGroupLabel('parity',v),add,true,0,snapshot); add.forEach(n=>{ selectedNumbers.add(n); document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.add('is-active'); }); syncGlobalStateToHistory(add,true); addLog("select",`亮${getGroupLabel('parity',v)} ${formatNumbersForDisplay(add)}`); }
-    else { await playSound('slip'); const rm=nums.filter(n=>selectedNumbers.has(n)); if(!rm.length) return; const snapshot = captureFullSnapshot(rm); recordAction('select_wave',getGroupLabel('parity',v),rm,false,0,snapshot); rm.forEach(n=>{ selectedNumbers.delete(n); delete betResults[n]; bettingNumbers.delete(n); syncRemoveSpecial(n); document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.remove('is-active'); }); syncGlobalStateToHistory(rm,false); addLog("select",`熄${getGroupLabel('parity',v)} ${formatNumbersForDisplay(rm)}`); }
+async function handleSelectWave(c,p){ const v=`${c}-${p}`, nums=getGroupNumbers('parity',v); if(!nums.length) return; const allLit=nums.every(n=>selectedNumbers.has(n)); const lbl=getGroupLabel('parity',v);
+    if(!allLit){ await playSound('pop'); const add=nums.filter(n=>!selectedNumbers.has(n)); if(!add.length) return; const snapshot = captureFullSnapshot(add); recordAction('select_wave',lbl,add,true,0,snapshot); add.forEach(n=>{ selectedNumbers.add(n); document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.add('is-active'); }); syncGlobalStateToHistory(add,true); addLog("select",`亮${lbl} ${formatNumbersForDisplay(add)}`); showToastWithNums(`亮${lbl}`, add); }
+    else { await playSound('slip'); const rm=nums.filter(n=>selectedNumbers.has(n)); if(!rm.length) return; const snapshot = captureFullSnapshot(rm); recordAction('select_wave',lbl,rm,false,0,snapshot); rm.forEach(n=>{ selectedNumbers.delete(n); delete betResults[n]; bettingNumbers.delete(n); syncRemoveSpecial(n); document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.remove('is-active'); }); syncGlobalStateToHistory(rm,false); addLog("select",`熄${lbl} ${formatNumbersForDisplay(rm)}`); showToastWithNums(`熄${lbl}`, rm); }
     syncSpecialWithSelected(); updateAllStates();
 }
 function updateSelectWaveButtonsState(){ const ws=[{c:'red',p:'odd',t:'红单'},{c:'red',p:'even',t:'红双'},{c:'blue',p:'odd',t:'蓝单'},{c:'blue',p:'even',t:'蓝双'},{c:'green',p:'odd',t:'绿单'},{c:'green',p:'even',t:'绿双'}]; ws.forEach(w=>{ const b=Array.from(document.querySelectorAll('.select-wave-btn')).find(x=>x.textContent===w.t); if(!b) return; const allLit=getGroupNumbers('parity',`${w.c}-${w.p}`).every(n=>selectedNumbers.has(n)); b.classList.toggle('select-wave-active',allLit); }); }
-function updateNumberBalls(){ 
-    document.querySelectorAll('.num-btn').forEach(b=>{ 
-        const n=parseInt(b.dataset.num); 
-        if(!isNaN(n)) {
-            b.classList.toggle('is-active', selectedNumbers.has(n));
-        }
-    }); 
-}
-function updateZodiacButtons(){ 
-    zodiacs.forEach((z,i)=>{ 
-        const col=[]; 
-        customGridRows.forEach(r=>{ if(r[i]!==null) col.push(r[i]); }); 
-        const has=col.some(n=>selectedNumbers.has(n)); 
-        document.querySelectorAll(`.zodiac-btn[data-zodiac-index="${i}"]`).forEach(b=>{
-            b.classList.toggle('is-active-zodiac', has);
-        }); 
-    }); 
-}
+function updateNumberBalls(){ document.querySelectorAll('.num-btn').forEach(b=>{ const n=parseInt(b.dataset.num); if(!isNaN(n)) b.classList.toggle('is-active', selectedNumbers.has(n)); }); }
+function updateZodiacButtons(){ zodiacs.forEach((z,i)=>{ const col=[]; customGridRows.forEach(r=>{ if(r[i]!==null) col.push(r[i]); }); const has=col.some(n=>selectedNumbers.has(n)); document.querySelectorAll(`.zodiac-btn[data-zodiac-index="${i}"]`).forEach(b=>{ b.classList.toggle('is-active-zodiac', has); }); }); }
 function updateFilterButtons(){ document.querySelectorAll('#kill-head-wuxing-controls .filter-btn').forEach(b=>{ const t=b.textContent; let ty,v; if(['金','木','水','火','土'].includes(t)){ ty='wuxing'; v={金:'gold',木:'wood',水:'water',火:'fire',土:'earth'}[t]; } else { ty='head'; v=t; } b.classList.toggle('active',!getGroupNumbers(ty,v).some(n=>selectedNumbers.has(n))); }); document.querySelectorAll('#kill-parity-controls .filter-btn, #kill-parity-controls .wave-btn').forEach(b=>{ const t=b.textContent; if(['大单','小单','大双','小双'].includes(t)) b.classList.toggle('active',!getGroupNumbers('size_parity',t).some(n=>selectedNumbers.has(n))); else if(b.classList.contains('wave-btn')){ const c=b.dataset.type, p=t.includes('单')?'odd':'even'; b.classList.toggle('wave-active',!getGroupNumbers('parity',`${c}-${p}`).some(n=>selectedNumbers.has(n))); } }); document.querySelectorAll('#kill-tail-controls .filter-btn').forEach(b=>b.classList.toggle('active',!getGroupNumbers('tail',b.textContent).some(n=>selectedNumbers.has(n)))); }
 function updateTailButtons(){ for(let t=0;t<=9;t++){ const b=document.getElementById(`tailBtn${t}`); if(!b) continue; const nums=Array.from(selectedNumbers).filter(n=>n%10===t); b.classList.remove('tail-silver-btn','is-depressed','tail-btn-empty'); if(!nums.length){ b.classList.add('tail-btn-empty'); continue; } b.classList.add('tail-silver-btn'); b.style.opacity='1'; b.classList.toggle('is-depressed',nums.every(n=>betResults.hasOwnProperty(n)||bettingNumbers.has(n))); } }
 function updateFrequencyButtonsPressedState(){ const fm=calculateNumberFrequencies(), fn={}; for(let i=1;i<=49;i++){ const f=fm[i]; if(f!==undefined){ if(!fn[f]) fn[f]=[]; fn[f].push(i); } } document.querySelectorAll('#sphereBtnContainer .count-btn').forEach(b=>{ const f=parseInt(b.getAttribute('data-freq')), nums=fn[f]||[]; b.classList.toggle('is-pressed',!nums.some(n=>selectedNumbers.has(n))); }); }
@@ -1818,17 +1609,8 @@ function updateClearResultBtn(){ const b=document.getElementById('clearResultBtn
 function updateAllStates(){ syncSpecialWithSelected(); updateNumberBalls(); updateZodiacButtons(); updateFilterButtons(); updateTailButtons(); updateResultText(); renderBetResults(); updateBetActionArea(); updateBatchSelectButton(); renderFrequencyButtons(); renderHistoryLog(); updateTempCountBadge(); updateTempStoreBtn(); updateTempRestoreBtn(); updateTempClearBtn(); updateBettingCountBadge(); updateFrequencyButtonsPressedState(); updateCopyButtonsState(); updateSelectWaveButtonsState(); updateClearResultBtn(); updateClearBettingButtonState(); updateAmountButtonState(); updateRandomSpecialButtonState(); }
 function getColorClass(n){ if(redGroup.has(n)) return 'text-red'; if(greenGroup.has(n)) return 'text-green'; if(blueGroup.has(n)) return 'text-blue'; return ''; }
 async function handleResultNumClick(n){ if(!selectedNumbers.has(n)) return; if(betResults[n]!==undefined){ cancelBet(n); return; } const add=!bettingNumbers.has(n); const snapshot = captureFullSnapshot([n]);
-    if(add){ 
-        await SoundManager.playMarioCoinTick();
-        bettingNumbers.add(n); 
-        recordAction('manual_betting_toggle',fmtNum(n),[n],true,0,{...snapshot, number:n, wasAdded:true}); 
-        addLog("select",`待购${fmtNum(n)}`); 
-    } else { 
-        await playSound('shutter'); 
-        bettingNumbers.delete(n); 
-        recordAction('manual_betting_toggle',fmtNum(n),[n],false,0,{...snapshot, number:n, wasAdded:false}); 
-        addLog("select",`取消待购${fmtNum(n)}`); 
-    }
+    if(add){ await SoundManager.playMarioCoinTick(); bettingNumbers.add(n); recordAction('manual_betting_toggle',fmtNum(n),[n],true,0,{...snapshot, number:n, wasAdded:true}); addLog("select",`待购${fmtNum(n)}`); }
+    else { await playSound('shutter'); bettingNumbers.delete(n); recordAction('manual_betting_toggle',fmtNum(n),[n],false,0,{...snapshot, number:n, wasAdded:false}); addLog("select",`取消待购${fmtNum(n)}`); }
     updateBetActionArea(); updateResultText(); updateBatchSelectButton(); updateTailButtons(); updateClearBettingButtonState(); updateAmountButtonState(); updateBettingCountBadge();
 }
 async function cancelBet(n){ if(!betResults[n]) return; await playSound('shutter'); recordAction('bet_cancel',fmtNum(n),[n],false,betResults[n]); delete betResults[n]; addLog("select",`取消买${fmtNum(n)}`); updateAllStates(); }
@@ -1844,33 +1626,33 @@ async function handleClearBetResults(){ await playSound('click'); if(!Object.key
 function calculateNumberFrequencies(){ const f={}; inputHistory.forEach(it=>{ if(it.isActive) it.sortedNumbers.forEach(n=>f[n]=(f[n]||0)+1); }); return f; }
 function getFreqStyle(fr){ if(fr===1) return { bg:'radial-gradient(circle at 30% 30%, #f7fafc 0%, #cbd5e0 40%, #a0aec0 100%)', text:'#4a5568', textClass:'light-text' }; if(globalFreqColorMap.has(fr)) return { bg:globalFreqColorMap.get(fr), text:'#fff', textClass:'dark-text' }; const bg=freqColorPalette[(fr-2)%freqColorPalette.length]; globalFreqColorMap.set(fr,bg); return { bg, text:'#fff', textClass:'dark-text' }; }
 function toggleNumbersByFrequency(fr){ const fm=calculateNumberFrequencies(), tgt=[]; for(let i=1;i<=49;i++) if((fm[i]||0)===fr) tgt.push(i); if(!tgt.length){ showToast(`没有重复 ${fr} 次的号码`); return; } const any=tgt.some(n=>selectedNumbers.has(n)); const lbl=`重复${fr}次的号码`;
-    if(any){ SoundManager.playMarioCoinTick(); const rm = tgt.filter(n=>selectedNumbers.has(n)); const snapshot = captureFullSnapshot(rm); recordAction('freq_batch',lbl,rm,false,0,{...snapshot, wasAdding:false, originalSpecial:tgt.filter(n=>specialNumbersSet.has(n))}); rm.forEach(n=>{ selectedNumbers.delete(n); delete betResults[n]; bettingNumbers.delete(n); syncRemoveSpecial(n); if(currentHighlightedNumber===n) currentHighlightedNumber=null; document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.remove('is-active'); }); syncGlobalStateToHistory(rm,false); addLog("select",`熄${lbl} ${formatNumbersForDisplay(rm)}`); }
-    else { playSound('shutter'); const add = tgt.filter(n=>!selectedNumbers.has(n)); const snapshot = captureFullSnapshot(add); recordAction('freq_batch',lbl,add,true,0,{...snapshot, wasAdding:true, originalSpecial:tgt.filter(n=>specialNumbersSet.has(n))}); add.forEach(n=>{ selectedNumbers.add(n); if(currentHighlightedNumber===n) currentHighlightedNumber=null; document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.add('is-active'); }); syncGlobalStateToHistory(add,true); addLog("select",`亮${lbl} ${formatNumbersForDisplay(add)}`); }
+    if(any){ SoundManager.playMarioCoinTick(); const rm = tgt.filter(n=>selectedNumbers.has(n)); const snapshot = captureFullSnapshot(rm); recordAction('freq_batch',lbl,rm,false,0,{...snapshot, wasAdding:false, originalSpecial:tgt.filter(n=>specialNumbersSet.has(n))}); rm.forEach(n=>{ selectedNumbers.delete(n); delete betResults[n]; bettingNumbers.delete(n); syncRemoveSpecial(n); if(currentHighlightedNumber===n) currentHighlightedNumber=null; document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.remove('is-active'); }); syncGlobalStateToHistory(rm,false); showToastWithNums(`熄${lbl}`, rm); }
+    else { playSound('shutter'); const add = tgt.filter(n=>!selectedNumbers.has(n)); const snapshot = captureFullSnapshot(add); recordAction('freq_batch',lbl,add,true,0,{...snapshot, wasAdding:true, originalSpecial:tgt.filter(n=>specialNumbersSet.has(n))}); add.forEach(n=>{ selectedNumbers.add(n); if(currentHighlightedNumber===n) currentHighlightedNumber=null; document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.add('is-active'); }); syncGlobalStateToHistory(add,true); showToastWithNums(`亮${lbl}`, add); }
     syncSpecialWithSelected(); updateAllStates(); setTimeout(updateFrequencyButtonsPressedState,50);
 }
-function renderFrequencyButtons(){ const c=document.getElementById('sphereBtnContainer'); c.innerHTML=''; const fm=calculateNumberFrequencies(); if(!Object.keys(fm).length) return; const fc={}; Object.values(fm).forEach(v=>fc[v]=(fc[v]||0)+1); Object.keys(fc).sort((a,b)=>parseInt(a)-parseInt(b)).forEach(k=>{ const fr=parseInt(k); if(fc[fr]>0){ const b=document.createElement('button'); b.className='sphere-btn-base count-btn'; b.textContent=fc[fr]; const st=getFreqStyle(fr); b.style.background=st.bg; b.style.color=st.text; if(st.textClass) b.classList.add(st.textClass); b.setAttribute('data-freq',fr); b.title=`重复${fr}次的号码共${fc[fr]}个`; b.classList.toggle('is-pressed',!Object.entries(fm).filter(([n,f])=>f===fr).some(([n])=>selectedNumbers.has(parseInt(n)))); b.onclick=async (e)=>{ e.stopPropagation(); toggleNumbersByFrequency(fr); }; c.appendChild(b); } }); }
+function renderFrequencyButtons(){ const c=document.getElementById('sphereBtnContainer'); c.innerHTML=''; const fm=calculateNumberFrequencies(); if(!Object.keys(fm).length) return; const fc={}; Object.values(fm).forEach(v=>fc[v]=(fc[v]||0)+1); Object.keys(fc).sort((a,b)=>parseInt(a)-parseInt(b)).forEach(k=>{ const fr=parseInt(k); if(fc[fr]>0){ const b=document.createElement('button'); b.className='sphere-btn-base count-btn'; b.textContent=fc[fr]; const st=getFreqStyle(fr); b.style.background=st.bg; b.style.color=st.text; if(st.textClass) b.classList.add(st.textClass); b.setAttribute('data-freq',fr); b.title=`重复${fr}次的号码共${fc[fr]}个`; b.classList.toggle('is-pressed',!Object.entries(fm).filter(([n,f])=>f===fr).some(([n])=>selectedNumbers.has(parseInt(n)))); b.onclick=async(e)=>{ e.stopPropagation(); toggleNumbersByFrequency(fr); }; c.appendChild(b); } }); }
 function renderHistoryLog(){ const box=document.getElementById('historyLogBox'); if(!inputHistory.length){ box.style.display='none'; return; } box.style.display='flex'; box.innerHTML=''; inputHistory.forEach((it,idx)=>{ const row=document.createElement('div'); row.className='history-row'; const del=document.createElement('span'); del.className='history-delete-btn'; del.innerHTML='×'; del.onclick=()=>removeHistoryItem(idx); const lbl=document.createElement('span'); lbl.className='history-label'; const pure=it.isPureZodiac, cnt=pure?(it.labelPrefix.match(/^(\d+)肖/)?.[1]||it.numbers.length):it.numbers.length, unit=pure?'肖':'码'; if(it.isActive){ lbl.innerHTML=`<span class="label-number">${cnt}</span><span class="label-text">${unit}</span>`; lbl.classList.remove('all-lit'); } else { lbl.innerHTML='<span class="label-text">点亮</span>'; lbl.classList.add('all-lit'); } lbl.onclick=async ()=>{ const nums=it.sortedNumbers; const snapshot = captureFullSnapshot(nums);
-        if(!it.isActive){ await playSound('shutter'); it.isActive=true; nums.forEach(n=>{ addNumberSource(n,it.id); selectedNumbers.add(n); }); recordAction('history_label_on',it.labelPrefix,nums,true,0,{...snapshot, historyId:it.id}); addLog("select",`亮历史${it.labelPrefix} ${formatNumbersForDisplay(nums)}`); }
-        else { await SoundManager.playMarioCoinTick(); it.isActive=false; nums.forEach(n=>{ removeNumberSource(n,it.id); if(!numberSources.has(n)){ selectedNumbers.delete(n); syncRemoveSpecial(n); } }); recordAction('history_label_off',it.labelPrefix,nums,false,0,{...snapshot, historyId:it.id}); addLog("select",`熄历史${it.labelPrefix} ${formatNumbersForDisplay(nums)}`); }
+        if(!it.isActive){ await playSound('shutter'); it.isActive=true; nums.forEach(n=>{ addNumberSource(n,it.id); selectedNumbers.add(n); }); recordAction('history_label_on',it.labelPrefix,nums,true,0,{...snapshot, historyId:it.id}); addLog("select",`亮历史${it.labelPrefix} ${formatNumbersForDisplay(nums)}`); showToast(`点亮选号历史 ${it.labelPrefix}`); }
+        else { await SoundManager.playMarioCoinTick(); it.isActive=false; nums.forEach(n=>{ removeNumberSource(n,it.id); if(!numberSources.has(n)){ selectedNumbers.delete(n); syncRemoveSpecial(n); } }); recordAction('history_label_off',it.labelPrefix,nums,false,0,{...snapshot, historyId:it.id}); addLog("select",`熄历史${it.labelPrefix} ${formatNumbersForDisplay(nums)}`); showToast(`熄灭选号历史 ${it.labelPrefix}`); }
         updateAllStates();
-    }; const nd=document.createElement('div'); nd.className='history-nums'; it.sortedNumbers.forEach(n=>{ const sp=document.createElement('span'); const fr=calculateNumberFrequencies()[n]||0, st=getFreqStyle(fr||1); sp.className='history-num-item'; if(!(it.isActive&&selectedNumbers.has(n))) sp.classList.add('flat'); if(currentHighlightedNumber===n&&it.isActive&&selectedNumbers.has(n)) sp.classList.add('highlighted'); sp.style.background=st.bg; sp.style.color=st.text; sp.style.textShadow=st.textClass==='light-text'?'0 1px 0 rgba(255,255,255,0.5)':'0 1px 2px rgba(0,0,0,0.4)'; sp.textContent=fmtNum(n); sp.title=`出现 ${fr} 次`; sp.onclick=async (e)=>{ e.stopPropagation(); await playSound('click'); const prev = currentHighlightedNumber; if(currentHighlightedNumber===n){ currentHighlightedNumber=null; } else { currentHighlightedNumber=n; } addLog("system", currentHighlightedNumber ? `高亮${fmtNum(n)}` : `取消高亮${fmtNum(prev)}`); renderHistoryLog(); save_data(); }; nd.appendChild(sp); }); row.appendChild(del); row.appendChild(lbl); row.appendChild(nd); box.appendChild(row); }); }
+    }; const nd=document.createElement('div'); nd.className='history-nums'; it.sortedNumbers.forEach(n=>{ const sp=document.createElement('span'); const fr=calculateNumberFrequencies()[n]||0, st=getFreqStyle(fr||1); sp.className='history-num-item'; if(!(it.isActive&&selectedNumbers.has(n))) sp.classList.add('flat'); if(currentHighlightedNumber===n&&it.isActive&&selectedNumbers.has(n)) sp.classList.add('highlighted'); sp.style.background=st.bg; sp.style.color=st.text; sp.style.textShadow=st.textClass==='light-text'?'0 1px 0 rgba(255,255,255,0.5)':'0 1px 2px rgba(0,0,0,0.4)'; sp.textContent=fmtNum(n); sp.title=`出现 ${fr} 次`; sp.onclick=async(e)=>{ e.stopPropagation(); await playSound('click'); const prev = currentHighlightedNumber; if(currentHighlightedNumber===n){ currentHighlightedNumber=null; } else { currentHighlightedNumber=n; } addLog("system", currentHighlightedNumber ? `高亮${fmtNum(n)}` : `取消高亮${fmtNum(prev)}`); renderHistoryLog(); save_data(); }; nd.appendChild(sp); }); row.appendChild(del); row.appendChild(lbl); row.appendChild(nd); box.appendChild(row); }); }
 async function removeHistoryItem(idx){ await playSound('shutter'); const it=inputHistory[idx]; if(!it) return; const snapshot = captureFullSnapshot(it.sortedNumbers); recordAction('history_delete','删除历史',[],false,0,{index:idx,deletedItem:it,...snapshot}); if(it.isActive) it.numbers.forEach(n=>{ removeNumberSource(n,it.id); if(!numberSources.has(n)){ selectedNumbers.delete(n); syncRemoveSpecial(n); } }); inputHistory.splice(idx,1); updateAllStates(); addLog("input",`删历史${it.numbers.length}码`); save_data(); }
-function updateResultText(){ const d=document.getElementById('resultDisplay'), badge=document.getElementById('countBadge'), cnt=selectedNumbers.size; badge.textContent=cnt+'个'; if(!cnt){ d.innerHTML=""; d.style.color="#9a9a9a"; return; } d.style.color="#2d3748"; const all=Array.from(selectedNumbers).sort((a,b)=>a-b), normal=all.filter(n=>!specialNumbersSet.has(n)), special=all.filter(n=>specialNumbersSet.has(n)); const sp=(n)=>{ const c=getColorClass(n), bought=betResults.hasOwnProperty(n), bet=bettingNumbers.has(n); let cls='list-num-base'; if(bought) cls+=` result-num-sold ${c.replace('text-','bg-')}-solid`; else if(bet) cls+=` result-num-betting ${c}`; else cls+=` result-num-selected ${c}`; return `<span class="${cls}" onclick="handleResultNumClick(${n})" title="${bought?'已购买':bet?'待购买':'点击加入待买'}">${fmtNum(n)}</span>`; }; let h=''; const nOdd=normal.filter(n=>n%2), nEven=normal.filter(n=>n%2===0); if(nOdd.length) h+=`<div class="result-column"><span class="result-col-label">单号</span> ${nOdd.map(sp).join('')}</div>`; if(nEven.length) h+=`<div class="result-column"><span class="result-col-label">双号</span> ${nEven.map(sp).join('')}</div>`; const specialAll = special.sort((a,b)=>a-b); if(specialAll.length) { h += `<div class="result-column"><span class="result-col-label">特码</span> ${specialAll.map(sp).join('')}</div>`; } d.innerHTML=h; }
-function renderGrid(){ const g=document.getElementById('grid'); g.innerHTML=''; zodiacs.forEach((z,i)=>{ const b=document.createElement('div'); b.className='zodiac-btn'; b.setAttribute('data-color',zodiacColors[i%zodiacColors.length]); b.textContent=z; b.dataset.zodiacIndex=i; b.onclick=()=>{ handleZodiacSelect(i,z+"肖"); }; g.appendChild(b); }); customGridRows.forEach(r=>r.forEach(n=>{ if(n===null){ const s=document.createElement('div'); s.style.visibility='hidden'; g.appendChild(s); } else { const b=document.createElement('button'); b.className=`num-btn ${getColorClass(n).replace('text-','bg-')}`; b.innerHTML=`<span class="num-val">${fmtNum(n)}</span><span class="num-wx">${wuxingChars[numToWuxing[n]]||''}</span>`; b.dataset.num=n; b.onclick=()=>{ toggleNumber(n); }; g.appendChild(b); } })); const ub=document.createElement('button'); ub.className='action-grid-btn bg-action undo-btn-grid'; ub.innerHTML='<span class="btn-text">撤销</span>'; ub.onclick=performUndo; g.appendChild(ub); const rb=document.createElement('button'); rb.className='action-grid-btn bg-reset reset-btn-grid'; rb.innerHTML='<span class="btn-text">全部重置</span>'; rb.onclick=handleReset; g.appendChild(rb); const db=document.createElement('button'); db.className='action-grid-btn bg-action redo-btn-grid'; db.innerHTML='<span class="btn-text">恢复</span>'; db.onclick=performRedo; g.appendChild(db); restoreSpecialEffects(); updateAllStates(); }
+function updateResultText(){ const d=document.getElementById('resultDisplay'), badge=document.getElementById('countBadge'), cnt=selectedNumbers.size; badge.textContent=cnt+'个'; if(!cnt){ d.innerHTML=""; d.style.color="#9a9a9a"; return; } d.style.color="#2d3748"; const all=Array.from(selectedNumbers).sort((a,b)=>a-b), normal=all.filter(n=>!specialNumbersSet.has(n)), special=all.filter(n=>specialNumbersSet.has(n)); const sp=(n)=>{ const c=getColorClass(n), bought=betResults.hasOwnProperty(n), bet=bettingNumbers.has(n); let cls='list-num-base'; if(bought) cls+=` result-num-sold ${c.replace('text-','bg-')}-solid`; else if(bet) cls+=` result-num-betting ${c}`; else cls+=` result-num-selected ${c}`; return `<span class="${cls}" onclick="handleResultNumClick(${n})" title="${bought?'已购买':bet?'待购买':'点击加入待买'}">${fmtNum(n)}</span>`; }; let h=''; const nOdd=normal.filter(n=>n%2), nEven=normal.filter(n=>n%2===0); if(nOdd.length) h+=`<div class="result-column"><span class="result-col-label">单号</span> ${nOdd.map(sp).join('')}</div>`; if(nEven.length) h+=`<div class="result-column"><span class="result-col-label">双号</span> ${nEven.map(sp).join('')}</div>`; const specialAll = special.sort((a,b)=>a-b); if(specialAll.length) h+=`<div class="result-column"><span class="result-col-label">特码</span> ${specialAll.map(sp).join('')}</div>`; d.innerHTML=h; }
+function renderGrid(){ const g=document.getElementById('grid'); g.innerHTML=''; zodiacs.forEach((z,i)=>{ const b=document.createElement('div'); b.className='zodiac-btn'; b.setAttribute('data-color',zodiacColors[i%zodiacColors.length]); b.textContent=z; b.dataset.zodiacIndex=i; b.onclick=()=>{ handleZodiacSelect(i,z); }; g.appendChild(b); }); customGridRows.forEach(r=>r.forEach(n=>{ if(n===null){ const s=document.createElement('div'); s.style.visibility='hidden'; g.appendChild(s); } else { const b=document.createElement('button'); b.className=`num-btn ${getColorClass(n).replace('text-','bg-')}`; b.innerHTML=`<span class="num-val">${fmtNum(n)}</span><span class="num-wx">${wuxingChars[numToWuxing[n]]||''}</span>`; b.dataset.num=n; b.onclick=()=>{ toggleNumber(n); }; g.appendChild(b); } })); const ub=document.createElement('button'); ub.className='action-grid-btn bg-action undo-btn-grid'; ub.innerHTML='<span class="btn-text">撤销</span>'; ub.onclick=performUndo; g.appendChild(ub); const rb=document.createElement('button'); rb.className='action-grid-btn bg-reset reset-btn-grid'; rb.innerHTML='<span class="btn-text">全部重置</span>'; rb.onclick=handleReset; g.appendChild(rb); const db=document.createElement('button'); db.className='action-grid-btn bg-action redo-btn-grid'; db.innerHTML='<span class="btn-text">恢复</span>'; db.onclick=performRedo; g.appendChild(db); restoreSpecialEffects(); updateAllStates(); }
 async function toggleNumber(n){ 
     const specialState = specialNumbersSet.has(n);
     if(specialNumbersSet.has(n)){
         recordAction('special_remove',fmtNum(n),[n],false,0,{specialState}); specialNumbersSet.delete(n);
         document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.remove('is-special'); 
         addLog("select",`取消特码${fmtNum(n)}`);
-        showToast(`取消特码 ${fmtNum(n)}`);
+        showToastWithNums(`取消特码`, [n]);
         updateAllStates(); return;
     }
     if(!selectedNumbers.has(n)){
         await playSound('pop'); selectedNumbers.add(n); document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.add('is-active');
         recordAction('manual_select',fmtNum(n),[n],true,0,{number:n, wasAdded:true, specialState});
         addLog("select",`选${fmtNum(n)}`);
-        showToast(`点亮 ${fmtNum(n)}`);
+        showToastWithNums(`点亮`, [n]);
     } else {
         await playSound('slip'); const wasBetting = bettingNumbers.has(n); const hadBet = betResults.hasOwnProperty(n);
         selectedNumbers.delete(n); if(wasBetting) bettingNumbers.delete(n); if(hadBet) delete betResults[n];
@@ -1878,7 +1660,7 @@ async function toggleNumber(n){
         recordAction('manual_deselect',fmtNum(n),[n],false,0,{number:n, wasAdded:false, specialState, bettingState: wasBetting, betState: hadBet ? betResults[n] : undefined});
         syncRemoveSpecial(n); if(wasBetting||hadBet){ updateBetActionArea(); updateBettingCountBadge(); renderBetResults(); updateBatchSelectButton(); updateTailButtons(); updateClearBettingButtonState(); updateAmountButtonState(); updateClearResultBtn(); updateCopyButtonsState(); }
         addLog("select",`取消${fmtNum(n)}`);
-        showToast(`熄灭 ${fmtNum(n)}`);
+        showToastWithNums(`熄灭`, [n]);
     }
     syncSpecialWithSelected(); updateAllStates();
 }
@@ -1886,75 +1668,24 @@ async function processConfirm(){
     const inp=document.getElementById('smartInput'), txt=inp.value.trim(); 
     if(!txt){ await playSound('slip'); showToast("请输入号码或生肖"); return; } 
     await playSound('pop'); 
-    
-    const prevSelected = [...selectedNumbers];
-    const prevSpecial = [...specialNumbersSet];
-    const prevBetting = [...bettingNumbers];
-    const prevBetResults = {...betResults};
-    const prevHistory = inputHistory.map(h => ({
-        ...h,
-        numbers: [...h.numbers],
-        sortedNumbers: [...h.sortedNumbers]
-    }));
-    
+    const prevSelected = [...selectedNumbers], prevSpecial = [...specialNumbersSet], prevBetting = [...bettingNumbers], prevBetResults = {...betResults};
+    const prevHistory = inputHistory.map(h=>({...h, numbers:[...h.numbers], sortedNumbers:[...h.sortedNumbers]}));
     processInputAndAddToHistory(txt); 
-    
-    const nextSelected = [...selectedNumbers];
-    const nextSpecial = [...specialNumbersSet];
-    const nextBetting = [...bettingNumbers];
-    const nextBetResults = {...betResults};
-    const nextHistory = inputHistory.map(h => ({
-        ...h,
-        numbers: [...h.numbers],
-        sortedNumbers: [...h.sortedNumbers]
-    }));
-    
-    recordAction('input_text','输入确认',[],false,0,{
-        prevText: txt, 
-        nextText: '', 
-        prevNumbers: prevSelected,
-        nextNumbers: nextSelected,
-        prevSpecial: prevSpecial,
-        nextSpecial: nextSpecial,
-        prevBetting: prevBetting,
-        nextBetting: nextBetting,
-        prevBetResults: prevBetResults,
-        nextBetResults: nextBetResults,
-        prevHistory: prevHistory,
-        nextHistory: nextHistory
-    });
-    inp.value=''; 
-    updateZodiacButtonsFromInput(''); 
+    const nextSelected = [...selectedNumbers], nextSpecial = [...specialNumbersSet], nextBetting = [...bettingNumbers], nextBetResults = {...betResults};
+    const nextHistory = inputHistory.map(h=>({...h, numbers:[...h.numbers], sortedNumbers:[...h.sortedNumbers]}));
+    recordAction('input_text','输入确认',[],false,0,{prevText: txt, nextText: '', prevNumbers: prevSelected, nextNumbers: nextSelected, prevSpecial, nextSpecial, prevBetting, nextBetting, prevBetResults, nextBetResults, prevHistory, nextHistory});
+    inp.value=''; updateZodiacButtonsFromInput(''); 
 }
 function processInputAndAddToHistory(txt){ 
-    const dm=txt.match(/\d+/g); 
-    const valid=[], orig=[]; 
-    let dc=0; 
+    const dm=txt.match(/\d+/g); const valid=[], orig=[]; let dc=0; 
     if(dm) dm.forEach(m=>{ let n=parseInt(m); if(n>=1&&n<=49){ if(!valid.includes(n)) valid.push(n); orig.push(n); dc++; } }); 
-    let zc=0; 
-    const found=new Set(); 
-    for(let c of txt){ 
-        if(ZODIAC_MAP.hasOwnProperty(c)){ 
-            if(!found.has(c)){ found.add(c); zc++; } 
-            getGroupNumbers('zodiac',ZODIAC_MAP[c].toString()).forEach(n=>{ if(!valid.includes(n)){ valid.push(n); orig.push(n); } }); 
-        } 
-    } 
-    if(valid.length){ 
-        let chg=false; 
-        const add=[], already=[], gid=Date.now(); 
-        valid.forEach(n=>{ 
-            addNumberSource(n,gid); 
-            if(selectedNumbers.has(n)) already.push(n); 
-            else { selectedNumbers.add(n); chg=true; add.push(n); document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.add('is-active'); } 
-        }); 
+    let zc=0; const found=new Set(); 
+    for(let c of txt){ if(ZODIAC_MAP.hasOwnProperty(c)){ if(!found.has(c)){ found.add(c); zc++; } getGroupNumbers('zodiac',ZODIAC_MAP[c].toString()).forEach(n=>{ if(!valid.includes(n)){ valid.push(n); orig.push(n); } }); } } 
+    if(valid.length){ let chg=false; const add=[], already=[], gid=Date.now(); 
+        valid.forEach(n=>{ addNumberSource(n,gid); if(selectedNumbers.has(n)) already.push(n); else { selectedNumbers.add(n); chg=true; add.push(n); document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.add('is-active'); } }); 
         const sorted=[...valid].sort((a,b)=>a-b), pure=dc===0&&zc>0; 
         inputHistory.push({id:gid,rawText:txt,numbers:orig,sortedNumbers:sorted,labelPrefix:pure?`${zc}肖`:`${valid.length}码`,isPureZodiac:pure,isActive:true}); 
-        if(chg){ 
-            updateAllStates(); 
-            addLog("input",`输入 ${formatNumbersForDisplay(add)}`); 
-        } else { 
-            updateAllStates(); 
-        } 
+        if(chg){ updateAllStates(); addLog("input",`输入 ${formatNumbersForDisplay(add)}`); } else { updateAllStates(); } 
     } else showToast("无有效号码（1-49）或生肖"); 
 }
 function renderTempStorage(){ const c=document.getElementById('tempStorageContent'); if(!tempStorageData.length){ c.innerHTML=''; return; } const s=[...tempStorageData].sort((a,b)=>a.num-b.num), odd=s.filter(i=>i.num%2), even=s.filter(i=>i.num%2===0); const sp=(n)=>`<span class="temp-num-item ${redGroup.has(n)?'text-red':blueGroup.has(n)?'text-blue':'text-green'}">${fmtNum(n)}</span>`; let h=''; if(odd.length) h+=`<div class="temp-storage-row"><span class="temp-storage-label">单号</span> ${odd.map(i=>sp(i.num)).join('')}</div>`; if(even.length) h+=`<div class="temp-storage-row"><span class="temp-storage-label">双号</span> ${even.map(i=>sp(i.num)).join('')}</div>`; c.innerHTML=h; }
@@ -1962,28 +1693,20 @@ function updateTempCountBadge(){ document.getElementById('tempCountBadge').textC
 function updateTempStoreBtn(){ const b=document.getElementById('tempStoreBtn'), arr=Array.from(selectedNumbers); if(!arr.length){ b.className='temp-action-btn grey'; b.textContent='无号码'; b.style.opacity='0.5'; return; } const ex=new Set(tempStorageData.map(i=>i.num)), add=arr.filter(n=>!ex.has(n)); if(!add.length){ b.className='temp-action-btn grey'; b.textContent='已暂存'; b.style.opacity='0.5'; } else { b.className='temp-action-btn green'; b.textContent=tempStorageData.length?'继续暂存':'暂存'; b.style.opacity=''; } }
 function updateTempRestoreBtn(){ const b=document.getElementById('tempRestoreBtn'); if(!tempStorageData.length){ b.className='temp-action-btn grey'; b.textContent='无号码'; b.style.opacity='0.5'; } else { b.className='temp-action-btn green'; b.textContent='恢复'; b.style.opacity=''; } }
 function updateTempClearBtn(){ const b=document.getElementById('tempClearBtn'); if(!tempStorageData.length){ b.className='temp-action-btn grey'; b.textContent='清空暂存'; b.style.opacity='0.5'; } else { b.className='temp-action-btn orange'; b.textContent='清空暂存'; b.style.opacity=''; } }
-async function handleTempStore(){ await playSound('click'); const arr=Array.from(selectedNumbers); if(!arr.length){ showToast("暂无已选号码"); return; } const ex=new Set(tempStorageData.map(i=>i.num)), add=arr.filter(n=>!ex.has(n)); if(!add.length){ showToast("所有号码已暂存"); return; } const sorted=[...add].sort((a,b)=>a-b), numsHtml=sorted.map(n=>`<span style="color:${redGroup.has(n)?'#e53e3e':blueGroup.has(n)?'#3182ce':'#38a169'}; font-weight:600;">${fmtNum(n)}</span>`).join('<span style="color:#2d3748;">.</span>'); const actionLabel = tempStorageData.length?'继续暂存':'暂存'; showConfirmModal(actionLabel, numsHtml, async ()=>{ add.forEach(n=>tempStorageData.push({num:n,isSpecial:specialNumbersSet.has(n),isBetting:bettingNumbers.has(n)})); tempStorageData.sort((a,b)=>a.num-b.num); recordAction('temp_store',actionLabel,[],true,0,{addedNums:add,prevTempData:[...tempStorageData]}); renderTempStorage(); updateTempCountBadge(); updateTempStoreBtn(); updateTempRestoreBtn(); updateTempClearBtn(); save_data(); addLog("select",`${actionLabel} ${formatNumbersForDisplay(add)}`); }, false, true); }
-async function handleTempRestore(){ await playSound('click'); if(!tempStorageData.length){ showToast("无恢复号码"); return; } const sorted=[...tempStorageData].sort((a,b)=>a.num-b.num), numsHtml=sorted.map(i=>`<span style="color:${redGroup.has(i.num)?'#e53e3e':blueGroup.has(i.num)?'#3182ce':'#38a169'}; font-weight:600;">${fmtNum(i.num)}</span>`).join('<span style="color:#2d3748;">.</span>'); showConfirmModal('恢复暂存', numsHtml, async ()=>{ const cur=[...tempStorageData], restored=[], already=[]; cur.forEach(i=>{ const n=i.num; if(selectedNumbers.has(n)) already.push(n); else { selectedNumbers.add(n); restored.push(n); document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.add('is-active'); } syncRemoveSpecial(n); if(i.isBetting) bettingNumbers.add(n); else bettingNumbers.delete(n); }); recordAction('temp_restore','恢复暂存',restored,true,0,{restoredNums:restored,prevTempData:cur,alreadySelectedHas:already}); tempStorageData=[]; renderTempStorage(); updateTempCountBadge(); updateTempStoreBtn(); updateTempRestoreBtn(); updateTempClearBtn(); updateAllStates(); save_data(); addLog("select",`恢复暂存 ${formatNumbersForDisplay(restored)}`); }, false, true); }
+async function handleTempStore(){ await playSound('click'); const arr=Array.from(selectedNumbers); if(!arr.length){ showToast("暂无已选号码"); return; } const ex=new Set(tempStorageData.map(i=>i.num)), add=arr.filter(n=>!ex.has(n)); if(!add.length){ showToast("所有号码已暂存"); return; } const actionLabel = tempStorageData.length?'继续暂存':'暂存'; const message = buildTwoLineMessage(actionLabel, add); showConfirmModal(actionLabel, message, async ()=>{ add.forEach(n=>tempStorageData.push({num:n,isSpecial:specialNumbersSet.has(n),isBetting:bettingNumbers.has(n)})); tempStorageData.sort((a,b)=>a.num-b.num); recordAction('temp_store',actionLabel,[],true,0,{addedNums:add,prevTempData:[...tempStorageData]}); renderTempStorage(); updateTempCountBadge(); updateTempStoreBtn(); updateTempRestoreBtn(); updateTempClearBtn(); save_data(); addLog("select",`${actionLabel} ${formatNumbersForDisplay(add)}`); }, false, true); }
+async function handleTempRestore(){ await playSound('click'); if(!tempStorageData.length){ showToast("无恢复号码"); return; } const nums = tempStorageData.map(i=>i.num); const message = buildTwoLineMessage('恢复暂存', nums); showConfirmModal('恢复暂存', message, async ()=>{ const cur=[...tempStorageData], restored=[], already=[]; cur.forEach(i=>{ const n=i.num; if(selectedNumbers.has(n)) already.push(n); else { selectedNumbers.add(n); restored.push(n); document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.add('is-active'); } syncRemoveSpecial(n); if(i.isBetting) bettingNumbers.add(n); else bettingNumbers.delete(n); }); recordAction('temp_restore','恢复暂存',restored,true,0,{restoredNums:restored,prevTempData:cur,alreadySelectedHas:already}); tempStorageData=[]; renderTempStorage(); updateTempCountBadge(); updateTempStoreBtn(); updateTempRestoreBtn(); updateTempClearBtn(); updateAllStates(); save_data(); addLog("select",`恢复暂存 ${formatNumbersForDisplay(restored)}`); }, false, true); }
 async function handleTempClear(){ await playSound('click'); if(!tempStorageData.length){ showToast("暂存区已空"); return; } const clearedNums = tempStorageData.map(i => i.num); showConfirmModal('清空暂存', '', async ()=>{ await playSound('shutter'); recordAction('temp_clear','清空暂存',[],false,0,{prevTempData:[...tempStorageData]}); tempStorageData=[]; renderTempStorage(); updateTempCountBadge(); updateTempStoreBtn(); updateTempRestoreBtn(); updateTempClearBtn(); save_data(); addLog("clear",`清空暂存 ${formatNumbersForDisplay(clearedNums)}`); }, true, false, true); }
-async function copySelectedNumbers(){ if(!selectedNumbers.size){ showToast("暂无已选号码"); return; } await playSound('coin'); const s=Array.from(selectedNumbers).sort((a,b)=>a-b), plain=s.map(fmtNum).join('.'), html=s.map(n=>`<span style="color:${redGroup.has(n)?'#e53e3e':blueGroup.has(n)?'#3182ce':'#38a169'}; font-weight:600; font-size:1.1em;">${fmtNum(n)}</span>`).join('<span style="color:#2d3748;">.</span>'); showCopyPreviewModal(html,plain,(txt)=>{ navigator.clipboard?.writeText(txt).then(()=>{ showToast("✅ 已复制"); addLog("system","复制已选"); }).catch(()=>{ const ta=document.createElement('textarea'); ta.value=txt; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); showToast("✅ 已复制"); addLog("system","复制已选(降级)"); }); }); }
-async function copyBetResults(){ if(selectedNumbers.size&&Array.from(selectedNumbers).some(n=>betResults[n]===undefined)){ showToast("还有号码没有购买，不能复制"); return; } const keys=Object.keys(betResults).map(Number); if(!keys.length){ showToast("暂无买号结果"); return; } await playSound('coin'); const grp={}; keys.forEach(n=>{ const a=betResults[n]; if(!grp[a]) grp[a]=[]; grp[a].push(n); }); let plain=[], html=[]; Object.keys(grp).sort((a,b)=>parseInt(a)-parseInt(b)).forEach(a=>{ const nums=grp[a].sort((a,b)=>a-b); if(nums.length===1) plain.push(`${fmtNum(nums[0])}买${a}块`); else plain.push(`${nums.map(fmtNum).join('.')}各${a}块`); let gh=nums.map(n=>`<span style="color:${redGroup.has(n)?'#e53e3e':blueGroup.has(n)?'#3182ce':'#38a169'}; font-weight:600;">${fmtNum(n)}</span>`).join('<span style="color:#2d3748;">.</span>'); gh+=`<span style="color:#718096;"> ${nums.length===1?`买${a}块`:`各${a}块`}</span>`; html.push(gh); }); showCopyPreviewModal('<span style="color:#2d3748; font-weight:600;">新奥</span> '+html.join('<span style="color:#718096;">, </span>'),"新奥"+plain.join(', '),(txt)=>{ navigator.clipboard?.writeText(txt).then(()=>{ showToast("✅ 已复制买号结果"); addLog("system","复制结果"); }).catch(()=>{ const ta=document.createElement('textarea'); ta.value=txt; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); showToast("✅ 已复制买号结果"); addLog("system","复制结果(降级)"); }); }); }
+async function copySelectedNumbers(){ if(!selectedNumbers.size){ showToast("暂无已选号码"); return; } await playSound('coin'); const s=Array.from(selectedNumbers).sort((a,b)=>a-b), plain=s.map(fmtNum).join('.'), html=`<div style="text-align:center">确认复制内容</div><div style="text-align:center">${buildNumsHtml(s)}</div>`; showCopyPreviewModal(html,plain,(txt)=>{ navigator.clipboard?.writeText(txt).then(()=>{ showToast("✅ 已复制"); addLog("system","复制已选"); }).catch(()=>{ const ta=document.createElement('textarea'); ta.value=txt; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); showToast("✅ 已复制"); addLog("system","复制已选(降级)"); }); }); }
+async function copyBetResults(){ if(selectedNumbers.size&&Array.from(selectedNumbers).some(n=>betResults[n]===undefined)){ showToast("还有号码没有购买，不能复制"); return; } const keys=Object.keys(betResults).map(Number); if(!keys.length){ showToast("暂无买号结果"); return; } await playSound('coin'); const grp={}; keys.forEach(n=>{ const a=betResults[n]; if(!grp[a]) grp[a]=[]; grp[a].push(n); }); let plain=[], htmlNums=[]; Object.keys(grp).sort((a,b)=>parseInt(a)-parseInt(b)).forEach(a=>{ const nums=grp[a].sort((a,b)=>a-b); if(nums.length===1) plain.push(`${fmtNum(nums[0])}买${a}块`); else plain.push(`${nums.map(fmtNum).join('.')}各${a}块`); let gh=buildNumsHtml(nums); gh+=`<span style="color:#718096; font-weight:600;"> ${nums.length===1?`买${a}块`:`各${a}块`}</span>`; htmlNums.push(gh); }); const html=`<div style="text-align:center">新奥</div><div style="text-align:center">${htmlNums.join('<span style="color:#718096;">, </span>')}</div>`; showCopyPreviewModal(html,"新奥"+plain.join(', '),(txt)=>{ navigator.clipboard?.writeText(txt).then(()=>{ showToast("✅ 已复制买号结果"); addLog("system","复制结果"); }).catch(()=>{ const ta=document.createElement('textarea'); ta.value=txt; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); showToast("✅ 已复制买号结果"); addLog("system","复制结果(降级)"); }); }); }
 async function handleReset(){ await playSound('click'); const m=document.getElementById('resetModal'); m.style.display='flex'; const close=()=>m.style.display='none'; document.getElementById('modalResetConfirm').onclick=async ()=>{ await playSound('slip'); selectedNumbers.clear(); bettingNumbers.clear(); betResults={}; undoStack=[]; redoStack=[]; inputHistory=[]; tempStorageData=[]; specialNumbersSet.clear(); currentHighlightedNumber=null; numberSources.clear(); globalFreqColorMap.clear(); document.getElementById('smartInput').value=''; updateZodiacButtonsFromInput(''); document.querySelectorAll('.num-btn.is-special, .num-btn.is-active').forEach(b=>b.classList.remove('is-special','is-active')); renderTempStorage(); updateTempCountBadge(); updateTempStoreBtn(); updateTempRestoreBtn(); updateTempClearBtn(); document.getElementById('logContainer').innerHTML='<div class="log-item" style="color:#718096; justify-content:center;">暂无记录</div>'; save_data(); renderBetResults(); updateAllStates(); showToast("已重置所有数据"); addLog("clear","重置"); close(); }; document.getElementById('modalResetCancel').onclick = async () => { await playSound('click'); close(); addLog("system","取消重置"); }; m.onclick = async (e) => { if(e.target === m) { await playSound('click'); close(); } }; }
 
 const allAnimationSounds = ['wave','rain','slot','bright','magic','scifi','deep'];
 
 async function randomSpecialNumber(){
     if(isRandomRunning) return; 
-    if(!selectedNumbers.size){ 
-        showToast("暂无选中的号码"); 
-        addLog("system","随机特码-无号码");
-        return; 
-    }
+    if(!selectedNumbers.size){ showToast("暂无选中的号码"); addLog("system","随机特码-无号码"); return; }
     const avail=Array.from(selectedNumbers).filter(n=>!specialNumbersSet.has(n)); 
-    if(!avail.length){ 
-        showToast("所有号码已是特码"); 
-        addLog("system","随机特码-已全是特码");
-        return; 
-    }
+    if(!avail.length){ showToast("所有号码已是特码"); addLog("system","随机特码-已全是特码"); return; }
     const schemeName = allAnimationSounds[Math.floor(Math.random()*allAnimationSounds.length)];
     SoundManager.initScheme(schemeName);
     isRandomRunning=true; const b=document.getElementById('randomSpecialBtn'); b.classList.add('running','disabled');
@@ -2035,11 +1758,9 @@ async function showInputModal() {
     const m = document.getElementById('inputModal'), ta = document.getElementById('modalInputArea'); 
     const inp = document.getElementById('smartInput');
     ta.value = inp.value;
-    m.style.display = 'flex'; 
-    ta.focus();
+    m.style.display = 'flex'; ta.focus();
     const resize = () => { ta.style.height = 'auto'; ta.style.height = Math.max(48, ta.scrollHeight) + 'px'; };
-    ta.addEventListener('input', resize); 
-    resize();
+    ta.addEventListener('input', resize); resize();
     const close = () => { m.style.display = 'none'; ta.removeEventListener('input', resize); };
     const confirm = () => {
         const txt = ta.value.trim(); 
@@ -2071,11 +1792,8 @@ async function showInputModal() {
 async function handleAmountButtonClick() {
     if (!bettingNumbers.size) { showToast("请先选择待购号码"); return; }
     await playSound('click');
-    const m = document.getElementById('amountModal');
-    const inp = document.getElementById('amountInput');
-    inp.value = '';
-    m.style.display = 'flex';
-    inp.focus();
+    const m = document.getElementById('amountModal'), inp = document.getElementById('amountInput');
+    inp.value = ''; m.style.display = 'flex'; inp.focus();
     const close = () => { m.style.display = 'none'; };
     const confirm = () => {
         const amt = parseInt(inp.value);
@@ -2094,6 +1812,11 @@ init();
 let lastTouchEnd=0;
 document.addEventListener('touchend', e=>{ const n=Date.now(); if(n-lastTouchEnd<=300) e.preventDefault(); lastTouchEnd=n; }, false);
 document.addEventListener('gesturestart', e=>e.preventDefault());
+
+// 首次触摸时激活 AudioContext（兜底方案）
+document.addEventListener('touchstart', async () => {
+    await SoundManager.activate();
+}, { once: true });
 </script>
 </body>
 </html>
