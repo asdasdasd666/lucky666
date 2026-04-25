@@ -393,7 +393,7 @@ box-shadow: 0 10px 25px rgba(0,0,0,0.2); opacity: 0; transition: all 0.3s; point
 box-sizing: border-box;
 }
 .toast.show { display: block; opacity: 1; transform: translate(-50%, -50%) scale(1); }
-.toast-long { min-width: 220px; white-space: nowrap; }
+.toast-long { white-space: nowrap; }
 .log-container::-webkit-scrollbar { width: 4px; }
 .log-container::-webkit-scrollbar-track { background: rgba(237, 242, 247, 0.5); }
 .log-container::-webkit-scrollbar-thumb { background: #cbd5e0; }
@@ -597,7 +597,7 @@ button, .num-btn, .action-grid-btn, .sphere-btn-base, .filter-btn, .wave-btn, .z
 </div>
 <div style="font-size: 0.65rem; font-weight: 700; color: #4a5568; margin-bottom: 2px; display:flex; justify-content:space-between; align-items:center;">
 <span>操作记录</span>
-<span style="font-weight: 600; color: #718096;">V2.08</span>
+<span style="font-weight: 600; color: #718096;">V2.09</span>
 </div>
 <div class="log-container" id="logContainer"><div class="log-item" style="color:#718096; justify-content:center;">暂无记录</div></div>
 </div>
@@ -873,7 +873,7 @@ const ModalManager = (function() {
     return { showConfirm, showCopyPreview, showBetConfirm, close };
 })();
 
-// ==================== 统一音效管理器 (V2.10 iOS修复版) ====================
+// ==================== 统一音效管理器 ====================
 const SoundManager = (function(){
     let audioCtx = null;
     const N = { C3:130.81, E3:164.81, G3:196.00, C4:261.63, D4:293.66, E4:329.63, G4:392.00, A4:440.00, C5:523.25, D5:587.33, E5:659.25, G5:784.00, A5:880.00, B5:987.77, C6:1046.50, D6:1174.66, E6:1318.51, G6:1567.98, A6:1760.00, C7:2093.00, E7:2637.02, G7:3135.96, C8:4186.01 };
@@ -1193,6 +1193,16 @@ function showToast(msg, d=1500) {
     toastTimer = setTimeout(() => { t.classList.remove('show'); toastTimer = null; }, d); 
 }
 
+function showToastNoBreak(msg, d=1500) { 
+    const t = document.getElementById('toast'); 
+    if (toastTimer) { clearTimeout(toastTimer); toastTimer = null; }
+    t.classList.add('toast-long');
+    t.style.width = 'auto';
+    t.innerHTML = `<span style="color:#1a202c;">${msg}</span>`;
+    t.classList.add('show'); 
+    toastTimer = setTimeout(() => { t.classList.remove('show'); toastTimer = null; }, d); 
+}
+
 function showToastOneLine(html) {
     const t = document.getElementById('toast');
     if (toastTimer) { clearTimeout(toastTimer); toastTimer = null; }
@@ -1203,7 +1213,7 @@ function showToastOneLine(html) {
     toastTimer = setTimeout(() => { t.classList.remove('show'); toastTimer = null; }, 1500);
 }
 
-function showToastWithNums(label, numbers, fixedWidth = false) {
+function showToastWithNums(label, numbers, fixedWidth = false, singleLine = false) {
     const t = document.getElementById('toast');
     if (toastTimer) { clearTimeout(toastTimer); toastTimer = null; }
     t.classList.remove('toast-long');
@@ -1217,7 +1227,8 @@ function showToastWithNums(label, numbers, fixedWidth = false) {
     } else {
         const sorted = [...new Set(numbers)].sort((a,b)=>a-b);
         const numsHtml = sorted.map(n => `<span style="color:${getNumColor(n)}; font-weight:600; white-space:nowrap;">${fmtNum(n)}</span>`).join('.');
-        t.innerHTML = `<div style="text-align:center">${label}</div><div style="text-align:center; word-break:break-word;">${numsHtml}</div>`;
+        const wrapStyle = singleLine ? 'white-space:nowrap;' : 'word-break:break-word;';
+        t.innerHTML = `<div style="text-align:center">${label}</div><div style="text-align:center; ${wrapStyle}">${numsHtml}</div>`;
     }
     t.classList.add('show');
     toastTimer = setTimeout(() => { t.classList.remove('show'); toastTimer = null; }, 1500);
@@ -1385,7 +1396,7 @@ function syncGlobalStateToHistory(nums, st) { inputHistory.forEach(it=> nums.for
 
 async function performUndo(){ 
     await playSound('slip'); 
-    if(!undoStack.length){ showToast("没有可撤销的操作"); return; } 
+    if(!undoStack.length){ showToastNoBreak("没有可撤销的操作"); return; } 
     const a=undoStack[undoStack.length-1];
     const message = formatUndoRedoMessage(a);
     showConfirmModal('撤销', message, async ()=>{
@@ -1443,7 +1454,7 @@ async function performUndo(){
 
 async function performRedo(){ 
     await playSound('pop'); 
-    if(!redoStack.length){ showToast("没有可恢复的操作"); return; } 
+    if(!redoStack.length){ showToastNoBreak("没有可恢复的操作"); return; } 
     const a=redoStack[redoStack.length-1];
     const message = formatUndoRedoMessage(a);
     showConfirmModal('恢复', message, async ()=>{
@@ -1574,6 +1585,11 @@ async function handleZodiacSelect(idx,lbl){
     if(!nums.length) return; 
     const has=nums.some(n=>selectedNumbers.has(n));
     const shortLbl = zodiacs[idx];
+    // 一个生肖对应的号码数量: 鼠牛虎兔龙蛇有4个, 马羊猴鸡狗猪有5个(含49)
+    const count = nums.length;
+    // <=2个号码球: 固定8rem; >=3个: 自动宽度且一行显示
+    const fixedWidth = count <= 2;
+    const singleLine = count >= 3;
     if(has){ 
         await playSound('shutter'); 
         const rm=nums.filter(n=>selectedNumbers.has(n)); 
@@ -1583,7 +1599,7 @@ async function handleZodiacSelect(idx,lbl){
         rm.forEach(n=>{ selectedNumbers.delete(n); delete betResults[n]; bettingNumbers.delete(n); syncRemoveSpecial(n); document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.remove('is-active'); }); 
         syncGlobalStateToHistory(rm,false); syncSpecialWithSelected(); 
         addLog("select",`取消${shortLbl} ${formatNumbersForDisplay(rm)}`); 
-        showToastWithNums(`灭${shortLbl}`, rm, true);
+        showToastWithNums(`灭${shortLbl}`, rm, fixedWidth, singleLine);
     } else { 
         await SoundManager.playMarioCoinTick(); 
         if(nums.every(n=>selectedNumbers.has(n))) return; 
@@ -1593,7 +1609,7 @@ async function handleZodiacSelect(idx,lbl){
         add.forEach(n=>{ selectedNumbers.add(n); document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.add('is-active'); }); 
         syncGlobalStateToHistory(add,true); 
         addLog("select",`选${shortLbl} ${formatNumbersForDisplay(add)}`); 
-        showToastWithNums(`亮${shortLbl}`, add, true);
+        showToastWithNums(`亮${shortLbl}`, add, fixedWidth, singleLine);
     }
     updateAllStates();
 }
@@ -1770,8 +1786,8 @@ function a6(c,cb){ clearAllGoldHighlights(); const st=Date.now(), dur=5000; cons
 const schemes=[{id:2,name:'波纹',func:a2},{id:3,name:'数字雨',func:a3},{id:4,name:'贪吃蛇',func:a4},{id:5,name:'轮盘',func:a5},{id:6,name:'呼吸灯',func:a6}];
 
 const blueRandomSoundNames = ['wave','rain','slot','scifi'];
-async function handleBlueRandom(){ if(isAnimationRunning){ showToast("随机选号中"); return; } if(selectedNumbers.size) showChoiceModal(c=>{ if(c==='keep') showNumberModal(c=>startRandomAnimation(c)); }); else showNumberModal(c=>startRandomAnimation(c)); }
-async function startRandomAnimation(c){ if(c===null||isNaN(c)||c<1||c>49){ showToast("请输入1-49之间的数字"); return; } document.getElementById('blueRandomBtn').classList.add('disabled'); isAnimationRunning=true; const schemeName = blueRandomSoundNames[Math.floor(Math.random()*blueRandomSoundNames.length)]; await BlueRandomSoundManager.initScheme(schemeName); BlueRandomSoundManager.playReveal(); const s=schemes[Math.floor(Math.random()*schemes.length)]; s.func(c, ()=>finalizeRandomNumbers(c)); }
+async function handleBlueRandom(){ if(isAnimationRunning){ return; } if(selectedNumbers.size) showChoiceModal(c=>{ if(c==='keep') showNumberModal(c=>startRandomAnimation(c)); }); else showNumberModal(c=>startRandomAnimation(c)); }
+async function startRandomAnimation(c){ if(c===null||isNaN(c)||c<1||c>49){ return; } document.getElementById('blueRandomBtn').classList.add('disabled'); isAnimationRunning=true; const schemeName = blueRandomSoundNames[Math.floor(Math.random()*blueRandomSoundNames.length)]; await BlueRandomSoundManager.initScheme(schemeName); BlueRandomSoundManager.playReveal(); const s=schemes[Math.floor(Math.random()*schemes.length)]; s.func(c, ()=>finalizeRandomNumbers(c)); }
 
 async function showInputModal() {
     await playSound('click'); 
@@ -1810,14 +1826,14 @@ async function showInputModal() {
 }
 
 async function handleAmountButtonClick() {
-    if (!bettingNumbers.size) { showToast("请先选择待购号码"); return; }
+    if (!bettingNumbers.size) { return; }
     await playSound('click');
     const m = document.getElementById('amountModal'), inp = document.getElementById('amountInput');
     inp.value = ''; m.style.display = 'flex'; inp.focus();
     const close = () => { m.style.display = 'none'; };
     const confirm = () => {
         const amt = parseInt(inp.value);
-        if (isNaN(amt) || amt <= 0) { showToast("金额必须是大于 0 的整数"); inp.focus(); return; }
+        if (isNaN(amt) || amt <= 0) { return; }
         close();
         showBetConfirmModal(bettingNumbers, amt);
     };
