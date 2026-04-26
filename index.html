@@ -43,7 +43,7 @@
 --badge-padding-y: 0px; --badge-padding-x: 8px;
 --list-num-size: 1.6em; --hist-num-size: 1.5em;
 }
-html, body { overflow-x: hidden; overflow-y: auto; width: 100%; max-width: 100vw; position: relative; height: 100%; touch-action: pan-y; }
+html, body { overflow-x: hidden; overflow-y: auto; width: 100%; max-width: 100vw; position: relative; height: 100%; touch-action: auto; }
 body {
 font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 background-color: var(--bg-color);
@@ -52,8 +52,8 @@ color: var(--text-main); margin: 0;
 padding-top: max(20px, var(--safe-area-top)); padding-bottom: max(15px, var(--safe-area-bottom));
 padding-left: max(10px, var(--safe-area-left)); padding-right: max(10px, var(--safe-area-right));
 display: flex; flex-direction: column; align-items: center; min-height: 100vh;
--webkit-tap-highlight-color: transparent; touch-action: pan-y; background-attachment: fixed;
-overscroll-behavior: none; user-select: none; -webkit-user-select: none; position: relative; box-sizing: border-box;
+-webkit-tap-highlight-color: transparent; background-attachment: fixed;
+user-select: none; -webkit-user-select: none; position: relative; box-sizing: border-box;
 }
 .filter-section { margin: 0 0 10px 0; width: 100%; max-width: 500px; box-sizing: border-box; position: relative; z-index: 2; display: flex; flex-direction: column; gap: 8px; }
 .control-box {
@@ -597,7 +597,7 @@ button, .num-btn, .action-grid-btn, .sphere-btn-base, .filter-btn, .wave-btn, .z
 </div>
 <div style="font-size: 0.65rem; font-weight: 700; color: #4a5568; margin-bottom: 2px; display:flex; justify-content:space-between; align-items:center;">
 <span>操作记录</span>
-<span style="font-weight: 600; color: #718096;">V2.10</span>
+<span style="font-weight: 600; color: #718096;">V2.11</span>
 </div>
 <div class="log-container" id="logContainer"><div class="log-item" style="color:#718096; justify-content:center;">暂无记录</div></div>
 </div>
@@ -716,7 +716,7 @@ button, .num-btn, .action-grid-btn, .sphere-btn-base, .filter-btn, .wave-btn, .z
 // ==================== Toast 定时器管理 ====================
 let toastTimer = null;
 
-// ==================== 统一弹窗管理器 (V2.10) ====================
+// ==================== 统一弹窗管理器 ====================
 const ModalManager = (function() {
     const modals = {
         confirm: {
@@ -1312,8 +1312,8 @@ function getUndoActionDescription(a){
         const prefix = a.wasAdded ? '亮' : '熄';
         return `${prefix}重复${a.label.match(/\d+/)?.[0] || ''}次的号码`;
     }
-    if(a.type==='history_label_on') return '点亮选号历史';
-    if(a.type==='history_label_off') return '熄灭选号历史';
+    if(a.type==='history_label_on') return `亮历史记录${a.labelPrefix || ''}`;
+    if(a.type==='history_label_off') return `灭历史记录${a.labelPrefix || ''}`;
     if(a.type==='select_wave') return a.wasAdded ? `亮${a.label}` : `熄${a.label}`;
     if(a.type==='batch_kill'){
         if (zodiacs.includes(a.label)) return `灭${a.label}`;
@@ -1590,9 +1590,8 @@ async function handleZodiacSelect(idx,lbl){
         await playSound('shutter'); 
         const rm=nums.filter(n=>selectedNumbers.has(n)); 
         if(!rm.length) return; 
-        // 灭生肖: <=3个号码用固定8rem, >=4个用自动宽度一行
-        const fixedWidth = rm.length <= 3;
-        const singleLine = rm.length >= 4;
+        const fixedWidth = rm.length <= 2;
+        const singleLine = rm.length >= 3;
         const snapshot = captureFullSnapshot(rm); 
         recordAction('batch_kill',shortLbl,rm,false,0,snapshot); 
         rm.forEach(n=>{ selectedNumbers.delete(n); delete betResults[n]; bettingNumbers.delete(n); syncRemoveSpecial(n); document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.remove('is-active'); }); 
@@ -1603,7 +1602,6 @@ async function handleZodiacSelect(idx,lbl){
         await SoundManager.playMarioCoinTick(); 
         if(nums.every(n=>selectedNumbers.has(n))) return; 
         const add=nums.filter(n=>!selectedNumbers.has(n)); 
-        // 亮生肖: <=2个号码用固定8rem, >=3个用自动宽度一行
         const fixedWidth = count <= 2;
         const singleLine = count >= 3;
         const snapshot = captureFullSnapshot(add); 
@@ -1670,8 +1668,8 @@ function toggleNumbersByFrequency(fr){ const fm=calculateNumberFrequencies(), tg
 }
 function renderFrequencyButtons(){ const c=document.getElementById('sphereBtnContainer'); c.innerHTML=''; const fm=calculateNumberFrequencies(); if(!Object.keys(fm).length) return; const fc={}; Object.values(fm).forEach(v=>fc[v]=(fc[v]||0)+1); Object.keys(fc).sort((a,b)=>parseInt(a)-parseInt(b)).forEach(k=>{ const fr=parseInt(k); if(fc[fr]>0){ const b=document.createElement('button'); b.className='sphere-btn-base count-btn'; b.textContent=fc[fr]; const st=getFreqStyle(fr); b.style.background=st.bg; b.style.color=st.text; if(st.textClass) b.classList.add(st.textClass); b.setAttribute('data-freq',fr); b.title=`重复${fr}次的号码共${fc[fr]}个`; b.classList.toggle('is-pressed',!Object.entries(fm).filter(([n,f])=>f===fr).some(([n])=>selectedNumbers.has(parseInt(n)))); b.onclick=async(e)=>{ e.stopPropagation(); toggleNumbersByFrequency(fr); }; c.appendChild(b); } }); }
 function renderHistoryLog(){ const box=document.getElementById('historyLogBox'); if(!inputHistory.length){ box.style.display='none'; return; } box.style.display='flex'; box.innerHTML=''; inputHistory.forEach((it,idx)=>{ const row=document.createElement('div'); row.className='history-row'; const del=document.createElement('span'); del.className='history-delete-btn'; del.innerHTML='×'; del.onclick=()=>removeHistoryItem(idx); const lbl=document.createElement('span'); lbl.className='history-label'; const pure=it.isPureZodiac, cnt=pure?(it.labelPrefix.match(/^(\d+)肖/)?.[1]||it.numbers.length):it.numbers.length, unit=pure?'肖':'码'; if(it.isActive){ lbl.innerHTML=`<span class="label-number">${cnt}</span><span class="label-text">${unit}</span>`; lbl.classList.remove('all-lit'); } else { lbl.innerHTML='<span class="label-text">点亮</span>'; lbl.classList.add('all-lit'); } lbl.onclick=async ()=>{ const nums=it.sortedNumbers; const snapshot = captureFullSnapshot(nums);
-        if(!it.isActive){ await playSound('shutter'); it.isActive=true; nums.forEach(n=>{ addNumberSource(n,it.id); selectedNumbers.add(n); }); recordAction('history_label_on',it.labelPrefix,nums,true,0,{...snapshot, historyId:it.id}); addLog("select",`亮历史${it.labelPrefix} ${formatNumbersForDisplay(nums)}`); }
-        else { await SoundManager.playMarioCoinTick(); it.isActive=false; nums.forEach(n=>{ removeNumberSource(n,it.id); if(!numberSources.has(n)){ selectedNumbers.delete(n); syncRemoveSpecial(n); } }); recordAction('history_label_off',it.labelPrefix,nums,false,0,{...snapshot, historyId:it.id}); addLog("select",`熄历史${it.labelPrefix} ${formatNumbersForDisplay(nums)}`); }
+        if(!it.isActive){ await playSound('shutter'); it.isActive=true; nums.forEach(n=>{ addNumberSource(n,it.id); selectedNumbers.add(n); }); recordAction('history_label_on',it.labelPrefix,nums,true,0,{...snapshot, historyId:it.id, labelPrefix:it.labelPrefix}); addLog("select",`亮历史${it.labelPrefix} ${formatNumbersForDisplay(nums)}`); }
+        else { await SoundManager.playMarioCoinTick(); it.isActive=false; nums.forEach(n=>{ removeNumberSource(n,it.id); if(!numberSources.has(n)){ selectedNumbers.delete(n); syncRemoveSpecial(n); } }); recordAction('history_label_off',it.labelPrefix,nums,false,0,{...snapshot, historyId:it.id, labelPrefix:it.labelPrefix}); addLog("select",`熄历史${it.labelPrefix} ${formatNumbersForDisplay(nums)}`); }
         updateAllStates();
     }; const nd=document.createElement('div'); nd.className='history-nums'; it.sortedNumbers.forEach(n=>{ const sp=document.createElement('span'); const fr=calculateNumberFrequencies()[n]||0, st=getFreqStyle(fr||1); sp.className='history-num-item'; if(!(it.isActive&&selectedNumbers.has(n))) sp.classList.add('flat'); if(currentHighlightedNumber===n&&it.isActive&&selectedNumbers.has(n)) sp.classList.add('highlighted'); sp.style.background=st.bg; sp.style.color=st.text; sp.style.textShadow=st.textClass==='light-text'?'0 1px 0 rgba(255,255,255,0.5)':'0 1px 2px rgba(0,0,0,0.4)'; sp.textContent=fmtNum(n); sp.title=`出现 ${fr} 次`; sp.onclick=async(e)=>{ e.stopPropagation(); await playSound('click'); const prev = currentHighlightedNumber; if(currentHighlightedNumber===n){ currentHighlightedNumber=null; } else { currentHighlightedNumber=n; } addLog("system", currentHighlightedNumber ? `高亮${fmtNum(n)}` : `取消高亮${fmtNum(prev)}`); renderHistoryLog(); save_data(); }; nd.appendChild(sp); }); row.appendChild(del); row.appendChild(lbl); row.appendChild(nd); box.appendChild(row); }); }
 async function removeHistoryItem(idx){ await playSound('shutter'); const it=inputHistory[idx]; if(!it) return; const snapshot = captureFullSnapshot(it.sortedNumbers); recordAction('history_delete','删除历史',[],false,0,{index:idx,deletedItem:it,...snapshot}); if(it.isActive) it.numbers.forEach(n=>{ removeNumberSource(n,it.id); if(!numberSources.has(n)){ selectedNumbers.delete(n); syncRemoveSpecial(n); } }); inputHistory.splice(idx,1); updateAllStates(); addLog("input",`删历史${it.numbers.length}码`); save_data(); }
@@ -1848,7 +1846,7 @@ async function handleAmountButtonClick() {
 function init(){ renderKillControls(); renderSelectZodiacButtons(); renderSelectWaveButtons(); load_data(); renderGrid(); updateRandomSpecialButtonState(); updateCopyButtonsState(); updateClearBettingButtonState(); updateAmountButtonState(); addLog("system","启动"); window.addEventListener('beforeunload', save_data); }
 init();
 let lastTouchEnd=0;
-document.addEventListener('touchend', e=>{ const n=Date.now(); if(n-lastTouchEnd<=300) e.preventDefault(); lastTouchEnd=n; }, false);
+document.addEventListener('touchend', e=>{ const n=Date.now(); if(n-lastTouchEnd<=300){ const tag=e.target.tagName; if(tag!=='BUTTON'&&tag!=='SPAN'&&tag!=='DIV') e.preventDefault(); } lastTouchEnd=n; }, false);
 document.addEventListener('gesturestart', e=>e.preventDefault());
 
 // 首次触摸时激活 AudioContext（兜底方案）
