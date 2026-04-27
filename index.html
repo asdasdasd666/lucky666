@@ -436,6 +436,18 @@ transition: all 0.1s; flex-shrink: 0; user-select: none; -webkit-user-select: no
 .blue-random-btn.disabled { background: #cbd5e0 !important; color: #718096 !important; opacity: 0.5 !important; cursor: not-allowed !important; box-shadow: none !important; pointer-events: auto !important; }
 .blue-random-btn.disabled:active { transform: none !important; background: #cbd5e0 !important; box-shadow: none !important; }
 
+/* 随机特码按钮在选号控制区内的样式（大小与蓝色随机按钮一致） */
+.select-wave-row .random-special-btn {
+width: calc(var(--btn-size) * 2 + var(--btn-gap)) !important;
+height: var(--btn-size) !important;
+border-radius: 6px !important;
+font-size: 0.75rem !important;
+font-weight: 900 !important;
+padding: 0 2px !important;
+flex-shrink: 0 !important;
+margin-left: 4px !important;
+}
+
 .modal-overlay {
 position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(4px);
 -webkit-backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 9999;
@@ -508,6 +520,7 @@ button, .num-btn, .action-grid-btn, .sphere-btn-base, .filter-btn, .wave-btn, .z
 <div class="select-wave-row">
     <span class="row-label select-label">波</span>
     <div class="select-wave-buttons" id="selectWaveButtons"></div>
+    <button class="random-special-btn" id="randomSpecialBtn" onclick="randomSpecialNumber()">随机特码</button>
     <button class="blue-random-btn" id="blueRandomBtn" onclick="handleBlueRandom()">随机</button>
 </div>
 <div class="input-area-container">
@@ -537,7 +550,6 @@ button, .num-btn, .action-grid-btn, .sphere-btn-base, .filter-btn, .wave-btn, .z
 <button id="tempStoreBtn" class="temp-action-btn grey" onclick="handleTempStore()">无号码</button>
 </div>
 <div style="display:flex; gap:6px;">
-<button class="random-special-btn" id="randomSpecialBtn" onclick="randomSpecialNumber()">随机特码</button>
 <button class="small-copy-btn" id="copySelectedBtn" onclick="copySelectedNumbers()">复制</button>
 </div>
 </div>
@@ -597,7 +609,7 @@ button, .num-btn, .action-grid-btn, .sphere-btn-base, .filter-btn, .wave-btn, .z
 </div>
 <div style="font-size: 0.65rem; font-weight: 700; color: #4a5568; margin-bottom: 2px; display:flex; justify-content:space-between; align-items:center;">
 <span>操作记录</span>
-<span style="font-weight: 600; color: #718096;">V2.11</span>
+<span style="font-weight: 600; color: #718096;">V2.0</span>
 </div>
 <div class="log-container" id="logContainer"><div class="log-item" style="color:#718096; justify-content:center;">暂无记录</div></div>
 </div>
