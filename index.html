@@ -625,7 +625,7 @@ button, .num-btn, .action-grid-btn, .sphere-btn-base, .filter-btn, .wave-btn, .z
 </div>
 <div style="font-size: 0.65rem; font-weight: 700; color: #4a5568; margin-bottom: 2px; display:flex; justify-content:space-between; align-items:center;">
 <span>操作记录</span>
-<span style="font-weight: 600; color: #718096;">V2.5</span>
+<span style="font-weight: 600; color: #718096;">V2.6</span>
 </div>
 <div class="log-container" id="logContainer"><div class="log-item" style="color:#718096; justify-content:center;">暂无记录</div></div>
 </div>
@@ -975,7 +975,7 @@ async function performRedo(){
         selectedNumbers.forEach(n=>{ document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.add('is-active'); });
         updateAllStates(); addLog("redo", `重做输入 ${act.nextText?.substring(0,10)||''}...`); save_data(); return; 
     }
-    if(act.type==='history_delete'){ const it=inputHistory[act.index]; if(it.isActive) it.numbers.forEach(n=>{ removeNumberSource(n,it.id); if(!numberSources.has(n)){ selectedNumbers.delete(n); syncRemoveSpecial(n); } }); inputHistory.splice(act.index,1); updateAllStates(); addLog("redo","重做删除历史"); save_data(); return; }
+    if(act.type==='history_delete'){ const it=inputHistory[act.index]; if(it && it.isActive && it.numbers) it.numbers.forEach(n=>{ removeNumberSource(n,it.id); if(!numberSources.has(n)){ selectedNumbers.delete(n); syncRemoveSpecial(n); } }); inputHistory.splice(act.index,1); updateAllStates(); addLog("redo","重做删除历史"); save_data(); return; }
     if(act.type==='global_highlight'){ currentHighlightedNumber=act.newValue; renderHistoryLog(); updateAllStates(); addLog("redo", currentHighlightedNumber ? `重做高亮${fmtNum(currentHighlightedNumber)}` : '重做高亮'); save_data(); return; }
     if(act.type==='bet_confirm'){ act.numbers.forEach(n=>{ betResults[n]=act.amount; bettingNumbers.delete(n); }); addLog("redo",`恢复买 ${formatNumbersForDisplay(act.numbers)}`); }
     else if(act.type==='bet_cancel'){ act.numbers.forEach(n=>delete betResults[n]); addLog("redo",`再次取消买 ${formatNumbersForDisplay(act.numbers)}`); }
@@ -994,9 +994,12 @@ async function performRedo(){
         addLog("redo",`重做${act.label} ${formatNumbersForDisplay(act.numbers)}`);
     }
     else if(act.type==='freq_batch'||act.type==='batch_kill'||act.type==='batch_select'||act.type==='select_wave'||act.type==='select_tail'||act.type==='history_label_on'||act.type==='history_label_off'){
-        restoreSelectedFromSnapshot(act, selectedNumbers);
-        applySnapshot(act, selectedNumbers, bettingNumbers, betResults, specialNumbersSet);
-        if(act.wasAdded){ act.numbers.forEach(n=>bettingNumbers.add(n)); } else { act.numbers.forEach(n=>bettingNumbers.delete(n)); }
+        if(act.wasAdded){
+            act.numbers.forEach(n => { if(!selectedNumbers.has(n)) selectedNumbers.add(n); });
+            act.numbers.forEach(n=>bettingNumbers.add(n));
+        } else {
+            act.numbers.forEach(n => { selectedNumbers.delete(n); delete betResults[n]; bettingNumbers.delete(n); syncRemoveSpecial(n); });
+        }
         if(currentHighlightedNumber&&act.numbers.includes(currentHighlightedNumber)) currentHighlightedNumber=null;
         if(act.type==='history_label_on'||act.type==='history_label_off'){ const it=inputHistory.find(h=>h.id===act.historyId); if(it){ it.isActive = !it.isActive; act.snapshotNumbers.forEach(n=>{ if(it.isActive) addNumberSource(n, act.historyId); else removeNumberSource(n, act.historyId); }); } }
         syncSpecialWithSelected(); updateAllStates(); addLog("redo", `重做${getUndoActionDescription(act)} ${formatNumbersForDisplay(act.numbers)}`); save_data(); return;
