@@ -42,7 +42,7 @@
 --badge-height: 24px; --badge-font-size: 0.75rem;
 --badge-padding-y: 0px; --badge-padding-x: 8px;
 --list-num-size: 1.6em; --hist-num-size: 1.5em;
---tail-btn-size: 28px;
+--tail-btn-size: 24px;
 }
 html, body { overflow-x: hidden; overflow-y: auto; width: 100%; max-width: 100vw; position: relative; height: 100%; touch-action: auto; -webkit-overflow-scrolling: touch; }
 body {
@@ -214,12 +214,12 @@ transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1); -webkit-tap-highlight-color:
 .tail-silver-btn.is-depressed { background: radial-gradient(circle at 35% 35%, #d0d8e5, #a0a8b5) !important; }
 .tail-btn-empty { background: transparent !important; border: none !important; box-shadow: none !important; color: #a0aec0 !important; opacity: 0.4 !important; text-shadow: none !important; cursor: default !important; pointer-events: none !important; }
 
-/* 放大的尾数按钮和属性按钮 - 比原来大一点 */
+/* 尾数按钮和属性按钮 */
 .tail-btn-large {
 display: inline-flex !important; align-items: center !important; justify-content: center !important; text-align: center !important;
 width: var(--tail-btn-size) !important; height: var(--tail-btn-size) !important; min-width: var(--tail-btn-size) !important;
 min-height: var(--tail-btn-size) !important; border-radius: 50% !important; aspect-ratio: 1 !important; flex-shrink: 0 !important;
-font-size: 0.8rem !important; font-weight: 900 !important; line-height: 1 !important; padding: 0 !important; margin: 0 2px !important;
+font-size: 0.7rem !important; font-weight: 900 !important; line-height: 1 !important; padding: 0 !important; margin: 0 1px !important;
 border: none !important; cursor: pointer; user-select: none; -webkit-user-select: none; position: relative;
 box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.6), inset 0 -2px 4px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.1);
 transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1); -webkit-tap-highlight-color: transparent;
@@ -234,9 +234,9 @@ background: radial-gradient(circle at 35% 35%, #e8eef4, #b0b8c5) !important; bor
 .tail-btn-wide {
 display: inline-flex !important; align-items: center !important; justify-content: center !important; text-align: center !important;
 height: var(--tail-btn-size) !important; min-height: var(--tail-btn-size) !important;
-width: 44px !important; min-width: 44px !important;
-border-radius: 14px !important; aspect-ratio: auto !important; flex-shrink: 0 !important;
-font-size: 0.75rem !important; font-weight: 900 !important; line-height: 1 !important; padding: 0 6px !important; margin: 0 2px !important;
+width: 38px !important; min-width: 38px !important;
+border-radius: 12px !important; aspect-ratio: auto !important; flex-shrink: 0 !important;
+font-size: 0.7rem !important; font-weight: 900 !important; line-height: 1 !important; padding: 0 6px !important; margin: 0 1px !important;
 border: none !important; cursor: pointer; user-select: none; -webkit-user-select: none; position: relative;
 box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.6), inset 0 -2px 4px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.1);
 transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1); -webkit-tap-highlight-color: transparent;
@@ -604,9 +604,9 @@ button, .num-btn, .action-grid-btn, .sphere-btn-base, .filter-btn, .wave-btn, .z
 <button class="small-copy-btn" id="copySelectedBtn" onclick="copySelectedNumbers()">复制</button>
 </div>
 </div>
-<div style="margin: 6px 0 4px 0; display: flex; align-items: center; gap: 6px; overflow-x: auto; padding: 2px;">
+<div style="margin: 6px 0 4px 0; display: flex; align-items: center; gap: 6px; padding: 2px;">
 <span class="row-label kill-label" style="font-size: 1rem;">尾</span>
-<div style="display: flex; gap: 4px; flex-shrink: 0;">
+<div style="display: flex; gap: 2px; flex-shrink: 0;">
 <button class="tail-btn-large" id="tailBtn0" onclick="handleTailBetAction(0)">0</button>
 <button class="tail-btn-large" id="tailBtn1" onclick="handleTailBetAction(1)">1</button>
 <button class="tail-btn-large" id="tailBtn2" onclick="handleTailBetAction(2)">2</button>
@@ -619,9 +619,9 @@ button, .num-btn, .action-grid-btn, .sphere-btn-base, .filter-btn, .wave-btn, .z
 <button class="tail-btn-large" id="tailBtn9" onclick="handleTailBetAction(9)">9</button>
 </div>
 </div>
-<div style="margin: 4px 0 8px 0; display: flex; align-items: center; gap: 6px; overflow-x: auto; padding: 2px;">
+<div style="margin: 4px 0 8px 0; display: flex; align-items: center; gap: 6px; padding: 2px;">
 <span class="row-label kill-label" style="font-size: 1rem;">属</span>
-<div style="display: flex; gap: 4px; flex-shrink: 0;">
+<div style="display: flex; gap: 2px; flex-shrink: 0;">
 <button class="tail-btn-large" id="attrBtnGold" onclick="handleAttrBetAction('gold')">金</button>
 <button class="tail-btn-large" id="attrBtnWood" onclick="handleAttrBetAction('wood')">木</button>
 <button class="tail-btn-large" id="attrBtnWater" onclick="handleAttrBetAction('water')">水</button>
