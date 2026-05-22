@@ -219,7 +219,7 @@ transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1); -webkit-tap-highlight-color:
 display: inline-flex !important; align-items: center !important; justify-content: center !important; text-align: center !important;
 width: var(--tail-btn-size) !important; height: var(--tail-btn-size) !important; min-width: var(--tail-btn-size) !important;
 min-height: var(--tail-btn-size) !important; border-radius: 50% !important; aspect-ratio: 1 !important; flex-shrink: 0 !important;
-font-size: 0.7rem !important; font-weight: 900 !important; line-height: 1 !important; padding: 0 !important; margin: 0 1px !important;
+font-size: 0.7rem !important; font-weight: 900 !important; line-height: 1 !important; padding: 0 !important; margin: 0 1.5px !important;
 border: none !important; cursor: pointer; user-select: none; -webkit-user-select: none; position: relative;
 box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.6), inset 0 -2px 4px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.1);
 transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1); -webkit-tap-highlight-color: transparent;
@@ -236,7 +236,7 @@ display: inline-flex !important; align-items: center !important; justify-content
 height: var(--tail-btn-size) !important; min-height: var(--tail-btn-size) !important;
 width: 38px !important; min-width: 38px !important;
 border-radius: 12px !important; aspect-ratio: auto !important; flex-shrink: 0 !important;
-font-size: 0.7rem !important; font-weight: 900 !important; line-height: 1 !important; padding: 0 6px !important; margin: 0 1px !important;
+font-size: 0.7rem !important; font-weight: 900 !important; line-height: 1 !important; padding: 0 6px !important; margin: 0 1.5px !important;
 border: none !important; cursor: pointer; user-select: none; -webkit-user-select: none; position: relative;
 box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.6), inset 0 -2px 4px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.1);
 transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1); -webkit-tap-highlight-color: transparent;
@@ -606,7 +606,7 @@ button, .num-btn, .action-grid-btn, .sphere-btn-base, .filter-btn, .wave-btn, .z
 </div>
 <div style="margin: 6px 0 4px 0; display: flex; align-items: center; gap: 6px; padding: 2px;">
 <span class="row-label kill-label" style="font-size: 1rem;">尾</span>
-<div style="display: flex; gap: 2px; flex-shrink: 0;">
+<div style="display: flex; gap: 3px; flex-shrink: 0;">
 <button class="tail-btn-large" id="tailBtn0" onclick="handleTailBetAction(0)">0</button>
 <button class="tail-btn-large" id="tailBtn1" onclick="handleTailBetAction(1)">1</button>
 <button class="tail-btn-large" id="tailBtn2" onclick="handleTailBetAction(2)">2</button>
@@ -621,7 +621,7 @@ button, .num-btn, .action-grid-btn, .sphere-btn-base, .filter-btn, .wave-btn, .z
 </div>
 <div style="margin: 4px 0 8px 0; display: flex; align-items: center; gap: 6px; padding: 2px;">
 <span class="row-label kill-label" style="font-size: 1rem;">属</span>
-<div style="display: flex; gap: 2px; flex-shrink: 0;">
+<div style="display: flex; gap: 3px; flex-shrink: 0;">
 <button class="tail-btn-large" id="attrBtnGold" onclick="handleAttrBetAction('gold')">金</button>
 <button class="tail-btn-large" id="attrBtnWood" onclick="handleAttrBetAction('wood')">木</button>
 <button class="tail-btn-large" id="attrBtnWater" onclick="handleAttrBetAction('water')">水</button>
@@ -674,7 +674,7 @@ button, .num-btn, .action-grid-btn, .sphere-btn-base, .filter-btn, .wave-btn, .z
 </div>
 <div style="font-size: 0.65rem; font-weight: 700; color: #4a5568; margin-bottom: 2px; display:flex; justify-content:space-between; align-items:center;">
 <span>操作记录</span>
-<span style="font-weight: 600; color: #718096;">V2.8</span>
+<span style="font-weight: 600; color: #718096;">V2.9</span>
 </div>
 <div class="log-container" id="logContainer"><div class="log-item" style="color:#718096; justify-content:center;">暂无记录</div></div>
 </div>
