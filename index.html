@@ -44,6 +44,7 @@
 --list-num-size: 1.6em; --hist-num-size: 1.5em;
 --tail-btn-size: 24px;
 --stats-nav-width: 44px;
+--stats-confirm-btn-width: 42px;
 }
 html, body { overflow-x: hidden; overflow-y: auto; width: 100%; max-width: 100vw; position: relative; height: 100%; touch-action: auto; -webkit-overflow-scrolling: touch; }
 body {
@@ -197,6 +198,16 @@ flex-shrink: 0; user-select: none; -webkit-user-select: none; padding: 0 2px; ma
 }
 .confirm-btn:active { transform: translateY(3px); box-shadow: 0 0 0 rgba(0,0,0,0.2); }
 
+/* 主界面来源输入框 */
+.source-input {
+width: 60px; padding: 0 6px; border-radius: 6px; border: 1px solid var(--input-border); background: var(--input-bg);
+font-size: 0.7rem; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+font-weight: 600; color: #2d3748; outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+height: 28px; line-height: 28px; box-sizing: border-box; flex-shrink: 0; text-align: center;
+}
+.source-input::placeholder { color: #9a9a9a; opacity: 1; font-weight: 700; font-size: 0.65rem; }
+.source-input:focus { border-color: var(--deep-blue-start); box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.2); }
+
 .sphere-btn-base {
 display: inline-flex !important; align-items: center !important; justify-content: center !important; text-align: center !important;
 width: var(--hist-num-size) !important; height: var(--hist-num-size) !important; min-width: var(--hist-num-size) !important;
@@ -323,7 +334,7 @@ min-height: 40px; width: 100%; box-sizing: border-box; overflow: hidden; display
 .history-delete-btn:active { opacity: 1; transform: scale(1.1); }
 .history-label {
 color: #4a5568; white-space: nowrap; font-weight: 800; line-height: 1; margin-top: 0; display: flex; align-items: center; justify-content: center;
-gap: 0px; padding: 0 2px; width: 3.2em; min-width: 3.2em; height: 1.8em; box-sizing: border-box; border-radius: 12px;
+gap: 0px; padding: 0 2px; width: auto; min-width: 3.2em; height: 1.8em; box-sizing: border-box; border-radius: 12px;
 background: radial-gradient(circle at 30% 30%, #f7fafc 0%, #cbd5e0 40%, #a0aec0 100%);
 box-shadow: 0 2px 4px rgba(0,0,0,0.2), inset 0 1px 2px rgba(255,255,255,0.5); cursor: pointer; transition: all 0.15s;
 color: #2d3e50; text-shadow: 0 1px 0 rgba(255,255,255,0.7); font-size: 0.75rem; text-align: center;
@@ -553,7 +564,7 @@ button, .num-btn, .action-grid-btn, .sphere-btn-base, .filter-btn, .wave-btn, .z
 }
 
 /* 统计栏样式 */
-.stats-buttons-row { display: flex; gap: 6px; align-items: center; width: 100%; flex-wrap: wrap; padding: 2px 0; }
+.stats-buttons-row { display: flex; gap: 6px; align-items: center; width: 100%; flex-wrap: wrap; padding: 2px 0; justify-content: center; }
 .stats-nav-btn {
 width: var(--stats-nav-width); height: var(--btn-size); border: 1px solid var(--btn-border); border-radius: 6px;
 background: linear-gradient(145deg, var(--btn-bg-start), var(--btn-bg-end)); color: var(--btn-text); font-size: 0.75rem; font-weight: 900;
@@ -571,7 +582,7 @@ display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
 display: flex; gap: 3px; flex-wrap: wrap; flex: 1; justify-content: flex-start; align-items: center;
 }
 .stats-modal-confirm-btn {
-width: calc(var(--btn-size) * 2 + var(--btn-gap)); height: var(--btn-size); border: none; border-radius: 6px;
+width: var(--stats-confirm-btn-width); height: var(--btn-size); border: none; border-radius: 6px;
 background: linear-gradient(145deg, var(--confirm-btn-bg), var(--confirm-btn-active)); color: white; font-size: 0.75rem;
 font-weight: 900; display: flex; align-items: center; justify-content: center; cursor: pointer;
 box-shadow: 0 3px 0 rgba(0,0,0,0.2), inset 0 1px 2px rgba(255,255,255,0.3); transition: all 0.1s;
@@ -579,13 +590,24 @@ flex-shrink: 0; user-select: none; -webkit-user-select: none; padding: 0 8px; ma
 }
 .stats-modal-confirm-btn:active { transform: translateY(3px); box-shadow: 0 0 0 rgba(0,0,0,0.2); }
 
-.stats-condition-btn {
-width: var(--btn-size); height: var(--btn-size); border-radius: 6px; display: flex; align-items: center; justify-content: center;
-cursor: pointer; transition: all 0.15s ease; white-space: nowrap; position: relative; user-select: none;
--webkit-user-select: none; flex-shrink: 0; font-size: 0.65rem !important; font-weight: 800 !important;
-border: 1px solid var(--btn-border); background: linear-gradient(145deg, var(--btn-bg-start), var(--btn-bg-end));
-color: var(--btn-text); box-shadow: var(--btn-shadow);
+.stats-source-input {
+width: 56px; padding: 0 4px; border-radius: 6px; border: 1px solid var(--input-border); background: var(--input-bg);
+font-size: 0.65rem; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+font-weight: 600; color: #2d3748; outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+height: var(--btn-size); line-height: var(--btn-size); box-sizing: border-box; flex-shrink: 0; text-align: center;
+margin-left: 4px;
 }
+.stats-source-input::placeholder { color: #9a9a9a; opacity: 1; font-weight: 700; font-size: 0.6rem; }
+.stats-source-input:focus { border-color: var(--deep-blue-start); box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.2); }
+
+.stats-condition-btn {
+width: var(--btn-size); height: var(--btn-size); border: 1px solid var(--btn-border); border-radius: 6px;
+display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.15s ease;
+white-space: nowrap; position: relative; background: linear-gradient(145deg, var(--btn-bg-start), var(--btn-bg-end));
+color: var(--btn-text); text-shadow: none; user-select: none; box-shadow: var(--btn-shadow);
+-webkit-user-select: none; flex-shrink: 0; font-size: 0.7rem !important; font-weight: 900 !important;
+}
+.stats-condition-btn:hover { filter: brightness(0.98); }
 .stats-condition-btn:active { box-shadow: var(--btn-active-shadow); transform: var(--btn-active-transform); background: var(--btn-active-bg); }
 .stats-condition-btn.is-depressed { box-shadow: var(--btn-active-shadow); transform: var(--btn-active-transform); background: var(--btn-active-bg); }
 
@@ -602,12 +624,13 @@ border-width: 1px; border-style: solid;
 .stats-condition-wave-btn.is-depressed { box-shadow: var(--btn-active-shadow); transform: var(--btn-active-transform); filter: brightness(0.85); }
 
 .stats-condition-wuxing-btn {
-width: var(--btn-size); height: var(--btn-size); border-radius: 6px; display: flex; align-items: center; justify-content: center;
-cursor: pointer; transition: all 0.15s ease; white-space: nowrap; position: relative; user-select: none;
--webkit-user-select: none; flex-shrink: 0; font-size: 0.65rem !important; font-weight: 800 !important;
-border: 1px solid var(--btn-border); background: linear-gradient(145deg, var(--btn-bg-start), var(--btn-bg-end));
-color: var(--btn-text); box-shadow: var(--btn-shadow);
+width: var(--btn-size); height: var(--btn-size); border: 1px solid var(--btn-border); border-radius: 6px;
+display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.15s ease;
+white-space: nowrap; position: relative; background: linear-gradient(145deg, var(--btn-bg-start), var(--btn-bg-end));
+color: var(--btn-text); text-shadow: none; user-select: none; box-shadow: var(--btn-shadow);
+-webkit-user-select: none; flex-shrink: 0; font-size: 0.7rem !important; font-weight: 900 !important;
 }
+.stats-condition-wuxing-btn:hover { filter: brightness(0.98); }
 .stats-condition-wuxing-btn:active { box-shadow: var(--btn-active-shadow); transform: var(--btn-active-transform); background: var(--btn-active-bg); }
 .stats-condition-wuxing-btn.is-depressed { box-shadow: var(--btn-active-shadow); transform: var(--btn-active-transform); background: var(--btn-active-bg); }
 
@@ -649,24 +672,27 @@ color: #2d3e50; text-shadow: 0 1px 0 rgba(255,255,255,0.7); font-size: 0.75rem; 
 display: inline-flex; align-items: center; justify-content: center; width: var(--hist-num-size); height: var(--hist-num-size);
 border-radius: 50%; font-size: 0.75rem; font-weight: 900; color: #ffffff; text-shadow: 0 1px 2px rgba(0,0,0,0.4);
 box-shadow: 0 2px 4px rgba(0,0,0,0.2), inset 0 1px 2px rgba(255,255,255,0.3);
-vertical-align: middle; line-height: 1; flex-shrink: 0;
+vertical-align: middle; line-height: 1; flex-shrink: 0; cursor: pointer; border: 2px solid transparent;
+transition: border-color 0.2s, box-shadow 0.2s;
 }
-.stats-val-item.flat { filter: grayscale(0.6) brightness(0.85); box-shadow: none; transform: scale(0.95); transition: all 0.2s ease; opacity: 0.5; }
+.stats-val-item.flat { filter: grayscale(0.6) brightness(0.85); box-shadow: none; transform: scale(0.95); transition: all 0.2s ease; opacity: 0.5; border: 2px solid transparent; }
+.stats-val-item.highlighted { border: 2px solid #FFD700 !important; box-shadow: 0 0 8px #FFD700, 0 2px 4px rgba(0,0,0,0.2), inset 0 1px 2px rgba(255,255,255,0.3) !important; }
 
 .stats-val-item-wide {
 display: inline-flex; align-items: center; justify-content: center; height: var(--hist-num-size);
 border-radius: 12px; font-size: 0.7rem; font-weight: 900; color: #ffffff; text-shadow: 0 1px 2px rgba(0,0,0,0.4);
 box-shadow: 0 2px 4px rgba(0,0,0,0.2), inset 0 1px 2px rgba(255,255,255,0.3);
-vertical-align: middle; line-height: 1; flex-shrink: 0; padding: 0 6px; white-space: nowrap;
+vertical-align: middle; line-height: 1; flex-shrink: 0; padding: 0 6px; white-space: nowrap; cursor: pointer;
+border: 2px solid transparent; transition: border-color 0.2s, box-shadow 0.2s;
 }
-.stats-val-item-wide.flat { filter: grayscale(0.6) brightness(0.85); box-shadow: none; transform: scale(0.95); transition: all 0.2s ease; opacity: 0.5; }
+.stats-val-item-wide.flat { filter: grayscale(0.6) brightness(0.85); box-shadow: none; transform: scale(0.95); transition: all 0.2s ease; opacity: 0.5; border: 2px solid transparent; }
+.stats-val-item-wide.highlighted { border: 2px solid #FFD700 !important; box-shadow: 0 0 8px #FFD700, 0 2px 4px rgba(0,0,0,0.2), inset 0 1px 2px rgba(255,255,255,0.3) !important; }
 
 .stats-modal-title {
 font-family: var(--font-art-mao); font-size: 1.8rem; text-align: center; margin-bottom: 12px; font-weight: bold; letter-spacing: 2px;
 color: var(--label-select-color); text-shadow: var(--label-select-glow);
 }
 
-/* 确认弹窗和危险操作弹窗需要比统计弹窗更高 */
 #confirmModal, #dangerConfirmModal { z-index: 10001 !important; }
 </style>
 </head>
@@ -694,6 +720,7 @@ color: var(--label-select-color); text-shadow: var(--label-select-glow);
 <div class="input-area-container">
 <div class="input-group" style="margin-bottom:0;">
 <input type="text" id="smartInput" class="smart-input" placeholder="点击输入号码/生肖" readonly onclick="showInputModal()">
+<input type="text" id="mainSourceInput" class="source-input" placeholder="来源" maxlength="4">
 <button class="confirm-btn" id="confirmBtn" onclick="processConfirm()">确定</button>
 </div>
 <div class="input-hint" style="text-align:left; margin-top:4px;">支持空格/逗号/点号分隔，按确定键点亮并清空</div>
@@ -813,7 +840,7 @@ color: var(--label-select-color); text-shadow: var(--label-select-glow);
 </div>
 <div style="font-size: 0.65rem; font-weight: 700; color: #4a5568; margin-bottom: 2px; display:flex; justify-content:space-between; align-items:center;">
 <span>操作记录</span>
-<span style="font-weight: 600; color: #718096;">V6.1</span>
+<span style="font-weight: 600; color: #718096;">V6.7</span>
 </div>
 <div class="log-container" id="logContainer"><div class="log-item" style="color:#718096; justify-content:center;">暂无记录</div></div>
 </div>
@@ -940,7 +967,7 @@ color: var(--label-select-color); text-shadow: var(--label-select-glow);
 </div>
 
 <div class="modal-overlay" id="statsModal">
-    <div class="modal-card" style="width: 380px; max-height: 85vh;">
+    <div class="modal-card" style="width: 400px; max-height: 85vh;">
         <div class="stats-modal-title" id="statsModalTitle">统计</div>
         <div class="stats-modal-content" id="statsModalContent">
             <div class="stats-modal-condition-row" id="statsModalConditionRow"></div>
@@ -1028,6 +1055,7 @@ let inputHistory = []; let tempStorageData = []; let isRandomRunning = false; le
 let currentHighlightedNumber = null; let numberSources = new Map();
 
 let statsHistory = { head: [], tail: [], wave: [], wuxing: [] };
+let statsHighlightedVal = { head: null, tail: null, wave: null, wuxing: null };
 
 const ZODIAC_MAP = { "鼠":0,"牛":1,"虎":2,"兔":3,"龙":4,"蛇":5,"马":6,"羊":7,"猴":8,"鸡":9,"狗":10,"猪":11,"免":3 };
 const freqColorPalette = [ "linear-gradient(145deg, #4169E1, #3151B1)", "linear-gradient(145deg, #D2691E, #A25018)", "linear-gradient(145deg, #00CED1, #009EA1)", "linear-gradient(145deg, #808000, #606000)", "linear-gradient(145deg, #8A2BE2, #6A1BB2)", "linear-gradient(145deg, #008B8B, #006B6B)", "linear-gradient(145deg, #A52A2A, #851A1A)", "linear-gradient(145deg, #00BFFF, #009FCF)", "linear-gradient(145deg, #CD5C5C, #3D1C1C)", "linear-gradient(145deg, #4B0082, #3B0062)" ];
@@ -1049,8 +1077,8 @@ function showToastNoBreak(msg, d=1500) { const t = document.getElementById('toas
 function showToastOneLine(html) { const t = document.getElementById('toast'); if (toastTimer) { clearTimeout(toastTimer); toastTimer = null; } t.classList.remove('toast-long'); t.style.width = 'auto'; t.innerHTML = `<div style="word-break:break-word; white-space:normal;">${html}</div>`; t.classList.add('show'); toastTimer = setTimeout(() => { t.classList.remove('show'); toastTimer = null; }, 1500); }
 function showToastWithNums(label, numbers, fixedWidth = false, singleLine = false) { const t = document.getElementById('toast'); if (toastTimer) { clearTimeout(toastTimer); toastTimer = null; } t.classList.remove('toast-long'); if (fixedWidth) { t.style.width = '8rem'; } else { t.style.width = 'auto'; } if(!numbers || !numbers.length) { t.innerHTML = `<span style="color:#1a202c;">${label}</span>`; } else { const sorted = [...new Set(numbers)].sort((a,b)=>a-b); const numsHtml = sorted.map(n => `<span style="color:${getNumColor(n)}; font-weight:600; white-space:nowrap;">${fmtNum(n)}</span>`).join('.'); const wrapStyle = singleLine ? 'white-space:nowrap;' : 'word-break:break-word;'; t.innerHTML = `<div style="text-align:center">${label}</div><div style="text-align:center; ${wrapStyle}">${numsHtml}</div>`; } t.classList.add('show'); toastTimer = setTimeout(() => { t.classList.remove('show'); toastTimer = null; }, 1500); }
 function addLog(type, msg) { const c=document.getElementById('logContainer'); if(c.children.length===1&&c.children[0].textContent.includes("暂无")) c.innerHTML=''; const time=`${new Date().getHours().toString().padStart(2,'0')}:${new Date().getMinutes().toString().padStart(2,'0')}`; const div=document.createElement('div'); div.className='log-item'; let cls='select'; if(type==='input') cls='input'; else if(type==='clear') cls='clear'; else if(type==='bet') cls='input'; else if(type==='undo') cls='undo'; else if(type==='redo') cls='redo'; else if(type==='random') cls='random'; div.innerHTML=`<span><span class="log-time">${time}</span><span class="log-action ${cls}">${msg}</span></span>`; c.prepend(div); while(c.children.length>20) c.removeChild(c.lastChild); }
-function save_data() { const data = { selected: Array.from(selectedNumbers), bets: betResults, undo: undoStack, redo: redoStack, history: inputHistory, tempData: tempStorageData, specialSet: Array.from(specialNumbersSet), currentHighlight: currentHighlightedNumber, numberSources: Array.from(numberSources.entries()), freqColorMap: Array.from(globalFreqColorMap.entries()), statsHistory: statsHistory }; try { localStorage.setItem('lucky666_data_v61', JSON.stringify(data)); } catch(e) {} }
-function load_data() { const raw = localStorage.getItem('lucky666_data_v61'); if(!raw) return; try { const d=JSON.parse(raw); selectedNumbers=new Set(d.selected||[]); betResults=d.bets||{}; if(Array.isArray(d.undo)) undoStack=d.undo; if(Array.isArray(d.redo)) redoStack=d.redo; inputHistory=d.history||[]; cleanupInvalidHistory(); specialNumbersSet=new Set(d.specialSet||[]); tempStorageData=d.tempData||[]; currentHighlightedNumber=d.currentHighlight??null; statsHistory=d.statsHistory||{head:[],tail:[],wave:[],wuxing:[]}; if(!statsHistory.head) statsHistory.head=[]; if(!statsHistory.tail) statsHistory.tail=[]; if(!statsHistory.wave) statsHistory.wave=[]; if(!statsHistory.wuxing) statsHistory.wuxing=[]; ['head','tail','wave','wuxing'].forEach(t=>{statsHistory[t].forEach(it=>{if(!it.inactiveVals)it.inactiveVals=[];});}); try { if(d.numberSources) numberSources = new Map(d.numberSources.map(([k,v])=>[k,new Set(v)])); } catch(e) { numberSources = new Map(); } try { if(d.freqColorMap) globalFreqColorMap = new Map(d.freqColorMap); } catch(e) { globalFreqColorMap = new Map(); } syncHistoryActiveState(); rebuildNumberSources(); renderTempStorage(); updateTempCountBadge(); updateTempStoreBtn(); updateTempRestoreBtn(); updateTempClearBtn(); updateClearResultBtn(); } catch(e) { betResults={}; undoStack=[]; redoStack=[]; inputHistory=[]; tempStorageData=[]; specialNumbersSet=new Set(); currentHighlightedNumber=null; numberSources=new Map(); globalFreqColorMap=new Map(); statsHistory={head:[],tail:[],wave:[],wuxing:[]}; } }
+function save_data() { const data = { selected: Array.from(selectedNumbers), bets: betResults, undo: undoStack, redo: redoStack, history: inputHistory, tempData: tempStorageData, specialSet: Array.from(specialNumbersSet), currentHighlight: currentHighlightedNumber, numberSources: Array.from(numberSources.entries()), freqColorMap: Array.from(globalFreqColorMap.entries()), statsHistory: statsHistory, statsHighlightedVal: statsHighlightedVal }; try { localStorage.setItem('lucky666_data_v67', JSON.stringify(data)); } catch(e) {} }
+function load_data() { const raw = localStorage.getItem('lucky666_data_v67'); if(!raw) return; try { const d=JSON.parse(raw); selectedNumbers=new Set(d.selected||[]); betResults=d.bets||{}; if(Array.isArray(d.undo)) undoStack=d.undo; if(Array.isArray(d.redo)) redoStack=d.redo; inputHistory=d.history||[]; cleanupInvalidHistory(); specialNumbersSet=new Set(d.specialSet||[]); tempStorageData=d.tempData||[]; currentHighlightedNumber=d.currentHighlight??null; statsHistory=d.statsHistory||{head:[],tail:[],wave:[],wuxing:[]}; statsHighlightedVal=d.statsHighlightedVal||{head:null,tail:null,wave:null,wuxing:null}; if(!statsHistory.head) statsHistory.head=[]; if(!statsHistory.tail) statsHistory.tail=[]; if(!statsHistory.wave) statsHistory.wave=[]; if(!statsHistory.wuxing) statsHistory.wuxing=[]; ['head','tail','wave','wuxing'].forEach(t=>{statsHistory[t].forEach(it=>{if(!it.inactiveVals)it.inactiveVals=[];if(!it.source)it.source='';});}); try { if(d.numberSources) numberSources = new Map(d.numberSources.map(([k,v])=>[k,new Set(v)])); } catch(e) { numberSources = new Map(); } try { if(d.freqColorMap) globalFreqColorMap = new Map(d.freqColorMap); } catch(e) { globalFreqColorMap = new Map(); } syncHistoryActiveState(); rebuildNumberSources(); renderTempStorage(); updateTempCountBadge(); updateTempStoreBtn(); updateTempRestoreBtn(); updateTempClearBtn(); updateClearResultBtn(); } catch(e) { betResults={}; undoStack=[]; redoStack=[]; inputHistory=[]; tempStorageData=[]; specialNumbersSet=new Set(); currentHighlightedNumber=null; numberSources=new Map(); globalFreqColorMap=new Map(); statsHistory={head:[],tail:[],wave:[],wuxing:[]}; statsHighlightedVal={head:null,tail:null,wave:null,wuxing:null}; } }
 function restoreSpecialEffects() { specialNumbersSet.forEach(n=>{ const b=document.querySelector(`.num-btn[data-num="${n}"]`); if(b) b.classList.add('is-special'); }); }
 function syncSpecialWithSelected() { const ns=new Set(); specialNumbersSet.forEach(n=>{ if(selectedNumbers.has(n)) ns.add(n); else document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.remove('is-special'); }); specialNumbersSet=ns; save_data(); }
 function getGroupNumbers(type, val) {
@@ -1150,13 +1178,15 @@ function calculateNumberFrequencies(){ const f={}; inputHistory.forEach(it=>{ if
 function getFreqStyle(fr){ if(fr===1) return { bg:'radial-gradient(circle at 30% 30%, #f7fafc 0%, #cbd5e0 40%, #a0aec0 100%)', text:'#4a5568', textClass:'light-text' }; if(globalFreqColorMap.has(fr)) return { bg:globalFreqColorMap.get(fr), text:'#fff', textClass:'dark-text' }; const bg=freqColorPalette[(fr-2)%freqColorPalette.length]; globalFreqColorMap.set(fr,bg); return { bg, text:'#fff', textClass:'dark-text' }; }
 function toggleNumbersByFrequency(fr){ const fm=calculateNumberFrequencies(), tgt=[]; for(let i=1;i<=49;i++) if((fm[i]||0)===fr) tgt.push(i); if(!tgt.length){ return; } const any=tgt.some(n=>selectedNumbers.has(n)); const lbl=`重复${fr}次的号码`; if(any){ SoundManager.playMarioCoinTick(); const rm = tgt.filter(n=>selectedNumbers.has(n)); const snapshot = captureFullSnapshot(tgt); recordAction('freq_batch',lbl,tgt,false,0,{...snapshot, wasAdding:false}); rm.forEach(n=>{ selectedNumbers.delete(n); delete betResults[n]; bettingNumbers.delete(n); syncRemoveSpecial(n); if(currentHighlightedNumber===n) currentHighlightedNumber=null; document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.remove('is-active'); }); syncGlobalStateToHistory(rm,false); } else { playSound('shutter'); const add = tgt.filter(n=>!selectedNumbers.has(n)); const snapshot = captureFullSnapshot(tgt); recordAction('freq_batch',lbl,tgt,true,0,{...snapshot, wasAdding:true}); add.forEach(n=>{ selectedNumbers.add(n); if(currentHighlightedNumber===n) currentHighlightedNumber=null; document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.add('is-active'); }); syncGlobalStateToHistory(add,true); } syncSpecialWithSelected(); updateAllStates(); setTimeout(updateFrequencyButtonsPressedState,50); }
 function renderFrequencyButtons(){ const c=document.getElementById('sphereBtnContainer'); c.innerHTML=''; const fm=calculateNumberFrequencies(); if(!Object.keys(fm).length) return; const fc={}; Object.values(fm).forEach(v=>fc[v]=(fc[v]||0)+1); Object.keys(fc).sort((a,b)=>parseInt(a)-parseInt(b)).forEach(k=>{ const fr=parseInt(k); if(fc[fr]>0){ const b=document.createElement('button'); b.className='sphere-btn-base count-btn'; b.textContent=fc[fr]; const st=getFreqStyle(fr); b.style.background=st.bg; b.style.color=st.text; if(st.textClass) b.classList.add(st.textClass); b.setAttribute('data-freq',fr); b.title=`重复${fr}次的号码共${fc[fr]}个`; b.classList.toggle('is-pressed',!Object.entries(fm).filter(([n,f])=>f===fr).some(([n])=>selectedNumbers.has(parseInt(n)))); b.onclick=async(e)=>{ e.stopPropagation(); toggleNumbersByFrequency(fr); }; c.appendChild(b); } }); }
-function renderHistoryLog(){ const box=document.getElementById('historyLogBox'); if(!inputHistory.length){ box.style.display='none'; return; } box.style.display='flex'; box.innerHTML=''; inputHistory.forEach((it,idx)=>{ if (!it || !Array.isArray(it.sortedNumbers) || it.sortedNumbers.length === 0) return; const row=document.createElement('div'); row.className='history-row'; const del=document.createElement('span'); del.className='history-delete-btn'; del.innerHTML='×'; del.onclick=()=>removeHistoryItem(idx); const lbl=document.createElement('span'); lbl.className='history-label'; const pure=it.isPureZodiac, cnt=pure?(it.labelPrefix.match(/^(\d+)肖/)?.[1]||it.numbers.length):it.numbers.length, unit=pure?'肖':'码'; if(it.isActive){ lbl.innerHTML=`<span class="label-number">${cnt}</span><span class="label-text">${unit}</span>`; lbl.classList.remove('all-lit'); } else { lbl.innerHTML='<span class="label-text">点亮</span>'; lbl.classList.add('all-lit'); } lbl.onclick=async ()=>{ const currentIt = inputHistory.find(h => h.id === it.id); if (!currentIt) { updateAllStates(); return; } const nums = currentIt.sortedNumbers; if (!nums || nums.length === 0) { cleanupInvalidHistory(); updateAllStates(); return; } const snapshot = captureFullSnapshot(nums); if(!currentIt.isActive){ await playSound('shutter'); currentIt.isActive=true; nums.forEach(n=>{ addNumberSource(n,currentIt.id); selectedNumbers.add(n); }); recordAction('history_label_on',currentIt.labelPrefix,nums,true,0,{...snapshot, historyId:currentIt.id, labelPrefix:currentIt.labelPrefix, snapshotNumbers:[...nums]}); addLog("select",`亮历史记录${currentIt.labelPrefix} ${formatNumbersForDisplay(nums)}`); } else { await SoundManager.playMarioCoinTick(); currentIt.isActive=false; nums.forEach(n=>{ removeNumberSource(n,currentIt.id); if(!numberSources.has(n)){ selectedNumbers.delete(n); syncRemoveSpecial(n); } }); recordAction('history_label_off',currentIt.labelPrefix,nums,false,0,{...snapshot, historyId:currentIt.id, labelPrefix:currentIt.labelPrefix, snapshotNumbers:[...nums]}); addLog("select",`灭历史记录${currentIt.labelPrefix} ${formatNumbersForDisplay(nums)}`); } updateAllStates(); }; const nd=document.createElement('div'); nd.className='history-nums'; it.sortedNumbers.forEach(n=>{ const sp=document.createElement('span'); const fr=calculateNumberFrequencies()[n]||0, st=getFreqStyle(fr||1); sp.className='history-num-item'; if(!(it.isActive&&selectedNumbers.has(n))) sp.classList.add('flat'); if(currentHighlightedNumber===n&&it.isActive&&selectedNumbers.has(n)) sp.classList.add('highlighted'); sp.style.background=st.bg; sp.style.color=st.text; sp.style.textShadow=st.textClass==='light-text'?'0 1px 0 rgba(255,255,255,0.5)':'0 1px 2px rgba(0,0,0,0.4)'; sp.textContent=fmtNum(n); sp.title=`出现 ${fr} 次`; sp.onclick=async(e)=>{ e.stopPropagation(); await playSound('click'); const prev = currentHighlightedNumber; if(currentHighlightedNumber===n){ currentHighlightedNumber=null; } else { currentHighlightedNumber=n; } addLog("system", currentHighlightedNumber ? `高亮${fmtNum(n)}` : `取消高亮${fmtNum(prev)}`); renderHistoryLog(); save_data(); }; nd.appendChild(sp); }); row.appendChild(del); row.appendChild(lbl); row.appendChild(nd); box.appendChild(row); }); }
+function renderHistoryLog(){ const box=document.getElementById('historyLogBox'); if(!inputHistory.length){ box.style.display='none'; return; } box.style.display='flex'; box.innerHTML=''; inputHistory.forEach((it,idx)=>{ if (!it || !Array.isArray(it.sortedNumbers) || it.sortedNumbers.length === 0) return; const row=document.createElement('div'); row.className='history-row'; const del=document.createElement('span'); del.className='history-delete-btn'; del.innerHTML='×'; del.onclick=()=>removeHistoryItem(idx); const lbl=document.createElement('span'); lbl.className='history-label'; if(it.isActive){ lbl.innerHTML=`<span class="label-number">${it.labelPrefix}</span>`; lbl.classList.remove('all-lit'); } else { lbl.innerHTML='<span class="label-text">点亮</span>'; lbl.classList.add('all-lit'); } lbl.onclick=async ()=>{ const currentIt = inputHistory.find(h => h.id === it.id); if (!currentIt) { updateAllStates(); return; } const nums = currentIt.sortedNumbers; if (!nums || nums.length === 0) { cleanupInvalidHistory(); updateAllStates(); return; } const snapshot = captureFullSnapshot(nums); if(!currentIt.isActive){ await playSound('shutter'); currentIt.isActive=true; nums.forEach(n=>{ addNumberSource(n,currentIt.id); selectedNumbers.add(n); }); recordAction('history_label_on',currentIt.labelPrefix,nums,true,0,{...snapshot, historyId:currentIt.id, labelPrefix:currentIt.labelPrefix, snapshotNumbers:[...nums]}); addLog("select",`亮历史记录${currentIt.labelPrefix} ${formatNumbersForDisplay(nums)}`); } else { await SoundManager.playMarioCoinTick(); currentIt.isActive=false; nums.forEach(n=>{ removeNumberSource(n,currentIt.id); if(!numberSources.has(n)){ selectedNumbers.delete(n); syncRemoveSpecial(n); } }); recordAction('history_label_off',currentIt.labelPrefix,nums,false,0,{...snapshot, historyId:currentIt.id, labelPrefix:currentIt.labelPrefix, snapshotNumbers:[...nums]}); addLog("select",`灭历史记录${currentIt.labelPrefix} ${formatNumbersForDisplay(nums)}`); } updateAllStates(); }; const nd=document.createElement('div'); nd.className='history-nums'; it.sortedNumbers.forEach(n=>{ const sp=document.createElement('span'); const fr=calculateNumberFrequencies()[n]||0, st=getFreqStyle(fr||1); sp.className='history-num-item'; if(!(it.isActive&&selectedNumbers.has(n))) sp.classList.add('flat'); if(currentHighlightedNumber===n&&it.isActive&&selectedNumbers.has(n)) sp.classList.add('highlighted'); sp.style.background=st.bg; sp.style.color=st.text; sp.style.textShadow=st.textClass==='light-text'?'0 1px 0 rgba(255,255,255,0.5)':'0 1px 2px rgba(0,0,0,0.4)'; sp.textContent=fmtNum(n); sp.title=`出现 ${fr} 次`; sp.onclick=async(e)=>{ e.stopPropagation(); await playSound('click'); const prev = currentHighlightedNumber; if(currentHighlightedNumber===n){ currentHighlightedNumber=null; } else { currentHighlightedNumber=n; } addLog("system", currentHighlightedNumber ? `高亮${fmtNum(n)}` : `取消高亮${fmtNum(prev)}`); renderHistoryLog(); save_data(); }; nd.appendChild(sp); }); row.appendChild(del); row.appendChild(lbl); row.appendChild(nd); box.appendChild(row); }); }
 async function removeHistoryItem(idx){ await playSound('shutter'); const it=inputHistory[idx]; if(!it) return; const snapshot = captureFullSnapshot(it.sortedNumbers || []); recordAction('history_delete','删除历史',[],false,0,{index:idx,deletedItem:it,...snapshot}); if(it.isActive && it.numbers) it.numbers.forEach(n=>{ removeNumberSource(n,it.id); if(!numberSources.has(n)){ selectedNumbers.delete(n); syncRemoveSpecial(n); } }); inputHistory.splice(idx,1); updateAllStates(); addLog("input",`删历史${(it.numbers||[]).length}码`); save_data(); }
 function updateResultText(){ const d=document.getElementById('resultDisplay'), badge=document.getElementById('countBadge'), cnt=selectedNumbers.size; badge.textContent=cnt+'个'; if(!cnt){ d.innerHTML=""; d.style.color="#9a9a9a"; return; } d.style.color="#2d3748"; const all=Array.from(selectedNumbers).sort((a,b)=>a-b), normal=all.filter(n=>!specialNumbersSet.has(n)), special=all.filter(n=>specialNumbersSet.has(n)); const sp=(n)=>{ const c=getColorClass(n), bought=betResults.hasOwnProperty(n), bet=bettingNumbers.has(n); let cls='list-num-base'; if(bought) cls+=` result-num-sold ${c.replace('text-','bg-')}-solid`; else if(bet) cls+=` result-num-betting ${c}`; else cls+=` result-num-selected ${c}`; return `<span class="${cls}" onclick="handleResultNumClick(${n})" title="${bought?'已购买':bet?'待购买':'点击加入待买'}">${fmtNum(n)}</span>`; }; let h=''; const nOdd=normal.filter(n=>n%2), nEven=normal.filter(n=>n%2===0); if(nOdd.length) h+=`<div class="result-column"><span class="result-col-label">单号</span> ${nOdd.map(sp).join('')}</div>`; if(nEven.length) h+=`<div class="result-column"><span class="result-col-label">双号</span> ${nEven.map(sp).join('')}</div>`; const specialAll = special.sort((a,b)=>a-b); if(specialAll.length) h+=`<div class="result-column"><span class="result-col-label">特码</span> ${specialAll.map(sp).join('')}</div>`; d.innerHTML=h; }
 function renderGrid(){ const g=document.getElementById('grid'); g.innerHTML=''; zodiacs.forEach((z,i)=>{ const b=document.createElement('div'); b.className='zodiac-btn'; b.setAttribute('data-color',zodiacColors[i%zodiacColors.length]); b.textContent=z; b.dataset.zodiacIndex=i; b.onclick=()=>{ handleZodiacSelect(i,z); }; g.appendChild(b); }); customGridRows.forEach(r=>r.forEach(n=>{ if(n===null){ const s=document.createElement('div'); s.style.visibility='hidden'; g.appendChild(s); } else { const b=document.createElement('button'); b.className=`num-btn ${getColorClass(n).replace('text-','bg-')}`; b.innerHTML=`<span class="num-val">${fmtNum(n)}</span><span class="num-wx">${wuxingChars[numToWuxing[n]]||''}</span>`; b.dataset.num=n; b.onclick=()=>{ toggleNumber(n); }; g.appendChild(b); } })); const ub=document.createElement('button'); ub.className='action-grid-btn bg-action undo-btn-grid'; ub.innerHTML='<span class="btn-text">撤销</span>'; ub.onclick=performUndo; g.appendChild(ub); const rb=document.createElement('button'); rb.className='action-grid-btn bg-reset reset-btn-grid'; rb.innerHTML='<span class="btn-text">全部重置</span>'; rb.onclick=handleReset; g.appendChild(rb); const db=document.createElement('button'); db.className='action-grid-btn bg-action redo-btn-grid'; db.innerHTML='<span class="btn-text">恢复</span>'; db.onclick=performRedo; g.appendChild(db); restoreSpecialEffects(); updateAllStates(); }
 async function toggleNumber(n){ const specialState = specialNumbersSet.has(n); if(specialNumbersSet.has(n)){ recordAction('special_remove',fmtNum(n),[n],false,0,{specialState}); specialNumbersSet.delete(n); document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.remove('is-special'); addLog("select",`取消特码 ${fmtNum(n)}`); showToastWithNums(`取消特码`, [n], true); updateAllStates(); return; } if(!selectedNumbers.has(n)){ await playSound('pop'); selectedNumbers.add(n); document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.add('is-active'); recordAction('manual_select',fmtNum(n),[n],true,0,{number:n, wasAdded:true, specialState}); addLog("select",`点亮 ${fmtNum(n)}`); showToastWithNums(`点亮`, [n], true); } else { await playSound('slip'); const wasBetting = bettingNumbers.has(n); const hadBet = betResults.hasOwnProperty(n); selectedNumbers.delete(n); if(wasBetting) bettingNumbers.delete(n); if(hadBet) delete betResults[n]; document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.remove('is-active'); recordAction('manual_deselect',fmtNum(n),[n],false,0,{number:n, wasAdded:false, specialState, bettingState: wasBetting, betState: hadBet ? betResults[n] : undefined}); syncRemoveSpecial(n); if(wasBetting||hadBet){ updateBetActionArea(); updateBettingCountBadge(); renderBetResults(); updateBatchSelectButton(); updateTailButtons(); updateAttrButtons(); updateHeadButtons(); updateClearBettingButtonState(); updateAmountButtonState(); updateClearResultBtn(); updateCopyButtonsState(); } addLog("select",`熄灭 ${fmtNum(n)}`); showToastWithNums(`熄灭`, [n], true); } syncSpecialWithSelected(); updateAllStates(); }
-async function processConfirm(){ const inp=document.getElementById('smartInput'), txt=inp.value.trim(); if(!txt){ await playSound('slip'); showToast("请输入号码或生肖"); return; } await playSound('pop'); const prevSelected = [...selectedNumbers], prevSpecial = [...specialNumbersSet], prevBetting = [...bettingNumbers], prevBetResults = {...betResults}; const prevHistory = inputHistory.map(h=>({...h, numbers:[...(h.numbers||[])], sortedNumbers:[...(h.sortedNumbers||[])]})); processInputAndAddToHistory(txt); const nextSelected = [...selectedNumbers], nextSpecial = [...specialNumbersSet], nextBetting = [...bettingNumbers], nextBetResults = {...betResults}; const nextHistory = inputHistory.map(h=>({...h, numbers:[...(h.numbers||[])], sortedNumbers:[...(h.sortedNumbers||[])]})); recordAction('input_text','输入确认',[],false,0,{prevText: txt, nextText: '', prevNumbers: prevSelected, nextNumbers: nextSelected, prevSpecial, nextSpecial, prevBetting, nextBetting, prevBetResults, nextBetResults, prevHistory, nextHistory}); inp.value=''; updateZodiacButtonsFromInput(''); }
-function processInputAndAddToHistory(txt){ const dm=txt.match(/\d+/g); const valid=[], orig=[]; let dc=0; if(dm) dm.forEach(m=>{ let n=parseInt(m); if(n>=1&&n<=49){ if(!valid.includes(n)) valid.push(n); orig.push(n); dc++; } }); let zc=0; const found=new Set(); for(let c of txt){ if(ZODIAC_MAP.hasOwnProperty(c)){ if(!found.has(c)){ found.add(c); zc++; } getGroupNumbers('zodiac',ZODIAC_MAP[c].toString()).forEach(n=>{ if(!valid.includes(n)){ valid.push(n); orig.push(n); } }); } } if(valid.length){ const add=[]; const already=[]; const gid=Date.now(); valid.forEach(n=>{ addNumberSource(n,gid); if(selectedNumbers.has(n)) already.push(n); else { selectedNumbers.add(n); add.push(n); document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.add('is-active'); } }); const sorted=[...valid].sort((a,b)=>a-b); const pure=dc===0&&zc>0; const hasAny=sorted.some(n=>selectedNumbers.has(n)); if(add.length===0&&selectedNumbers.size===49&&pure&&zc===12){ showToast("已全选"); return; } inputHistory.push({id:gid,rawText:txt,numbers:orig,sortedNumbers:sorted,labelPrefix:pure?`${zc}肖`:`${valid.length}码`,isPureZodiac:pure,isActive:hasAny}); if(add.length){ updateAllStates(); addLog("input",`输入 ${formatNumbersForDisplay(add)}`); } else { updateAllStates(); } } else { showToast("无有效号码（1-49）或生肖"); } }
+async function processConfirm(){ const inp=document.getElementById('smartInput'), txt=inp.value.trim(); if(!txt){ await playSound('slip'); showToast("请输入号码或生肖"); return; }
+await playSound('pop'); const sourceInput = document.getElementById('mainSourceInput'); const sourceText = sourceInput ? sourceInput.value.trim() : '';
+const prevSelected = [...selectedNumbers], prevSpecial = [...specialNumbersSet], prevBetting = [...bettingNumbers], prevBetResults = {...betResults}; const prevHistory = inputHistory.map(h=>({...h, numbers:[...(h.numbers||[])], sortedNumbers:[...(h.sortedNumbers||[])]})); processInputAndAddToHistory(txt, sourceText); const nextSelected = [...selectedNumbers], nextSpecial = [...specialNumbersSet], nextBetting = [...bettingNumbers], nextBetResults = {...betResults}; const nextHistory = inputHistory.map(h=>({...h, numbers:[...(h.numbers||[])], sortedNumbers:[...(h.sortedNumbers||[])]})); recordAction('input_text','输入确认',[],false,0,{prevText: txt, nextText: '', prevNumbers: prevSelected, nextNumbers: nextSelected, prevSpecial, nextSpecial, prevBetting, nextBetting, prevBetResults, nextBetResults, prevHistory, nextHistory}); inp.value=''; if(sourceInput) sourceInput.value=''; updateZodiacButtonsFromInput(''); }
+function processInputAndAddToHistory(txt, sourceText=''){ const dm=txt.match(/\d+/g); const valid=[], orig=[]; let dc=0; if(dm) dm.forEach(m=>{ let n=parseInt(m); if(n>=1&&n<=49){ if(!valid.includes(n)) valid.push(n); orig.push(n); dc++; } }); let zc=0; const found=new Set(); for(let c of txt){ if(ZODIAC_MAP.hasOwnProperty(c)){ if(!found.has(c)){ found.add(c); zc++; } getGroupNumbers('zodiac',ZODIAC_MAP[c].toString()).forEach(n=>{ if(!valid.includes(n)){ valid.push(n); orig.push(n); } }); } } if(valid.length){ const add=[]; const already=[]; const gid=Date.now(); valid.forEach(n=>{ addNumberSource(n,gid); if(selectedNumbers.has(n)) already.push(n); else { selectedNumbers.add(n); add.push(n); document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.add('is-active'); } }); const sorted=[...valid].sort((a,b)=>a-b); const pure=dc===0&&zc>0; const hasAny=sorted.some(n=>selectedNumbers.has(n)); if(add.length===0&&selectedNumbers.size===49&&pure&&zc===12){ showToast("已全选"); return; } const labelBase = pure?`${zc}肖`:`${valid.length}码`; const labelPrefix = sourceText ? sourceText + labelBase : labelBase; inputHistory.push({id:gid,rawText:txt,numbers:orig,sortedNumbers:sorted,labelPrefix:labelPrefix,isPureZodiac:pure,isActive:hasAny}); if(add.length){ updateAllStates(); addLog("input",`输入 ${formatNumbersForDisplay(add)}`); } else { updateAllStates(); } } else { showToast("无有效号码（1-49）或生肖"); } }
 function renderTempStorage(){ const c=document.getElementById('tempStorageContent'); if(!tempStorageData.length){ c.innerHTML=''; return; } const s=[...tempStorageData].sort((a,b)=>a.num-b.num), odd=s.filter(i=>i.num%2), even=s.filter(i=>i.num%2===0); const sp=(n)=>`<span class="temp-num-item ${redGroup.has(n)?'text-red':blueGroup.has(n)?'text-blue':'text-green'}">${fmtNum(n)}</span>`; let h=''; if(odd.length) h+=`<div class="temp-storage-row"><span class="temp-storage-label">单号</span> ${odd.map(i=>sp(i.num)).join('')}</div>`; if(even.length) h+=`<div class="temp-storage-row"><span class="temp-storage-label">双号</span> ${even.map(i=>sp(i.num)).join('')}</div>`; c.innerHTML=h; }
 function updateTempCountBadge(){ document.getElementById('tempCountBadge').textContent=tempStorageData.length+'个'; }
 function updateTempStoreBtn(){ const b=document.getElementById('tempStoreBtn'), arr=Array.from(selectedNumbers); if(!arr.length){ b.className='temp-action-btn grey'; b.textContent='无号码'; b.style.opacity='0.5'; return; } const ex=new Set(tempStorageData.map(i=>i.num)), add=arr.filter(n=>!ex.has(n)); if(!add.length){ b.className='temp-action-btn grey'; b.textContent='已暂存'; b.style.opacity='0.5'; } else { b.className='temp-action-btn green'; b.textContent=tempStorageData.length?'继续暂存':'暂存'; b.style.opacity=''; } }
@@ -1169,14 +1199,14 @@ async function copySelectedNumbers(){ if(!selectedNumbers.size){ showToast("暂�
 function getCopyText(prefix){ const keys=Object.keys(betResults).map(Number); const grp={}; keys.forEach(n=>{ const a=betResults[n]; if(!grp[a]) grp[a]=[]; grp[a].push(n); }); let plain=[]; Object.keys(grp).sort((a,b)=>parseInt(a)-parseInt(b)).forEach(a=>{ const nums=grp[a].sort((a,b)=>a-b); if(nums.length===1) plain.push(`${fmtNum(nums[0])}买${a}块`); else plain.push(`${nums.map(fmtNum).join('.')}各${a}块`); }); return prefix+' '+plain.join(', '); }
 async function doCopyBetResult(prefix){ const txt=getCopyText(prefix); try{ await navigator.clipboard.writeText(txt); showToastNoBreak("✅ 已复制买号结果"); addLog("system","复制结果"); } catch(e){ const ta=document.createElement('textarea'); ta.value=txt; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); showToastNoBreak("✅ 已复制买号结果"); addLog("system","复制结果(降级)"); } }
 async function copyBetResults(){ if(selectedNumbers.size&&Array.from(selectedNumbers).some(n=>betResults[n]===undefined)){ showToast("还有号码没有购买，不能复制"); return; } const keys=Object.keys(betResults).map(Number); if(!keys.length){ showToast("暂无买号结果"); return; } await playSound('click'); const m=document.getElementById('copyChoiceModal'); m.style.display='flex'; const close=()=>m.style.display='none'; document.getElementById('modalCopyNewAo').onclick=async()=>{ await SoundManager.playMarioPowerupReveal(); close(); await doCopyBetResult('新奥'); }; document.getElementById('modalCopyOldAo').onclick=async()=>{ await SoundManager.playMarioPowerupReveal(); close(); await doCopyBetResult('老奥'); }; document.getElementById('modalCopyChoiceCancel').onclick=async()=>{ await playSound('click'); close(); }; m.onclick=async(e)=>{ if(e.target===m){ await playSound('click'); close(); } }; }
-async function handleReset(){ await playSound('click'); const m=document.getElementById('resetModal'); m.style.display='flex'; const close=()=>m.style.display='none'; document.getElementById('modalResetConfirm').onclick=async ()=>{ await playSound('slip'); selectedNumbers.clear(); bettingNumbers.clear(); betResults={}; undoStack=[]; redoStack=[]; inputHistory=[]; tempStorageData=[]; specialNumbersSet.clear(); currentHighlightedNumber=null; numberSources.clear(); globalFreqColorMap.clear(); statsHistory={head:[],tail:[],wave:[],wuxing:[]}; document.getElementById('smartInput').value=''; updateZodiacButtonsFromInput(''); document.querySelectorAll('.num-btn.is-special, .num-btn.is-active').forEach(b=>b.classList.remove('is-special','is-active')); renderTempStorage(); updateTempCountBadge(); updateTempStoreBtn(); updateTempRestoreBtn(); updateTempClearBtn(); document.getElementById('logContainer').innerHTML='<div class="log-item" style="color:#718096; justify-content:center;">暂无记录</div>'; save_data(); renderBetResults(); updateAllStates(); showToast("已重置所有数据"); addLog("clear","重置"); close(); }; document.getElementById('modalResetCancel').onclick=async()=>{await playSound('click');close();addLog("system","取消重置");}; m.onclick=async(e)=>{if(e.target===m){await playSound('click');close();}}; }
+async function handleReset(){ await playSound('click'); const m=document.getElementById('resetModal'); m.style.display='flex'; const close=()=>m.style.display='none'; document.getElementById('modalResetConfirm').onclick=async ()=>{ await playSound('slip'); selectedNumbers.clear(); bettingNumbers.clear(); betResults={}; undoStack=[]; redoStack=[]; inputHistory=[]; tempStorageData=[]; specialNumbersSet.clear(); currentHighlightedNumber=null; numberSources.clear(); globalFreqColorMap.clear(); statsHistory={head:[],tail:[],wave:[],wuxing:[]}; statsHighlightedVal={head:null,tail:null,wave:null,wuxing:null}; document.getElementById('smartInput').value=''; updateZodiacButtonsFromInput(''); document.querySelectorAll('.num-btn.is-special, .num-btn.is-active').forEach(b=>b.classList.remove('is-special','is-active')); renderTempStorage(); updateTempCountBadge(); updateTempStoreBtn(); updateTempRestoreBtn(); updateTempClearBtn(); document.getElementById('logContainer').innerHTML='<div class="log-item" style="color:#718096; justify-content:center;">暂无记录</div>'; save_data(); renderBetResults(); updateAllStates(); showToast("已重置所有数据"); addLog("clear","重置"); close(); }; document.getElementById('modalResetCancel').onclick=async()=>{await playSound('click');close();addLog("system","取消重置");}; m.onclick=async(e)=>{if(e.target===m){await playSound('click');close();}}; }
 async function handleSelectAll(){ if(hasFullSelection() && selectedNumbers.size===49){ showToast("已全选"); return; } await playSound('pop'); const allNums = []; for(let i=1;i<=49;i++) allNums.push(i); const add = allNums.filter(n => !selectedNumbers.has(n)); if(!add.length){ return; } const prevHistory = inputHistory.map(h=>({...h, numbers:[...(h.numbers||[])], sortedNumbers:[...(h.sortedNumbers||[])]})); const snapshot = captureFullSnapshot(allNums); const gid=Date.now(); add.forEach(n=>{ addNumberSource(n,gid); selectedNumbers.add(n); document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.add('is-active'); }); if(!hasFullSelection()){ const sorted=[...allNums].sort((a,b)=>a-b); inputHistory.push({id:gid,rawText:'全选',numbers:[...allNums],sortedNumbers:sorted,labelPrefix:'12肖',isPureZodiac:true,isActive:true}); } recordAction('batch_input','全选',add,true,0,{rawText:'全选',prevHistory,nextHistory:inputHistory.map(h=>({...h,numbers:[...(h.numbers||[])],sortedNumbers:[...(h.sortedNumbers||[])]})),...snapshot}); updateAllStates(); addLog("input",`全选 ${add.length}码`); save_data(); }
 const allAnimationSounds = ['wave','rain','slot','scifi'];
 async function randomSpecialNumber(){ if(isRandomRunning) return; if(!selectedNumbers.size){ addLog("system","随机特码-无号码"); return; } const avail=Array.from(selectedNumbers).filter(n=>!specialNumbersSet.has(n)); if(!avail.length){ showToast("全是特码"); addLog("system","随机特码-已全是特码"); return; } const schemeName = allAnimationSounds[Math.floor(Math.random()*allAnimationSounds.length)]; SoundManager.initScheme(schemeName); isRandomRunning=true; const b=document.getElementById('randomSpecialBtn'); b.classList.add('running','disabled'); let spd=50, elap=0, hl=null; const run=()=>{ if(elap>=5000){ if(hl) hl.classList.remove('gold-highlight'); const f=avail[Math.floor(Math.random()*avail.length)]; recordAction('special_add',fmtNum(f),[f],true); specialNumbersSet.add(f); document.querySelector(`.num-btn[data-num="${f}"]`)?.classList.add('is-special'); updateAllStates(); b.classList.remove('running','disabled'); isRandomRunning=false; SoundManager.playReveal(); addLog("random",`随机特码 ${fmtNum(f)}`); save_data(); return; } if(hl) hl.classList.remove('gold-highlight'); const t=avail[Math.floor(Math.random()*avail.length)], nb=document.querySelector(`.num-btn[data-num="${t}"]`); if(nb){ nb.classList.add('gold-highlight'); hl=nb; } SoundManager.playTick(); spd+=elap<3000?10:elap<4000?30:80; elap+=spd; setTimeout(run,spd); }; run(); }
 async function showInputModal() { await playSound('click'); const m = document.getElementById('inputModal'), ta = document.getElementById('modalInputArea'); const inp = document.getElementById('smartInput'); ta.value = inp.value; m.style.display = 'flex'; ta.focus(); const resize = () => { ta.style.height = 'auto'; ta.style.height = Math.max(48, ta.scrollHeight) + 'px'; }; ta.addEventListener('input', resize); resize(); const close = () => { m.style.display = 'none'; ta.removeEventListener('input', resize); }; const confirm = () => { const txt = ta.value.trim(); if(!txt) { close(); return; } let pt = txt.replace(/[.,,;:;\\\/。.；：，、]/g, ' '); const invNums = (pt.match(/\d+/g)||[]).filter(m=>{ const n=parseInt(m); return n===0||n>49; }); const invChars = [...pt.replace(/[\s]/g,'')].filter(c=>!/\d/.test(c)&&!ZODIAC_MAP.hasOwnProperty(c)); if(invNums.length||invChars.length) { let err = ''; if(invNums.length) err += `无效数字：${invNums.join('、')}`; if(invChars.length) err += (err?'\n':'') + `无效字符：${[...new Set(invChars)].join('、')}`; playSound('slip'); const em = document.getElementById('inputErrorModal'); document.getElementById('inputErrorMessage').textContent = err; em.style.display = 'flex'; document.getElementById('modalErrorConfirm').onclick = async () => { await playSound('click'); em.style.display = 'none'; ta.focus(); }; return; } close(); inp.value = txt; updateZodiacButtonsFromInput(txt); processConfirm(); }; document.getElementById('modalInputConfirm').onclick = async () => { await playSound('click'); confirm(); }; document.getElementById('modalInputCancel').onclick = async () => { await playSound('click'); close(); }; m.onclick = async (e) => { if(e.target === m) { await playSound('click'); close(); } }; }
 async function handleAmountButtonClick() { if (!bettingNumbers.size) { return; } await playSound('click'); const m = document.getElementById('amountModal'), inp = document.getElementById('amountInput'); inp.value = ''; m.style.display = 'flex'; inp.focus(); const close = () => { m.style.display = 'none'; }; const confirm = () => { const amt = parseInt(inp.value); if (isNaN(amt) || amt <= 0) { return; } close(); showBetConfirmModal(bettingNumbers, amt); }; document.getElementById('modalAmountConfirm').onclick = async () => { await playSound('click'); confirm(); }; document.getElementById('modalAmountCancel').onclick = async () => { await playSound('click'); close(); }; m.onclick = async (e) => { if(e.target === m) { await playSound('click'); close(); } }; inp.onkeydown = async (e) => { if(e.key === 'Enter') { await playSound('click'); confirm(); } }; }
 
-// ====== 统计弹窗逻辑（完全参照主程序频率小球逻辑）======
+// ====== 统计弹窗逻辑 ======
 function getStatsValDisplay(type, val) {
     if (type === 'wave') { const map = { 'red-odd': '红波', 'blue-odd': '蓝波', 'green-odd': '绿波' }; return map[val] || val; }
     if (type === 'wuxing') { const map = { gold: '金', wood: '木', water: '水', fire: '火', earth: '土' }; return map[val] || val; }
@@ -1184,7 +1214,6 @@ function getStatsValDisplay(type, val) {
 }
 function getStatsUnit(type) { if (type === 'head') return '头'; if (type === 'tail') return '尾'; if (type === 'wave') return '波'; if (type === 'wuxing') return '行'; return ''; }
 
-// 频率统计不看 inactiveVals
 function calculateStatsValFrequencies(type) {
     const f = {};
     statsHistory[type].forEach(it => {
@@ -1205,41 +1234,17 @@ function renderStatsModalFreqButtons(type) {
     const area = document.getElementById('statsModalHistoryArea');
     const fm = calculateStatsValFrequencies(type);
     if (!Object.keys(fm).length) return;
-
-    const fc = {};
-    Object.values(fm).forEach(v => fc[v] = (fc[v] || 0) + 1);
-
-    const freqDiv = document.createElement('div');
-    freqDiv.className = 'stats-freq-btns';
-
+    const fc = {}; Object.values(fm).forEach(v => fc[v] = (fc[v] || 0) + 1);
+    const freqDiv = document.createElement('div'); freqDiv.className = 'stats-freq-btns';
     Object.keys(fc).sort((a, b) => parseInt(a) - parseInt(b)).forEach(k => {
-        const fr = parseInt(k);
-        if (fc[fr] > 0) {
-            const b = document.createElement('button');
-            b.className = 'sphere-btn-base count-btn';
-            b.textContent = fc[fr];
-            const st = getStatsValFreqStyle(fr);
-            b.style.background = st.bg;
-            b.style.color = st.text;
-            if (st.textClass) b.classList.add(st.textClass);
-            b.setAttribute('data-freq', fr);
-            b.title = `重复${fr}次的值共${fc[fr]}个`;
-
-            // is-pressed：该频率下所有值都在 inactiveVals 中（没有激活的值）
+        const fr = parseInt(k); if (fc[fr] > 0) {
+            const b = document.createElement('button'); b.className = 'sphere-btn-base count-btn'; b.textContent = fc[fr];
+            const st = getStatsValFreqStyle(fr); b.style.background = st.bg; b.style.color = st.text;
+            if (st.textClass) b.classList.add(st.textClass); b.setAttribute('data-freq', fr); b.title = `重复${fr}次的值共${fc[fr]}个`;
             const activeVals = Object.entries(fm).filter(([n, f]) => f === fr).map(([n]) => n);
-            const anyActive = activeVals.some(valKey =>
-                statsHistory[type].some(it =>
-                    it.isActive && it.vals && it.vals.map(v => v.toString()).includes(valKey) &&
-                    (!it.inactiveVals || !it.inactiveVals.includes(valKey))
-                )
-            );
+            const anyActive = activeVals.some(valKey => statsHistory[type].some(it => it.isActive && it.vals && it.vals.map(v=>v.toString()).includes(valKey) && (!it.inactiveVals||!it.inactiveVals.includes(valKey))));
             b.classList.toggle('is-pressed', !anyActive);
-
-            b.onclick = async (e) => {
-                e.stopPropagation();
-                await playSound('click');
-                toggleStatsValsByFrequency(type, fr);
-            };
+            b.onclick = async (e) => { e.stopPropagation(); await playSound('click'); toggleStatsValsByFrequency(type, fr); };
             freqDiv.appendChild(b);
         }
     });
@@ -1247,194 +1252,89 @@ function renderStatsModalFreqButtons(type) {
 }
 
 function toggleStatsValsByFrequency(type, fr) {
-    const fm = calculateStatsValFrequencies(type);
-    const tgt = [];
-    for (const [k, f] of Object.entries(fm)) { if (f === fr) tgt.push(k); }
+    const fm = calculateStatsValFrequencies(type); const tgt = []; for (const [k, f] of Object.entries(fm)) { if (f === fr) tgt.push(k); }
     if (!tgt.length) return;
-
-    const anyActive = tgt.some(k =>
-        statsHistory[type].some(it =>
-            it.isActive && it.vals && it.vals.map(v => v.toString()).includes(k) &&
-            (!it.inactiveVals || !it.inactiveVals.includes(k))
-        )
-    );
-
-    if (anyActive) {
-        statsHistory[type].forEach(it => {
-            if (!it.isActive || !it.vals) return;
-            if (!it.inactiveVals) it.inactiveVals = [];
-            tgt.forEach(k => {
-                if (it.vals.map(v => v.toString()).includes(k) && !it.inactiveVals.includes(k)) {
-                    it.inactiveVals.push(k);
-                }
-            });
-        });
-    } else {
-        statsHistory[type].forEach(it => {
-            if (!it.isActive || !it.vals) return;
-            if (!it.inactiveVals) return;
-            it.inactiveVals = it.inactiveVals.filter(v => !tgt.includes(v));
-        });
-    }
-
-    renderStatsModalHistory(type);
-    save_data();
+    const anyActive = tgt.some(k => statsHistory[type].some(it => it.isActive && it.vals && it.vals.map(v=>v.toString()).includes(k) && (!it.inactiveVals||!it.inactiveVals.includes(k))));
+    if (anyActive) { statsHistory[type].forEach(it => { if (!it.isActive||!it.vals) return; if(!it.inactiveVals)it.inactiveVals=[]; tgt.forEach(k=>{if(it.vals.map(v=>v.toString()).includes(k)&&!it.inactiveVals.includes(k))it.inactiveVals.push(k);}); }); }
+    else { statsHistory[type].forEach(it => { if (!it.isActive||!it.vals) return; if(!it.inactiveVals)return; it.inactiveVals=it.inactiveVals.filter(v=>!tgt.includes(v)); }); }
+    renderStatsModalHistory(type); save_data();
 }
 
 function renderStatsModalHistory(type) {
     const area = document.getElementById('statsModalHistoryArea');
-    const arr = statsHistory[type];
-    area.innerHTML = '';
-
+    const arr = statsHistory[type]; area.innerHTML = '';
     if (!arr || !arr.length) return;
-
     renderStatsModalFreqButtons(type);
-
     arr.forEach((it, idx) => {
         if (!it || !Array.isArray(it.vals) || it.vals.length === 0) return;
-
-        const row = document.createElement('div');
-        row.className = 'stats-history-row';
-
-        const del = document.createElement('span');
-        del.className = 'stats-history-delete-btn';
-        del.innerHTML = '×';
-        del.onclick = async () => {
-            await playSound('shutter');
-            statsHistory[type].splice(idx, 1);
-            renderStatsModalHistory(type);
-            save_data();
-        };
-
-        const lbl = document.createElement('span');
-        lbl.className = 'stats-history-label';
-        const unit = getStatsUnit(type);
-        if (it.isActive) {
-            lbl.innerHTML = `<span class="label-number">${it.vals.length}</span><span class="label-text">${unit}</span>`;
-            lbl.classList.remove('all-lit');
-        } else {
-            lbl.innerHTML = '<span class="label-text">点亮</span>';
-            lbl.classList.add('all-lit');
-        }
-        lbl.onclick = async () => {
-            await playSound('click');
-            it.isActive = !it.isActive;
-            renderStatsModalHistory(type);
-            save_data();
-        };
-
-        const nd = document.createElement('div');
-        nd.className = 'stats-history-nums';
+        const row = document.createElement('div'); row.className = 'stats-history-row';
+        const del = document.createElement('span'); del.className = 'stats-history-delete-btn'; del.innerHTML = '×';
+        del.onclick = async () => { await playSound('shutter'); statsHistory[type].splice(idx, 1); renderStatsModalHistory(type); save_data(); };
+        const lbl = document.createElement('span'); lbl.className = 'stats-history-label';
+        if (it.isActive) { lbl.innerHTML = `<span class="label-number">${it.labelPrefix}</span>`; lbl.classList.remove('all-lit'); }
+        else { lbl.innerHTML = '<span class="label-text">点亮</span>'; lbl.classList.add('all-lit'); }
+        lbl.onclick = async () => { await playSound('click'); it.isActive = !it.isActive; renderStatsModalHistory(type); save_data(); };
+        const nd = document.createElement('div'); nd.className = 'stats-history-nums';
         it.vals.forEach(v => {
-            const vKey = v.toString();
-            const isInactive = it.inactiveVals && it.inactiveVals.includes(vKey);
-            const fullFm = calculateStatsValFrequencies(type);
-            const fr = fullFm[vKey] || 0;
-            const st = getStatsValFreqStyle(fr || 1);
-            const isWave = type === 'wave';
-
+            const vKey = v.toString(); const isInactive = it.inactiveVals && it.inactiveVals.includes(vKey);
+            const fullFm = calculateStatsValFrequencies(type); const fr = fullFm[vKey] || 0;
+            const st = getStatsValFreqStyle(fr || 1); const isWave = type === 'wave';
             const sp = document.createElement('span');
             sp.className = isWave ? 'stats-val-item-wide' : 'stats-val-item';
             if (!it.isActive || isInactive) sp.classList.add('flat');
-            sp.style.background = st.bg;
-            sp.style.color = st.text;
+            if (statsHighlightedVal[type] === vKey && it.isActive && !isInactive) sp.classList.add('highlighted');
+            sp.style.background = st.bg; sp.style.color = st.text;
             sp.style.textShadow = st.textClass === 'light-text' ? '0 1px 0 rgba(255,255,255,0.5)' : '0 1px 2px rgba(0,0,0,0.4)';
-            sp.textContent = getStatsValDisplay(type, v);
-            sp.title = `出现 ${fr} 次`;
+            sp.textContent = getStatsValDisplay(type, v); sp.title = `出现 ${fr} 次`;
+            sp.onclick = async (e) => { e.stopPropagation(); await playSound('click');
+                if (statsHighlightedVal[type] === vKey) { statsHighlightedVal[type] = null; }
+                else { statsHighlightedVal[type] = vKey; }
+                renderStatsModalHistory(type); save_data();
+            };
             nd.appendChild(sp);
         });
-
-        row.appendChild(del);
-        row.appendChild(lbl);
-        row.appendChild(nd);
-        area.appendChild(row);
+        row.appendChild(del); row.appendChild(lbl); row.appendChild(nd); area.appendChild(row);
     });
 }
 
 function openStatsModal(type) {
-    const m = document.getElementById('statsModal');
-    const title = document.getElementById('statsModalTitle');
-    const row = document.getElementById('statsModalConditionRow');
-    const area = document.getElementById('statsModalHistoryArea');
-    const resetBtn = document.getElementById('modalStatsReset');
-    const cancelBtn = document.getElementById('modalStatsCancel');
-
-    const typeNames = { head: '头', tail: '尾', wave: '波', wuxing: '五行' };
-    title.textContent = typeNames[type];
-
-    row.innerHTML = '';
-    area.innerHTML = '';
-
-    const btnsDiv = document.createElement('div');
-    btnsDiv.className = 'stats-modal-condition-btns';
+    const m = document.getElementById('statsModal'); const title = document.getElementById('statsModalTitle');
+    const row = document.getElementById('statsModalConditionRow'); const area = document.getElementById('statsModalHistoryArea');
+    const resetBtn = document.getElementById('modalStatsReset'); const cancelBtn = document.getElementById('modalStatsCancel');
+    const typeNames = { head: '头', tail: '尾', wave: '波', wuxing: '五行' }; title.textContent = typeNames[type];
+    row.innerHTML = ''; area.innerHTML = '';
+    const btnsDiv = document.createElement('div'); btnsDiv.className = 'stats-modal-condition-btns';
     let selectedVals = [];
 
-    if (type === 'head') {
-        for (let i = 0; i <= 4; i++) {
-            const btn = document.createElement('button');
-            btn.className = 'stats-condition-btn'; btn.textContent = i;
-            btn.onclick = () => { btn.classList.toggle('is-depressed'); btn.classList.toggle('selected'); if (btn.classList.contains('selected')) selectedVals.push(i.toString()); else selectedVals = selectedVals.filter(v => v !== i.toString()); };
-            btnsDiv.appendChild(btn);
-        }
-    } else if (type === 'tail') {
-        for (let i = 0; i <= 9; i++) {
-            const btn = document.createElement('button');
-            btn.className = 'stats-tail-condition-btn'; btn.textContent = i;
-            btn.onclick = () => { btn.classList.toggle('is-depressed'); btn.classList.toggle('selected'); if (btn.classList.contains('selected')) selectedVals.push(i.toString()); else selectedVals = selectedVals.filter(v => v !== i.toString()); };
-            btnsDiv.appendChild(btn);
-        }
-    } else if (type === 'wave') {
-        [{ label: '红波', val: 'red-odd' },{ label: '蓝波', val: 'blue-odd' },{ label: '绿波', val: 'green-odd' }].forEach(w => {
-            const btn = document.createElement('button');
-            btn.className = 'stats-condition-wave-btn'; btn.textContent = w.label; btn.setAttribute('data-type', w.val.split('-')[0]);
-            btn.onclick = () => { btn.classList.toggle('is-depressed'); btn.classList.toggle('selected'); if (btn.classList.contains('selected')) selectedVals.push(w.val); else selectedVals = selectedVals.filter(v => v !== w.val); };
-            btnsDiv.appendChild(btn);
-        });
-    } else if (type === 'wuxing') {
-        [{ label: '金', val: 'gold' },{ label: '木', val: 'wood' },{ label: '水', val: 'water' },{ label: '火', val: 'fire' },{ label: '土', val: 'earth' }].forEach(w => {
-            const btn = document.createElement('button');
-            btn.className = 'stats-condition-wuxing-btn'; btn.textContent = w.label;
-            btn.onclick = () => { btn.classList.toggle('is-depressed'); btn.classList.toggle('selected'); if (btn.classList.contains('selected')) selectedVals.push(w.val); else selectedVals = selectedVals.filter(v => v !== w.val); };
-            btnsDiv.appendChild(btn);
-        });
-    }
+    if (type === 'head') { for (let i=0;i<=4;i++){const btn=document.createElement('button');btn.className='stats-condition-btn';btn.textContent=i;btn.onclick=async()=>{await playSound('click');btn.classList.toggle('is-depressed');btn.classList.toggle('selected');if(btn.classList.contains('selected'))selectedVals.push(i.toString());else selectedVals=selectedVals.filter(v=>v!==i.toString());};btnsDiv.appendChild(btn);} }
+    else if (type === 'tail') { for (let i=0;i<=9;i++){const btn=document.createElement('button');btn.className='stats-tail-condition-btn';btn.textContent=i;btn.onclick=async()=>{await playSound('click');btn.classList.toggle('is-depressed');btn.classList.toggle('selected');if(btn.classList.contains('selected'))selectedVals.push(i.toString());else selectedVals=selectedVals.filter(v=>v!==i.toString());};btnsDiv.appendChild(btn);} }
+    else if (type === 'wave') { [{label:'红波',val:'red-odd'},{label:'蓝波',val:'blue-odd'},{label:'绿波',val:'green-odd'}].forEach(w=>{const btn=document.createElement('button');btn.className='stats-condition-wave-btn';btn.textContent=w.label;btn.setAttribute('data-type',w.val.split('-')[0]);btn.onclick=async()=>{await playSound('click');btn.classList.toggle('is-depressed');btn.classList.toggle('selected');if(btn.classList.contains('selected'))selectedVals.push(w.val);else selectedVals=selectedVals.filter(v=>v!==w.val);};btnsDiv.appendChild(btn);}); }
+    else if (type === 'wuxing') { [{label:'金',val:'gold'},{label:'木',val:'wood'},{label:'水',val:'water'},{label:'火',val:'fire'},{label:'土',val:'earth'}].forEach(w=>{const btn=document.createElement('button');btn.className='stats-condition-wuxing-btn';btn.textContent=w.label;btn.onclick=async()=>{await playSound('click');btn.classList.toggle('is-depressed');btn.classList.toggle('selected');if(btn.classList.contains('selected'))selectedVals.push(w.val);else selectedVals=selectedVals.filter(v=>v!==w.val);};btnsDiv.appendChild(btn);}); }
+
+    const sourceInput = document.createElement('input');
+    sourceInput.type = 'text'; sourceInput.className = 'stats-source-input'; sourceInput.placeholder = '来源'; sourceInput.maxLength = 4;
 
     const confirmBtn = document.createElement('button');
     confirmBtn.className = 'stats-modal-confirm-btn'; confirmBtn.textContent = '确定';
     confirmBtn.onclick = async () => {
         if (!selectedVals.length) return;
         await playSound('pop');
-        const unit = getStatsUnit(type);
-        statsHistory[type].push({ id: Date.now(), type, vals: [...selectedVals], inactiveVals: [], labelPrefix: selectedVals.length + unit, isActive: true });
+        const sourceText = sourceInput.value.trim();
+        const labelPrefix = sourceText ? sourceText + selectedVals.length + getStatsUnit(type) : selectedVals.length + getStatsUnit(type);
+        statsHistory[type].push({ id: Date.now(), type, vals: [...selectedVals], inactiveVals: [], labelPrefix, source: sourceText, isActive: true });
         renderStatsModalHistory(type); save_data();
         btnsDiv.querySelectorAll('.selected').forEach(b => { b.classList.remove('selected', 'is-depressed'); });
         selectedVals = [];
+        sourceInput.value = '';
     };
 
-    row.appendChild(btnsDiv); row.appendChild(confirmBtn);
+    row.appendChild(btnsDiv); row.appendChild(sourceInput); row.appendChild(confirmBtn);
     renderStatsModalHistory(type);
 
-    resetBtn.onclick = async () => {
-        await playSound('click');
-        // 先隐藏统计弹窗再显示确认弹窗，确认完再恢复
-        const statsModalEl = document.getElementById('statsModal');
-        statsModalEl.style.display = 'none';
-        showConfirmModal('确认重置', `确定要清空 ${typeNames[type]} 的所有统计记录吗？`, async () => {
-            await playSound('shutter');
-            statsHistory[type] = [];
-            renderStatsModalHistory(type); save_data();
-            btnsDiv.querySelectorAll('.selected').forEach(b => { b.classList.remove('selected', 'is-depressed'); });
-            selectedVals = [];
-            statsModalEl.style.display = 'flex';
-        }, true);
-        // 如果取消也要恢复
-        const origConfirmCancel = document.getElementById('modalConfirmCancel').onclick;
-        const origDangerCancel = document.getElementById('modalDangerCancel').onclick;
-        const restoreStatsModal = () => { statsModalEl.style.display = 'flex'; };
-        document.getElementById('modalConfirmCancel').addEventListener('click', restoreStatsModal, { once: true });
-        document.getElementById('modalDangerCancel').addEventListener('click', restoreStatsModal, { once: true });
+    resetBtn.onclick = async () => { await playSound('click'); const sm=document.getElementById('statsModal'); sm.style.display='none';
+        showConfirmModal('确认重置', '', async () => { await playSound('shutter'); statsHistory[type]=[]; statsHighlightedVal[type]=null; renderStatsModalHistory(type); save_data(); btnsDiv.querySelectorAll('.selected').forEach(b=>{b.classList.remove('selected','is-depressed');}); selectedVals=[]; sm.style.display='flex'; }, true, false, true);
+        const r=()=>{sm.style.display='flex';}; document.getElementById('modalConfirmCancel').addEventListener('click',r,{once:true}); document.getElementById('modalDangerCancel').addEventListener('click',r,{once:true});
     };
-
     cancelBtn.onclick = async () => { await playSound('click'); m.style.display = 'none'; };
     m.onclick = async (e) => { if (e.target === m) { await playSound('click'); m.style.display = 'none'; } };
     m.style.display = 'flex';
