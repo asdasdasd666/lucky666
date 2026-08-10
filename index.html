@@ -44,7 +44,7 @@
 --list-num-size: 1.6em; --hist-num-size: 1.5em;
 --tail-btn-size: 24px;
 --stats-nav-width: 44px;
---stats-confirm-btn-width: 42px;
+--stats-confirm-btn-width: 56px;
 }
 html, body { overflow-x: hidden; overflow-y: auto; width: 100%; max-width: 100vw; position: relative; height: 100%; touch-action: auto; -webkit-overflow-scrolling: touch; }
 body {
@@ -579,14 +579,14 @@ transition: all 0.1s; flex-shrink: 0; user-select: none; -webkit-user-select: no
 display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
 }
 .stats-modal-condition-btns {
-display: flex; gap: 3px; flex-wrap: wrap; flex: 1; justify-content: flex-start; align-items: center;
+display: flex; gap: 8px; flex-wrap: wrap; flex: 1; justify-content: flex-start; align-items: center;
 }
 .stats-modal-confirm-btn {
 width: var(--stats-confirm-btn-width); height: var(--btn-size); border: none; border-radius: 6px;
 background: linear-gradient(145deg, var(--confirm-btn-bg), var(--confirm-btn-active)); color: white; font-size: 0.75rem;
 font-weight: 900; display: flex; align-items: center; justify-content: center; cursor: pointer;
 box-shadow: 0 3px 0 rgba(0,0,0,0.2), inset 0 1px 2px rgba(255,255,255,0.3); transition: all 0.1s;
-flex-shrink: 0; user-select: none; -webkit-user-select: none; padding: 0 8px; margin-left: auto;
+flex-shrink: 0; user-select: none; -webkit-user-select: none; padding: 0 4px; margin-left: auto;
 }
 .stats-modal-confirm-btn:active { transform: translateY(3px); box-shadow: 0 0 0 rgba(0,0,0,0.2); }
 
@@ -692,6 +692,11 @@ border: 2px solid transparent; transition: border-color 0.2s, box-shadow 0.2s;
 font-family: var(--font-art-mao); font-size: 1.8rem; text-align: center; margin-bottom: 12px; font-weight: bold; letter-spacing: 2px;
 color: var(--label-select-color); text-shadow: var(--label-select-glow);
 }
+
+/* 尾弹窗两行布局 */
+.stats-tail-row { display: flex; align-items: center; justify-content: space-between; width: 100%; gap: 8px; }
+.stats-tail-row + .stats-tail-row { margin-top: 8px; }
+.stats-tail-btns { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 
 #confirmModal, #dangerConfirmModal { z-index: 10001 !important; }
 </style>
@@ -840,7 +845,7 @@ color: var(--label-select-color); text-shadow: var(--label-select-glow);
 </div>
 <div style="font-size: 0.65rem; font-weight: 700; color: #4a5568; margin-bottom: 2px; display:flex; justify-content:space-between; align-items:center;">
 <span>操作记录</span>
-<span style="font-weight: 600; color: #718096;">V6.7</span>
+<span style="font-weight: 600; color: #718096;">V5.2</span>
 </div>
 <div class="log-container" id="logContainer"><div class="log-item" style="color:#718096; justify-content:center;">暂无记录</div></div>
 </div>
@@ -1077,8 +1082,8 @@ function showToastNoBreak(msg, d=1500) { const t = document.getElementById('toas
 function showToastOneLine(html) { const t = document.getElementById('toast'); if (toastTimer) { clearTimeout(toastTimer); toastTimer = null; } t.classList.remove('toast-long'); t.style.width = 'auto'; t.innerHTML = `<div style="word-break:break-word; white-space:normal;">${html}</div>`; t.classList.add('show'); toastTimer = setTimeout(() => { t.classList.remove('show'); toastTimer = null; }, 1500); }
 function showToastWithNums(label, numbers, fixedWidth = false, singleLine = false) { const t = document.getElementById('toast'); if (toastTimer) { clearTimeout(toastTimer); toastTimer = null; } t.classList.remove('toast-long'); if (fixedWidth) { t.style.width = '8rem'; } else { t.style.width = 'auto'; } if(!numbers || !numbers.length) { t.innerHTML = `<span style="color:#1a202c;">${label}</span>`; } else { const sorted = [...new Set(numbers)].sort((a,b)=>a-b); const numsHtml = sorted.map(n => `<span style="color:${getNumColor(n)}; font-weight:600; white-space:nowrap;">${fmtNum(n)}</span>`).join('.'); const wrapStyle = singleLine ? 'white-space:nowrap;' : 'word-break:break-word;'; t.innerHTML = `<div style="text-align:center">${label}</div><div style="text-align:center; ${wrapStyle}">${numsHtml}</div>`; } t.classList.add('show'); toastTimer = setTimeout(() => { t.classList.remove('show'); toastTimer = null; }, 1500); }
 function addLog(type, msg) { const c=document.getElementById('logContainer'); if(c.children.length===1&&c.children[0].textContent.includes("暂无")) c.innerHTML=''; const time=`${new Date().getHours().toString().padStart(2,'0')}:${new Date().getMinutes().toString().padStart(2,'0')}`; const div=document.createElement('div'); div.className='log-item'; let cls='select'; if(type==='input') cls='input'; else if(type==='clear') cls='clear'; else if(type==='bet') cls='input'; else if(type==='undo') cls='undo'; else if(type==='redo') cls='redo'; else if(type==='random') cls='random'; div.innerHTML=`<span><span class="log-time">${time}</span><span class="log-action ${cls}">${msg}</span></span>`; c.prepend(div); while(c.children.length>20) c.removeChild(c.lastChild); }
-function save_data() { const data = { selected: Array.from(selectedNumbers), bets: betResults, undo: undoStack, redo: redoStack, history: inputHistory, tempData: tempStorageData, specialSet: Array.from(specialNumbersSet), currentHighlight: currentHighlightedNumber, numberSources: Array.from(numberSources.entries()), freqColorMap: Array.from(globalFreqColorMap.entries()), statsHistory: statsHistory, statsHighlightedVal: statsHighlightedVal }; try { localStorage.setItem('lucky666_data_v67', JSON.stringify(data)); } catch(e) {} }
-function load_data() { const raw = localStorage.getItem('lucky666_data_v67'); if(!raw) return; try { const d=JSON.parse(raw); selectedNumbers=new Set(d.selected||[]); betResults=d.bets||{}; if(Array.isArray(d.undo)) undoStack=d.undo; if(Array.isArray(d.redo)) redoStack=d.redo; inputHistory=d.history||[]; cleanupInvalidHistory(); specialNumbersSet=new Set(d.specialSet||[]); tempStorageData=d.tempData||[]; currentHighlightedNumber=d.currentHighlight??null; statsHistory=d.statsHistory||{head:[],tail:[],wave:[],wuxing:[]}; statsHighlightedVal=d.statsHighlightedVal||{head:null,tail:null,wave:null,wuxing:null}; if(!statsHistory.head) statsHistory.head=[]; if(!statsHistory.tail) statsHistory.tail=[]; if(!statsHistory.wave) statsHistory.wave=[]; if(!statsHistory.wuxing) statsHistory.wuxing=[]; ['head','tail','wave','wuxing'].forEach(t=>{statsHistory[t].forEach(it=>{if(!it.inactiveVals)it.inactiveVals=[];if(!it.source)it.source='';});}); try { if(d.numberSources) numberSources = new Map(d.numberSources.map(([k,v])=>[k,new Set(v)])); } catch(e) { numberSources = new Map(); } try { if(d.freqColorMap) globalFreqColorMap = new Map(d.freqColorMap); } catch(e) { globalFreqColorMap = new Map(); } syncHistoryActiveState(); rebuildNumberSources(); renderTempStorage(); updateTempCountBadge(); updateTempStoreBtn(); updateTempRestoreBtn(); updateTempClearBtn(); updateClearResultBtn(); } catch(e) { betResults={}; undoStack=[]; redoStack=[]; inputHistory=[]; tempStorageData=[]; specialNumbersSet=new Set(); currentHighlightedNumber=null; numberSources=new Map(); globalFreqColorMap=new Map(); statsHistory={head:[],tail:[],wave:[],wuxing:[]}; statsHighlightedVal={head:null,tail:null,wave:null,wuxing:null}; } }
+function save_data() { const data = { selected: Array.from(selectedNumbers), bets: betResults, undo: undoStack, redo: redoStack, history: inputHistory, tempData: tempStorageData, specialSet: Array.from(specialNumbersSet), currentHighlight: currentHighlightedNumber, numberSources: Array.from(numberSources.entries()), freqColorMap: Array.from(globalFreqColorMap.entries()), statsHistory: statsHistory, statsHighlightedVal: statsHighlightedVal }; try { localStorage.setItem('lucky666_data_v52', JSON.stringify(data)); } catch(e) {} }
+function load_data() { const raw = localStorage.getItem('lucky666_data_v52'); if(!raw) return; try { const d=JSON.parse(raw); selectedNumbers=new Set(d.selected||[]); betResults=d.bets||{}; if(Array.isArray(d.undo)) undoStack=d.undo; if(Array.isArray(d.redo)) redoStack=d.redo; inputHistory=d.history||[]; cleanupInvalidHistory(); specialNumbersSet=new Set(d.specialSet||[]); tempStorageData=d.tempData||[]; currentHighlightedNumber=d.currentHighlight??null; statsHistory=d.statsHistory||{head:[],tail:[],wave:[],wuxing:[]}; statsHighlightedVal=d.statsHighlightedVal||{head:null,tail:null,wave:null,wuxing:null}; if(!statsHistory.head) statsHistory.head=[]; if(!statsHistory.tail) statsHistory.tail=[]; if(!statsHistory.wave) statsHistory.wave=[]; if(!statsHistory.wuxing) statsHistory.wuxing=[]; ['head','tail','wave','wuxing'].forEach(t=>{statsHistory[t].forEach(it=>{if(!it.inactiveVals)it.inactiveVals=[];if(!it.source)it.source='';});}); try { if(d.numberSources) numberSources = new Map(d.numberSources.map(([k,v])=>[k,new Set(v)])); } catch(e) { numberSources = new Map(); } try { if(d.freqColorMap) globalFreqColorMap = new Map(d.freqColorMap); } catch(e) { globalFreqColorMap = new Map(); } syncHistoryActiveState(); rebuildNumberSources(); renderTempStorage(); updateTempCountBadge(); updateTempStoreBtn(); updateTempRestoreBtn(); updateTempClearBtn(); updateClearResultBtn(); } catch(e) { betResults={}; undoStack=[]; redoStack=[]; inputHistory=[]; tempStorageData=[]; specialNumbersSet=new Set(); currentHighlightedNumber=null; numberSources=new Map(); globalFreqColorMap=new Map(); statsHistory={head:[],tail:[],wave:[],wuxing:[]}; statsHighlightedVal={head:null,tail:null,wave:null,wuxing:null}; } }
 function restoreSpecialEffects() { specialNumbersSet.forEach(n=>{ const b=document.querySelector(`.num-btn[data-num="${n}"]`); if(b) b.classList.add('is-special'); }); }
 function syncSpecialWithSelected() { const ns=new Set(); specialNumbersSet.forEach(n=>{ if(selectedNumbers.has(n)) ns.add(n); else document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.remove('is-special'); }); specialNumbersSet=ns; save_data(); }
 function getGroupNumbers(type, val) {
@@ -1303,17 +1308,9 @@ function openStatsModal(type) {
     const resetBtn = document.getElementById('modalStatsReset'); const cancelBtn = document.getElementById('modalStatsCancel');
     const typeNames = { head: '头', tail: '尾', wave: '波', wuxing: '五行' }; title.textContent = typeNames[type];
     row.innerHTML = ''; area.innerHTML = '';
-    const btnsDiv = document.createElement('div'); btnsDiv.className = 'stats-modal-condition-btns';
     let selectedVals = [];
-
-    if (type === 'head') { for (let i=0;i<=4;i++){const btn=document.createElement('button');btn.className='stats-condition-btn';btn.textContent=i;btn.onclick=async()=>{await playSound('click');btn.classList.toggle('is-depressed');btn.classList.toggle('selected');if(btn.classList.contains('selected'))selectedVals.push(i.toString());else selectedVals=selectedVals.filter(v=>v!==i.toString());};btnsDiv.appendChild(btn);} }
-    else if (type === 'tail') { for (let i=0;i<=9;i++){const btn=document.createElement('button');btn.className='stats-tail-condition-btn';btn.textContent=i;btn.onclick=async()=>{await playSound('click');btn.classList.toggle('is-depressed');btn.classList.toggle('selected');if(btn.classList.contains('selected'))selectedVals.push(i.toString());else selectedVals=selectedVals.filter(v=>v!==i.toString());};btnsDiv.appendChild(btn);} }
-    else if (type === 'wave') { [{label:'红波',val:'red-odd'},{label:'蓝波',val:'blue-odd'},{label:'绿波',val:'green-odd'}].forEach(w=>{const btn=document.createElement('button');btn.className='stats-condition-wave-btn';btn.textContent=w.label;btn.setAttribute('data-type',w.val.split('-')[0]);btn.onclick=async()=>{await playSound('click');btn.classList.toggle('is-depressed');btn.classList.toggle('selected');if(btn.classList.contains('selected'))selectedVals.push(w.val);else selectedVals=selectedVals.filter(v=>v!==w.val);};btnsDiv.appendChild(btn);}); }
-    else if (type === 'wuxing') { [{label:'金',val:'gold'},{label:'木',val:'wood'},{label:'水',val:'water'},{label:'火',val:'fire'},{label:'土',val:'earth'}].forEach(w=>{const btn=document.createElement('button');btn.className='stats-condition-wuxing-btn';btn.textContent=w.label;btn.onclick=async()=>{await playSound('click');btn.classList.toggle('is-depressed');btn.classList.toggle('selected');if(btn.classList.contains('selected'))selectedVals.push(w.val);else selectedVals=selectedVals.filter(v=>v!==w.val);};btnsDiv.appendChild(btn);}); }
-
     const sourceInput = document.createElement('input');
     sourceInput.type = 'text'; sourceInput.className = 'stats-source-input'; sourceInput.placeholder = '来源'; sourceInput.maxLength = 4;
-
     const confirmBtn = document.createElement('button');
     confirmBtn.className = 'stats-modal-confirm-btn'; confirmBtn.textContent = '确定';
     confirmBtn.onclick = async () => {
@@ -1323,16 +1320,65 @@ function openStatsModal(type) {
         const labelPrefix = sourceText ? sourceText + selectedVals.length + getStatsUnit(type) : selectedVals.length + getStatsUnit(type);
         statsHistory[type].push({ id: Date.now(), type, vals: [...selectedVals], inactiveVals: [], labelPrefix, source: sourceText, isActive: true });
         renderStatsModalHistory(type); save_data();
-        btnsDiv.querySelectorAll('.selected').forEach(b => { b.classList.remove('selected', 'is-depressed'); });
+        row.querySelectorAll('.selected').forEach(b => { b.classList.remove('selected', 'is-depressed'); });
         selectedVals = [];
         sourceInput.value = '';
     };
 
-    row.appendChild(btnsDiv); row.appendChild(sourceInput); row.appendChild(confirmBtn);
+    if (type === 'tail') {
+        row.style.flexDirection = 'column';
+        row.style.alignItems = 'stretch';
+        row.style.gap = '8px';
+
+        const row1 = document.createElement('div');
+        row1.className = 'stats-tail-row';
+        const btnsDiv1 = document.createElement('div');
+        btnsDiv1.className = 'stats-tail-btns';
+        for (let i = 0; i <= 4; i++) {
+            const btn = document.createElement('button');
+            btn.className = 'stats-tail-condition-btn';
+            btn.textContent = i;
+            btn.onclick = async () => { await playSound('click'); btn.classList.toggle('is-depressed'); btn.classList.toggle('selected'); if (btn.classList.contains('selected')) selectedVals.push(i.toString()); else selectedVals = selectedVals.filter(v => v !== i.toString()); };
+            btnsDiv1.appendChild(btn);
+        }
+        row1.appendChild(btnsDiv1);
+        row1.appendChild(sourceInput);
+
+        const row2 = document.createElement('div');
+        row2.className = 'stats-tail-row';
+        const btnsDiv2 = document.createElement('div');
+        btnsDiv2.className = 'stats-tail-btns';
+        for (let i = 5; i <= 9; i++) {
+            const btn = document.createElement('button');
+            btn.className = 'stats-tail-condition-btn';
+            btn.textContent = i;
+            btn.onclick = async () => { await playSound('click'); btn.classList.toggle('is-depressed'); btn.classList.toggle('selected'); if (btn.classList.contains('selected')) selectedVals.push(i.toString()); else selectedVals = selectedVals.filter(v => v !== i.toString()); };
+            btnsDiv2.appendChild(btn);
+        }
+        row2.appendChild(btnsDiv2);
+        row2.appendChild(confirmBtn);
+
+        row.appendChild(row1);
+        row.appendChild(row2);
+    } else {
+        const btnsDiv = document.createElement('div');
+        btnsDiv.className = 'stats-modal-condition-btns';
+
+        if (type === 'head') { for (let i=0;i<=4;i++){const btn=document.createElement('button');btn.className='stats-condition-btn';btn.textContent=i;btn.onclick=async()=>{await playSound('click');btn.classList.toggle('is-depressed');btn.classList.toggle('selected');if(btn.classList.contains('selected'))selectedVals.push(i.toString());else selectedVals=selectedVals.filter(v=>v!==i.toString());};btnsDiv.appendChild(btn);} }
+        else if (type === 'wave') { [{label:'红波',val:'red-odd'},{label:'蓝波',val:'blue-odd'},{label:'绿波',val:'green-odd'}].forEach(w=>{const btn=document.createElement('button');btn.className='stats-condition-wave-btn';btn.textContent=w.label;btn.setAttribute('data-type',w.val.split('-')[0]);btn.onclick=async()=>{await playSound('click');btn.classList.toggle('is-depressed');btn.classList.toggle('selected');if(btn.classList.contains('selected'))selectedVals.push(w.val);else selectedVals=selectedVals.filter(v=>v!==w.val);};btnsDiv.appendChild(btn);}); }
+        else if (type === 'wuxing') { [{label:'金',val:'gold'},{label:'木',val:'wood'},{label:'水',val:'water'},{label:'火',val:'fire'},{label:'土',val:'earth'}].forEach(w=>{const btn=document.createElement('button');btn.className='stats-condition-wuxing-btn';btn.textContent=w.label;btn.onclick=async()=>{await playSound('click');btn.classList.toggle('is-depressed');btn.classList.toggle('selected');if(btn.classList.contains('selected'))selectedVals.push(w.val);else selectedVals=selectedVals.filter(v=>v!==w.val);};btnsDiv.appendChild(btn);}); }
+
+        row.style.flexDirection = 'row';
+        row.style.alignItems = 'center';
+        row.appendChild(btnsDiv);
+        row.appendChild(sourceInput);
+        row.appendChild(confirmBtn);
+    }
+
     renderStatsModalHistory(type);
 
     resetBtn.onclick = async () => { await playSound('click'); const sm=document.getElementById('statsModal'); sm.style.display='none';
-        showConfirmModal('确认重置', '', async () => { await playSound('shutter'); statsHistory[type]=[]; statsHighlightedVal[type]=null; renderStatsModalHistory(type); save_data(); btnsDiv.querySelectorAll('.selected').forEach(b=>{b.classList.remove('selected','is-depressed');}); selectedVals=[]; sm.style.display='flex'; }, true, false, true);
+        showConfirmModal('确认重置', '', async () => { await playSound('shutter'); statsHistory[type]=[]; statsHighlightedVal[type]=null; renderStatsModalHistory(type); save_data(); row.querySelectorAll('.selected').forEach(b=>{b.classList.remove('selected','is-depressed');}); selectedVals=[]; sm.style.display='flex'; }, true, false, true);
         const r=()=>{sm.style.display='flex';}; document.getElementById('modalConfirmCancel').addEventListener('click',r,{once:true}); document.getElementById('modalDangerCancel').addEventListener('click',r,{once:true});
     };
     cancelBtn.onclick = async () => { await playSound('click'); m.style.display = 'none'; };
