@@ -194,7 +194,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helve
 .bet-result-items { display: inline; width: 100%; line-height: 1.6; }
 .bet-result-items span { font-size: 0.9em; }
 .amt-tag { font-size: 0.8rem; color: #718096; font-weight: 600; white-space: nowrap; margin-left: 2px; }
-.log-container { background: rgba(247, 250, 252, 0.6); border-radius: 6px; border: 1px solid rgba(226, 232, 240, 0.6); max-height: 80px; overflow-y: auto; overflow-x: hidden; padding: 4px; font-size: 0.65rem; color: #4a5568; font-family: monospace; -webkit-overflow-scrolling: touch; word-break: break-word; margin-bottom: env(safe-area-inset-bottom, 10px); }
+.log-container { background: rgba(247, 250, 252, 0.6); border-radius: 6px; border: 1px solid rgba(226, 232, 240, 0.6); max-height: 150px; overflow-y: auto; overflow-x: hidden; padding: 4px; font-size: 0.65rem; color: #4a5568; font-family: monospace; -webkit-overflow-scrolling: touch; word-break: break-word; margin-bottom: env(safe-area-inset-bottom, 10px); user-select: text; -webkit-user-select: text; cursor: text; }
 .log-item { padding: 2px 0; border-bottom: 1px dashed rgba(226, 232, 240, 0.8); display: flex; justify-content: space-between; word-break: break-word; }
 .log-item:last-child { border-bottom: none; }
 .log-time { color: #718096; font-size: 0.55rem; margin-right: 4px; font-weight: 400; }
@@ -284,7 +284,7 @@ button, .num-btn, .action-grid-btn, .sphere-btn-base, .filter-btn, .wave-btn, .z
 <div class="bet-box-title"><div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;"><span>待购号码</span><span class="bet-count-badge" id="bettingCountBadge">0 个</span><button id="clearBettingBtn" class="temp-action-btn orange" onclick="handleClearBetting()">清空</button></div></div>
 <div class="bet-action-area" id="betActionArea"><div class="bet-input-row"><div class="bet-nums-display" id="betNumsDisplay"></div><button id="betAmountBtn" class="bet-amount-btn grey" onclick="handleAmountButtonClick()">无号码</button></div></div>
 <div class="bet-result-container" id="betResultContainer"><div class="bet-result-header"><div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;"><span>买号结果</span><span class="bet-count-badge" id="betCountBadge">0 个</span><span class="bet-total-amount" id="betTotalAmount">共 0 元</span></div><div style="display:flex; gap:6px;"><button class="clear-result-btn" id="clearResultBtn" onclick="handleClearBetResults()">清空结果</button><button class="small-copy-btn" id="copyBetResultBtn" onclick="copyBetResults()">复制</button></div></div><div class="bet-result-box" id="betResultBox" oncontextmenu="return false;" ondragstart="return false;"><div class="bet-result-items" id="betResultItems"></div></div></div>
-<div style="font-size: 0.65rem; font-weight: 700; color: #4a5568; margin-bottom: 2px; display:flex; justify-content:space-between; align-items:center;"><span>操作记录</span><span style="font-weight: 600; color: #718096;">V7.1</span></div>
+<div style="font-size: 0.65rem; font-weight: 700; color: #4a5568; margin-bottom: 2px; display:flex; justify-content:space-between; align-items:center;"><button class="small-copy-btn" id="copyLogBtn" onclick="copyLog()" style="margin-left:0; width:auto; height:auto; padding:2px 10px;">操作记录</button><span style="font-weight: 600; color: #718096;">V7.2</span></div>
 <div class="log-container" id="logContainer"><div class="log-item" style="color:#718096; justify-content:center;">暂无记录</div></div>
 </div>
 <div class="toast" id="toast">操作成功</div>
@@ -461,15 +461,47 @@ function showToastWithNums(label, numbers, fixedWidth = false, singleLine = fals
 /* ============================================================
    6. 日志
    ============================================================ */
-function addLog(type, msg) { const c=document.getElementById('logContainer'); if(c.children.length===1&&c.children[0].textContent.includes("暂无")) c.innerHTML=''; const time=`${new Date().getHours().toString().padStart(2,'0')}:${new Date().getMinutes().toString().padStart(2,'0')}`; const div=document.createElement('div'); div.className='log-item'; let cls='select'; if(type==='input') cls='input'; else if(type==='clear') cls='clear'; else if(type==='bet') cls='input'; else if(type==='undo') cls='undo'; else if(type==='redo') cls='redo'; const coloredMsg = msg.replace(/(\d{2})/g, (match, num) => { const n = parseInt(num); if (n >= 1 && n <= 49) { return `<span class="log-num" style="color:${getNumColor(n)};">${fmtNum(n)}</span>`; } return match; }); div.innerHTML=`<span><span class="log-time">${time}</span><span class="log-action ${cls}">${coloredMsg}</span></span>`; c.prepend(div); while(c.children.length>20) c.removeChild(c.lastChild); }
+function addLog(type, msg) { const c=document.getElementById('logContainer'); if(c.children.length===1&&c.children[0].textContent.includes("暂无")) c.innerHTML=''; const time=`${new Date().getHours().toString().padStart(2,'0')}:${new Date().getMinutes().toString().padStart(2,'0')}`; const div=document.createElement('div'); div.className='log-item'; let cls='select'; if(type==='input') cls='input'; else if(type==='clear') cls='clear'; else if(type==='bet') cls='input'; else if(type==='undo') cls='undo'; else if(type==='redo') cls='redo'; const coloredMsg = msg.replace(/(\d{2})/g, (match, num) => { const n = parseInt(num); if (n >= 1 && n <= 49) { return `<span class="log-num" style="color:${getNumColor(n)};">${fmtNum(n)}</span>`; } return match; }); div.innerHTML=`<span><span class="log-time">${time}</span><span class="log-action ${cls}">${coloredMsg}</span></span>`; c.prepend(div); while(c.children.length>50) c.removeChild(c.lastChild); }
 
 /* ============================================================
-   7. 数据持久化
+   7. 复制操作日志
    ============================================================ */
-function save_data() { const data = { selected: Array.from(selectedNumbers), bets: betResults, undo: undoStack, redo: redoStack, history: inputHistory, tempData: tempStorageData, currentHighlight: currentHighlightedNumber, numberSources: Array.from(numberSources.entries()), freqColorMap: Array.from(globalFreqColorMap.entries()) }; try { localStorage.setItem('lucky666_data_v71', JSON.stringify(data)); } catch(e) {} }
+async function copyLog() {
+    await playSound('click');
+    const c = document.getElementById('logContainer');
+    if (!c || c.children.length === 0 || (c.children.length === 1 && c.children[0].textContent.includes('暂无'))) {
+        showToast('暂无操作记录');
+        return;
+    }
+    const items = [];
+    c.querySelectorAll('.log-item').forEach(item => {
+        items.push(item.textContent.trim());
+    });
+    const txt = items.join('\n');
+    try {
+        await navigator.clipboard.writeText(txt);
+        showToastNoBreak('✅ 已复制操作记录');
+        addLog('system', '复制操作记录');
+    } catch(e) {
+        const ta = document.createElement('textarea');
+        ta.value = txt;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        showToastNoBreak('✅ 已复制操作记录');
+        addLog('system', '复制操作记录(降级)');
+    }
+}
+
+/* ============================================================
+   8. 数据持久化
+   ============================================================ */
+function save_data() { const data = { selected: Array.from(selectedNumbers), bets: betResults, undo: undoStack, redo: redoStack, history: inputHistory, tempData: tempStorageData, currentHighlight: currentHighlightedNumber, numberSources: Array.from(numberSources.entries()), freqColorMap: Array.from(globalFreqColorMap.entries()) }; try { localStorage.setItem('lucky666_data_v72', JSON.stringify(data)); } catch(e) {} }
 function load_data() {
     try { localStorage.removeItem('lucky666_data_v70'); } catch(e) {}
-    const raw = localStorage.getItem('lucky666_data_v71');
+    try { localStorage.removeItem('lucky666_data_v71'); } catch(e) {}
+    const raw = localStorage.getItem('lucky666_data_v72');
     if(!raw) return;
     try {
         const d=JSON.parse(raw);
@@ -496,7 +528,7 @@ function load_data() {
 }
 
 /* ============================================================
-   8. 快照 / 撤销栈 / 历史一致性
+   9. 快照 / 撤销栈 / 历史一致性
    ============================================================ */
 function captureFullSnapshot(nums) { const selectedState = {}, bettingState = {}, betState = {}; nums.forEach(n => { selectedState[n] = selectedNumbers.has(n); bettingState[n] = bettingNumbers.has(n); betState[n] = betResults[n]; }); return { selectedState, bettingState, betState }; }
 function applySnapshot(snapshot, targetSelected, targetBetting, targetBet) {
@@ -513,9 +545,27 @@ function addNumberSource(n,gid){ if(!numberSources.has(n)) numberSources.set(n,n
 function removeNumberSource(n,gid){ const s=numberSources.get(n); if(s){ s.delete(gid); if(s.size===0) numberSources.delete(n); } }
 function ensureConsistency() { if (isRestoring) return; for (const n of [...bettingNumbers]) { if (!selectedNumbers.has(n)) bettingNumbers.delete(n); } for (const n of Object.keys(betResults)) { const num = parseInt(n); if (!selectedNumbers.has(num)) delete betResults[num]; } }
 function recordAction(type, label, numbers, wasAdded, amount=0, extra={}) { redoStack=[]; const a={type, label, numbers:[...numbers], wasAdded, amount, ...extra}; undoStack.push(a); if(undoStack.length>100) undoStack.shift(); save_data(); }
+function syncSelectedNumbersWithSources() {
+    rebuildNumberSources();
+    const validNumbers = new Set();
+    numberSources.forEach((sources, n) => { validNumbers.add(n); });
+    for (const n of [...selectedNumbers]) {
+        if (!numberSources.has(n) && !inputHistory.some(h => h.isActive && h.sortedNumbers && h.sortedNumbers.includes(n))) {
+            // 该号码没有任何活跃来源，移除
+        }
+    }
+    for (const n of validNumbers) {
+        selectedNumbers.add(n);
+    }
+    inputHistory.forEach(it => {
+        if (it.isActive && it.sortedNumbers) {
+            it.sortedNumbers.forEach(n => selectedNumbers.add(n));
+        }
+    });
+}
 
 /* ============================================================
-   9. 撤销/恢复消息格式化
+   10. 撤销/恢复消息格式化
    ============================================================ */
 function getUndoActionDescription(a){
     if(a.type==='input_text'){ const txt = a.prevText || ''; if(!txt) return '输入'; const chineseOnly = extractChineseLabel(txt); return chineseOnly || '输入'; }
@@ -558,7 +608,7 @@ function formatUndoRedoMessage(action) {
 function getPlainUndoRedoText(action) { const html = formatUndoRedoMessage(action); return stripHtml(html).replace(/\n/g, ' ').trim(); }
 
 /* ============================================================
-   10. 模态框
+   11. 模态框
    ============================================================ */
 async function showConfirmModal(title, msg, onConfirm, isDanger = false, isHtml = false, hideMessage = false) { await ModalManager.showConfirm({ title, message: msg, onConfirm, isDanger, isHtml, hideMessage }); }
 async function showCopyPreviewModal(html, plain, onConfirm) { await ModalManager.showCopyPreview({ html, plain, onConfirm }); }
@@ -578,7 +628,7 @@ async function showBetConfirmModal(nums, amt, unit) {
 }
 
 /* ============================================================
-   11. 音效管理
+   12. 音效管理
    ============================================================ */
 const iosAudioWaker = document.getElementById('iosAudioWaker');
 function wakeIosAudio() { if (iosAudioWaker) { iosAudioWaker.load(); iosAudioWaker.play().then(() => { iosAudioWaker.pause(); iosAudioWaker.currentTime = 0; }).catch(() => {}); } }
@@ -606,7 +656,7 @@ const ModalManager = (function() {
 })();
 
 /* ============================================================
-   12. 撤销 / 恢复
+   13. 撤销 / 恢复
    ============================================================ */
 function restoreTempSnapshot(prevData, restoredNums, act) {
     if (act && act.selectedState) { restoreSelectedFromSnapshot(act, selectedNumbers); applySnapshot(act, selectedNumbers, bettingNumbers, betResults); }
@@ -639,7 +689,20 @@ async function performUndo(){
             addLog("undo",`撤销${getPlainUndoRedoText(act)}`); save_data(); isRestoring = false; return;
         }
         if(act.type==='clear_input'){ inputFromButton = true; const inp=document.getElementById('smartInput'); inp.value = act.prevText || ''; lastValidSmartInput = inp.value; inputFromButton = false; updateZodiacButtonsFromInput(inp.value); renderSmartInputHighlight(); addLog("undo",`撤销${getPlainUndoRedoText(act)}`); save_data(); isRestoring = false; return; }
-        if(act.type==='history_delete'){ const it=act.deletedItem; inputHistory.splice(act.index, 0, it); restoreSelectedFromSnapshot(act, selectedNumbers); applySnapshot(act, selectedNumbers, bettingNumbers, betResults); rebuildNumberSources(); updateAllStates(); addLog("undo",`撤销${getPlainUndoRedoText(act)}`); save_data(); isRestoring = false; return; }
+        if(act.type==='history_delete'){
+            const it=act.deletedItem;
+            if (!inputHistory.some(h => h.id === it.id)) {
+                inputHistory.splice(act.index, 0, it);
+            }
+            if (it.isActive && it.sortedNumbers) {
+                it.sortedNumbers.forEach(n => { addNumberSource(n, it.id); selectedNumbers.add(n); });
+            }
+            restoreSelectedFromSnapshot(act, selectedNumbers);
+            applySnapshot(act, selectedNumbers, bettingNumbers, betResults);
+            rebuildNumberSources();
+            updateAllStates();
+            addLog("undo",`撤销${getPlainUndoRedoText(act)}`); save_data(); isRestoring = false; return;
+        }
         if(act.type==='global_highlight'){ currentHighlightedNumber=act.prevValue; renderHistoryLog(); updateAllStates(); addLog("undo",`撤销${getPlainUndoRedoText(act)}`); save_data(); isRestoring = false; return; }
         if(act.type==='bet_confirm'){ applySnapshot(act, selectedNumbers, bettingNumbers, betResults); addLog("undo",`撤销${getPlainUndoRedoText(act)}`); }
         else if(act.type==='bet_cancel'){ applySnapshot(act, selectedNumbers, bettingNumbers, betResults); if(act.betData){ Object.entries(act.betData).forEach(([n, data]) => { const num = parseInt(n); if(selectedNumbers.has(num)){ betResults[num] = data; bettingNumbers.delete(num); } }); } addLog("undo",`撤销${getPlainUndoRedoText(act)}`); }
@@ -651,8 +714,36 @@ async function performUndo(){
         else if(act.type==='manual_betting_toggle'){ applySnapshot(act, selectedNumbers, bettingNumbers, betResults); act.numbers.forEach(n=>{ if(!selectedNumbers.has(n)){ bettingNumbers.delete(n); } }); addLog("undo",`撤销${getPlainUndoRedoText(act)}`); }
         else if(act.type==='clear_betting'){ applySnapshot(act, selectedNumbers, bettingNumbers, betResults); addLog("undo",`撤销${getPlainUndoRedoText(act)}`); }
         else if(act.type==='batch_betting_add'||act.type==='batch_betting_remove'){ applySnapshot(act, selectedNumbers, bettingNumbers, betResults); act.numbers.forEach(n=>{ if(!selectedNumbers.has(n)){ bettingNumbers.delete(n); } }); addLog("undo",`撤销${getPlainUndoRedoText(act)}`); }
-        else if(act.type==='freq_batch'||act.type==='batch_kill'||act.type==='batch_select'){ restoreSelectedFromSnapshot(act, selectedNumbers); applySnapshot(act, selectedNumbers, bettingNumbers, betResults); if(currentHighlightedNumber&&act.numbers.includes(currentHighlightedNumber)) currentHighlightedNumber=null; rebuildNumberSources(); refreshAllNumButtons(); updateAllStates(); addLog("undo",`撤销${getPlainUndoRedoText(act)}`); save_data(); isRestoring = false; return; }
-        else if(act.type==='history_label_on'||act.type==='history_label_off'){ restoreSelectedFromSnapshot(act, selectedNumbers); applySnapshot(act, selectedNumbers, bettingNumbers, betResults); if(currentHighlightedNumber&&act.numbers.includes(currentHighlightedNumber)) currentHighlightedNumber=null; const it=inputHistory.find(h=>h.id===act.historyId); if(it){ it.isActive = !it.isActive; rebuildNumberSources(); } refreshAllNumButtons(); updateAllStates(); addLog("undo",`撤销${getPlainUndoRedoText(act)}`); save_data(); isRestoring = false; return; }
+        else if(act.type==='freq_batch'||act.type==='batch_kill'||act.type==='batch_select'){
+            restoreSelectedFromSnapshot(act, selectedNumbers);
+            applySnapshot(act, selectedNumbers, bettingNumbers, betResults);
+            if(currentHighlightedNumber&&act.numbers.includes(currentHighlightedNumber)) currentHighlightedNumber=null;
+            rebuildNumberSources();
+            syncHistoryActiveState();
+            refreshAllNumButtons();
+            updateAllStates();
+            addLog("undo",`撤销${getPlainUndoRedoText(act)}`); save_data(); isRestoring = false; return;
+        }
+        else if(act.type==='history_label_on'||act.type==='history_label_off'){
+            const it = inputHistory.find(h => h.id === act.historyId);
+            if (it) {
+                it.isActive = !it.isActive;
+                if (it.isActive && it.sortedNumbers) {
+                    it.sortedNumbers.forEach(n => { addNumberSource(n, it.id); selectedNumbers.add(n); });
+                } else if (!it.isActive && it.sortedNumbers) {
+                    it.sortedNumbers.forEach(n => {
+                        removeNumberSource(n, it.id);
+                        if (!numberSources.has(n)) { selectedNumbers.delete(n); delete betResults[n]; bettingNumbers.delete(n); }
+                    });
+                }
+            }
+            restoreSelectedFromSnapshot(act, selectedNumbers);
+            applySnapshot(act, selectedNumbers, bettingNumbers, betResults);
+            rebuildNumberSources();
+            refreshAllNumButtons();
+            updateAllStates();
+            addLog("undo",`撤销${getPlainUndoRedoText(act)}`); save_data(); isRestoring = false; return;
+        }
         else if(act.type==='batch_input'){ restoreSelectedFromSnapshot(act, selectedNumbers); applySnapshot(act, selectedNumbers, bettingNumbers, betResults); if(act.prevHistory) inputHistory = act.prevHistory.map(h => ({...h, numbers: [...(h.numbers||[])], sortedNumbers: [...(h.sortedNumbers||[])]})); cleanupInvalidHistory(); rebuildNumberSources(); syncHistoryActiveState(); refreshAllNumButtons(); updateAllStates(); addLog("undo",`撤销${getPlainUndoRedoText(act)}`); save_data(); isRestoring = false; return; }
         else if(act.type==='zodiac_input'){ inputFromButton = true; const inp=document.getElementById('smartInput'); inp.value=act.prevText||''; lastValidSmartInput = inp.value; inputFromButton = false; updateZodiacButtonsFromInput(inp.value); renderSmartInputHighlight(); addLog("undo",`撤销${getPlainUndoRedoText(act)}`); updateAllStates(); save_data(); isRestoring = false; return; }
         else if(act.type==='clear_bet_results'){ betResults = { ...(act.prevBetResults || {}) }; addLog("undo",`撤销${getPlainUndoRedoText(act)}`); }
@@ -694,8 +785,36 @@ async function performRedo(){
         else if(act.type==='manual_betting_toggle'){ applySnapshot(act, selectedNumbers, bettingNumbers, betResults); if(act.wasAdded){ act.numbers.forEach(n=>{ if(selectedNumbers.has(n)) bettingNumbers.add(n); }); } else { act.numbers.forEach(n=>bettingNumbers.delete(n)); } addLog("redo",`恢复${getPlainUndoRedoText(act)}`); }
         else if(act.type==='clear_betting'){ applySnapshot(act, selectedNumbers, bettingNumbers, betResults); addLog("redo",`恢复${getPlainUndoRedoText(act)}`); }
         else if(act.type==='batch_betting_add'||act.type==='batch_betting_remove'){ applySnapshot(act, selectedNumbers, bettingNumbers, betResults); if(act.wasAdded){ act.numbers.forEach(n=>{ if(selectedNumbers.has(n)) bettingNumbers.add(n); }); } else { act.numbers.forEach(n=>bettingNumbers.delete(n)); } addLog("redo",`恢复${getPlainUndoRedoText(act)}`); }
-        else if(act.type==='freq_batch'||act.type==='batch_kill'||act.type==='batch_select'){ if(act.wasAdded){ act.numbers.forEach(n => { if(!selectedNumbers.has(n)) selectedNumbers.add(n); }); act.numbers.forEach(n=>{ if(selectedNumbers.has(n)) bettingNumbers.add(n); }); } else { act.numbers.forEach(n => { selectedNumbers.delete(n); delete betResults[n]; bettingNumbers.delete(n); }); } if(currentHighlightedNumber&&act.numbers.includes(currentHighlightedNumber)) currentHighlightedNumber=null; rebuildNumberSources(); refreshAllNumButtons(); updateAllStates(); addLog("redo",`恢复${getPlainUndoRedoText(act)}`); save_data(); isRestoring = false; return; }
-        else if(act.type==='history_label_on'||act.type==='history_label_off'){ restoreSelectedFromSnapshot(act, selectedNumbers); applySnapshot(act, selectedNumbers, bettingNumbers, betResults); if(currentHighlightedNumber&&act.numbers.includes(currentHighlightedNumber)) currentHighlightedNumber=null; const it=inputHistory.find(h=>h.id===act.historyId); if(it){ it.isActive = !it.isActive; rebuildNumberSources(); } refreshAllNumButtons(); updateAllStates(); addLog("redo",`恢复${getPlainUndoRedoText(act)}`); save_data(); isRestoring = false; return; }
+        else if(act.type==='freq_batch'||act.type==='batch_kill'||act.type==='batch_select'){
+            restoreSelectedFromSnapshot(act, selectedNumbers);
+            applySnapshot(act, selectedNumbers, bettingNumbers, betResults);
+            if(currentHighlightedNumber&&act.numbers.includes(currentHighlightedNumber)) currentHighlightedNumber=null;
+            rebuildNumberSources();
+            syncHistoryActiveState();
+            refreshAllNumButtons();
+            updateAllStates();
+            addLog("redo",`恢复${getPlainUndoRedoText(act)}`); save_data(); isRestoring = false; return;
+        }
+        else if(act.type==='history_label_on'||act.type==='history_label_off'){
+            const it = inputHistory.find(h => h.id === act.historyId);
+            if (it) {
+                it.isActive = !it.isActive;
+                if (it.isActive && it.sortedNumbers) {
+                    it.sortedNumbers.forEach(n => { addNumberSource(n, it.id); selectedNumbers.add(n); });
+                } else if (!it.isActive && it.sortedNumbers) {
+                    it.sortedNumbers.forEach(n => {
+                        removeNumberSource(n, it.id);
+                        if (!numberSources.has(n)) { selectedNumbers.delete(n); delete betResults[n]; bettingNumbers.delete(n); }
+                    });
+                }
+            }
+            restoreSelectedFromSnapshot(act, selectedNumbers);
+            applySnapshot(act, selectedNumbers, bettingNumbers, betResults);
+            rebuildNumberSources();
+            refreshAllNumButtons();
+            updateAllStates();
+            addLog("redo",`恢复${getPlainUndoRedoText(act)}`); save_data(); isRestoring = false; return;
+        }
         else if(act.type==='batch_input'){ restoreSelectedFromSnapshot(act, selectedNumbers); applySnapshot(act, selectedNumbers, bettingNumbers, betResults); if(act.wasAdded){ act.numbers.forEach(n => { addNumberSource(n, Date.now()); }); } if(act.nextHistory) inputHistory = act.nextHistory.map(h => ({...h, numbers: [...(h.numbers||[])], sortedNumbers: [...(h.sortedNumbers||[])]})); cleanupInvalidHistory(); rebuildNumberSources(); syncHistoryActiveState(); refreshAllNumButtons(); updateAllStates(); addLog("redo",`恢复${getPlainUndoRedoText(act)}`); save_data(); isRestoring = false; return; }
         else if(act.type==='zodiac_input'){ inputFromButton = true; const inp=document.getElementById('smartInput'); inp.value=act.nextText||''; lastValidSmartInput = inp.value; inputFromButton = false; updateZodiacButtonsFromInput(inp.value); renderSmartInputHighlight(); addLog("redo",`恢复${getPlainUndoRedoText(act)}`); updateAllStates(); save_data(); isRestoring = false; return; }
         else if(act.type==='clear_bet_results'){ betResults = { ...(act.prevBetResults || {}) }; addLog("redo",`恢复${getPlainUndoRedoText(act)}`); }
@@ -706,7 +825,7 @@ async function performRedo(){
 }
 
 /* ============================================================
-   13. 输入验证 / 智能输入框
+   14. 输入验证 / 智能输入框
    ============================================================ */
 function findInvalidRanges(txt) {
     const ranges = [];
@@ -779,7 +898,7 @@ function getFullInputNums(txt) {
 function updateZodiacButtonsFromInput(txt) { document.querySelectorAll('.select-zodiac-btn').forEach(b=>{ b.classList.toggle('is-active-zodiac', txt.includes(b.textContent)); }); }
 
 /* ============================================================
-   14. 输入处理
+   15. 输入处理
    ============================================================ */
 function processConfirm(){
     const inp = document.getElementById('smartInput'), txt = inp.value.trim();
@@ -844,7 +963,7 @@ async function handleClearInput(){
 }
 
 /* ============================================================
-   15. 选号 / 杀号 / 待购 / 买号操作
+   16. 选号 / 杀号 / 待购 / 买号操作
    ============================================================ */
 async function toggleNumber(n){
     await playSound('click');
@@ -927,10 +1046,10 @@ async function handleSelectAll(){
 }
 function hasFullSelection() { return inputHistory.some(it => it.labelPrefix === '12肖' && it.isActive); }
 function syncGlobalStateToHistory(nums, st) { inputHistory.forEach(it=> nums.forEach(n=>{ if(it.groupState?.hasOwnProperty(n)) it.groupState[n]=st; })); renderHistoryLog(); }
-function refreshAllNumButtons() { document.querySelectorAll('.num-btn').forEach(b => { const n = parseInt(b.dataset.num); if (!isNaN(n)) { if (selectedNumbers.has(n)) b.classList.add('is-active'); else b.classList.remove('is-active'); } }); }
+function refreshAllNumButtons() { document.querySelectorAll('.num-btn').forEach(b => { const n = parseInt(b.dataset.num); if (!isNaN(n)) { if (selectedNumbers.has(n)) { b.classList.remove('is-active'); b.classList.add('is-active'); } else { b.classList.remove('is-active'); } } }); }
 
 /* ============================================================
-   16. 杀号处理
+   17. 杀号处理
    ============================================================ */
 async function handleZodiacGroupKill(label, e) {
     await playSound('click');
@@ -961,7 +1080,7 @@ async function handleTailKill(t,e){ await playSound('click'); const btn = e ? e.
 async function handleSegmentKill(s,e){ await playSound('click'); const btn = e ? e.target : event.target; if (btn.classList.contains('active')) return; await playSound('slip'); const nums=getGroupNumbers('segment',s.toString()), lbl=getGroupLabel('segment',s.toString()); const rm=nums.filter(n=>selectedNumbers.has(n)); if(!rm.length) return; const message = buildTwoLineMessage(`杀${lbl}`, rm); showConfirmModal('', message, async ()=>{ const snapshot = captureFullSnapshot(rm); recordAction('batch_kill',lbl,rm,false,0,snapshot); rm.forEach(n=>{ selectedNumbers.delete(n); delete betResults[n]; bettingNumbers.delete(n); document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.remove('is-active'); }); syncGlobalStateToHistory(rm,false); addLog("select",`杀${lbl} ${formatNumbersForDisplay(rm)}`); updateAllStates(); }, false, true); }
 
 /* ============================================================
-   17. 待购 / 买号处理
+   18. 待购 / 买号处理
    ============================================================ */
 async function handleResultNumClick(n){
     await playSound('click');
@@ -1108,7 +1227,7 @@ async function handleClearBetResults(){
 }
 
 /* ============================================================
-   18. 暂存处理
+   19. 暂存处理
    ============================================================ */
 async function handleTempStore(){
     await playSound('click');
@@ -1162,7 +1281,7 @@ async function handleTempClear(){
 }
 
 /* ============================================================
-   19. 复制功能
+   20. 复制功能
    ============================================================ */
 async function copySelectedNumbers(){
     await playSound('click');
@@ -1208,7 +1327,7 @@ async function copyBetResults(){
 }
 
 /* ============================================================
-   20. 重置
+   21. 重置
    ============================================================ */
 async function handleReset(){
     await playSound('click');
@@ -1243,7 +1362,7 @@ async function handleReset(){
 }
 
 /* ============================================================
-   21. 频率统计
+   22. 频率统计
    ============================================================ */
 function calculateNumberFrequencies(){
     const f={};
@@ -1283,7 +1402,7 @@ function toggleNumbersByFrequency(fr){
 }
 
 /* ============================================================
-   22. 周期显示
+   23. 周期显示
    ============================================================ */
 function updatePeriodDisplay() {
     const now = new Date();
@@ -1312,7 +1431,7 @@ function updatePeriodDisplay() {
 }
 
 /* ============================================================
-   23. UI 渲染
+   24. UI 渲染
    ============================================================ */
 function renderSelectZodiacButtons(){
     const c=document.getElementById('selectZodiacButtons');
@@ -1530,7 +1649,14 @@ async function removeHistoryItem(idx){
     if(!it) return;
     const snapshot = captureFullSnapshot(it.sortedNumbers || []);
     recordAction('history_delete','删除历史',[],false,0,{index:idx,deletedItem:it,...snapshot});
-    if(it.isActive && it.numbers) it.numbers.forEach(n=>{ removeNumberSource(n,it.id); if(!numberSources.has(n)){ selectedNumbers.delete(n); if (betResults.hasOwnProperty(n)) delete betResults[n]; bettingNumbers.delete(n); } });
+    if(it.isActive && it.numbers) it.numbers.forEach(n=>{
+        removeNumberSource(n,it.id);
+        if(!numberSources.has(n)){
+            selectedNumbers.delete(n);
+            if (betResults.hasOwnProperty(n)) delete betResults[n];
+            bettingNumbers.delete(n);
+        }
+    });
     inputHistory.splice(idx,1);
     updateAllStates();
     save_data();
@@ -1595,7 +1721,7 @@ function updateResultText(){
     if(nEven.length) h+=`<div class="result-column"><span class="result-col-label">双号</span> ${nEven.map(sp).join('')}</div>`;
     d.innerHTML=h;
 }
-function updateNumberBalls(){ document.querySelectorAll('.num-btn').forEach(b=>{ const n=parseInt(b.dataset.num); if(!isNaN(n)) b.classList.toggle('is-active', selectedNumbers.has(n)); }); }
+function updateNumberBalls(){ document.querySelectorAll('.num-btn').forEach(b=>{ const n=parseInt(b.dataset.num); if(!isNaN(n)) { if (selectedNumbers.has(n)) { b.classList.remove('is-active'); b.classList.add('is-active'); } else { b.classList.remove('is-active'); } } }); }
 function updateZodiacButtons(){ zodiacs.forEach((z,i)=>{ const col=[]; customGridRows.forEach(r=>{ if(r[i]!==null) col.push(r[i]); }); const has=col.some(n=>selectedNumbers.has(n)); document.querySelectorAll(`.zodiac-btn[data-zodiac-index="${i}"]`).forEach(b=>{ b.classList.toggle('is-active-zodiac', has); }); }); }
 function updateFilterButtons(){
     document.querySelectorAll('#kill-head-wuxing-controls .filter-btn').forEach(b=>{
@@ -1818,7 +1944,7 @@ function updateAllStates(){
 }
 
 /* ============================================================
-   24. 初始化
+   25. 初始化
    ============================================================ */
 function init(){
     renderKillControls();
@@ -1880,7 +2006,7 @@ document.getElementById('dynamic-app-icon').setAttribute('href', iconUrl);
 init();
 
 /* ============================================================
-   25. 全局事件
+   26. 全局事件
    ============================================================ */
 let lastTouchEnd=0;
 document.addEventListener('touchend', e=>{ const n=Date.now(); if(n-lastTouchEnd<=300){ const tag=e.target.tagName; if(tag!=='BUTTON'&&tag!=='INPUT'&&tag!=='TEXTAREA'){ e.preventDefault(); } } lastTouchEnd=n; }, {passive: false});
