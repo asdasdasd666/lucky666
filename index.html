@@ -197,13 +197,14 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helve
 .bet-result-items { display: inline; width: 100%; line-height: 1.6; }
 .bet-result-items span { font-size: 0.9em; }
 .amt-tag { font-size: 0.8rem; color: #718096; font-weight: 600; white-space: nowrap; margin-left: 2px; }
-.log-container { background: rgba(247, 250, 252, 0.6); border-radius: 6px; border: 1px solid rgba(226, 232, 240, 0.6); max-height: 150px; overflow-y: auto; overflow-x: hidden; padding: 4px; font-size: 0.65rem; color: #4a5568; font-family: monospace; -webkit-overflow-scrolling: touch; word-break: break-word; margin-bottom: env(safe-area-inset-bottom, 10px); user-select: text; -webkit-user-select: text; cursor: text; }
+.log-container { background: rgba(247, 250, 252, 0.6); border-radius: 6px; border: 1px solid rgba(226, 232, 240, 0.6); max-height: 300px; overflow-y: auto; overflow-x: hidden; padding: 4px; font-size: 0.65rem; color: #4a5568; font-family: monospace; -webkit-overflow-scrolling: touch; word-break: break-word; margin-bottom: env(safe-area-inset-bottom, 10px); user-select: text; -webkit-user-select: text; cursor: text; }
 .log-item { padding: 2px 0; border-bottom: 1px dashed rgba(226, 232, 240, 0.8); display: flex; justify-content: space-between; word-break: break-word; }
 .log-item:last-child { border-bottom: none; }
 .log-time { color: #718096; font-size: 0.55rem; margin-right: 4px; font-weight: 400; }
 .log-action { font-weight: 400; }
 .log-action.select { color: #2b6cb0; } .log-action.input { color: #2b6cb0; } .log-action.clear { color: #c53030; } .log-action.undo { color: #718096; } .log-action.redo { color: #ed8936; }
 .log-num { font-weight: 400; }
+.log-state { color: #d69e2e; }
 .toast { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.9); background: rgba(255, 255, 255, 0.95); color: #1a202c; padding: 12px 24px; border-radius: 50px; display: none; z-index: 10002; font-size: 1.2rem; font-weight: 600; box-shadow: 0 10px 25px rgba(0,0,0,0.2); opacity: 0; transition: all 0.3s; pointer-events: none; max-width: 90%; text-align: center; box-sizing: border-box; }
 .toast.show { display: block; opacity: 1; transform: translate(-50%, -50%) scale(1); }
 .toast-long { white-space: nowrap; }
@@ -331,7 +332,7 @@ button, .num-btn, .action-grid-btn, .sphere-btn-base, .filter-btn, .wave-btn, .z
 <div class="bet-box-title"><div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;"><span>待购号码</span><span class="bet-count-badge" id="bettingCountBadge">0 个</span><button id="clearBettingBtn" class="temp-action-btn orange" onclick="handleClearBetting()">清空</button></div></div>
 <div class="bet-action-area" id="betActionArea"><div class="bet-input-row"><div class="bet-nums-display" id="betNumsDisplay"></div><button id="betAmountBtn" class="bet-amount-btn grey" onclick="handleAmountButtonClick()">无号码</button></div></div>
 <div class="bet-result-container" id="betResultContainer"><div class="bet-result-header"><div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;"><span>买号结果</span><span class="bet-count-badge" id="betCountBadge">0 个</span><span class="bet-total-amount" id="betTotalAmount">共 0 元</span></div><div style="display:flex; gap:6px;"><button class="clear-result-btn" id="clearResultBtn" onclick="handleClearBetResults()">清空结果</button><button class="small-copy-btn" id="copyBetResultBtn" onclick="copyBetResults()">复制</button></div></div><div class="bet-result-box" id="betResultBox" oncontextmenu="return false;" ondragstart="return false;"><div class="bet-result-items" id="betResultItems"></div></div></div>
-<div style="font-size: 0.65rem; font-weight: 700; color: #4a5568; margin-bottom: 2px; display:flex; justify-content:space-between; align-items:center;"><button class="small-copy-btn" id="copyLogBtn" onclick="copyLog()" style="margin-left:0; width:auto; height:auto; padding:2px 10px;">操作记录</button><button class="small-copy-btn clear-log-btn" id="clearLogBtn" onclick="handleClearLog()" style="margin-left:4px; width:auto; height:auto; padding:2px 10px;">清空记录</button><span style="font-weight: 600; color: #718096;">V7.5</span></div>
+<div style="font-size: 0.65rem; font-weight: 700; color: #4a5568; margin-bottom: 2px; display:flex; justify-content:space-between; align-items:center;"><button class="small-copy-btn" id="copyLogBtn" onclick="copyLog()" style="margin-left:0; width:auto; height:auto; padding:2px 10px;">操作记录</button><button class="small-copy-btn clear-log-btn" id="clearLogBtn" onclick="handleClearLog()" style="margin-left:4px; width:auto; height:auto; padding:2px 10px;">清空记录</button><span style="font-weight: 600; color: #718096;">V7.8</span></div>
 <div class="log-container" id="logContainer"><div class="log-item" style="color:#718096; justify-content:center;">暂无记录</div></div>
 </div>
 <div class="toast" id="toast">操作成功</div>
@@ -515,7 +516,69 @@ function showToastWithNums(label, numbers, fixedWidth = false, singleLine = fals
 /* ============================================================
    6. 日志
    ============================================================ */
-function addLog(type, msg) { const c=document.getElementById('logContainer'); if(c.children.length===1&&c.children[0].textContent.includes("暂无")) c.innerHTML=''; const time=`${new Date().getHours().toString().padStart(2,'0')}:${new Date().getMinutes().toString().padStart(2,'0')}`; const div=document.createElement('div'); div.className='log-item'; let cls='select'; if(type==='input') cls='input'; else if(type==='clear') cls='clear'; else if(type==='bet') cls='input'; else if(type==='undo') cls='undo'; else if(type==='redo') cls='redo'; const coloredMsg = msg.replace(/(\d{2})/g, (match, num) => { const n = parseInt(num); if (n >= 1 && n <= 49) { return `<span class="log-num" style="color:${getNumColor(n)};">${fmtNum(n)}</span>`; } return match; }); div.innerHTML=`<span><span class="log-time">${time}</span><span class="log-action ${cls}">${coloredMsg}</span></span>`; c.prepend(div); while(c.children.length>100) c.removeChild(c.lastChild); }
+function getStateLogMessage() {
+    const labels = [];
+    inputHistory.forEach(it => {
+        if (it && it.labelPrefix) {
+            labels.push(it.labelPrefix);
+        }
+    });
+    const labelText = labels.length > 0 ? labels.join('、') : '无';
+    const selectedText = selectedNumbers.size > 0 ? formatNumbersForDisplay([...selectedNumbers]) : '无';
+    let bettingText;
+    if (bettingNumbers.size > 0) {
+        bettingText = '待购号码' + formatNumbersForDisplay([...bettingNumbers]);
+    } else {
+        bettingText = '无待购号码';
+    }
+    const betKeys = Object.keys(betResults).map(Number);
+    let betText = '';
+    if (betKeys.length > 0) {
+        const grp = {};
+        betKeys.forEach(n => {
+            const data = betResults[n];
+            if (!data || typeof data !== 'object') return;
+            const amount = data.amount !== undefined ? data.amount : 0;
+            const unit = data.unit !== undefined ? data.unit : '';
+            const key = amount + '|' + unit;
+            if (!grp[key]) grp[key] = [];
+            grp[key].push(n);
+        });
+        const parts = [];
+        let total = 0;
+        Object.keys(grp).sort((a,b)=>{ const amtA=parseFloat(a.split('|')[0])||0; const amtB=parseFloat(b.split('|')[0])||0; return amtA-amtB; }).forEach(key => {
+            const nums = grp[key].sort((a,b)=>a-b);
+            const [amt,unit] = key.split('|');
+            const amountNum = parseFloat(amt) || 0;
+            total += amountNum * nums.length;
+            parts.push(`${formatNumbersForDisplay(nums)}各${amt}${unit}`);
+        });
+        betText = '已买' + parts.join('、') + `，共${total}元`;
+    } else {
+        betText = '无已买号码';
+    }
+    return `当前状态:历史标签${labelText}，已选号码${selectedText}，${bettingText}，${betText}`;
+}
+function logCurrentState() {
+    const c = document.getElementById('logContainer');
+    if (!c) return;
+    if (c.children.length === 1 && c.children[0].textContent.includes('暂无')) c.innerHTML = '';
+    const time = `${new Date().getHours().toString().padStart(2,'0')}:${new Date().getMinutes().toString().padStart(2,'0')}`;
+    const div = document.createElement('div');
+    div.className = 'log-item';
+    const msg = getStateLogMessage();
+    const coloredMsg = msg.replace(/(\d{2})/g, (match, num) => {
+        const n = parseInt(num);
+        if (n >= 1 && n <= 49) {
+            return `<span class="log-num" style="color:${getNumColor(n)};">${fmtNum(n)}</span>`;
+        }
+        return match;
+    });
+    div.innerHTML = `<span><span class="log-time">${time}</span><span class="log-state">${coloredMsg}</span></span>`;
+    c.prepend(div);
+    while (c.children.length > 200) c.removeChild(c.lastChild);
+}
+function addLog(type, msg) { const c=document.getElementById('logContainer'); if(c.children.length===1&&c.children[0].textContent.includes("暂无")) c.innerHTML=''; const time=`${new Date().getHours().toString().padStart(2,'0')}:${new Date().getMinutes().toString().padStart(2,'0')}`; const div=document.createElement('div'); div.className='log-item'; let cls='select'; if(type==='input') cls='input'; else if(type==='clear') cls='clear'; else if(type==='bet') cls='input'; else if(type==='undo') cls='undo'; else if(type==='redo') cls='redo'; const coloredMsg = msg.replace(/(\d{2})/g, (match, num) => { const n = parseInt(num); if (n >= 1 && n <= 49) { return `<span class="log-num" style="color:${getNumColor(n)};">${fmtNum(n)}</span>`; } return match; }); div.innerHTML=`<span><span class="log-time">${time}</span><span class="log-action ${cls}">${coloredMsg}</span></span>`; c.prepend(div); while(c.children.length>200) c.removeChild(c.lastChild); logCurrentState(); }
 
 /* ============================================================
    7. 复制操作日志
@@ -1144,7 +1207,19 @@ async function performUndo(){
             addLog("undo",`撤销${getPlainUndoRedoText(act)}`); save_data(); isRestoring = false; return;
         }
         if(act.type==='global_highlight'){ currentHighlightedNumber=act.prevValue; renderHistoryLog(); updateAllStates(); addLog("undo",`撤销${getPlainUndoRedoText(act)}`); save_data(); isRestoring = false; return; }
-        if(act.type==='bet_confirm'){ applySnapshot(act, selectedNumbers, bettingNumbers, betResults); addLog("undo",`撤销${getPlainUndoRedoText(act)}`); }
+        if(act.type==='bet_confirm'){
+            applySnapshot(act, selectedNumbers, bettingNumbers, betResults);
+            if(act.betData){
+                Object.entries(act.betData).forEach(([n, data]) => {
+                    const num = parseInt(n);
+                    if(selectedNumbers.has(num)){
+                        delete betResults[num];
+                        bettingNumbers.add(num);
+                    }
+                });
+            }
+            addLog("undo",`撤销${getPlainUndoRedoText(act)}`);
+        }
         else if(act.type==='bet_cancel'){ applySnapshot(act, selectedNumbers, bettingNumbers, betResults); if(act.betData){ Object.entries(act.betData).forEach(([n, data]) => { const num = parseInt(n); if(selectedNumbers.has(num)){ betResults[num] = data; bettingNumbers.delete(num); } }); } addLog("undo",`撤销${getPlainUndoRedoText(act)}`); }
         else if(act.type==='temp_store'){ const added=act.addedNums||[]; tempStorageData=tempStorageData.filter(i=>!added.includes(i.num)); renderTempStorage(); updateTempCountBadge(); updateTempStoreBtn(); updateTempRestoreBtn(); updateTempClearBtn(); addLog("undo",`撤销${getPlainUndoRedoText(act)}`); }
         else if(act.type==='temp_restore'){ const prev=act.prevTempData||[]; const restored=act.restoredNums||[]; restoreTempSnapshot(prev, restored, act); addLog("undo",`撤销${getPlainUndoRedoText(act)}`); }
@@ -1237,7 +1312,19 @@ async function performRedo(){
         }
         if(act.type==='history_delete'){ const it=inputHistory[act.index]; restoreSelectedFromSnapshot(act, selectedNumbers); applySnapshot(act, selectedNumbers, bettingNumbers, betResults); if(it && it.isActive && it.numbers){ it.numbers.forEach(n=>{ removeNumberSource(n, it.id); if(!numberSources.has(n)){ selectedNumbers.delete(n); if (betResults.hasOwnProperty(n)) delete betResults[n]; bettingNumbers.delete(n); } }); } inputHistory.splice(act.index, 1); rebuildNumberSources(); updateAllStates(); addLog("redo",`恢复${getPlainUndoRedoText(act)}`); save_data(); isRestoring = false; return; }
         if(act.type==='global_highlight'){ currentHighlightedNumber=act.newValue; renderHistoryLog(); updateAllStates(); addLog("redo",`恢复${getPlainUndoRedoText(act)}`); save_data(); isRestoring = false; return; }
-        if(act.type==='bet_confirm'){ applySnapshot(act, selectedNumbers, bettingNumbers, betResults); if(act.betData){ Object.entries(act.betData).forEach(([n, data]) => { const num = parseInt(n); if(selectedNumbers.has(num)){ betResults[num] = data; bettingNumbers.delete(num); } }); } addLog("redo",`恢复${getPlainUndoRedoText(act)}`); }
+        if(act.type==='bet_confirm'){
+            applySnapshot(act, selectedNumbers, bettingNumbers, betResults);
+            if(act.betData){
+                Object.entries(act.betData).forEach(([n, data]) => {
+                    const num = parseInt(n);
+                    if(selectedNumbers.has(num)){
+                        betResults[num] = data;
+                        bettingNumbers.delete(num);
+                    }
+                });
+            }
+            addLog("redo",`恢复${getPlainUndoRedoText(act)}`);
+        }
         else if(act.type==='bet_cancel'){ applySnapshot(act, selectedNumbers, bettingNumbers, betResults); act.numbers.forEach(n => { if(selectedNumbers.has(n)) { delete betResults[n]; bettingNumbers.add(n); } }); addLog("redo",`恢复${getPlainUndoRedoText(act)}`); }
         else if(act.type==='temp_store'){ const added=act.addedNums||[]; added.forEach(n=>{ if(!tempStorageData.some(i=>i.num===n)) tempStorageData.push({num:n}); }); tempStorageData.sort((a,b)=>a.num-b.num); renderTempStorage(); updateTempCountBadge(); updateTempStoreBtn(); updateTempRestoreBtn(); updateTempClearBtn(); addLog("redo",`恢复${getPlainUndoRedoText(act)}`); }
         else if(act.type==='temp_restore'){ const prev=act.prevTempData||[]; const restored=act.restoredNums||[]; redoTempRestore(prev, restored); addLog("redo",`恢复${getPlainUndoRedoText(act)}`); }
@@ -2141,6 +2228,7 @@ async function removeHistoryItem(idx){
     });
     inputHistory.splice(idx,1);
     updateAllStates();
+    addLog("clear",`删除历史 ${it.labelPrefix}`);
     save_data();
 }
 function renderTempStorage(){
