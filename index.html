@@ -204,7 +204,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helve
 .log-action { font-weight: 400; }
 .log-action.select { color: #2b6cb0; } .log-action.input { color: #2b6cb0; } .log-action.clear { color: #c53030; } .log-action.undo { color: #718096; } .log-action.redo { color: #ed8936; }
 .log-num { font-weight: 400; }
-.log-state { color: #d69e2e; }
+.log-state { color: #4a5568; }
 .toast { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.9); background: rgba(255, 255, 255, 0.95); color: #1a202c; padding: 12px 24px; border-radius: 50px; display: none; z-index: 10002; font-size: 1.2rem; font-weight: 600; box-shadow: 0 10px 25px rgba(0,0,0,0.2); opacity: 0; transition: all 0.3s; pointer-events: none; max-width: 90%; text-align: center; box-sizing: border-box; }
 .toast.show { display: block; opacity: 1; transform: translate(-50%, -50%) scale(1); }
 .toast-long { white-space: nowrap; }
@@ -332,7 +332,7 @@ button, .num-btn, .action-grid-btn, .sphere-btn-base, .filter-btn, .wave-btn, .z
 <div class="bet-box-title"><div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;"><span>待购号码</span><span class="bet-count-badge" id="bettingCountBadge">0 个</span><button id="clearBettingBtn" class="temp-action-btn orange" onclick="handleClearBetting()">清空</button></div></div>
 <div class="bet-action-area" id="betActionArea"><div class="bet-input-row"><div class="bet-nums-display" id="betNumsDisplay"></div><button id="betAmountBtn" class="bet-amount-btn grey" onclick="handleAmountButtonClick()">无号码</button></div></div>
 <div class="bet-result-container" id="betResultContainer"><div class="bet-result-header"><div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;"><span>买号结果</span><span class="bet-count-badge" id="betCountBadge">0 个</span><span class="bet-total-amount" id="betTotalAmount">共 0 元</span></div><div style="display:flex; gap:6px;"><button class="clear-result-btn" id="clearResultBtn" onclick="handleClearBetResults()">清空结果</button><button class="small-copy-btn" id="copyBetResultBtn" onclick="copyBetResults()">复制</button></div></div><div class="bet-result-box" id="betResultBox" oncontextmenu="return false;" ondragstart="return false;"><div class="bet-result-items" id="betResultItems"></div></div></div>
-<div style="font-size: 0.65rem; font-weight: 700; color: #4a5568; margin-bottom: 2px; display:flex; justify-content:space-between; align-items:center;"><button class="small-copy-btn" id="copyLogBtn" onclick="copyLog()" style="margin-left:0; width:auto; height:auto; padding:2px 10px;">操作记录</button><button class="small-copy-btn clear-log-btn" id="clearLogBtn" onclick="handleClearLog()" style="margin-left:4px; width:auto; height:auto; padding:2px 10px;">清空记录</button><span style="font-weight: 600; color: #718096;">V8.0</span></div>
+<div style="font-size: 0.65rem; font-weight: 700; color: #4a5568; margin-bottom: 2px; display:flex; justify-content:space-between; align-items:center;"><button class="small-copy-btn" id="copyLogBtn" onclick="copyLog()" style="margin-left:0; width:auto; height:auto; padding:2px 10px;">操作记录</button><button class="small-copy-btn clear-log-btn" id="clearLogBtn" onclick="handleClearLog()" style="margin-left:4px; width:auto; height:auto; padding:2px 10px;">清空记录</button><span style="font-weight: 600; color: #718096;">V8.1</span></div>
 <div class="log-container" id="logContainer"><div class="log-item" style="color:#718096; justify-content:center;">暂无记录</div></div>
 </div>
 <div class="toast" id="toast">操作成功</div>
@@ -404,7 +404,7 @@ const freqColorPalette = [ "linear-gradient(145deg, #4169E1, #3151B1)", "linear-
 const statsTypeNames = { head:'头', tail:'尾', segment:'段', wuxing:'五行', wave:'波', zodiac:'肖' };
 const statsUnitLabels = { head:'头', tail:'尾', segment:'段', wuxing:'行', wave:'波', zodiac:'肖' };
 const statsKillSuffix = { head:'头', tail:'尾', segment:'段', wuxing:'', wave:'', zodiac:'' };
-const statsValidators = { head: (ch) => ch >= '0' && ch <= '4', tail: (ch) => ch >= '0' && ch <= '9', segment: (ch) => ch >= '1' && ch <= '7', wuxing: (ch) => /^[金木水火土]$/.test(ch), wave: (ch) => /^[红绿蓝]$/.test(ch), zodiac: (ch) => zodiacs.includes(ch) };
+const statsValidators = { head: (ch) => ch >= '0' && ch <= '4', tail: (ch) => ch >= '0' && ch <= '9', segment: (ch) => ch >= '1' && ch <= '7', wuxing: (ch) => /^[金木水火土]$/.test(ch), zodiac: (ch) => zodiacs.includes(ch) };
 
 /* ============================================================
    2. 状态变量
@@ -421,13 +421,8 @@ let numberSources = new Map();
 let globalFreqColorMap = new Map();
 let toastTimer = null;
 let inputFromButton = false;
-let isPasting = false;
 let isComposingSmart = false;
 let lastValidSmartInput = '';
-let amountInputHandler = null;
-let unitInputHandler = null;
-let unitFocusHandler = null;
-let smartHighlightPending = false;
 let isRestoring = false;
 let currentPeriod = 0;
 let statsHistory = { head: [], tail: [], segment: [], wuxing: [], wave: [], zodiac: [] };
@@ -443,10 +438,10 @@ function getNumColor(n) { if(redGroup.has(n)) return '#e53e3e'; if(blueGroup.has
 function getColorClass(n){ if(redGroup.has(n)) return 'text-red'; if(greenGroup.has(n)) return 'text-green'; if(blueGroup.has(n)) return 'text-blue'; return ''; }
 function buildNumsHtml(numbers) { if (!numbers || !numbers.length) return ''; const sorted = [...new Set(numbers)].sort((a, b) => a - b); return sorted.map(n => `<span style="color:${getNumColor(n)}; font-weight:600; white-space:nowrap;">${fmtNum(n)}</span>`).join('.'); }
 function buildTwoLineMessage(label, numbers) { if (!numbers || !numbers.length) return `<div style="text-align:center">${label}</div>`; return `<div style="text-align:center">${label}</div><div style="text-align:center">${buildNumsHtml(numbers)}</div>`; }
-function buildTwoLineMessageNoLabel(label, numbers) { if (!numbers || !numbers.length) return ''; return `<div style="text-align:center">${buildNumsHtml(numbers)}</div>`; }
 function parseNumbersFromText(txt) { if (!txt) return []; const nums = txt.match(/\d+/g) || []; return [...new Set(nums.map(n => parseInt(n)).filter(n => n >= 1 && n <= 49))]; }
 function extractChineseLabel(txt) { if (!txt) return ''; return txt.replace(/[\d\.\s]+/g, '').trim(); }
 function formatNumbersForDisplay(numbers) { if (!numbers || numbers.length === 0) return ''; const sorted = [...numbers].sort((a, b) => a - b); return sorted.map(n => fmtNum(n)).join('.'); }
+function formatNumbersHtml(numbers) { if (!numbers || numbers.length === 0) return ''; const sorted = [...numbers].sort((a, b) => a - b); return sorted.map(n => `<span class="log-num" style="color:${getNumColor(n)};">${fmtNum(n)}</span>`).join('.'); }
 function generateIconSvg(text) { const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="#D90429"/><text x="50" y="68" font-family="'ZCOOL XiaoWei', serif" font-size="56" font-weight="900" fill="white" text-anchor="middle" style="filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.4));">${text}</text></svg>`; return 'data:image/svg+xml,' + encodeURIComponent(svg); }
 
 /* ============================================================
@@ -511,17 +506,16 @@ function getGroupLabel(type, val){
 function adjustToastFontSize(t) { t.style.fontSize = '1.2rem'; t.style.whiteSpace = 'nowrap'; t.style.width = 'auto'; t.style.maxWidth = '90%'; requestAnimationFrame(() => { const maxW = window.innerWidth * 0.9 - 48; const curW = t.scrollWidth; if (curW > maxW) { let newSize = 1.2 * (maxW / curW); newSize = Math.max(newSize, 0.5); t.style.fontSize = newSize + 'rem'; } }); }
 function showToast(msg, d=1500) { const t = document.getElementById('toast'); if (toastTimer) { clearTimeout(toastTimer); toastTimer = null; } t.classList.remove('toast-long'); t.style.width = 'auto'; t.style.maxWidth = '90%'; t.innerHTML = `<span style="color:#1a202c;">${msg}</span>`; adjustToastFontSize(t); t.classList.add('show'); toastTimer = setTimeout(() => { t.classList.remove('show'); toastTimer = null; }, d); }
 function showToastNoBreak(msg, d=1500) { const t = document.getElementById('toast'); if (toastTimer) { clearTimeout(toastTimer); toastTimer = null; } t.classList.add('toast-long'); t.style.width = 'auto'; t.style.maxWidth = '90%'; t.innerHTML = `<span style="color:#1a202c;">${msg}</span>`; adjustToastFontSize(t); t.classList.add('show'); toastTimer = setTimeout(() => { t.classList.remove('show'); toastTimer = null; }, d); }
-function showToastWithNums(label, numbers, fixedWidth = false, singleLine = false) { const t = document.getElementById('toast'); if (toastTimer) { clearTimeout(toastTimer); toastTimer = null; } t.classList.remove('toast-long'); t.style.fontSize = '1.2rem'; if (fixedWidth) { t.style.width = '8rem'; } else { t.style.width = 'auto'; } t.style.maxWidth = '90%'; if(!numbers || !numbers.length) { t.innerHTML = `<span style="color:#1a202c;">${label}</span>`; } else { const sorted = [...new Set(numbers)].sort((a,b)=>a-b); const numsHtml = sorted.map(n => `<span style="color:${getNumColor(n)}; font-weight:600; white-space:nowrap;">${fmtNum(n)}</span>`).join('.'); const wrapStyle = singleLine ? 'white-space:nowrap;' : 'word-break:break-word;'; t.innerHTML = `<div style="text-align:center">${label}</div><div style="text-align:center; ${wrapStyle}">${numsHtml}</div>`; } t.classList.add('show'); toastTimer = setTimeout(() => { t.classList.remove('show'); toastTimer = null; }, 1500); }
+function showToastWithNums(label, numbers) { const t = document.getElementById('toast'); if (toastTimer) { clearTimeout(toastTimer); toastTimer = null; } t.classList.remove('toast-long'); t.style.fontSize = '1.2rem'; t.style.width = 'auto'; t.style.maxWidth = '90%'; if(!numbers || !numbers.length) { t.innerHTML = `<span style="color:#1a202c;">${label}</span>`; } else { const sorted = [...new Set(numbers)].sort((a,b)=>a-b); const numsHtml = sorted.map(n => `<span style="color:${getNumColor(n)}; font-weight:600; white-space:nowrap;">${fmtNum(n)}</span>`).join('.'); t.innerHTML = `<div style="text-align:center">${label}</div><div style="text-align:center; word-break:break-word;">${numsHtml}</div>`; } t.classList.add('show'); toastTimer = setTimeout(() => { t.classList.remove('show'); toastTimer = null; }, 1500); }
 
 /* ============================================================
    6. 日志
    ============================================================ */
 function colorizeNumsOnly(msg) {
-    return msg.replace(/(?:^|[^0-9#@$&])(\d{2})(?=[^0-9#@$&]|$)/g, (match, num, offset, str) => {
+    return msg.replace(/(\d{2})/g, (match, num) => {
         const n = parseInt(num);
         if (n >= 1 && n <= 49) {
-            const prefix = str[offset];
-            return prefix + `<span class="log-num" style="color:${getNumColor(n)};">${fmtNum(n)}</span>`;
+            return `<span class="log-num" style="color:${getNumColor(n)};">${fmtNum(n)}</span>`;
         }
         return match;
     });
@@ -534,12 +528,12 @@ function getStateLogMessage() {
         }
     });
     const labelText = labels.length > 0 ? labels.join('、') : '无';
-    const selectedText = selectedNumbers.size > 0 ? formatNumbersForDisplay([...selectedNumbers]) : '无';
+    const selectedText = selectedNumbers.size > 0 ? formatNumbersHtml([...selectedNumbers]) : '无';
     let bettingText;
     if (bettingNumbers.size > 0) {
-        bettingText = '待购号码' + formatNumbersForDisplay([...bettingNumbers]);
+        bettingText = '待购' + formatNumbersHtml([...bettingNumbers]);
     } else {
-        bettingText = '无待购号码';
+        bettingText = '无待购';
     }
     const betKeys = Object.keys(betResults).map(Number);
     let betText = '';
@@ -561,26 +555,13 @@ function getStateLogMessage() {
             const [amt,unit] = key.split('|');
             const amountNum = parseFloat(amt) || 0;
             total += amountNum * nums.length;
-            parts.push(`${formatNumbersForDisplay(nums)}各${amt}${unit}`);
+            parts.push(`${formatNumbersHtml(nums)}各<span style="color:#4a5568;">${amt}</span>${unit}`);
         });
-        betText = '已买' + parts.join('、') + `，共${total}元`;
+        betText = '已买' + parts.join('、') + `，共<span style="color:#4a5568;">${total}</span>元`;
     } else {
-        betText = '无已买号码';
+        betText = '无已买';
     }
-    return `当前状态:历史标签${labelText}，已选号码${selectedText}，${bettingText}，${betText}`;
-}
-function logCurrentState() {
-    const c = document.getElementById('logContainer');
-    if (!c) return;
-    if (c.children.length === 1 && c.children[0].textContent.includes('暂无')) c.innerHTML = '';
-    const time = `${new Date().getHours().toString().padStart(2,'0')}:${new Date().getMinutes().toString().padStart(2,'0')}`;
-    const div = document.createElement('div');
-    div.className = 'log-item';
-    const msg = getStateLogMessage();
-    const coloredMsg = colorizeNumsOnly(msg);
-    div.innerHTML = `<span><span class="log-time">${time}</span><span class="log-state">${coloredMsg}</span></span>`;
-    c.prepend(div);
-    while (c.children.length > 200) c.removeChild(c.lastChild);
+    return `当前状态:历史标签<span style="color:#4a5568;">${labelText}</span>，已选${selectedText}，${bettingText}，${betText}`;
 }
 function addLog(type, msg) {
     const c=document.getElementById('logContainer');
@@ -595,10 +576,10 @@ function addLog(type, msg) {
     else if(type==='undo') cls='undo';
     else if(type==='redo') cls='redo';
     const coloredMsg = colorizeNumsOnly(msg);
-    div.innerHTML=`<span><span class="log-time">${time}</span><span class="log-action ${cls}">${coloredMsg}</span></span>`;
+    const stateMsg = getStateLogMessage();
+    div.innerHTML=`<span><span class="log-time">${time}</span><span class="log-action ${cls}">${coloredMsg}</span><span class="log-state">${stateMsg}</span></span>`;
     c.prepend(div);
     while(c.children.length>200) c.removeChild(c.lastChild);
-    logCurrentState();
 }
 
 /* ============================================================
@@ -763,7 +744,7 @@ function formatUndoRedoMessage(action) {
     if ((action.type === 'input_text' || action.type === 'batch_input') && numbers.length === 0) { const txt = action.prevText || action.nextText || action.rawText || ''; numbers = parseNumbersFromText(txt); }
     return buildTwoLineMessage(label, numbers);
 }
-function getPlainUndoRedoText(action) { const html = formatUndoRedoMessage(action); return stripHtml(html).replace(/\n/g, ' ').trim(); }
+function getPlainUndoRedoText(action) { const html = formatUndoRedoMessage(action); return stripHtml(html).trim(); }
 
 /* ============================================================
    12. 模态框
@@ -816,7 +797,6 @@ const ModalManager = (function() {
 /* ============================================================
    14. 统计功能
    ============================================================ */
-function getStatsValDisplay(type, val) { return val; }
 function calculateStatsValFrequencies(type) { const f = {}; statsHistory[type].forEach(it => { if (it.isActive && it.vals) { it.vals.forEach(v => { const key = v.toString(); f[key] = (f[key] || 0) + 1; }); } }); return f; }
 function renderStatsModalFreqButtons(type) {
     const area = document.getElementById('statsModalHistoryArea');
@@ -924,7 +904,7 @@ function renderStatsModalHistory(type) {
             sp.style.background = st.bg;
             sp.style.color = st.text;
             sp.style.textShadow = st.textClass === 'light-text' ? '0 1px 0 rgba(255,255,255,0.5)' : '0 1px 2px rgba(0,0,0,0.4)';
-            sp.textContent = getStatsValDisplay(type, v);
+            sp.textContent = v;
             sp.title = `出现 ${fr} 次`;
             sp.onclick = async (e) => {
                 e.stopPropagation();
@@ -1176,7 +1156,6 @@ async function handleOneClickSelect() {
             bettingNumbers.delete(n);
             document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.remove('is-active');
         });
-        syncGlobalStateToHistory(toKill, false);
         updateAllStates();
         addLog("select", `一键杀号 ${formatNumbersForDisplay(toKill)}`);
         save_data();
@@ -1214,7 +1193,7 @@ async function performUndo(){
             bettingNumbers.clear(); if(act.prevBetting) act.prevBetting.forEach(n=>bettingNumbers.add(n));
             betResults = {}; if(act.prevBetResults) Object.assign(betResults, act.prevBetResults);
             if(act.prevHistory) inputHistory = act.prevHistory.map(h => ({...h, numbers: [...(h.numbers||[])], sortedNumbers: [...(h.sortedNumbers||[])]}));
-            cleanupInvalidHistory(); rebuildNumberSources(); syncHistoryActiveState(); refreshAllNumButtons(); updateAllStates();
+            cleanupInvalidHistory(); rebuildNumberSources(); syncHistoryActiveState(); updateNumberBalls(); updateAllStates();
             addLog("undo",`撤销${getPlainUndoRedoText(act)}`); save_data(); isRestoring = false; return;
         }
         if(act.type==='clear_input'){ inputFromButton = true; const inp=document.getElementById('smartInput'); inp.value = act.prevText || ''; lastValidSmartInput = inp.value; inputFromButton = false; updateZodiacButtonsFromInput(inp.value); renderSmartInputHighlight(); addLog("undo",`撤销${getPlainUndoRedoText(act)}`); save_data(); isRestoring = false; return; }
@@ -1270,7 +1249,7 @@ async function performUndo(){
             if(currentHighlightedNumber&&act.numbers.includes(currentHighlightedNumber)) currentHighlightedNumber=null;
             rebuildNumberSources();
             syncHistoryActiveState();
-            refreshAllNumButtons();
+            updateNumberBalls();
             updateAllStates();
             addLog("undo",`撤销${getPlainUndoRedoText(act)}`); save_data(); isRestoring = false; return;
         }
@@ -1284,11 +1263,11 @@ async function performUndo(){
             restoreSelectedFromSnapshot(act, selectedNumbers);
             applySnapshot(act, selectedNumbers, bettingNumbers, betResults);
             rebuildNumberSources();
-            refreshAllNumButtons();
+            updateNumberBalls();
             updateAllStates();
             addLog("undo",`撤销${getPlainUndoRedoText(act)}`); save_data(); isRestoring = false; return;
         }
-        else if(act.type==='batch_input'){ restoreSelectedFromSnapshot(act, selectedNumbers); applySnapshot(act, selectedNumbers, bettingNumbers, betResults); if(act.prevHistory) inputHistory = act.prevHistory.map(h => ({...h, numbers: [...(h.numbers||[])], sortedNumbers: [...(h.sortedNumbers||[])]})); cleanupInvalidHistory(); rebuildNumberSources(); syncHistoryActiveState(); refreshAllNumButtons(); updateAllStates(); addLog("undo",`撤销${getPlainUndoRedoText(act)}`); save_data(); isRestoring = false; return; }
+        else if(act.type==='batch_input'){ restoreSelectedFromSnapshot(act, selectedNumbers); applySnapshot(act, selectedNumbers, bettingNumbers, betResults); if(act.prevHistory) inputHistory = act.prevHistory.map(h => ({...h, numbers: [...(h.numbers||[])], sortedNumbers: [...(h.sortedNumbers||[])]})); cleanupInvalidHistory(); rebuildNumberSources(); syncHistoryActiveState(); updateNumberBalls(); updateAllStates(); addLog("undo",`撤销${getPlainUndoRedoText(act)}`); save_data(); isRestoring = false; return; }
         else if(act.type==='zodiac_input'){ inputFromButton = true; const inp=document.getElementById('smartInput'); inp.value=act.prevText||''; lastValidSmartInput = inp.value; inputFromButton = false; updateZodiacButtonsFromInput(inp.value); renderSmartInputHighlight(); addLog("undo",`撤销${getPlainUndoRedoText(act)}`); updateAllStates(); save_data(); isRestoring = false; return; }
         else if(act.type==='clear_bet_results'){ betResults = { ...(act.prevBetResults || {}) }; addLog("undo",`撤销${getPlainUndoRedoText(act)}`); }
         else if(act.type==='stats_add'){ const {statsType, statsIndex} = act; statsHistory[statsType].splice(statsIndex, 0, act.item); renderStatsModalHistory(statsType); updateStatsKillRow(); addLog("undo",`撤销${getPlainUndoRedoText(act)}`); save_data(); isRestoring = false; return; }
@@ -1300,7 +1279,7 @@ async function performUndo(){
         else if(act.type==='one_click_select'||act.type==='stats_all_kill'){
             restoreSelectedFromSnapshot(act, selectedNumbers);
             applySnapshot(act, selectedNumbers, bettingNumbers, betResults);
-            refreshAllNumButtons();
+            updateNumberBalls();
             updateAllStates();
             addLog("undo",`撤销${getPlainUndoRedoText(act)}`); save_data(); isRestoring = false; return;
         }
@@ -1336,7 +1315,7 @@ async function performRedo(){
             bettingNumbers.clear(); if(act.nextBetting) act.nextBetting.forEach(n=>bettingNumbers.add(n));
             betResults = {}; if(act.nextBetResults) Object.assign(betResults, act.nextBetResults);
             if(act.nextHistory) inputHistory = act.nextHistory.map(h => ({...h, numbers: [...(h.numbers||[])], sortedNumbers: [...(h.sortedNumbers||[])]}));
-            cleanupInvalidHistory(); rebuildNumberSources(); syncHistoryActiveState(); refreshAllNumButtons(); updateAllStates();
+            cleanupInvalidHistory(); rebuildNumberSources(); syncHistoryActiveState(); updateNumberBalls(); updateAllStates();
             addLog("redo",`恢复${getPlainUndoRedoText(act)}`); save_data(); isRestoring = false; return;
         }
         if(act.type==='clear_input'){ inputFromButton = true; const inp=document.getElementById('smartInput'); inp.value = ''; lastValidSmartInput = ''; inputFromButton = false; updateZodiacButtonsFromInput(''); renderSmartInputHighlight(); addLog("redo",`恢复${getPlainUndoRedoText(act)}`); save_data(); isRestoring = false; return; }
@@ -1375,7 +1354,7 @@ async function performRedo(){
             if(currentHighlightedNumber&&act.numbers.includes(currentHighlightedNumber)) currentHighlightedNumber=null;
             rebuildNumberSources();
             syncHistoryActiveState();
-            refreshAllNumButtons();
+            updateNumberBalls();
             updateAllStates();
             addLog("redo",`恢复${getPlainUndoRedoText(act)}`); save_data(); isRestoring = false; return;
         }
@@ -1389,11 +1368,11 @@ async function performRedo(){
             restoreSelectedFromSnapshot(act, selectedNumbers);
             applySnapshot(act, selectedNumbers, bettingNumbers, betResults);
             rebuildNumberSources();
-            refreshAllNumButtons();
+            updateNumberBalls();
             updateAllStates();
             addLog("redo",`恢复${getPlainUndoRedoText(act)}`); save_data(); isRestoring = false; return;
         }
-        else if(act.type==='batch_input'){ restoreSelectedFromSnapshot(act, selectedNumbers); applySnapshot(act, selectedNumbers, bettingNumbers, betResults); if(act.wasAdded){ act.numbers.forEach(n => { addNumberSource(n, Date.now()); }); } if(act.nextHistory) inputHistory = act.nextHistory.map(h => ({...h, numbers: [...(h.numbers||[])], sortedNumbers: [...(h.sortedNumbers||[])]})); cleanupInvalidHistory(); rebuildNumberSources(); syncHistoryActiveState(); refreshAllNumButtons(); updateAllStates(); addLog("redo",`恢复${getPlainUndoRedoText(act)}`); save_data(); isRestoring = false; return; }
+        else if(act.type==='batch_input'){ restoreSelectedFromSnapshot(act, selectedNumbers); applySnapshot(act, selectedNumbers, bettingNumbers, betResults); if(act.wasAdded){ act.numbers.forEach(n => { addNumberSource(n, Date.now()); }); } if(act.nextHistory) inputHistory = act.nextHistory.map(h => ({...h, numbers: [...(h.numbers||[])], sortedNumbers: [...(h.sortedNumbers||[])]})); cleanupInvalidHistory(); rebuildNumberSources(); syncHistoryActiveState(); updateNumberBalls(); updateAllStates(); addLog("redo",`恢复${getPlainUndoRedoText(act)}`); save_data(); isRestoring = false; return; }
         else if(act.type==='zodiac_input'){ inputFromButton = true; const inp=document.getElementById('smartInput'); inp.value=act.nextText||''; lastValidSmartInput = inp.value; inputFromButton = false; updateZodiacButtonsFromInput(inp.value); renderSmartInputHighlight(); addLog("redo",`恢复${getPlainUndoRedoText(act)}`); updateAllStates(); save_data(); isRestoring = false; return; }
         else if(act.type==='clear_bet_results'){ betResults = { ...(act.prevBetResults || {}) }; addLog("redo",`恢复${getPlainUndoRedoText(act)}`); }
         else if(act.type==='stats_add'){ const {statsType, statsIndex} = act; statsHistory[statsType].splice(statsIndex, 0, act.item); renderStatsModalHistory(statsType); updateStatsKillRow(); addLog("redo",`恢复${getPlainUndoRedoText(act)}`); save_data(); isRestoring = false; return; }
@@ -1405,7 +1384,7 @@ async function performRedo(){
         else if(act.type==='one_click_select'||act.type==='stats_all_kill'){
             restoreSelectedFromSnapshot(act, selectedNumbers);
             applySnapshot(act, selectedNumbers, bettingNumbers, betResults);
-            refreshAllNumButtons();
+            updateNumberBalls();
             updateAllStates();
             addLog("redo",`恢复${getPlainUndoRedoText(act)}`); save_data(); isRestoring = false; return;
         }
@@ -1454,10 +1433,7 @@ function findInvalidRanges(txt) {
 function validateManualInput(txt) { if (!txt) return { valid: false, error: 'empty', pos: -1 }; const ranges = findInvalidRanges(txt); if (ranges.length > 0) { const firstRange = ranges[0]; return { valid: false, error: firstRange.isDuplicate ? 'duplicate' : 'invalid', pos: firstRange.start }; } return { valid: true, error: '', pos: -1 }; }
 function focusAndCenterInvalid(inputEl, pos) { inputEl.focus(); inputEl.setSelectionRange(pos + 1, pos + 1); try { const width = inputEl.clientWidth; const textBefore = inputEl.value.substring(0, pos + 1); const measure = document.createElement('span'); measure.style.visibility = 'hidden'; measure.style.position = 'absolute'; measure.style.whiteSpace = 'pre'; measure.style.font = getComputedStyle(inputEl).font; measure.textContent = textBefore; document.body.appendChild(measure); const textWidth = measure.offsetWidth; document.body.removeChild(measure); if (textWidth > width) { inputEl.scrollLeft = textWidth - width / 2; } else { inputEl.scrollLeft = 0; } } catch(e) {} }
 function renderSmartInputHighlight() {
-    if (smartHighlightPending) return;
-    smartHighlightPending = true;
     requestAnimationFrame(() => {
-        smartHighlightPending = false;
         const inp = document.getElementById('smartInput');
         const hl = document.getElementById('smartInputHighlight');
         if (!inp || !hl) return;
@@ -1573,7 +1549,7 @@ async function toggleNumber(n){
         document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.add('is-active');
         recordAction('manual_select',fmtNum(n),[n],true,0,{number:n, wasAdded:true});
         addLog("select",`点亮 ${fmtNum(n)}`);
-        showToastWithNums(`点亮`, [n], true);
+        showToastWithNums(`点亮`, [n]);
     } else {
         await playSound('slip');
         const wasBetting = bettingNumbers.has(n);
@@ -1587,7 +1563,7 @@ async function toggleNumber(n){
         recordAction('manual_deselect',fmtNum(n),[n],false,0,{number:n, wasAdded:false, bettingState: wasBetting, betState: betData, betData: betData ? {[n]: betData} : undefined});
         if(wasBetting||hadBet){ updateBetActionArea(); updateBettingCountBadge(); renderBetResults(); updateBatchSelectButton(); updateTailButtons(); updateAttrButtons(); updateHeadButtons(); updateClearBettingButtonState(); updateAmountButtonState(); updateClearResultBtn(); updateCopyButtonsState(); }
         addLog("select",`熄灭 ${fmtNum(n)}`);
-        showToastWithNums(`熄灭`, [n], true);
+        showToastWithNums(`熄灭`, [n]);
     }
     updateAllStates();
 }
@@ -1597,31 +1573,24 @@ async function handleZodiacSelect(idx,lbl){
     if(!nums.length) return;
     const has=nums.some(n=>selectedNumbers.has(n));
     const shortLbl = zodiacs[idx];
-    const count = nums.length;
     if(has){
         await playSound('shutter');
         const rm=nums.filter(n=>selectedNumbers.has(n));
         if(!rm.length) return;
-        const fixedWidth = rm.length <= 2;
-        const singleLine = rm.length >= 3;
         const snapshot = captureFullSnapshot(rm);
         recordAction('batch_kill',shortLbl,rm,false,0,snapshot);
         rm.forEach(n=>{ selectedNumbers.delete(n); delete betResults[n]; bettingNumbers.delete(n); document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.remove('is-active'); });
-        syncGlobalStateToHistory(rm,false);
         addLog("select",`灭${shortLbl} ${formatNumbersForDisplay(rm)}`);
-        showToastWithNums(`灭${shortLbl}`, rm, fixedWidth, singleLine);
+        showToastWithNums(`灭${shortLbl}`, rm);
     } else {
         await SoundManager.playMarioCoinTick();
         if(nums.every(n=>selectedNumbers.has(n))) return;
         const add=nums.filter(n=>!selectedNumbers.has(n));
-        const fixedWidth = count <= 2;
-        const singleLine = count >= 3;
         const snapshot = captureFullSnapshot(add);
         recordAction('batch_select',shortLbl,add,true,0,snapshot);
         add.forEach(n=>{ selectedNumbers.add(n); document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.add('is-active'); });
-        syncGlobalStateToHistory(add,true);
         addLog("select",`亮${shortLbl} ${formatNumbersForDisplay(add)}`);
-        showToastWithNums(`亮${shortLbl}`, add, fixedWidth, singleLine);
+        showToastWithNums(`亮${shortLbl}`, add);
     }
     updateAllStates();
 }
@@ -1644,8 +1613,7 @@ async function handleSelectAll(){
     save_data();
 }
 function hasFullSelection() { return inputHistory.some(it => it.labelPrefix === '12肖' && it.isActive); }
-function syncGlobalStateToHistory(nums, st) { inputHistory.forEach(it=> nums.forEach(n=>{ if(it.groupState?.hasOwnProperty(n)) it.groupState[n]=st; })); renderHistoryLog(); }
-function refreshAllNumButtons() { document.querySelectorAll('.num-btn').forEach(b => { const n = parseInt(b.dataset.num); if (!isNaN(n)) { if (selectedNumbers.has(n)) { b.classList.remove('is-active'); b.classList.add('is-active'); } else { b.classList.remove('is-active'); } } }); }
+function updateNumberBalls() { document.querySelectorAll('.num-btn').forEach(b => { const n = parseInt(b.dataset.num); if (!isNaN(n)) { if (selectedNumbers.has(n)) { b.classList.remove('is-active'); b.classList.add('is-active'); } else { b.classList.remove('is-active'); } } }); }
 
 /* ============================================================
    19. 杀号处理
@@ -1666,17 +1634,16 @@ async function handleZodiacGroupKill(label, e) {
         const snapshot = captureFullSnapshot(rm);
         recordAction('batch_kill', label, rm, false, 0, snapshot);
         rm.forEach(n => { selectedNumbers.delete(n); delete betResults[n]; bettingNumbers.delete(n); document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.remove('is-active'); });
-        syncGlobalStateToHistory(rm, false);
         addLog("select", `杀${label} ${formatNumbersForDisplay(rm)}`);
         updateAllStates();
     }, false, true);
 }
-async function handleWaveKill(c,p,e){ await playSound('click'); const btn = e ? e.target : event.target; if (btn.classList.contains('wave-active')) return; await playSound('slip'); const v=`${c}-${p}`, nums=getGroupNumbers('parity',v), lbl=getGroupLabel('parity',v); const rm=nums.filter(n=>selectedNumbers.has(n)); if(!rm.length) return; const message = buildTwoLineMessage(`杀${lbl}`, rm); showConfirmModal('', message, async ()=>{ const snapshot = captureFullSnapshot(rm); recordAction('batch_kill',lbl,rm,false,0,snapshot); rm.forEach(n=>{ selectedNumbers.delete(n); delete betResults[n]; bettingNumbers.delete(n); document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.remove('is-active'); }); syncGlobalStateToHistory(rm,false); addLog("select",`杀${lbl} ${formatNumbersForDisplay(rm)}`); updateAllStates(); }, false, true); }
-async function handleSizeParityKill(t,e){ await playSound('click'); const btn = e ? e.target : event.target; if (btn.classList.contains('active')) return; await playSound('slip'); const nums=getGroupNumbers('size_parity',t); const rm=nums.filter(n=>selectedNumbers.has(n)); if(!rm.length) return; const message = buildTwoLineMessage(`杀${t}`, rm); showConfirmModal('', message, async ()=>{ const snapshot = captureFullSnapshot(rm); recordAction('batch_kill',t,rm,false,0,snapshot); rm.forEach(n=>{ selectedNumbers.delete(n); delete betResults[n]; bettingNumbers.delete(n); document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.remove('is-active'); }); syncGlobalStateToHistory(rm,false); addLog("select",`杀${t} ${formatNumbersForDisplay(rm)}`); updateAllStates(); }, false, true); }
-async function handleHeadKill(h,e){ await playSound('click'); const btn = e ? e.target : event.target; if (btn.classList.contains('active')) return; await playSound('slip'); const nums=getGroupNumbers('head',h), lbl=getGroupLabel('head',h); const rm=nums.filter(n=>selectedNumbers.has(n)); if(!rm.length) return; const message = buildTwoLineMessage(`杀${lbl}`, rm); showConfirmModal('', message, async ()=>{ const snapshot = captureFullSnapshot(rm); recordAction('batch_kill',lbl,rm,false,0,snapshot); rm.forEach(n=>{ selectedNumbers.delete(n); delete betResults[n]; bettingNumbers.delete(n); document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.remove('is-active'); }); syncGlobalStateToHistory(rm,false); addLog("select",`杀${lbl} ${formatNumbersForDisplay(rm)}`); updateAllStates(); }, false, true); }
-async function handleWuxingKill(w,e){ await playSound('click'); const btn = e ? e.target : event.target; if (btn.classList.contains('active')) return; await playSound('slip'); const nums=getGroupNumbers('wuxing',w), lbl=getGroupLabel('wuxing',w); const rm=nums.filter(n=>selectedNumbers.has(n)); if(!rm.length) return; const message = buildTwoLineMessage(`杀${lbl}`, rm); showConfirmModal('', message, async ()=>{ const snapshot = captureFullSnapshot(rm); recordAction('batch_kill',lbl,rm,false,0,snapshot); rm.forEach(n=>{ selectedNumbers.delete(n); delete betResults[n]; bettingNumbers.delete(n); document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.remove('is-active'); }); syncGlobalStateToHistory(rm,false); addLog("select",`杀${lbl} ${formatNumbersForDisplay(rm)}`); updateAllStates(); }, false, true); }
-async function handleTailKill(t,e){ await playSound('click'); const btn = e ? e.target : event.target; if (btn.classList.contains('active')) return; await playSound('slip'); const nums=getGroupNumbers('tail',t.toString()), lbl=getGroupLabel('tail',t.toString()); const rm=nums.filter(n=>selectedNumbers.has(n)); if(!rm.length) return; const message = buildTwoLineMessage(`杀${lbl}`, rm); showConfirmModal('', message, async ()=>{ const snapshot = captureFullSnapshot(rm); recordAction('batch_kill',lbl,rm,false,0,snapshot); rm.forEach(n=>{ selectedNumbers.delete(n); delete betResults[n]; bettingNumbers.delete(n); document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.remove('is-active'); }); syncGlobalStateToHistory(rm,false); addLog("select",`杀${lbl} ${formatNumbersForDisplay(rm)}`); updateAllStates(); }, false, true); }
-async function handleSegmentKill(s,e){ await playSound('click'); const btn = e ? e.target : event.target; if (btn.classList.contains('active')) return; await playSound('slip'); const nums=getGroupNumbers('segment',s.toString()), lbl=getGroupLabel('segment',s.toString()); const rm=nums.filter(n=>selectedNumbers.has(n)); if(!rm.length) return; const message = buildTwoLineMessage(`杀${lbl}`, rm); showConfirmModal('', message, async ()=>{ const snapshot = captureFullSnapshot(rm); recordAction('batch_kill',lbl,rm,false,0,snapshot); rm.forEach(n=>{ selectedNumbers.delete(n); delete betResults[n]; bettingNumbers.delete(n); document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.remove('is-active'); }); syncGlobalStateToHistory(rm,false); addLog("select",`杀${lbl} ${formatNumbersForDisplay(rm)}`); updateAllStates(); }, false, true); }
+async function handleWaveKill(c,p,e){ await playSound('click'); const btn = e ? e.target : event.target; if (btn.classList.contains('wave-active')) return; await playSound('slip'); const v=`${c}-${p}`, nums=getGroupNumbers('parity',v), lbl=getGroupLabel('parity',v); const rm=nums.filter(n=>selectedNumbers.has(n)); if(!rm.length) return; const message = buildTwoLineMessage(`杀${lbl}`, rm); showConfirmModal('', message, async ()=>{ const snapshot = captureFullSnapshot(rm); recordAction('batch_kill',lbl,rm,false,0,snapshot); rm.forEach(n=>{ selectedNumbers.delete(n); delete betResults[n]; bettingNumbers.delete(n); document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.remove('is-active'); }); addLog("select",`杀${lbl} ${formatNumbersForDisplay(rm)}`); updateAllStates(); }, false, true); }
+async function handleSizeParityKill(t,e){ await playSound('click'); const btn = e ? e.target : event.target; if (btn.classList.contains('active')) return; await playSound('slip'); const nums=getGroupNumbers('size_parity',t); const rm=nums.filter(n=>selectedNumbers.has(n)); if(!rm.length) return; const message = buildTwoLineMessage(`杀${t}`, rm); showConfirmModal('', message, async ()=>{ const snapshot = captureFullSnapshot(rm); recordAction('batch_kill',t,rm,false,0,snapshot); rm.forEach(n=>{ selectedNumbers.delete(n); delete betResults[n]; bettingNumbers.delete(n); document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.remove('is-active'); }); addLog("select",`杀${t} ${formatNumbersForDisplay(rm)}`); updateAllStates(); }, false, true); }
+async function handleHeadKill(h,e){ await playSound('click'); const btn = e ? e.target : event.target; if (btn.classList.contains('active')) return; await playSound('slip'); const nums=getGroupNumbers('head',h), lbl=getGroupLabel('head',h); const rm=nums.filter(n=>selectedNumbers.has(n)); if(!rm.length) return; const message = buildTwoLineMessage(`杀${lbl}`, rm); showConfirmModal('', message, async ()=>{ const snapshot = captureFullSnapshot(rm); recordAction('batch_kill',lbl,rm,false,0,snapshot); rm.forEach(n=>{ selectedNumbers.delete(n); delete betResults[n]; bettingNumbers.delete(n); document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.remove('is-active'); }); addLog("select",`杀${lbl} ${formatNumbersForDisplay(rm)}`); updateAllStates(); }, false, true); }
+async function handleWuxingKill(w,e){ await playSound('click'); const btn = e ? e.target : event.target; if (btn.classList.contains('active')) return; await playSound('slip'); const nums=getGroupNumbers('wuxing',w), lbl=getGroupLabel('wuxing',w); const rm=nums.filter(n=>selectedNumbers.has(n)); if(!rm.length) return; const message = buildTwoLineMessage(`杀${lbl}`, rm); showConfirmModal('', message, async ()=>{ const snapshot = captureFullSnapshot(rm); recordAction('batch_kill',lbl,rm,false,0,snapshot); rm.forEach(n=>{ selectedNumbers.delete(n); delete betResults[n]; bettingNumbers.delete(n); document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.remove('is-active'); }); addLog("select",`杀${lbl} ${formatNumbersForDisplay(rm)}`); updateAllStates(); }, false, true); }
+async function handleTailKill(t,e){ await playSound('click'); const btn = e ? e.target : event.target; if (btn.classList.contains('active')) return; await playSound('slip'); const nums=getGroupNumbers('tail',t.toString()), lbl=getGroupLabel('tail',t.toString()); const rm=nums.filter(n=>selectedNumbers.has(n)); if(!rm.length) return; const message = buildTwoLineMessage(`杀${lbl}`, rm); showConfirmModal('', message, async ()=>{ const snapshot = captureFullSnapshot(rm); recordAction('batch_kill',lbl,rm,false,0,snapshot); rm.forEach(n=>{ selectedNumbers.delete(n); delete betResults[n]; bettingNumbers.delete(n); document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.remove('is-active'); }); addLog("select",`杀${lbl} ${formatNumbersForDisplay(rm)}`); updateAllStates(); }, false, true); }
+async function handleSegmentKill(s,e){ await playSound('click'); const btn = e ? e.target : event.target; if (btn.classList.contains('active')) return; await playSound('slip'); const nums=getGroupNumbers('segment',s.toString()), lbl=getGroupLabel('segment',s.toString()); const rm=nums.filter(n=>selectedNumbers.has(n)); if(!rm.length) return; const message = buildTwoLineMessage(`杀${lbl}`, rm); showConfirmModal('', message, async ()=>{ const snapshot = captureFullSnapshot(rm); recordAction('batch_kill',lbl,rm,false,0,snapshot); rm.forEach(n=>{ selectedNumbers.delete(n); delete betResults[n]; bettingNumbers.delete(n); document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.remove('is-active'); }); addLog("select",`杀${lbl} ${formatNumbersForDisplay(rm)}`); updateAllStates(); }, false, true); }
 
 /* ============================================================
    20. 待购 / 买号处理
@@ -1784,9 +1751,6 @@ async function handleAmountButtonClick() {
     if (!bettingNumbers.size) { return; }
     await playSound('click');
     const m = document.getElementById('amountModal'), inp = document.getElementById('amountInput'), unitInp = document.getElementById('unitInput');
-    if (amountInputHandler) { inp.removeEventListener('input', amountInputHandler); }
-    if (unitInputHandler) { unitInp.removeEventListener('input', unitInputHandler); }
-    if (unitFocusHandler) { unitInp.removeEventListener('focus', unitFocusHandler); }
     inp.value = ''; unitInp.value = '';
     m.style.display = 'flex'; inp.focus();
     const close = () => { m.style.display = 'none'; };
@@ -1799,9 +1763,9 @@ async function handleAmountButtonClick() {
         close();
         showBetConfirmModal(bettingNumbers, amt, unitStr);
     };
-    amountInputHandler = function(e) { let val = this.value; val = val.replace(/[^0-9]/g, ''); if (val.startsWith('0')) { val = val.replace(/^0+/, ''); } this.value = val; };
-    unitInputHandler = function(e) { let val = this.value; const validChars = []; for (const ch of val) { const isChinese = /[\u4e00-\u9fff]/.test(ch); const isEnglish = /[a-zA-Z]/.test(ch); const isAllowed = ch === '@' || ch === '#' || ch === '$' || ch === '&'; if (isChinese || isEnglish || isAllowed) { validChars.push(ch); } else { showToast("请输入有效内容"); } } this.value = validChars.join(''); };
-    unitFocusHandler = function(e) { if (!inp.value.trim()) { showToast("请先输入金额"); inp.focus(); } };
+    const amountInputHandler = function(e) { let val = this.value; val = val.replace(/[^0-9]/g, ''); if (val.startsWith('0')) { val = val.replace(/^0+/, ''); } this.value = val; };
+    const unitInputHandler = function(e) { let val = this.value; const validChars = []; for (const ch of val) { const isChinese = /[\u4e00-\u9fff]/.test(ch); const isEnglish = /[a-zA-Z]/.test(ch); const isAllowed = ch === '@' || ch === '#' || ch === '$' || ch === '&'; if (isChinese || isEnglish || isAllowed) { validChars.push(ch); } else { showToast("请输入有效内容"); } } this.value = validChars.join(''); };
+    const unitFocusHandler = function(e) { if (!inp.value.trim()) { showToast("请先输入金额"); inp.focus(); } };
     inp.addEventListener('input', amountInputHandler);
     unitInp.addEventListener('input', unitInputHandler);
     unitInp.addEventListener('focus', unitFocusHandler);
@@ -1834,7 +1798,7 @@ async function handleTempStore(){
     if(!arr.length){ return; }
     const ex=new Set(tempStorageData.map(i=>i.num)), add=arr.filter(n=>!ex.has(n));
     if(!add.length){ return; }
-    const message = buildTwoLineMessageNoLabel('暂存号码', add);
+    const message = buildTwoLineMessage('暂存号码', add);
     showConfirmModal('暂存号码', message, async ()=>{
         add.forEach(n=>tempStorageData.push({num:n,isBetting:bettingNumbers.has(n)}));
         tempStorageData.sort((a,b)=>a.num-b.num);
@@ -1848,7 +1812,7 @@ async function handleTempRestore(){
     await playSound('click');
     if(!tempStorageData.length){ return; }
     const nums = tempStorageData.map(i=>i.num);
-    const message = buildTwoLineMessageNoLabel('恢复暂存', nums);
+    const message = buildTwoLineMessage('恢复暂存', nums);
     showConfirmModal('恢复暂存', message, async ()=>{
         const cur=[...tempStorageData], restored=[], already=[];
         const snapshot = captureFullSnapshot(nums);
@@ -1992,7 +1956,6 @@ function toggleNumbersByFrequency(fr){
         const snapshot = captureFullSnapshot(tgt);
         recordAction('freq_batch',lbl,tgt,false,0,{...snapshot, wasAdding:false});
         rm.forEach(n=>{ selectedNumbers.delete(n); delete betResults[n]; bettingNumbers.delete(n); if(currentHighlightedNumber===n) currentHighlightedNumber=null; document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.remove('is-active'); });
-        syncGlobalStateToHistory(rm,false);
         addLog("select",`熄${lbl} ${formatNumbersForDisplay(rm)}`);
     } else {
         playSound('shutter');
@@ -2000,11 +1963,9 @@ function toggleNumbersByFrequency(fr){
         const snapshot = captureFullSnapshot(tgt);
         recordAction('freq_batch',lbl,tgt,true,0,{...snapshot, wasAdding:true});
         add.forEach(n=>{ selectedNumbers.add(n); if(currentHighlightedNumber===n) currentHighlightedNumber=null; document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.add('is-active'); });
-        syncGlobalStateToHistory(add,true);
         addLog("select",`亮${lbl} ${formatNumbersForDisplay(add)}`);
     }
     updateAllStates();
-    setTimeout(updateFrequencyButtonsPressedState,50);
 }
 
 /* ============================================================
@@ -2340,7 +2301,6 @@ function updateResultText(){
     if(nEven.length) h+=`<div class="result-column"><span class="result-col-label">双号</span> ${nEven.map(sp).join('')}</div>`;
     d.innerHTML=h;
 }
-function updateNumberBalls(){ document.querySelectorAll('.num-btn').forEach(b=>{ const n=parseInt(b.dataset.num); if(!isNaN(n)) { if (selectedNumbers.has(n)) { b.classList.remove('is-active'); b.classList.add('is-active'); } else { b.classList.remove('is-active'); } } }); }
 function updateZodiacButtons(){ zodiacs.forEach((z,i)=>{ const col=[]; customGridRows.forEach(r=>{ if(r[i]!==null) col.push(r[i]); }); const has=col.some(n=>selectedNumbers.has(n)); document.querySelectorAll(`.zodiac-btn[data-zodiac-index="${i}"]`).forEach(b=>{ b.classList.toggle('is-active-zodiac', has); }); }); }
 function updateFilterButtons(){
     document.querySelectorAll('#kill-head-wuxing-controls .filter-btn').forEach(b=>{
@@ -2430,14 +2390,6 @@ function updateSelectAllButtonState(){
     const b=document.getElementById('blueRandomBtn');
     if(!b) return;
     if(selectedNumbers.size===49){ b.classList.add('disabled'); } else { b.classList.remove('disabled'); }
-}
-function updateFrequencyButtonsPressedState(){
-    const fm=calculateNumberFrequencies(), fn={};
-    for(let i=1;i<=49;i++){ const f=fm[i]; if(f!==undefined){ if(!fn[f]) fn[f]=[]; fn[f].push(i); } }
-    document.querySelectorAll('#sphereBtnContainer .count-btn').forEach(b=>{
-        const f=parseInt(b.getAttribute('data-freq')), nums=fn[f]||[];
-        b.classList.toggle('is-pressed',!nums.some(n=>selectedNumbers.has(n)));
-    });
 }
 function updateCopyButtonsState(){
     const cs=document.getElementById('copySelectedBtn'), cr=document.getElementById('copyBetResultBtn');
@@ -2554,7 +2506,6 @@ function updateAllStates(){
     updateTempRestoreBtn();
     updateTempClearBtn();
     updateBettingCountBadge();
-    updateFrequencyButtonsPressedState();
     updateCopyButtonsState();
     updateClearResultBtn();
     updateClearBettingButtonState();
@@ -2592,13 +2543,11 @@ function init(){
         const newVal = this.value + pastedText;
         this.value = newVal;
         lastValidSmartInput = newVal;
-        isPasting = true;
-        setTimeout(() => { isPasting = false; lastValidSmartInput = this.value; updateZodiacButtonsFromInput(this.value); renderSmartInputHighlight(); }, 100);
+        setTimeout(() => { lastValidSmartInput = this.value; updateZodiacButtonsFromInput(this.value); renderSmartInputHighlight(); }, 100);
     });
     smartInputEl.addEventListener('input', function(e) {
         if (inputFromButton) { lastValidSmartInput = this.value; renderSmartInputHighlight(); return; }
         if (isComposingSmart) { return; }
-        if (isPasting) { lastValidSmartInput = this.value; updateZodiacButtonsFromInput(this.value); renderSmartInputHighlight(); return; }
         const prevText = lastValidSmartInput;
         lastValidSmartInput = this.value;
         updateZodiacButtonsFromInput(this.value);
