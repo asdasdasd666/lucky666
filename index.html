@@ -332,7 +332,7 @@ button, .num-btn, .action-grid-btn, .sphere-btn-base, .filter-btn, .wave-btn, .z
 <div class="bet-box-title"><div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;"><span>待购号码</span><span class="bet-count-badge" id="bettingCountBadge">0 个</span><button id="clearBettingBtn" class="temp-action-btn orange" onclick="handleClearBetting()">清空</button></div></div>
 <div class="bet-action-area" id="betActionArea"><div class="bet-input-row"><div class="bet-nums-display" id="betNumsDisplay"></div><button id="betAmountBtn" class="bet-amount-btn grey" onclick="handleAmountButtonClick()">无号码</button></div></div>
 <div class="bet-result-container" id="betResultContainer"><div class="bet-result-header"><div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;"><span>买号结果</span><span class="bet-count-badge" id="betCountBadge">0 个</span><span class="bet-total-amount" id="betTotalAmount">共 0 元</span></div><div style="display:flex; gap:6px;"><button class="clear-result-btn" id="clearResultBtn" onclick="handleClearBetResults()">清空结果</button><button class="small-copy-btn" id="copyBetResultBtn" onclick="copyBetResults()">复制</button></div></div><div class="bet-result-box" id="betResultBox" oncontextmenu="return false;" ondragstart="return false;"><div class="bet-result-items" id="betResultItems"></div></div></div>
-<div style="font-size: 0.65rem; font-weight: 700; color: #4a5568; margin-bottom: 2px; display:flex; justify-content:space-between; align-items:center;"><button class="small-copy-btn" id="copyLogBtn" onclick="copyLog()" style="margin-left:0; width:auto; height:auto; padding:2px 10px;">操作记录</button><button class="small-copy-btn clear-log-btn" id="clearLogBtn" onclick="handleClearLog()" style="margin-left:4px; width:auto; height:auto; padding:2px 10px;">清空记录</button><span style="font-weight: 600; color: #718096;">V7.8</span></div>
+<div style="font-size: 0.65rem; font-weight: 700; color: #4a5568; margin-bottom: 2px; display:flex; justify-content:space-between; align-items:center;"><button class="small-copy-btn" id="copyLogBtn" onclick="copyLog()" style="margin-left:0; width:auto; height:auto; padding:2px 10px;">操作记录</button><button class="small-copy-btn clear-log-btn" id="clearLogBtn" onclick="handleClearLog()" style="margin-left:4px; width:auto; height:auto; padding:2px 10px;">清空记录</button><span style="font-weight: 600; color: #718096;">V7.9</span></div>
 <div class="log-container" id="logContainer"><div class="log-item" style="color:#718096; justify-content:center;">暂无记录</div></div>
 </div>
 <div class="toast" id="toast">操作成功</div>
@@ -836,8 +836,10 @@ function toggleStatsValsByFrequency(type, fr) {
     statsHistory[type].forEach(it => { prevInactiveValsMap[it.id] = [...(it.inactiveVals||[])]; });
     if (anyActive) {
         statsHistory[type].forEach(it => { if (!it.isActive||!it.vals) return; if(!it.inactiveVals)it.inactiveVals=[]; tgt.forEach(k=>{if(it.vals.map(v=>v.toString()).includes(k)&&!it.inactiveVals.includes(k))it.inactiveVals.push(k);}); });
+        addLog("select", `熄重复${fr}次的值`);
     } else {
         statsHistory[type].forEach(it => { if (!it.isActive||!it.vals) return; if(!it.inactiveVals)return; it.inactiveVals=it.inactiveVals.filter(v=>!tgt.includes(v)); });
+        addLog("select", `亮重复${fr}次的值`);
     }
     const nextInactiveValsMap = {};
     statsHistory[type].forEach(it => { nextInactiveValsMap[it.id] = [...(it.inactiveVals||[])]; });
@@ -859,7 +861,15 @@ function renderStatsModalHistory(type) {
         const del = document.createElement('span');
         del.className = 'stats-history-delete-btn';
         del.innerHTML = '×';
-        del.onclick = async () => { await playSound('click'); const removed = statsHistory[type].splice(idx, 1); recordAction('stats_delete', `删除统计`, [], false, 0, {statsType:type, statsIndex:idx, item:removed[0]}); renderStatsModalHistory(type); updateStatsKillRow(); save_data(); };
+        del.onclick = async () => {
+            await playSound('click');
+            const removed = statsHistory[type].splice(idx, 1);
+            recordAction('stats_delete', `删除统计`, [], false, 0, {statsType:type, statsIndex:idx, item:removed[0]});
+            renderStatsModalHistory(type);
+            updateStatsKillRow();
+            addLog("clear", `删除${removed[0].labelPrefix}`);
+            save_data();
+        };
         const lbl = document.createElement('span');
         lbl.className = 'stats-history-label';
         lbl.innerHTML = `<span class="label-number">${it.labelPrefix}</span>`;
@@ -874,6 +884,8 @@ function renderStatsModalHistory(type) {
             recordAction('stats_toggle', `统计切换`, [], nextState, 0, {statsType:type, statsIndex:idx, prevState, nextState, prevInactiveVals, nextInactiveVals});
             renderStatsModalHistory(type);
             updateStatsKillRow();
+            if (nextState) addLog("select", `亮${it.labelPrefix}`);
+            else addLog("select", `灭${it.labelPrefix}`);
             save_data();
         };
         const nd = document.createElement('div');
@@ -1047,6 +1059,7 @@ async function openStatsModal(type) {
             const newItem = { id: Date.now() + Math.random(), type, vals: validVals, inactiveVals: [], labelPrefix, source: sourceText, isActive: true };
             statsHistory[type].push(newItem);
             recordAction('stats_add', `添加统计`, [], true, 0, {statsType:type, statsIndex:statsHistory[type].length-1, item:newItem});
+            addLog("input", `添加${labelPrefix}`);
         });
         renderStatsModalHistory(type);
         updateStatsKillRow();
@@ -1067,6 +1080,7 @@ async function openStatsModal(type) {
             statsHighlightedVal[type]=null;
             renderStatsModalHistory(type);
             updateStatsKillRow();
+            addLog("clear", `重置${statsTypeNames[type]}统计`);
             save_data();
         }, true, false, true);
     };
@@ -1086,8 +1100,8 @@ async function handleClearAllStats() {
         statsHistory = {head:[],tail:[],segment:[],wuxing:[],wave:[],zodiac:[]};
         statsHighlightedVal = {head:null,tail:null,segment:null,wuxing:null,wave:null,zodiac:null};
         updateStatsKillRow();
+        addLog("clear", "清空所有统计");
         save_data();
-        addLog("clear","清空所有统计");
     }, true, false, true);
 }
 async function handleOneClickSelect() {
@@ -1958,6 +1972,7 @@ function toggleNumbersByFrequency(fr){
         recordAction('freq_batch',lbl,tgt,false,0,{...snapshot, wasAdding:false});
         rm.forEach(n=>{ selectedNumbers.delete(n); delete betResults[n]; bettingNumbers.delete(n); if(currentHighlightedNumber===n) currentHighlightedNumber=null; document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.remove('is-active'); });
         syncGlobalStateToHistory(rm,false);
+        addLog("select",`熄${lbl} ${formatNumbersForDisplay(rm)}`);
     } else {
         playSound('shutter');
         const add = tgt.filter(n=>!selectedNumbers.has(n));
@@ -1965,6 +1980,7 @@ function toggleNumbersByFrequency(fr){
         recordAction('freq_batch',lbl,tgt,true,0,{...snapshot, wasAdding:true});
         add.forEach(n=>{ selectedNumbers.add(n); if(currentHighlightedNumber===n) currentHighlightedNumber=null; document.querySelector(`.num-btn[data-num="${n}"]`)?.classList.add('is-active'); });
         syncGlobalStateToHistory(add,true);
+        addLog("select",`亮${lbl} ${formatNumbersForDisplay(add)}`);
     }
     updateAllStates();
     setTimeout(updateFrequencyButtonsPressedState,50);
