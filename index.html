@@ -332,7 +332,7 @@ button, .num-btn, .action-grid-btn, .sphere-btn-base, .filter-btn, .wave-btn, .z
 <div class="bet-box-title"><div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;"><span>待购号码</span><span class="bet-count-badge" id="bettingCountBadge">0 个</span><button id="clearBettingBtn" class="temp-action-btn orange" onclick="handleClearBetting()">清空</button></div></div>
 <div class="bet-action-area" id="betActionArea"><div class="bet-input-row"><div class="bet-nums-display" id="betNumsDisplay"></div><button id="betAmountBtn" class="bet-amount-btn grey" onclick="handleAmountButtonClick()">无号码</button></div></div>
 <div class="bet-result-container" id="betResultContainer"><div class="bet-result-header"><div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;"><span>买号结果</span><span class="bet-count-badge" id="betCountBadge">0 个</span><span class="bet-total-amount" id="betTotalAmount">共 0 元</span></div><div style="display:flex; gap:6px;"><button class="clear-result-btn" id="clearResultBtn" onclick="handleClearBetResults()">清空结果</button><button class="small-copy-btn" id="copyBetResultBtn" onclick="copyBetResults()">复制</button></div></div><div class="bet-result-box" id="betResultBox" oncontextmenu="return false;" ondragstart="return false;"><div class="bet-result-items" id="betResultItems"></div></div></div>
-<div style="font-size: 0.65rem; font-weight: 700; color: #4a5568; margin-bottom: 2px; display:flex; justify-content:space-between; align-items:center;"><button class="small-copy-btn" id="copyLogBtn" onclick="copyLog()" style="margin-left:0; width:auto; height:auto; padding:2px 10px;">操作记录</button><button class="small-copy-btn clear-log-btn" id="clearLogBtn" onclick="handleClearLog()" style="margin-left:4px; width:auto; height:auto; padding:2px 10px;">清空记录</button><span style="font-weight: 600; color: #718096;">V8.1</span></div>
+<div style="font-size: 0.65rem; font-weight: 700; color: #4a5568; margin-bottom: 2px; display:flex; justify-content:space-between; align-items:center;"><button class="small-copy-btn" id="copyLogBtn" onclick="copyLog()" style="margin-left:0; width:auto; height:auto; padding:2px 10px;">操作记录</button><button class="small-copy-btn clear-log-btn" id="clearLogBtn" onclick="handleClearLog()" style="margin-left:4px; width:auto; height:auto; padding:2px 10px;">清空记录</button><span style="font-weight: 600; color: #718096;">V8.2</span></div>
 <div class="log-container" id="logContainer"><div class="log-item" style="color:#718096; justify-content:center;">暂无记录</div></div>
 </div>
 <div class="toast" id="toast">操作成功</div>
@@ -577,7 +577,7 @@ function addLog(type, msg) {
     else if(type==='redo') cls='redo';
     const coloredMsg = colorizeNumsOnly(msg);
     const stateMsg = getStateLogMessage();
-    div.innerHTML=`<span><span class="log-time">${time}</span><span class="log-action ${cls}">${coloredMsg}</span><span class="log-state">${stateMsg}</span></span>`;
+    div.innerHTML=`<span><span class="log-time">${time}</span><span class="log-action ${cls}">${coloredMsg}</span>，<span class="log-state">${stateMsg}</span></span>`;
     c.prepend(div);
     while(c.children.length>200) c.removeChild(c.lastChild);
 }
@@ -864,12 +864,15 @@ function renderStatsModalHistory(type) {
         del.innerHTML = '×';
         del.onclick = async () => {
             await playSound('click');
-            const removed = statsHistory[type].splice(idx, 1);
-            recordAction('stats_delete', `删除统计`, [], false, 0, {statsType:type, statsIndex:idx, item:removed[0]});
-            renderStatsModalHistory(type);
-            updateStatsKillRow();
-            addLog("clear", `删除${removed[0].labelPrefix}`);
-            save_data();
+            showConfirmModal('确认删除', escapeHtml(it.labelPrefix), async () => {
+                await playSound('slip');
+                const removed = statsHistory[type].splice(idx, 1);
+                recordAction('stats_delete', `删除统计`, [], false, 0, {statsType:type, statsIndex:idx, item:removed[0]});
+                renderStatsModalHistory(type);
+                updateStatsKillRow();
+                addLog("clear", `删除${removed[0].labelPrefix}`);
+                save_data();
+            }, true, true);
         };
         const lbl = document.createElement('span');
         lbl.className = 'stats-history-label';
@@ -2164,7 +2167,13 @@ function renderHistoryLog(){
         const del=document.createElement('span');
         del.className='history-delete-btn';
         del.innerHTML='×';
-        del.onclick=async()=>{ await playSound('click'); removeHistoryItem(idx); };
+        del.onclick=async()=>{ 
+            await playSound('click'); 
+            showConfirmModal('确认删除', escapeHtml(it.labelPrefix), async () => {
+                await playSound('slip');
+                removeHistoryItem(idx);
+            }, true, true);
+        };
         const lbl=document.createElement('span');
         lbl.className='history-label';
         lbl.innerHTML=`<span class="label-number">${it.labelPrefix}</span>`;
@@ -2197,7 +2206,7 @@ function renderHistoryLog(){
             const sp=document.createElement('span');
             const fr=calculateNumberFrequencies()[n]||0, st=getFreqStyle(fr||1);
             sp.className='history-num-item';
-            if(!(it.isActive&&selectedNumbers.has(n))) sp.classList.add('flat');
+            if(!selectedNumbers.has(n)) sp.classList.add('flat');
             if(currentHighlightedNumber===n&&it.isActive&&selectedNumbers.has(n)) sp.classList.add('highlighted');
             sp.style.background=st.bg;
             sp.style.color=st.text;
@@ -2223,7 +2232,6 @@ function renderHistoryLog(){
     });
 }
 async function removeHistoryItem(idx){
-    await playSound('click');
     const it=inputHistory[idx];
     if(!it) return;
     const snapshot = captureFullSnapshot(it.sortedNumbers || []);
