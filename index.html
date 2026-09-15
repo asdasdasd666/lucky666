@@ -275,7 +275,8 @@ button, .num-btn, .action-grid-btn, .sphere-btn-base, .filter-btn, .wave-btn, .z
 .stats-history-label { color: #4a5568; white-space: nowrap; font-weight: 800; line-height: 1; margin-top: 0; display: flex; align-items: center; justify-content: center; gap: 0px; padding: 0 6px; width: auto; min-width: 3.2em; height: 1.8em; box-sizing: border-box; border-radius: 12px; background: radial-gradient(circle at 30% 30%, #f7fafc 0%, #cbd5e0 40%, #a0aec0 100%); box-shadow: 0 2px 4px rgba(0,0,0,0.2), inset 0 1px 2px rgba(255,255,255,0.5); cursor: pointer; transition: all 0.15s; color: #2d3e50; text-shadow: 0 1px 0 rgba(255,255,255,0.7); font-size: 0.75rem; text-align: center; }
 .stats-history-label.all-lit { background: #cbd5e0 !important; color: #718096 !important; box-shadow: none !important; transform: none !important; text-shadow: none !important; opacity: 0.6 !important; }
 .stats-history-nums { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
-.stats-val-item { display: inline-flex; align-items: center; justify-content: center; width: var(--hist-num-size); height: var(--hist-num-size); border-radius: 50%; font-size: 0.75rem; font-weight: 900; color: #ffffff; text-shadow: 0 1px 2px rgba(0,0,0,0.4); box-shadow: 0 2px 4px rgba(0,0,0,0.2), inset 0 1px 2px rgba(255,255,255,0.3); vertical-align: middle; line-height: 1; flex-shrink: 0; cursor: pointer; border: 2px solid transparent; transition: border-color 0.2s, box-shadow 0.2s; }
+.stats-val-item { display: inline-flex; align-items: center; justify-content: center; width: 1.125rem !important; height: 1.125rem !important; min-width: 1.125rem !important; min-height: 1.125rem !important; border-radius: 50%; font-size: 0.75rem; font-weight: 900; color: #ffffff; text-shadow: 0 1px 2px rgba(0,0,0,0.4); box-shadow: 0 2px 4px rgba(0,0,0,0.2), inset 0 1px 2px rgba(255,255,255,0.3); vertical-align: middle; line-height: 1; flex-shrink: 0; cursor: pointer; border: 2px solid transparent; transition: border-color 0.2s, box-shadow 0.2s; white-space: nowrap; overflow: hidden; }
+.stats-val-item.two-char { font-size: 0.55rem; letter-spacing: -1px; }
 .stats-val-item.flat { filter: grayscale(0.6) brightness(0.85); box-shadow: none; transform: scale(0.95); transition: all 0.2s ease; opacity: 0.5; border: 2px solid transparent; }
 .stats-val-item.highlighted { border: 2px solid #FFD700 !important; box-shadow: 0 0 8px #FFD700, 0 2px 4px rgba(0,0,0,0.2), inset 0 1px 2px rgba(255,255,255,0.3) !important; }
 .stats-unit-label { font-family: var(--font-art-mao); color: var(--label-select-color); text-shadow: var(--label-select-glow); font-size: 1.1rem; font-weight: bold; white-space: nowrap; flex-shrink: 0; height: 28px; line-height: 28px; display: flex; align-items: center; padding-top: 1px; }
@@ -333,7 +334,7 @@ button, .num-btn, .action-grid-btn, .sphere-btn-base, .filter-btn, .wave-btn, .z
 <div class="bet-box-title"><div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;"><span>待购号码</span><span class="bet-count-badge" id="bettingCountBadge">0 个</span><button id="clearBettingBtn" class="temp-action-btn orange" onclick="handleClearBetting()">清空</button></div></div>
 <div class="bet-action-area" id="betActionArea"><div class="bet-input-row"><div class="bet-nums-display" id="betNumsDisplay"></div><button id="betAmountBtn" class="bet-amount-btn grey" onclick="handleAmountButtonClick()">无号码</button></div></div>
 <div class="bet-result-container" id="betResultContainer"><div class="bet-result-header"><div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;"><span>买号结果</span><span class="bet-count-badge" id="betCountBadge">0 个</span><span class="bet-total-amount" id="betTotalAmount">共 0 元</span></div><div style="display:flex; gap:6px;"><button class="clear-result-btn" id="clearResultBtn" onclick="handleClearBetResults()">清空结果</button><button class="small-copy-btn" id="copyBetResultBtn" onclick="copyBetResults()">复制</button></div></div><div class="bet-result-box" id="betResultBox" oncontextmenu="return false;" ondragstart="return false;"><div class="bet-result-items" id="betResultItems"></div></div></div>
-<div style="font-size: 0.65rem; font-weight: 700; color: #4a5568; margin-bottom: 2px; display:flex; justify-content:space-between; align-items:center;"><button class="small-copy-btn" id="copyLogBtn" onclick="copyLog()" style="margin-left:0; width:auto; height:auto; padding:2px 10px;">操作记录</button><button class="small-copy-btn clear-log-btn" id="clearLogBtn" onclick="handleClearLog()" style="margin-left:4px; width:auto; height:auto; padding:2px 10px;">清空记录</button><span style="font-weight: 600; color: #718096;">V8.3</span></div>
+<div style="font-size: 0.65rem; font-weight: 700; color: #4a5568; margin-bottom: 2px; display:flex; justify-content:space-between; align-items:center;"><button class="small-copy-btn" id="copyLogBtn" onclick="copyLog()" style="margin-left:0; width:auto; height:auto; padding:2px 10px;">操作记录</button><button class="small-copy-btn clear-log-btn" id="clearLogBtn" onclick="handleClearLog()" style="margin-left:4px; width:auto; height:auto; padding:2px 10px;">清空记录</button><span style="font-weight: 600; color: #718096;">V8.8</span></div>
 <div class="log-container" id="logContainer"><div class="log-item" style="color:#718096; justify-content:center;">暂无记录</div></div>
 </div>
 <div class="toast" id="toast">操作成功</div>
@@ -364,20 +365,15 @@ const heshuGroups = {
     '合双': [2,4,6,8,11,13,15,17,19,20,22,24,26,28,31,33,35,37,39,40,42,44,46,48],
     '合大': [7,8,9,16,17,18,19,25,26,27,28,29,34,35,36,37,38,39,43,44,45,46,47,48,49],
     '合小': [1,2,3,4,5,6,10,11,12,13,14,15,20,21,22,23,24,30,31,32,33,40,41,42],
-    '01合': [1,10],
-    '02合': [2,11,20],
-    '03合': [3,12,21,30],
-    '04合': [4,13,22,31,40],
-    '05合': [5,14,23,32,41],
-    '06合': [6,15,24,33,42],
-    '07合': [7,16,25,34,43],
-    '08合': [8,17,26,35,44],
-    '09合': [9,18,27,36,45],
-    '10合': [19,28,37,46],
-    '11合': [29,38,47],
-    '12合': [39,48],
-    '13合': [49]
+    '01合': [1,10], '02合': [2,11,20], '03合': [3,12,21,30], '04合': [4,13,22,31,40],
+    '05合': [5,14,23,32,41], '06合': [6,15,24,33,42], '07合': [7,16,25,34,43], '08合': [8,17,26,35,44],
+    '09合': [9,18,27,36,45], '10合': [19,28,37,46], '11合': [29,38,47], '12合': [39,48], '13合': [49]
 };
+const waveAllVals = ['红','绿','蓝','红单','红双','绿单','绿双','蓝单','蓝双'];
+const waveWordSet = new Set(['红单','红双','绿单','绿双','蓝单','蓝双']);
+const waveSingleSet = new Set(['红','绿','蓝']);
+const waveMutexMap = { '红': ['红单','红双'], '绿': ['绿单','绿双'], '蓝': ['蓝单','蓝双'] };
+const waveReverseMutexMap = { '红单': '红', '红双': '红', '绿单': '绿', '绿双': '绿', '蓝单': '蓝', '蓝双': '蓝' };
 const customGridRows = [[7,6,5,4,3,2,1,12,11,10,9,8],[19,18,17,16,15,14,13,24,23,22,21,20],[31,30,29,28,27,26,25,36,35,34,33,32],[43,42,41,40,39,38,37,48,47,46,45,44],[null,null,null,null,null,null,49,null,null,null,null,null]];
 const zodiacGroupButtons = [
     {label:'单肖', zodiacs:['鼠','虎','龙','马','猴','狗']},
@@ -479,6 +475,18 @@ function getGroupNumbers(type, val) {
         if(hsNums) hsNums.forEach(n=>nums.push(n));
         return nums;
     }
+    if(type==='waveval'){
+        if(val==='红') { getGroupNumbers('parity','red-odd').forEach(n=>nums.push(n)); getGroupNumbers('parity','red-even').forEach(n=>nums.push(n)); return [...new Set(nums)].sort((a,b)=>a-b); }
+        if(val==='绿') { getGroupNumbers('parity','green-odd').forEach(n=>nums.push(n)); getGroupNumbers('parity','green-even').forEach(n=>nums.push(n)); return [...new Set(nums)].sort((a,b)=>a-b); }
+        if(val==='蓝') { getGroupNumbers('parity','blue-odd').forEach(n=>nums.push(n)); getGroupNumbers('parity','blue-even').forEach(n=>nums.push(n)); return [...new Set(nums)].sort((a,b)=>a-b); }
+        if(val==='红单') return getGroupNumbers('parity','red-odd');
+        if(val==='红双') return getGroupNumbers('parity','red-even');
+        if(val==='绿单') return getGroupNumbers('parity','green-odd');
+        if(val==='绿双') return getGroupNumbers('parity','green-even');
+        if(val==='蓝单') return getGroupNumbers('parity','blue-odd');
+        if(val==='蓝双') return getGroupNumbers('parity','blue-even');
+        return nums;
+    }
     for(let i=1;i<=49;i++){
         let m=false;
         if(type==='head'){
@@ -518,6 +526,7 @@ function getGroupLabel(type, val){
     if(type==='tail') return val+"尾";
     if(type==='segment') return val+"段";
     if(type==='heshu') return val;
+    if(type==='waveval') return val;
     if(type==='parity'){
         const [c,p]=val.split('-');
         return {red:'红',blue:'蓝',green:'绿'}[c]+{odd:'单',even:'双'}[p];
@@ -928,6 +937,7 @@ function renderStatsModalHistory(type) {
             const st = getFreqStyle(fr || 1);
             const sp = document.createElement('span');
             sp.className = 'stats-val-item';
+            if (vKey.length > 1) sp.classList.add('two-char');
             if (!it.isActive || isInactive) sp.classList.add('flat');
             if (statsHighlightedVal[type] === vKey && it.isActive && !isInactive) sp.classList.add('highlighted');
             sp.style.background = st.bg;
@@ -949,7 +959,7 @@ function renderStatsModalHistory(type) {
 }
 function updateStatsKillRow() {
     const allTypes = ['head','tail','segment','wave','wuxing','zodiac'];
-    const allPossibleVals = { head: ['0','1','2','3','4'], tail: ['0','1','2','3','4','5','6','7','8','9'], segment: ['1','2','3','4','5','6','7'], wuxing: ['金','木','水','火','土'], wave: ['红','绿','蓝'], zodiac: ['鼠','牛','虎','兔','龙','蛇','马','羊','猴','鸡','狗','猪'] };
+    const allPossibleVals = { head: ['0','1','2','3','4'], tail: ['0','1','2','3','4','5','6','7','8','9'], segment: ['1','2','3','4','5','6','7'], wuxing: ['金','木','水','火','土'], wave: waveAllVals, zodiac: ['鼠','牛','虎','兔','龙','蛇','马','羊','猴','鸡','狗','猪'] };
     const parts = [];
     allTypes.forEach(type => {
         const arr = statsHistory[type];
@@ -961,10 +971,40 @@ function updateStatsKillRow() {
             if (!it.isActive || !it.vals) return;
             it.vals.forEach(v => { const vKey = v.toString(); if (it.inactiveVals && it.inactiveVals.includes(vKey)) return; activeVals.add(vKey); });
         });
-        const killedVals = (allPossibleVals[type] || []).filter(v => !activeVals.has(v));
+        let killedVals;
+        if (type === 'wave') {
+            const redSingle = activeVals.has('红单') || activeVals.has('红');
+            const redDouble = activeVals.has('红双') || activeVals.has('红');
+            const redFull = redSingle && redDouble;
+            const greenSingle = activeVals.has('绿单') || activeVals.has('绿');
+            const greenDouble = activeVals.has('绿双') || activeVals.has('绿');
+            const greenFull = greenSingle && greenDouble;
+            const blueSingle = activeVals.has('蓝单') || activeVals.has('蓝');
+            const blueDouble = activeVals.has('蓝双') || activeVals.has('蓝');
+            const blueFull = blueSingle && blueDouble;
+            killedVals = [];
+            if (!redFull) {
+                if (!redSingle && !redDouble) killedVals.push('红');
+                else if (redSingle && !redDouble) killedVals.push('红双');
+                else if (!redSingle && redDouble) killedVals.push('红单');
+            }
+            if (!greenFull) {
+                if (!greenSingle && !greenDouble) killedVals.push('绿');
+                else if (greenSingle && !greenDouble) killedVals.push('绿双');
+                else if (!greenSingle && greenDouble) killedVals.push('绿单');
+            }
+            if (!blueFull) {
+                if (!blueSingle && !blueDouble) killedVals.push('蓝');
+                else if (blueSingle && !blueDouble) killedVals.push('蓝双');
+                else if (!blueSingle && blueDouble) killedVals.push('蓝单');
+            }
+        } else {
+            killedVals = (allPossibleVals[type] || []).filter(v => !activeVals.has(v));
+        }
         if (killedVals.length > 0) {
             let sorted;
-            if (type === 'wave' || type === 'wuxing' || type === 'zodiac') { sorted = killedVals; }
+            if (type === 'wave') { sorted = killedVals.slice().sort((a,b)=>waveAllVals.indexOf(a)-waveAllVals.indexOf(b)); }
+            else if (type === 'wuxing' || type === 'zodiac') { sorted = killedVals; }
             else { sorted = killedVals.sort((a,b)=>{ const na=parseInt(a), nb=parseInt(b); if(!isNaN(na)&&!isNaN(nb)) return na-nb; if(!isNaN(na)) return -1; if(!isNaN(nb)) return 1; return a.localeCompare(b); }); }
             if (type === 'wave' || type === 'wuxing' || type === 'zodiac') { parts.push('【' + sorted.join('') + '】'); }
             else { parts.push('【' + sorted.join('') + statsKillSuffix[type] + '】'); }
@@ -977,53 +1017,183 @@ function updateStatsKillRow() {
 }
 function findLastValidPosForStats(line, type) {
     let lastValid = -1;
+    if (type === 'wave') {
+        for (let i = line.length - 1; i >= 0; i--) {
+            const ch = line[i];
+            const twoCh = i > 0 ? line.substring(i-1, i+1) : '';
+            if (twoCh && waveWordSet.has(twoCh)) { lastValid = i; break; }
+            if (waveSingleSet.has(ch)) { lastValid = i; break; }
+            if (ch === '波') { lastValid = i; break; }
+        }
+        return lastValid;
+    }
     for (let i = line.length - 1; i >= 0; i--) {
         const ch = line[i];
         let isValid = false;
-        if (type === 'wave') { if (ch === '红' || ch === '绿' || ch === '蓝') isValid = true; else if (ch === '波') isValid = true; }
-        else { isValid = statsValidators[type](ch); }
+        isValid = statsValidators[type](ch);
         if (isValid) { lastValid = i; break; }
     }
     return lastValid;
 }
-function parseStatsInput(val, type) {
+function parseStatsInput(val, type, checkConflict) {
     const validVals = [];
     const seen = new Set();
     let sourceText = '';
     let firstInvalidPos = -1;
+    let invalidStart = -1;
+    let invalidEnd = -1;
+    if (type === 'wave') {
+        const lastValid = findLastValidPosForStats(val, type);
+        let i = 0;
+        const parsedTokens = [];
+        while (i < val.length) {
+            if (lastValid !== -1 && i > lastValid) { sourceText = val.substring(i).replace(/[ .,]/g, ''); break; }
+            const twoCh = i < val.length - 1 ? val.substring(i, i+2) : '';
+            if (waveWordSet.has(twoCh)) {
+                parsedTokens.push({token: twoCh, start: i, end: i+1});
+                i += 2;
+            } else if (waveSingleSet.has(val[i])) {
+                parsedTokens.push({token: val[i], start: i, end: i});
+                i += 1;
+            } else if (val[i] === '波') {
+                i += 1;
+            } else if (val[i] === ' ' || val[i] === '.' || val[i] === ',') {
+                i += 1;
+            } else {
+                if (firstInvalidPos === -1) { firstInvalidPos = i; invalidStart = i; invalidEnd = i; }
+                else { invalidEnd = i; }
+                i += 1;
+            }
+        }
+        if (firstInvalidPos !== -1) {
+            return { valid: false, validVals: [], sourceText: '', invalidPos: firstInvalidPos, isDuplicate: false, invalidStart, invalidEnd };
+        }
+        const markedInvalid = new Set();
+        for (let a = 0; a < parsedTokens.length; a++) {
+            const tk = parsedTokens[a];
+            if (seen.has(tk.token)) {
+                for (let p = tk.start; p <= tk.end; p++) markedInvalid.add(p);
+                continue;
+            }
+            let conflictIdx = -1;
+            if (waveSingleSet.has(tk.token)) {
+                const mutexList = waveMutexMap[tk.token] || [];
+                for (let b = a+1; b < parsedTokens.length; b++) {
+                    if (mutexList.includes(parsedTokens[b].token)) { conflictIdx = b; break; }
+                }
+            } else if (waveWordSet.has(tk.token)) {
+                const parent = waveReverseMutexMap[tk.token];
+                for (let b = a+1; b < parsedTokens.length; b++) {
+                    if (parsedTokens[b].token === parent) { conflictIdx = b; break; }
+                }
+            }
+            if (conflictIdx >= 0) {
+                const conflictTk = parsedTokens[conflictIdx];
+                for (let p = conflictTk.start; p <= conflictTk.end; p++) markedInvalid.add(p);
+                seen.add(tk.token);
+                validVals.push(tk.token);
+            } else {
+                seen.add(tk.token);
+                validVals.push(tk.token);
+            }
+        }
+        if (markedInvalid.size > 0) {
+            const minPos = Math.min(...markedInvalid);
+            let maxPos = minPos;
+            markedInvalid.forEach(p => { if (p > maxPos) maxPos = p; });
+            return { valid: false, validVals: [], sourceText: '', invalidPos: minPos, isDuplicate: false, invalidStart: minPos, invalidEnd: maxPos };
+        }
+        if (validVals.length === 0) { return { valid: false, validVals: [], sourceText: '', invalidPos: -1, isDuplicate: false, invalidStart: -1, invalidEnd: -1 }; }
+        return { valid: true, validVals, sourceText, invalidPos: -1, isDuplicate: false, invalidStart: -1, invalidEnd: -1 };
+    }
     const lastValid = findLastValidPosForStats(val, type);
     for (let i = 0; i < val.length; i++) {
         if (lastValid !== -1 && i > lastValid) { sourceText = val.substring(i).replace(/[ .,]/g, ''); break; }
         const ch = val[i];
         let isValid = false;
-        if (type === 'wave') { if (ch === '红' || ch === '绿' || ch === '蓝') { isValid = true; } else if (ch === '波') { continue; } }
-        else { isValid = statsValidators[type](ch); }
+        isValid = statsValidators[type](ch);
         if (isValid) { if (!seen.has(ch)) { seen.add(ch); validVals.push(ch); } else { if (firstInvalidPos === -1) firstInvalidPos = i; } }
         else if (ch === ' ' || ch === '.' || ch === ',') { continue; }
         else { if (firstInvalidPos === -1) firstInvalidPos = i; }
     }
-    if (firstInvalidPos !== -1) { return { valid: false, validVals: [], sourceText: '', invalidPos: firstInvalidPos, isDuplicate: false }; }
-    if (validVals.length === 0) { return { valid: false, validVals: [], sourceText: '', invalidPos: -1, isDuplicate: false }; }
-    return { valid: true, validVals, sourceText, invalidPos: -1, isDuplicate: false };
+    if (firstInvalidPos !== -1) { return { valid: false, validVals: [], sourceText: '', invalidPos: firstInvalidPos, isDuplicate: false, invalidStart: firstInvalidPos, invalidEnd: firstInvalidPos }; }
+    if (validVals.length === 0) { return { valid: false, validVals: [], sourceText: '', invalidPos: -1, isDuplicate: false, invalidStart: -1, invalidEnd: -1 }; }
+    return { valid: true, validVals, sourceText, invalidPos: -1, isDuplicate: false, invalidStart: -1, invalidEnd: -1 };
 }
-function renderStatsInputHighlight(inputEl, highlightEl, type) {
+function renderStatsInputHighlight(inputEl, highlightEl, type, conflictStart, conflictEnd) {
     if (!inputEl || !highlightEl) return;
     requestAnimationFrame(() => {
         const txt = inputEl.value;
         const lines = txt.split('\n');
         let html = '';
         lines.forEach((line, lineIdx) => {
-            const seen = new Set();
-            const lastValid = findLastValidPosForStats(line, type);
-            for (let i = 0; i < line.length; i++) {
-                if (lastValid !== -1 && i > lastValid) { html += escapeHtml(line[i]); continue; }
-                const ch = line[i];
-                let isValid = false;
-                if (type === 'wave') { if (ch === '红' || ch === '绿' || ch === '蓝') isValid = true; else if (ch === '波') { html += escapeHtml(ch); continue; } }
-                else { isValid = statsValidators[type](ch); }
-                if (isValid) { if (seen.has(ch)) { html += `<span class="invalid-char">${escapeHtml(ch)}</span>`; } else { seen.add(ch); html += escapeHtml(ch); } }
-                else if (ch === ' ' || ch === '.' || ch === ',') { html += escapeHtml(ch); }
-                else { html += `<span class="invalid-char">${escapeHtml(ch)}</span>`; }
+            if (type === 'wave') {
+                const lastValid = findLastValidPosForStats(line, type);
+                const seen = new Set();
+                const parsedTokens = [];
+                let i = 0;
+                while (i < line.length) {
+                    if (lastValid !== -1 && i > lastValid) { i++; continue; }
+                    const twoCh = i < line.length - 1 ? line.substring(i, i+2) : '';
+                    if (waveWordSet.has(twoCh)) {
+                        parsedTokens.push({token: twoCh, start: i, end: i+1});
+                        i += 2;
+                    } else if (waveSingleSet.has(line[i])) {
+                        parsedTokens.push({token: line[i], start: i, end: i});
+                        i += 1;
+                    } else {
+                        i += 1;
+                    }
+                }
+                const markedInvalid = new Set();
+                const conflictSet = (conflictStart !== undefined && conflictEnd !== undefined && conflictStart >= 0) ? {start: conflictStart, end: conflictEnd} : null;
+                for (let a = 0; a < parsedTokens.length; a++) {
+                    const tk = parsedTokens[a];
+                    if (seen.has(tk.token)) {
+                        for (let p = tk.start; p <= tk.end; p++) markedInvalid.add(p);
+                        continue;
+                    }
+                    let conflictIdx = -1;
+                    if (waveSingleSet.has(tk.token)) {
+                        const mutexList = waveMutexMap[tk.token] || [];
+                        for (let b = a+1; b < parsedTokens.length; b++) {
+                            if (mutexList.includes(parsedTokens[b].token)) { conflictIdx = b; break; }
+                        }
+                    } else if (waveWordSet.has(tk.token)) {
+                        const parent = waveReverseMutexMap[tk.token];
+                        for (let b = a+1; b < parsedTokens.length; b++) {
+                            if (parsedTokens[b].token === parent) { conflictIdx = b; break; }
+                        }
+                    }
+                    if (conflictIdx >= 0) {
+                        const conflictTk = parsedTokens[conflictIdx];
+                        for (let p = conflictTk.start; p <= conflictTk.end; p++) markedInvalid.add(p);
+                        seen.add(tk.token);
+                    } else {
+                        seen.add(tk.token);
+                    }
+                }
+                let result = '';
+                for (let q = 0; q < line.length; q++) {
+                    if (markedInvalid.has(q)) {
+                        result += `<span class="invalid-char">${escapeHtml(line[q])}</span>`;
+                    } else {
+                        result += escapeHtml(line[q]);
+                    }
+                }
+                html = result;
+            } else {
+                const seen = new Set();
+                const lastValid = findLastValidPosForStats(line, type);
+                for (let i = 0; i < line.length; i++) {
+                    if (lastValid !== -1 && i > lastValid) { html += escapeHtml(line[i]); continue; }
+                    const ch = line[i];
+                    let isValid = false;
+                    isValid = statsValidators[type](ch);
+                    if (isValid) { if (seen.has(ch)) { html += `<span class="invalid-char">${escapeHtml(ch)}</span>`; } else { seen.add(ch); html += escapeHtml(ch); } }
+                    else if (ch === ' ' || ch === '.' || ch === ',') { html += escapeHtml(ch); }
+                    else { html += `<span class="invalid-char">${escapeHtml(ch)}</span>`; }
+                }
             }
             if (lineIdx < lines.length - 1) html += '\n';
         });
@@ -1071,7 +1241,7 @@ async function openStatsModal(type) {
             if (!result.valid) {
                 await playSound('slip');
                 if (result.isDuplicate) { showToast("存在重复内容"); } else { showToast("存在无效内容"); }
-                if (result.invalidPos >= 0) { statsInput.focus(); statsInput.setSelectionRange(result.invalidPos + 1, result.invalidPos + 1); renderStatsInputHighlight(statsInput, highlightEl, type); highlightEl.scrollTop = statsInput.scrollTop; highlightEl.scrollLeft = statsInput.scrollLeft; }
+                if (result.invalidPos >= 0) { statsInput.focus(); statsInput.setSelectionRange(result.invalidPos + 1, result.invalidPos + 1); renderStatsInputHighlight(statsInput, highlightEl, type, result.invalidStart, result.invalidEnd); highlightEl.scrollTop = statsInput.scrollTop; highlightEl.scrollLeft = statsInput.scrollLeft; }
                 return;
             }
             items.push(result);
@@ -1143,7 +1313,7 @@ async function handleOneClickSelect() {
     const killedTails = new Set();
     const killedSegments = new Set();
     const killedWuxing = new Set();
-    const killedWaves = new Set();
+    const killedWaveVals = new Set();
     const killedZodiacs = new Set();
     const headMatch = killContent.match(/【([^】]*)头】/);
     if (headMatch) { headMatch[1].split('').forEach(h => killedHeads.add(h)); }
@@ -1153,10 +1323,20 @@ async function handleOneClickSelect() {
     if (segMatch) { segMatch[1].split('').forEach(s => killedSegments.add(s)); }
     const wxMatch = killContent.match(/【([金木水火土]+)】/);
     if (wxMatch) { wxMatch[1].split('').forEach(w => killedWuxing.add(w)); }
-    const waveMatch = killContent.match(/【([红绿蓝]+)】/);
-    if (waveMatch) { waveMatch[1].split('').forEach(w => killedWaves.add(w)); }
+    const waveMatch = killContent.match(/【([红绿蓝单双]+)】/);
+    if (waveMatch) {
+        let ws = waveMatch[1];
+        let wi = 0;
+        while (wi < ws.length) {
+            const twoCh = wi < ws.length - 1 ? ws.substring(wi, wi+2) : '';
+            if (waveWordSet.has(twoCh)) { killedWaveVals.add(twoCh); wi += 2; }
+            else { killedWaveVals.add(ws[wi]); wi += 1; }
+        }
+    }
     const zodiacMatch = killContent.match(/【([鼠牛虎兔龙蛇马羊猴鸡狗猪]+)】/);
     if (zodiacMatch) { zodiacMatch[1].split('').forEach(z => { const idx = ZODIAC_MAP[z]; if (idx !== undefined) { getGroupNumbers('zodiac', idx.toString()).forEach(n => killedZodiacs.add(n)); } }); }
+    const killedWaveNums = new Set();
+    killedWaveVals.forEach(wv => { getGroupNumbers('waveval', wv).forEach(n => killedWaveNums.add(n)); });
     const toKill = [];
     for (const n of selectedNumbers) {
         let kill = false;
@@ -1164,12 +1344,11 @@ async function handleOneClickSelect() {
         const t = (n%10).toString();
         const seg = Object.keys(segmentGroups).find(s => segmentGroups[s].includes(n));
         const wx = wuxingChars[numToWuxing[n]];
-        const wave = redGroup.has(n) ? '红' : blueGroup.has(n) ? '蓝' : '绿';
         if (killedHeads.has(h)) kill = true;
         if (killedTails.has(t)) kill = true;
         if (killedSegments.has(seg)) kill = true;
         if (killedWuxing.has(wx)) kill = true;
-        if (killedWaves.has(wave)) kill = true;
+        if (killedWaveNums.has(n)) kill = true;
         if (killedZodiacs.has(n)) kill = true;
         if (kill) toKill.push(n);
     }
