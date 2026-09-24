@@ -290,14 +290,6 @@ button, .num-btn, .action-grid-btn, .sphere-btn-base, .filter-btn, .wave-btn, .z
 .stats-input { scrollbar-width: none; }
 #confirmModal, #dangerConfirmModal { z-index: 10001 !important; }
 .clear-log-btn { background: linear-gradient(145deg, #fc8181, #c53030) !important; color: white !important; }
-.stats-date-info { display: flex; flex-direction: column; gap: 2px; padding: 4px 0; width: 100%; }
-.stats-date-row { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; font-size: var(--label-font-size); font-weight: bold; line-height: 1.35; color: var(--label-select-color); text-align: center; }
-.stats-date-row .sep { margin: 0 4px; color: var(--label-select-color); }
-.special-input { width: 38px; height: 28px; border: 1px solid var(--input-border); border-radius: 6px; background: var(--input-bg); text-align: center; font-size: 0.85rem; font-weight: 700; color: #2d3748; outline: none; box-sizing: border-box; font-family: "Courier New", monospace; padding: 0; }
-.special-input::placeholder { color: #9a9a9a; font-size: 0.65rem; font-weight: 600; }
-.special-input:focus { box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.2); }
-.special-ball { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; color: #fff; font-weight: 900; font-size: 0.8rem; cursor: pointer; user-select: none; -webkit-user-select: none; filter: grayscale(0%) brightness(1.1); text-shadow: 0 1px 2px rgba(0,0,0,0.4); line-height: 1; }
-.special-kill-label { font-family: var(--font-art-mao); font-size: var(--label-font-size); font-weight: bold; color: var(--label-kill-color); text-shadow: var(--label-kill-glow); margin-right: 4px; flex-shrink: 0; line-height: 1; padding-top: 1px; white-space: nowrap; }
 </style>
 </head>
 <body>
@@ -316,12 +308,6 @@ button, .num-btn, .action-grid-btn, .sphere-btn-base, .filter-btn, .wave-btn, .z
 </div>
 <div class="control-box" id="statsControlBox">
 <div class="box-header stats-mode">统计</div>
-<div class="stats-date-info" id="statsDateInfo">
-<div class="stats-date-row" id="statsDateRow1"></div>
-<div class="stats-date-row" id="statsDateRow2"></div>
-<div class="stats-date-row" id="statsDateRow3"></div>
-<div class="stats-date-row" id="statsDateRow4"></div>
-</div>
 <div class="stats-buttons-row"><button class="stats-nav-btn" onclick="openStatsModal('head')">头</button><button class="stats-nav-btn" onclick="openStatsModal('tail')">尾</button><button class="stats-nav-btn" onclick="openStatsModal('segment')">段</button><button class="stats-nav-btn" onclick="openStatsModal('wave')">波</button><button class="stats-nav-btn" onclick="openStatsModal('zodiac')">肖</button><button class="stats-nav-btn" onclick="openStatsModal('wuxing')">五行</button><button class="one-click-select-btn" id="oneClickSelectBtn" onclick="handleOneClickSelect()">一键杀号</button></div>
 <div class="stats-kill-row" id="statsKillRow"><span class="stats-kill-label" id="statsKillLabel" style="display:none;">杀</span><span class="stats-kill-content" id="statsKillContent"></span></div>
 <div class="one-click-row" style="display:flex; justify-content:center; align-items:center; padding:4px 0; width:100%;"><button class="clear-input-btn" id="clearAllStatsBtn" onclick="handleClearAllStats()" style="width: calc(var(--btn-size) * 2 + var(--btn-gap)); height: var(--btn-size); font-size: 0.75rem;">全部清空</button></div>
@@ -348,7 +334,7 @@ button, .num-btn, .action-grid-btn, .sphere-btn-base, .filter-btn, .wave-btn, .z
 <div class="bet-box-title"><div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;"><span>待购号码</span><span class="bet-count-badge" id="bettingCountBadge">0 个</span><button id="clearBettingBtn" class="temp-action-btn orange" onclick="handleClearBetting()">清空</button></div></div>
 <div class="bet-action-area" id="betActionArea"><div class="bet-input-row"><div class="bet-nums-display" id="betNumsDisplay"></div><button id="betAmountBtn" class="bet-amount-btn grey" onclick="handleAmountButtonClick()">无号码</button></div></div>
 <div class="bet-result-container" id="betResultContainer"><div class="bet-result-header"><div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;"><span>买号结果</span><span class="bet-count-badge" id="betCountBadge">0 个</span><span class="bet-total-amount" id="betTotalAmount">共 0 元</span></div><div style="display:flex; gap:6px;"><button class="clear-result-btn" id="clearResultBtn" onclick="handleClearBetResults()">清空结果</button><button class="small-copy-btn" id="copyBetResultBtn" onclick="copyBetResults()">复制</button></div></div><div class="bet-result-box" id="betResultBox" oncontextmenu="return false;" ondragstart="return false;"><div class="bet-result-items" id="betResultItems"></div></div></div>
-<div style="font-size: 0.65rem; font-weight: 700; color: #4a5568; margin-bottom: 2px; display:flex; justify-content:space-between; align-items:center;"><button class="small-copy-btn" id="copyLogBtn" onclick="copyLog()" style="margin-left:0; width:auto; height:auto; padding:2px 10px;">操作记录</button><button class="small-copy-btn clear-log-btn" id="clearLogBtn" onclick="handleClearLog()" style="margin-left:4px; width:auto; height:auto; padding:2px 10px;">清空记录</button><span style="font-weight: 600; color: #718096;">V6.2</span></div>
+<div style="font-size: 0.65rem; font-weight: 700; color: #4a5568; margin-bottom: 2px; display:flex; justify-content:space-between; align-items:center;"><button class="small-copy-btn" id="copyLogBtn" onclick="copyLog()" style="margin-left:0; width:auto; height:auto; padding:2px 10px;">操作记录</button><button class="small-copy-btn clear-log-btn" id="clearLogBtn" onclick="handleClearLog()" style="margin-left:4px; width:auto; height:auto; padding:2px 10px;">清空记录</button><span style="font-weight: 600; color: #718096;">V6.3</span></div>
 <div class="log-container" id="logContainer"><div class="log-item" style="color:#718096; justify-content:center;">暂无记录</div></div>
 </div>
 <div class="toast" id="toast">操作成功</div>
@@ -427,7 +413,10 @@ const zodiacGroupButtons = [
     {label:'肥肖', zodiacs:['龙','虎','猴','鼠','牛','猪']},
     {label:'瘦肖', zodiacs:['狗','兔','蛇','马','羊','鸡']},
     {label:'有边', zodiacs:['龙','蛇','猴','鸡','狗','猪']},
-    {label:'无边', zodiacs:['鼠','牛','虎','兔','马','羊']}
+    {label:'无边', zodiacs:['鼠','牛','虎','兔','马','羊']},
+    {label:'红肖', zodiacs:['鼠','兔','马','鸡']},
+    {label:'绿肖', zodiacs:['虎','蛇','猴','猪']},
+    {label:'蓝肖', zodiacs:['牛','龙','羊','狗']}
 ];
 const ZODIAC_MAP = { "鼠":0,"牛":1,"虎":2,"兔":3,"龙":4,"蛇":5,"马":6,"羊":7,"猴":8,"鸡":9,"狗":10,"猪":11 };
 const freqColorPalette = [ "linear-gradient(145deg, #4169E1, #3151B1)", "linear-gradient(145deg, #D2691E, #A25018)", "linear-gradient(145deg, #00CED1, #009EA1)", "linear-gradient(145deg, #808000, #606000)", "linear-gradient(145deg, #8A2BE2, #6A1BB2)", "linear-gradient(145deg, #008B8B, #006B6B)", "linear-gradient(145deg, #A52A2A, #851A1A)", "linear-gradient(145deg, #00BFFF, #009FCF)", "linear-gradient(145deg, #CD5C5C, #3D1C1C)", "linear-gradient(145deg, #4B0082, #3B0062)" ];
@@ -435,44 +424,6 @@ const statsTypeNames = { head:'头', tail:'尾', segment:'段', wuxing:'五行',
 const statsUnitLabels = { head:'头', tail:'尾', segment:'段', wuxing:'行', wave:'波', zodiac:'肖' };
 const statsKillSuffix = { head:'头', tail:'尾', segment:'段', wuxing:'', wave:'', zodiac:'' };
 const statsValidators = { head: (ch) => ch >= '0' && ch <= '4', tail: (ch) => ch >= '0' && ch <= '9', segment: (ch) => ch >= '1' && ch <= '7', wuxing: (ch) => /^[金木水火土]$/.test(ch), zodiac: (ch) => zodiacs.includes(ch) };
-const WUXING_COLOR_MAP = { '金': '#C9A227', '木': '#38a169', '水': '#3182ce', '火': '#e53e3e', '土': '#B7791F' };
-const WAVE_COLOR_MAP = { '红': '#e53e3e', '绿': '#38a169', '蓝': '#3182ce' };
-const TIANGAN = ['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
-const DIZHI = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
-const TIANGAN_WUXING = ['木','木','火','火','土','土','金','金','水','水'];
-const DIZHI_WUXING = ['水','土','木','木','土','火','火','土','金','金','土','水'];
-const NAYIN_TABLE = [
-    '海中金','炉中火','大林木','路旁土','剑锋金',
-    '山头火','涧下水','城头土','白蜡金','杨柳木',
-    '泉中水','屋上土','霹雳火','松柏木','长流水',
-    '沙中金','山下火','平地木','壁上土','金箔金',
-    '覆灯火','天河水','大驿土','钗钏金','桑柘木',
-    '大溪水','沙中土','天上火','石榴木','大海水'
-];
-const IMG_WUXING_MAP = {
-    '狗': ['火','土','金'], '龙': ['火','土','金'], '羊': ['火','土','金'], '牛': ['火','土','金'],
-    '猴': ['土','金','水'], '兔': ['土','金','水'], '虎': ['土','金','水'], '鸡': ['土','金','水'],
-    '蛇': ['金','水','木'], '鼠': ['金','水','木'], '猪': ['金','水','木'], '马': ['金','水','木']
-};
-const WANG_BO_MAP = {
-    '鼠': ['红','绿'], '牛': ['绿','红'], '虎': ['绿'], '兔': ['红'],
-    '龙': ['红','绿'], '蛇': ['红','蓝'], '马': ['红','绿'], '羊': ['蓝'],
-    '猴': ['红','绿'], '鸡': ['蓝','红'], '狗': ['蓝','红'], '猪': ['红','绿']
-};
-const WILL_APPEAR_MAP = {
-    '鼠': ['牛','兔','羊','鸡','虎','马','蛇'],
-    '牛': ['猴','兔','蛇','羊','鸡','虎','龙','马','狗'],
-    '虎': ['牛','兔','鸡','猪','鼠','龙','猴','羊','狗'],
-    '兔': ['牛','羊','鸡','猪','虎','龙','鼠','马','猴','狗'],
-    '龙': ['牛','羊','兔','猪','鼠','猴','马','狗'],
-    '蛇': ['兔','鸡','猪','鼠','马','虎','猴','羊','狗'],
-    '马': ['兔','蛇','羊','鸡','鼠','虎','龙','猴','狗'],
-    '羊': ['马','兔','蛇','鸡','猪','鼠','虎','龙','猴','狗'],
-    '猴': ['牛','兔','蛇','鸡','鼠','虎','龙','马','羊','狗'],
-    '鸡': ['兔','蛇','羊','鼠','虎','龙','马','猴','狗'],
-    '狗': ['牛','兔','蛇','鸡','猪','龙','马','虎'],
-    '猪': ['牛','羊','鸡','蛇','鼠','虎','马','猴','狗']
-};
 
 /* ============================================================
    2. 状态变量
@@ -495,7 +446,6 @@ let isRestoring = false;
 let currentPeriod = 0;
 let statsHistory = { head: [], tail: [], segment: [], wuxing: [], wave: [], zodiac: [] };
 let statsHighlightedVal = { head: null, tail: null, segment: null, wuxing: null, wave: null, zodiac: null };
-let lastSpecialNumber = null;
 
 /* ============================================================
    3. 工具函数
@@ -512,8 +462,6 @@ function extractChineseLabel(txt) { if (!txt) return ''; return txt.replace(/[\d
 function formatNumbersForDisplay(numbers) { if (!numbers || numbers.length === 0) return ''; const sorted = [...numbers].sort((a, b) => a - b); return sorted.map(n => fmtNum(n)).join('.'); }
 function formatNumbersHtml(numbers) { if (!numbers || numbers.length === 0) return ''; const sorted = [...numbers].sort((a, b) => a - b); return sorted.map(n => `<span class="log-num" style="color:${getNumColor(n)};">${fmtNum(n)}</span>`).join('.'); }
 function generateIconSvg(text) { const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="#D90429"/><text x="50" y="68" font-family="'ZCOOL XiaoWei', serif" font-size="56" font-weight="900" fill="white" text-anchor="middle" style="filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.4));">${text}</text></svg>`; return 'data:image/svg+xml,' + encodeURIComponent(svg); }
-function getZodiacColor(z) { const idx = ZODIAC_MAP[z]; if (idx === undefined) return ''; const c = zodiacColors[idx]; if (c === 'red') return '#e53e3e'; if (c === 'blue') return '#3182ce'; if (c === 'green') return '#38a169'; return ''; }
-function getZodiacFromNumber(n) { for (let i = 0; i < zodiacs.length; i++) { for (const row of customGridRows) { if (row[i] === n) return zodiacs[i]; } } return null; }
 
 /* ============================================================
    4. 分组数据获取
@@ -730,7 +678,7 @@ async function handleClearLog() {
 /* ============================================================
    9. 数据持久化
    ============================================================ */
-function save_data() { const data = { selected: Array.from(selectedNumbers), bets: betResults, undo: undoStack, redo: redoStack, history: inputHistory, tempData: tempStorageData, currentHighlight: currentHighlightedNumber, numberSources: Array.from(numberSources.entries()), freqColorMap: Array.from(globalFreqColorMap.entries()), statsHistory: statsHistory, statsHighlightedVal: statsHighlightedVal, lastSpecial: lastSpecialNumber }; try { localStorage.setItem('lucky666_data_v72', JSON.stringify(data)); } catch(e) {} }
+function save_data() { const data = { selected: Array.from(selectedNumbers), bets: betResults, undo: undoStack, redo: redoStack, history: inputHistory, tempData: tempStorageData, currentHighlight: currentHighlightedNumber, numberSources: Array.from(numberSources.entries()), freqColorMap: Array.from(globalFreqColorMap.entries()), statsHistory: statsHistory, statsHighlightedVal: statsHighlightedVal }; try { localStorage.setItem('lucky666_data_v72', JSON.stringify(data)); } catch(e) {} }
 function load_data() {
     try { localStorage.removeItem('lucky666_data_v70'); } catch(e) {}
     try { localStorage.removeItem('lucky666_data_v71'); } catch(e) {}
@@ -746,7 +694,6 @@ function load_data() {
         cleanupInvalidHistory();
         tempStorageData=d.tempData||[];
         currentHighlightedNumber=d.currentHighlight??null;
-        lastSpecialNumber = d.lastSpecial ?? null;
         try { if(d.numberSources) numberSources = new Map(d.numberSources.map(([k,v])=>[k,new Set(v)])); } catch(e) { numberSources = new Map(); }
         try { if(d.freqColorMap) globalFreqColorMap = new Map(d.freqColorMap); } catch(e) { globalFreqColorMap = new Map(); }
         statsHistory = d.statsHistory || { head: [], tail: [], segment: [], wuxing: [], wave: [], zodiac: [] };
@@ -763,7 +710,7 @@ function load_data() {
         updateTempClearBtn();
         updateClearResultBtn();
         updateStatsKillRow();
-    } catch(e) { betResults={}; undoStack=[]; redoStack=[]; inputHistory=[]; tempStorageData=[]; currentHighlightedNumber=null; numberSources=new Map(); globalFreqColorMap=new Map(); statsHistory={head:[],tail:[],segment:[],wuxing:[],wave:[],zodiac:[]}; statsHighlightedVal={head:null,tail:null,segment:null,wuxing:null,wave:null,zodiac:null}; lastSpecialNumber=null; }
+    } catch(e) { betResults={}; undoStack=[]; redoStack=[]; inputHistory=[]; tempStorageData=[]; currentHighlightedNumber=null; numberSources=new Map(); globalFreqColorMap=new Map(); statsHistory={head:[],tail:[],segment:[],wuxing:[],wave:[],zodiac:[]}; statsHighlightedVal={head:null,tail:null,segment:null,wuxing:null,wave:null,zodiac:null}; }
 }
 
 /* ============================================================
@@ -1554,10 +1501,8 @@ async function performUndo(){
             currentHighlightedNumber=act.prevHighlight; numberSources=new Map(act.prevNumberSources||[]); globalFreqColorMap=new Map(act.prevFreqColorMap||[]);
             if(act.prevStatsHistory) statsHistory = JSON.parse(JSON.stringify(act.prevStatsHistory)); else statsHistory={head:[],tail:[],segment:[],wuxing:[],wave:[],zodiac:[]};
             if(act.prevStatsHighlightedVal) statsHighlightedVal = JSON.parse(JSON.stringify(act.prevStatsHighlightedVal)); else statsHighlightedVal={head:null,tail:null,segment:null,wuxing:null,wave:null,zodiac:null};
-            if (act.prevLastSpecial !== undefined) { lastSpecialNumber = act.prevLastSpecial; }
             const inp=document.getElementById('smartInput'); if(inp){ inputFromButton = true; inp.value = act.prevInputText || ''; lastValidSmartInput = inp.value; inputFromButton = false; renderSmartInputHighlight(); updateZodiacButtonsFromInput(inp.value); }
             updateStatsKillRow();
-            renderStatsSpecialRows();
             addLog("undo",`撤销${getPlainUndoRedoText(act)}`);
         }
         else { restoreSelectedFromSnapshot(act, selectedNumbers); applySnapshot(act, selectedNumbers, bettingNumbers, betResults); }
@@ -1660,10 +1605,8 @@ async function performRedo(){
             currentHighlightedNumber=null; numberSources.clear(); globalFreqColorMap.clear();
             statsHistory={head:[],tail:[],segment:[],wuxing:[],wave:[],zodiac:[]};
             statsHighlightedVal={head:null,tail:null,segment:null,wuxing:null,wave:null,zodiac:null};
-            lastSpecialNumber = null;
             inputFromButton = true; const inp=document.getElementById('smartInput'); if(inp){ inp.value=''; lastValidSmartInput=''; inputFromButton = false; renderSmartInputHighlight(); updateZodiacButtonsFromInput(''); }
             updateStatsKillRow();
-            renderStatsSpecialRows();
             addLog("redo",`恢复${getPlainUndoRedoText(act)}`);
         }
         else { restoreSelectedFromSnapshot(act, selectedNumbers); applySnapshot(act, selectedNumbers, bettingNumbers, betResults); }
@@ -2178,19 +2121,16 @@ async function handleReset(){
         const prevInputText = document.getElementById('smartInput').value;
         const prevStatsHistory = JSON.parse(JSON.stringify(statsHistory));
         const prevStatsHighlightedVal = JSON.parse(JSON.stringify(statsHighlightedVal));
-        const prevLastSpecial = lastSpecialNumber;
-        recordAction('full_reset','重置',[],false,0,{prevSelected,prevBetting,prevBetResults,prevUndo,prevRedo,prevHistory,prevTempData,prevHighlight,prevNumberSources,prevFreqColorMap,prevInputText,prevStatsHistory,prevStatsHighlightedVal,prevLastSpecial});
+        recordAction('full_reset','重置',[],false,0,{prevSelected,prevBetting,prevBetResults,prevUndo,prevRedo,prevHistory,prevTempData,prevHighlight,prevNumberSources,prevFreqColorMap,prevInputText,prevStatsHistory,prevStatsHighlightedVal});
         selectedNumbers.clear(); bettingNumbers.clear(); betResults={};
         inputHistory=[]; tempStorageData=[]; currentHighlightedNumber=null; numberSources.clear(); globalFreqColorMap.clear();
         statsHistory={head:[],tail:[],segment:[],wuxing:[],wave:[],zodiac:[]};
         statsHighlightedVal={head:null,tail:null,segment:null,wuxing:null,wave:null,zodiac:null};
-        lastSpecialNumber = null;
         inputFromButton = true; document.getElementById('smartInput').value=''; lastValidSmartInput=''; inputFromButton = false;
         renderSmartInputHighlight(); updateZodiacButtonsFromInput('');
         document.querySelectorAll('.num-btn.is-active').forEach(b=>b.classList.remove('is-active'));
         renderTempStorage(); updateTempCountBadge(); updateTempStoreBtn(); updateTempRestoreBtn(); updateTempClearBtn();
         updateStatsKillRow();
-        renderStatsSpecialRows();
         document.getElementById('logContainer').innerHTML='<div class="log-item" style="color:#718096; justify-content:center;">暂无记录</div>';
         save_data(); renderBetResults(); updateAllStates();
         showToast("已重置所有数据");
@@ -2270,188 +2210,7 @@ function updatePeriodDisplay() {
 }
 
 /* ============================================================
-   26. 统计区日期标签
-   ============================================================ */
-function getGanzhiIdx(date) {
-    const ref = new Date(2000, 0, 1);
-    const target = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-    const diffDays = Math.round((target - ref) / 86400000);
-    return ((54 + diffDays) % 60 + 60) % 60;
-}
-function getTeChuErBo(day) {
-    if ([1,2,15,16,23,24,31].includes(day)) return ['红','绿'];
-    if ([3,4,6,11,12,19,20,30].includes(day)) return ['绿','红'];
-    if ([5,13,14,27,28].includes(day)) return ['红','蓝'];
-    if ([7,8,21,22,29].includes(day)) return ['蓝','绿'];
-    if ([9,10,17,18,25,26].includes(day)) return ['蓝','红'];
-    return [];
-}
-function getDisplayDateForStats() {
-    const now = new Date();
-    const targetTime = 21 * 60 + 35;
-    const nowTime = now.getHours() * 60 + now.getMinutes();
-    let isTomorrow = false;
-    const d = new Date(now);
-    if (nowTime >= targetTime) { isTomorrow = true; d.setDate(d.getDate() + 1); }
-    return { isTomorrow, date: d };
-}
-function renderStatsDateRows() {
-    const row1 = document.getElementById('statsDateRow1');
-    const row2 = document.getElementById('statsDateRow2');
-    if (!row1 || !row2) return;
-    const { isTomorrow, date } = getDisplayDateForStats();
-    const y = String(date.getFullYear()).slice(-2);
-    const m = String(date.getMonth() + 1).padStart(2,'0');
-    const d = String(date.getDate()).padStart(2,'0');
-    const dateStr = `${y}年${m}月${d}号`;
-    const prefix = isTomorrow ? '明日' : '今日';
-    const ganzhiIdx = getGanzhiIdx(date);
-    const stemIdx = ganzhiIdx % 10;
-    const branchIdx = ganzhiIdx % 12;
-    const dayZodiac = zodiacs[branchIdx];
-    const chongZodiac = zodiacs[(branchIdx + 6) % 12];
-    const zhengWuxing = [TIANGAN_WUXING[stemIdx], DIZHI_WUXING[branchIdx]];
-    const nayin = NAYIN_TABLE[Math.floor(ganzhiIdx / 2)];
-    const imgWuxing = IMG_WUXING_MAP[dayZodiac] || [];
-    const teChu = getTeChuErBo(date.getDate());
-    const zodiacColor = getZodiacColor(dayZodiac);
-    const chongColor = getZodiacColor(chongZodiac);
-    let row1Html = `<span>${prefix}${dateStr}</span><span class="sep">·</span>`;
-    row1Html += `<span><span style="color:${zodiacColor};">${dayZodiac}</span>日</span><span class="sep">·</span>`;
-    row1Html += `<span>冲<span style="color:${chongColor};">${chongZodiac}</span></span>`;
-    if (teChu.length) {
-        row1Html += `<span class="sep">·</span><span>开`;
-        teChu.forEach(c => { row1Html += `<span style="color:${WAVE_COLOR_MAP[c]};">${c}</span>`; });
-        row1Html += `</span>`;
-    }
-    row1.innerHTML = row1Html;
-    const zhengHtml = zhengWuxing.map(w => `<span style="color:${WUXING_COLOR_MAP[w]};">${w}</span>`).join('');
-    let nayinLastChar = nayin[nayin.length - 1];
-    let nayinPrefix = nayin.slice(0, -1);
-    let nayinHtml = '';
-    if (WUXING_COLOR_MAP[nayinLastChar]) {
-        nayinHtml = `${nayinPrefix}<span style="color:${WUXING_COLOR_MAP[nayinLastChar]};">${nayinLastChar}</span>`;
-    } else {
-        nayinHtml = nayin;
-    }
-    const imgHtml = imgWuxing.map(w => `<span style="color:${WUXING_COLOR_MAP[w]};">${w}</span>`).join('');
-    row2.innerHTML = `<span>正五行${zhengHtml}</span><span>｜</span><span>纳音${nayinHtml}</span><span>｜</span><span>五行${imgHtml}</span>`;
-}
-function renderStatsSpecialRows() {
-    const row3 = document.getElementById('statsDateRow3');
-    const row4 = document.getElementById('statsDateRow4');
-    if (!row3 || !row4) return;
-    row3.innerHTML = '';
-    row4.innerHTML = '';
-    const label = document.createElement('span');
-    label.textContent = '上期特码';
-    row3.appendChild(label);
-    const spacer = document.createElement('span');
-    spacer.className = 'sep';
-    spacer.textContent = ' ';
-    row3.appendChild(spacer);
-    if (lastSpecialNumber === null) {
-        const input = document.createElement('input');
-        input.type = 'text';
-        input.inputMode = 'numeric';
-        input.pattern = '[0-9]*';
-        input.className = 'special-input';
-        input.placeholder = '请输入';
-        input.maxLength = 2;
-        let confirmed = false;
-        const confirmSpecial = async () => {
-            if (confirmed) return;
-            const val = input.value.trim();
-            if (!val) return;
-            const n = parseInt(val);
-            if (isNaN(n) || n < 1 || n > 49) {
-                confirmed = true;
-                await playSound('slip');
-                showToast('输入无效');
-                input.value = '';
-                confirmed = false;
-                return;
-            }
-            confirmed = true;
-            await playSound('pop');
-            lastSpecialNumber = n;
-            save_data();
-            renderStatsSpecialRows();
-        };
-        input.addEventListener('keydown', async (e) => {
-            if (e.key === 'Enter') { e.preventDefault(); await confirmSpecial(); }
-        });
-        input.addEventListener('change', async () => { await confirmSpecial(); });
-        input.addEventListener('blur', async () => { await confirmSpecial(); });
-        row3.appendChild(input);
-        row4.style.display = 'none';
-    } else {
-        const ball = document.createElement('span');
-        ball.className = 'special-ball';
-        let bgMain = '', bgDark = '', textColor = '#fff';
-        if (redGroup.has(lastSpecialNumber)) { bgMain = '#e53e3e'; bgDark = '#9b2c2c'; }
-        else if (blueGroup.has(lastSpecialNumber)) { bgMain = '#3182ce'; bgDark = '#2c5282'; }
-        else { bgMain = '#38a169'; bgDark = '#22543d'; }
-        ball.style.background = `linear-gradient(145deg, ${bgMain}, ${bgDark})`;
-        ball.style.color = textColor;
-        ball.style.boxShadow = `0 0 15px ${bgMain}, 0 0 30px rgba(255,255,255,0.3), inset 0 0 0 2px rgba(255,255,255,0.5)`;
-        ball.textContent = fmtNum(lastSpecialNumber);
-        ball.onclick = async () => {
-            await playSound('click');
-            lastSpecialNumber = null;
-            save_data();
-            renderStatsSpecialRows();
-        };
-        row3.appendChild(ball);
-        const zodiac = getZodiacFromNumber(lastSpecialNumber);
-        if (zodiac) {
-            const zc = getZodiacColor(zodiac);
-            const zSpan = document.createElement('span');
-            zSpan.innerHTML = ` <span style="color:${zc};">${zodiac}</span>`;
-            row3.appendChild(zSpan);
-            const wxKey = numToWuxing[lastSpecialNumber];
-            const wxChar = wuxingChars[wxKey];
-            if (wxChar) {
-                const sepWx = document.createElement('span');
-                sepWx.className = 'sep';
-                sepWx.textContent = '·';
-                row3.appendChild(sepWx);
-                const wxSpan = document.createElement('span');
-                wxSpan.innerHTML = `<span style="color:${WUXING_COLOR_MAP[wxChar]};">${wxChar}</span>`;
-                row3.appendChild(wxSpan);
-            }
-            const wangBo = WANG_BO_MAP[zodiac] || [];
-            if (wangBo.length) {
-                const sep2 = document.createElement('span');
-                sep2.className = 'sep';
-                sep2.textContent = '·';
-                row3.appendChild(sep2);
-                const wbSpan = document.createElement('span');
-                wbSpan.innerHTML = `本期开` + wangBo.map(c => `<span style="color:${WAVE_COLOR_MAP[c]};">${c}</span>`).join('');
-                row3.appendChild(wbSpan);
-            }
-            const willAppear = WILL_APPEAR_MAP[zodiac] || [];
-            const killZodiacs = zodiacs.filter(z => !willAppear.includes(z));
-            if (killZodiacs.length) {
-                row4.style.display = '';
-                const killLbl = document.createElement('span');
-                killLbl.className = 'special-kill-label';
-                killLbl.textContent = '杀';
-                row4.appendChild(killLbl);
-                const killNums = document.createElement('span');
-                killNums.textContent = killZodiacs.join('');
-                row4.appendChild(killNums);
-            } else {
-                row4.style.display = 'none';
-            }
-        } else {
-            row4.style.display = 'none';
-        }
-    }
-}
-
-/* ============================================================
-   27. UI 渲染
+   26. UI 渲染
    ============================================================ */
 function renderSelectZodiacButtons(){
     const c=document.getElementById('selectZodiacButtons');
@@ -2528,6 +2287,11 @@ function renderKillControls(){
     zrow4.appendChild(zph4);
     zodiacGroupButtons.slice(30,38).forEach(g => { const b=document.createElement('button'); b.className='filter-btn'; b.textContent=g.label; b.setAttribute('data-zodiac-group', g.label); b.onclick=(e)=>handleZodiacGroupKill(g.label,e); zrow4.appendChild(b); });
     zgc.appendChild(zrow4);
+    const zrow5=document.createElement('div'); zrow5.className='zodiac-row';
+    const zph5=document.createElement('span'); zph5.className='row-label-hidden'; zph5.textContent='肖';
+    zrow5.appendChild(zph5);
+    zodiacGroupButtons.slice(38,41).forEach(g => { const b=document.createElement('button'); b.className='filter-btn'; b.textContent=g.label; b.setAttribute('data-zodiac-group', g.label); b.onclick=(e)=>handleZodiacGroupKill(g.label,e); zrow5.appendChild(b); });
+    zgc.appendChild(zrow5);
     const hsRow1 = document.createElement('div'); hsRow1.className = 'zodiac-row';
     const hsLbl1 = document.createElement('span'); hsLbl1.className = 'row-label kill-label'; hsLbl1.textContent = '合';
     hsRow1.appendChild(hsLbl1);
@@ -2993,7 +2757,7 @@ function updateAllStates(){
 }
 
 /* ============================================================
-   28. 初始化
+   27. 初始化
    ============================================================ */
 function init(){
     renderKillControls();
@@ -3044,23 +2808,11 @@ function init(){
     updateSelectAllButtonState();
     updateStatsKillRow();
     updatePeriodDisplay();
-    renderStatsDateRows();
-    renderStatsSpecialRows();
     setInterval(() => {
         updatePeriodDisplay();
-        tickStatsDate();
     }, 1000);
     addLog("system","启动");
     window.addEventListener('beforeunload', save_data);
-}
-let lastStatsDateMinute = -1;
-function tickStatsDate() {
-    const now = new Date();
-    const curMin = now.getHours() * 60 + now.getMinutes();
-    if (curMin !== lastStatsDateMinute) {
-        lastStatsDateMinute = curMin;
-        renderStatsDateRows();
-    }
 }
 const iconUrl = generateIconSvg("");
 document.getElementById('dynamic-favicon').setAttribute('href', iconUrl);
@@ -3068,14 +2820,14 @@ document.getElementById('dynamic-app-icon').setAttribute('href', iconUrl);
 init();
 
 /* ============================================================
-   29. 全局事件
+   28. 全局事件
    ============================================================ */
 let lastTouchEnd=0;
 document.addEventListener('touchend', e=>{ const n=Date.now(); if(n-lastTouchEnd<=300){ const tag=e.target.tagName; if(tag!=='BUTTON'&&tag!=='INPUT'&&tag!=='TEXTAREA'){ e.preventDefault(); } } lastTouchEnd=n; }, {passive: false});
 document.addEventListener('gesturestart', e=>{ if(e.scale && e.scale !== 1) { e.preventDefault(); } }, {passive: false});
 document.addEventListener('touchstart', async (e) => { wakeIosAudio(); await SoundManager.activate(); }, { passive: true });
 document.addEventListener('click', async () => { wakeIosAudio(); await SoundManager.activate(); }, { passive: true, once: false });
-document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') { SoundManager.forceReset(); rebuildNumberSources(); syncHistoryActiveState(); updateAllStates(); renderStatsDateRows(); setTimeout(async () => { wakeIosAudio(); await SoundManager.activate(); }, 300); setTimeout(async () => { wakeIosAudio(); await SoundManager.activate(); }, 800); setTimeout(async () => { wakeIosAudio(); await SoundManager.activate(); }, 1500); } });
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') { SoundManager.forceReset(); rebuildNumberSources(); syncHistoryActiveState(); updateAllStates(); setTimeout(async () => { wakeIosAudio(); await SoundManager.activate(); }, 300); setTimeout(async () => { wakeIosAudio(); await SoundManager.activate(); }, 800); setTimeout(async () => { wakeIosAudio(); await SoundManager.activate(); }, 1500); } });
 </script>
 </body>
 </html>
