@@ -335,7 +335,7 @@ button, .num-btn, .action-grid-btn, .sphere-btn-base, .filter-btn, .wave-btn, .z
 <div class="bet-box-title"><div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;"><span>待购号码</span><span class="bet-count-badge" id="bettingCountBadge">0 个</span><button id="clearBettingBtn" class="temp-action-btn orange" onclick="handleClearBetting()">清空</button></div></div>
 <div class="bet-action-area" id="betActionArea"><div class="bet-input-row"><div class="bet-nums-display" id="betNumsDisplay"></div><button id="betAmountBtn" class="bet-amount-btn grey" onclick="handleAmountButtonClick()">无号码</button></div></div>
 <div class="bet-result-container" id="betResultContainer"><div class="bet-result-header"><div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;"><span>买号结果</span><span class="bet-count-badge" id="betCountBadge">0 个</span><span class="bet-total-amount" id="betTotalAmount">共 0 元</span></div><div style="display:flex; gap:6px;"><button class="clear-result-btn" id="clearResultBtn" onclick="handleClearBetResults()">清空结果</button><button class="small-copy-btn" id="copyBetResultBtn" onclick="copyBetResults()">复制</button></div></div><div class="bet-result-box" id="betResultBox" oncontextmenu="return false;" ondragstart="return false;"><div class="bet-result-items" id="betResultItems"></div></div></div>
-<div style="font-size: 0.65rem; font-weight: 700; color: #4a5568; margin-bottom: 2px; display:flex; justify-content:space-between; align-items:center;"><button class="small-copy-btn" id="copyLogBtn" onclick="copyLog()" style="margin-left:0; width:auto; height:auto; padding:2px 10px;">操作记录</button><button class="small-copy-btn clear-log-btn" id="clearLogBtn" onclick="handleClearLog()" style="margin-left:4px; width:auto; height:auto; padding:2px 10px;">清空记录</button><span style="font-weight: 600; color: #718096;">V6.7</span></div>
+<div style="font-size: 0.65rem; font-weight: 700; color: #4a5568; margin-bottom: 2px; display:flex; justify-content:space-between; align-items:center;"><button class="small-copy-btn" id="copyLogBtn" onclick="copyLog()" style="margin-left:0; width:auto; height:auto; padding:2px 10px;">操作记录</button><button class="small-copy-btn clear-log-btn" id="clearLogBtn" onclick="handleClearLog()" style="margin-left:4px; width:auto; height:auto; padding:2px 10px;">清空记录</button><span style="font-weight: 600; color: #718096;">V6.8</span></div>
 <div class="log-container" id="logContainer"><div class="log-item" style="color:#718096; justify-content:center;">暂无记录</div></div>
 </div>
 <div class="toast" id="toast">操作成功</div>
@@ -348,7 +348,9 @@ button, .num-btn, .action-grid-btn, .sphere-btn-base, .filter-btn, .wave-btn, .z
 <div class="modal-overlay" id="copyChoiceModal"><div class="modal-card"><div class="modal-title">选择复制类型</div><div class="modal-buttons three-buttons"><button class="modal-btn modal-btn-confirm" id="modalCopyNewAo">新澳</button><button class="modal-btn modal-btn-confirm" id="modalCopyOldAo">老澳</button><button class="modal-btn modal-btn-cancel" id="modalCopyChoiceCancel">取消</button></div></div></div>
 <div class="modal-overlay" id="statsModal"><div class="modal-card" style="width: 400px; max-height: 85vh;"><div class="stats-modal-title" id="statsModalTitle">统计</div><div class="stats-modal-content" id="statsModalContent"><div class="stats-modal-condition-row" id="statsModalConditionRow"></div><div class="stats-modal-history-area" id="statsModalHistoryArea"></div></div><div class="modal-buttons" style="margin-top: 12px;"><button class="modal-btn modal-btn-danger" id="modalStatsReset">重置</button><button class="modal-btn modal-btn-cancel" id="modalStatsCancel">关闭</button></div></div></div>
 <script>
-/* 1. 常量定义 */
+/* ============================================================
+   1. 常量定义
+   ============================================================ */
 const zodiacs = ["鼠","牛","虎","兔","龙","蛇","马","羊","猴","鸡","狗","猪"];
 const zodiacColors = ['red','blue','green','red','blue','green','red','blue','green','red','blue','green'];
 const redGroup = new Set([7,2,1,12,8,19,18,13,24,23,30,29,35,34,40,46,45]);
@@ -439,7 +441,9 @@ const statsValidators = {
 };
 const HESHU_VALID = ['合单','合双','合大','合小','大数','小数','单数','双数','大尾','小尾'];
 
-/* 2. 状态变量 */
+/* ============================================================
+   2. 状态变量
+   ============================================================ */
 let selectedNumbers = new Set();
 let bettingNumbers = new Set();
 let betResults = {};
@@ -459,7 +463,9 @@ let currentPeriod = 0;
 let statsHistory = { head: [], tail: [], segment: [], door: [], wuxing: [], wave: [], zodiac: [], heshu: [] };
 let statsHighlightedVal = { head: null, tail: null, segment: null, door: null, wuxing: null, wave: null, zodiac: null, heshu: null };
 
-/* 3. 工具函数 */
+/* ============================================================
+   3. 工具函数
+   ============================================================ */
 function escapeHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function stripHtml(html) { const tmp = document.createElement('div'); tmp.innerHTML = html; return tmp.textContent || tmp.innerText || ''; }
 function fmtNum(n) { return n<10?'0'+n:''+n; }
@@ -472,10 +478,10 @@ function extractChineseLabel(txt) { if (!txt) return ''; return txt.replace(/[\d
 function formatNumbersForDisplay(numbers) { if (!numbers || numbers.length === 0) return ''; const sorted = [...numbers].sort((a, b) => a - b); return sorted.map(n => fmtNum(n)).join('.'); }
 function formatNumbersHtml(numbers) { if (!numbers || numbers.length === 0) return ''; const sorted = [...numbers].sort((a, b) => a - b); return sorted.map(n => `<span class="log-num" style="color:${getNumColor(n)};">${fmtNum(n)}</span>`).join('.'); }
 function generateIconSvg(text) { const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="#D90429"/><text x="50" y="68" font-family="'ZCOOL XiaoWei', serif" font-size="56" font-weight="900" fill="white" text-anchor="middle" style="filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.4));">${text}</text></svg>`; return 'data:image/svg+xml,' + encodeURIComponent(svg); }
-function getZodiacColor(z) { const idx = ZODIAC_MAP[z]; if (idx === undefined) return ''; const c = zodiacColors[idx]; if (c === 'red') return '#e53e3e'; if (c === 'blue') return '#3182ce'; if (c === 'green') return '#38a169'; return ''; }
-function getZodiacFromNumber(n) { for (let i = 0; i < zodiacs.length; i++) { for (const row of customGridRows) { if (row[i] === n) return zodiacs[i]; } } return null; }
 
-/* 4. 分组数据获取 */
+/* ============================================================
+   4. 分组数据获取
+   ============================================================ */
 function getGroupNumbers(type, val) {
     const nums=[];
     if(type==='segment'){ const segNums = segmentGroups[parseInt(val)]; if(segNums) segNums.forEach(n=>nums.push(n)); return nums; }
@@ -520,13 +526,17 @@ function getGroupLabel(type, val){
     return type+val;
 }
 
-/* 5. Toast */
+/* ============================================================
+   5. Toast 提示
+   ============================================================ */
 function adjustToastFontSize(t) { t.style.fontSize = '1.2rem'; t.style.whiteSpace = 'nowrap'; t.style.width = 'auto'; t.style.maxWidth = '90%'; requestAnimationFrame(() => { const maxW = window.innerWidth * 0.9 - 48; const curW = t.scrollWidth; if (curW > maxW) { let newSize = 1.2 * (maxW / curW); newSize = Math.max(newSize, 0.5); t.style.fontSize = newSize + 'rem'; } }); }
 function showToast(msg, d=1500) { const t = document.getElementById('toast'); if (toastTimer) { clearTimeout(toastTimer); toastTimer = null; } t.classList.remove('toast-long'); t.style.width = 'auto'; t.style.maxWidth = '90%'; t.innerHTML = `<span style="color:#1a202c;">${msg}</span>`; adjustToastFontSize(t); t.classList.add('show'); toastTimer = setTimeout(() => { t.classList.remove('show'); toastTimer = null; }, d); }
 function showToastNoBreak(msg, d=1500) { const t = document.getElementById('toast'); if (toastTimer) { clearTimeout(toastTimer); toastTimer = null; } t.classList.add('toast-long'); t.style.width = 'auto'; t.style.maxWidth = '90%'; t.innerHTML = `<span style="color:#1a202c;">${msg}</span>`; adjustToastFontSize(t); t.classList.add('show'); toastTimer = setTimeout(() => { t.classList.remove('show'); toastTimer = null; }, d); }
 function showToastWithNums(label, numbers) { const t = document.getElementById('toast'); if (toastTimer) { clearTimeout(toastTimer); toastTimer = null; } t.classList.remove('toast-long'); t.style.fontSize = '1.2rem'; t.style.width = 'auto'; t.style.maxWidth = '90%'; if(!numbers || !numbers.length) { t.innerHTML = `<span style="color:#1a202c;">${label}</span>`; } else { const sorted = [...new Set(numbers)].sort((a,b)=>a-b); const numsHtml = sorted.map(n => `<span style="color:${getNumColor(n)}; font-weight:600; white-space:nowrap;">${fmtNum(n)}</span>`).join('.'); t.innerHTML = `<div style="text-align:center">${label}</div><div style="text-align:center; word-break:break-word;">${numsHtml}</div>`; } t.classList.add('show'); toastTimer = setTimeout(() => { t.classList.remove('show'); toastTimer = null; }, 1500); }
 
-/* 6. 日志 */
+/* ============================================================
+   6. 日志
+   ============================================================ */
 function colorizeNumsOnly(msg) { return msg.replace(/(\d{2})/g, (match, num) => { const n = parseInt(num); if (n >= 1 && n <= 49) { return `<span class="log-num" style="color:${getNumColor(n)};">${fmtNum(n)}</span>`; } return match; }); }
 function getStateLogMessage() {
     const labels = [];
@@ -568,7 +578,9 @@ function addLog(type, msg) {
     while(c.children.length>200) c.removeChild(c.lastChild);
 }
 
-/* 7. 复制操作日志 */
+/* ============================================================
+   7. 复制操作日志
+   ============================================================ */
 async function copyLog() {
     await playSound('click');
     const c = document.getElementById('logContainer');
@@ -580,7 +592,9 @@ async function copyLog() {
     catch(e) { const ta = document.createElement('textarea'); ta.value = txt; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); showToastNoBreak('✅ 已复制操作记录'); addLog('system', '复制操作记录(降级)'); }
 }
 
-/* 8. 清空操作日志 */
+/* ============================================================
+   8. 清空操作日志
+   ============================================================ */
 async function handleClearLog() {
     await playSound('click');
     const c = document.getElementById('logContainer');
@@ -597,7 +611,9 @@ async function handleClearLog() {
     }, true, false, true);
 }
 
-/* 9. 数据持久化 */
+/* ============================================================
+   9. 数据持久化
+   ============================================================ */
 function save_data() { const data = { selected: Array.from(selectedNumbers), bets: betResults, undo: undoStack, redo: redoStack, history: inputHistory, tempData: tempStorageData, currentHighlight: currentHighlightedNumber, numberSources: Array.from(numberSources.entries()), freqColorMap: Array.from(globalFreqColorMap.entries()), statsHistory: statsHistory, statsHighlightedVal: statsHighlightedVal }; try { localStorage.setItem('lucky666_data_v72', JSON.stringify(data)); } catch(e) {} }
 function load_data() {
     try { localStorage.removeItem('lucky666_data_v70'); } catch(e) {}
@@ -633,7 +649,9 @@ function load_data() {
     } catch(e) { betResults={}; undoStack=[]; redoStack=[]; inputHistory=[]; tempStorageData=[]; currentHighlightedNumber=null; numberSources=new Map(); globalFreqColorMap=new Map(); statsHistory={head:[],tail:[],segment:[],door:[],wuxing:[],wave:[],zodiac:[],heshu:[]}; statsHighlightedVal={head:null,tail:null,segment:null,door:null,wuxing:null,wave:null,zodiac:null,heshu:null}; }
 }
 
-/* 10. 快照 */
+/* ============================================================
+   10. 快照 / 撤销栈
+   ============================================================ */
 function captureFullSnapshot(nums) { const selectedState = {}, bettingState = {}, betState = {}; nums.forEach(n => { selectedState[n] = selectedNumbers.has(n); bettingState[n] = bettingNumbers.has(n); betState[n] = betResults[n]; }); return { selectedState, bettingState, betState }; }
 function applySnapshot(snapshot, targetSelected, targetBetting, targetBet) {
     const { selectedState = {}, bettingState = {}, betState = {} } = snapshot;
@@ -650,7 +668,9 @@ function removeNumberSource(n,gid){ const s=numberSources.get(n); if(s){ s.delet
 function ensureConsistency() { if (isRestoring) return; for (const n of [...bettingNumbers]) { if (!selectedNumbers.has(n)) bettingNumbers.delete(n); } for (const n of Object.keys(betResults)) { const num = parseInt(n); if (!selectedNumbers.has(num)) delete betResults[num]; } }
 function recordAction(type, label, numbers, wasAdded, amount=0, extra={}) { redoStack=[]; const a={type, label, numbers:[...numbers], wasAdded, amount, ...extra}; undoStack.push(a); if(undoStack.length>200) undoStack.shift(); save_data(); }
 
-/* 11. 撤销描述 */
+/* ============================================================
+   11. 撤销/恢复消息格式化
+   ============================================================ */
 function getUndoActionDescription(a){
     if(a.type==='input_text'){ const txt = a.prevText || ''; if(!txt) return '输入'; const chineseOnly = extractChineseLabel(txt); return chineseOnly || '输入'; }
     if(a.type==='manual_input'){ return '输入' + (a.nextText || a.prevText || ''); }
@@ -701,7 +721,9 @@ function formatUndoRedoMessage(action) {
 }
 function getPlainUndoRedoText(action) { const html = formatUndoRedoMessage(action); return stripHtml(html).trim(); }
 
-/* 12. 模态框 */
+/* ============================================================
+   12. 模态框
+   ============================================================ */
 async function showConfirmModal(title, msg, onConfirm, isDanger = false, isHtml = false, hideMessage = false) { await ModalManager.showConfirm({ title, message: msg, onConfirm, isDanger, isHtml, hideMessage }); }
 async function showCopyPreviewModal(html, plain, onConfirm) { await ModalManager.showCopyPreview({ html, plain, onConfirm }); }
 async function showBetConfirmModal(nums, amt, unit) {
@@ -719,7 +741,9 @@ async function showBetConfirmModal(nums, amt, unit) {
     }});
 }
 
-/* 13. 音效 */
+/* ============================================================
+   13. 音效管理
+   ============================================================ */
 const iosAudioWaker = document.getElementById('iosAudioWaker');
 function wakeIosAudio() { if (iosAudioWaker) { iosAudioWaker.load(); iosAudioWaker.play().then(() => { iosAudioWaker.pause(); iosAudioWaker.currentTime = 0; }).catch(() => {}); } }
 async function playSound(t) { await SoundManager.play(t); }
@@ -745,7 +769,9 @@ const ModalManager = (function() {
     return { showConfirm, showCopyPreview, showBetConfirm, close };
 })();
 
-/* 14. 统计功能 */
+/* ============================================================
+   14. 统计功能
+   ============================================================ */
 function calculateStatsValFrequencies(type) { const f = {}; statsHistory[type].forEach(it => { if (it.isActive && it.vals) { it.vals.forEach(v => { const key = v.toString(); f[key] = (f[key] || 0) + 1; }); } }); return f; }
 function renderStatsModalFreqButtons(type) {
     const area = document.getElementById('statsModalHistoryArea');
@@ -988,16 +1014,14 @@ function parseZodiacLine(line) {
     if (allZodiac) { return { type: 'chars', vals: [...new Set(trimmed.split(''))] }; }
     const group = zodiacGroupButtons.find(g => g.label === trimmed);
     if (group) { return { type: 'group', label: trimmed, zodiacs: [...group.zodiacs] }; }
-    let rest = trimmed;
-    const found = [];
+    let rest = trimmed; const found = [];
     while (rest.length > 0) {
         if (rest.startsWith('红肖')) { found.push('红肖'); rest = rest.slice(2); }
         else if (rest.startsWith('绿肖')) { found.push('绿肖'); rest = rest.slice(2); }
         else if (rest.startsWith('蓝肖')) { found.push('蓝肖'); rest = rest.slice(2); }
         else { return { type: 'invalid' }; }
     }
-    const uniq = [...new Set(found)];
-    let labelStr = '';
+    const uniq = [...new Set(found)]; let labelStr = '';
     if (uniq.includes('红肖')) labelStr += '红';
     if (uniq.includes('绿肖')) labelStr += '绿';
     if (uniq.includes('蓝肖')) labelStr += '蓝';
@@ -1012,72 +1036,145 @@ function parseHeshuLine(line) {
     if (HESHU_VALID.includes(trimmed)) return { type: 'ok', label: trimmed };
     return { type: 'invalid' };
 }
-// 判断某行是否为无效/互斥（用于实时高亮）
-function computeZodiacHighlight(lines, type, popupGroupLabels) {
-    // 返回一个数组，每个元素是该行应该被标红的起止位置范围 [{start,end}] 或 null
-    const results = lines.map(() => []);
-    // 先解析每行
-    const parsed = lines.map((line, li) => {
-        const r = parseZodiacLine(line);
-        return { li, ...r };
-    });
-    // 无效行
-    parsed.forEach(p => {
-        if (p.type === 'invalid') { results[p.li].push({ start: 0, end: lines[p.li].length - 1 }); }
-    });
-    // 收集弹窗内非rgb组
-    const popupNonRgbGroups = [];
-    parsed.forEach(p => { if (p.type === 'group' && !['红肖','绿肖','蓝肖'].includes(p.label)) { popupNonRgbGroups.push(p.li); } });
-    // 和历史已激活的组合
-    const histGroups = [];
-    statsHistory.zodiac.forEach(it => { if (it.isActive && it.isGroupInput && it.groupLabel && !['红肖','绿肖','蓝肖'].includes(it.groupLabel)) { histGroups.push(it.groupLabel); } });
-    const allNonRgb = [...popupNonRgbGroups.map(i => parsed[i].label), ...histGroups];
-    const uniqNonRgb = [...new Set(allNonRgb)];
-    if (uniqNonRgb.length > 1) {
-        // 所有非rgb组都标红
-        popupNonRgbGroups.forEach(li => { results[li].push({ start: 0, end: lines[li].length - 1 }); });
+// 逐字符计算肖类的红字位置（实时）
+function computeZodiacCharHighlight(line, popupOtherGroups, histOtherGroups) {
+    // 返回一个 Set，里面是应标红的字符位置
+    const redSet = new Set();
+    if (!line) return redSet;
+    // 找该行最后一个有效生肖字位置（作为尾部起点）
+    let lastZodiacIdx = -1;
+    for (let i = line.length - 1; i >= 0; i--) { if (zodiacs.includes(line[i])) { lastZodiacIdx = i; break; } }
+    // 找该行最后一个"组名结尾"位置（红肖蓝肖双字、单肖等三字群组）——更保守用组名匹配
+    // 用扫描法：识别行内的组名区间
+    const groupRanges = [];
+    let i = 0;
+    while (i < line.length) {
+        // 尝试匹配红肖/绿肖/蓝肖 或 双字组
+        let matched = false;
+        for (const g of zodiacGroupButtons) {
+            if (line.startsWith(g.label, i)) { groupRanges.push({start: i, end: i + g.label.length - 1, label: g.label, kind: 'group'}); i += g.label.length; matched = true; break; }
+        }
+        if (!matched) { i++; }
     }
-    return results;
+    const hasGroup = groupRanges.length > 0;
+    // 确定尾部的起点：如果有组名，则为最后一个组名 end+1；否则为 lastZodiacIdx+1
+    let tailStart;
+    if (hasGroup) {
+        tailStart = Math.max(...groupRanges.map(r => r.end + 1));
+    } else {
+        tailStart = lastZodiacIdx + 1;
+    }
+    // 有效位置范围：[0, tailStart-1]
+    // 逐字符判断
+    const seenZodiac = new Set();
+    const seenGroups = new Set();
+    for (let p = 0; p < tailStart; p++) {
+        const ch = line[p];
+        // 看该位置是否在某个组名范围内
+        let inGroup = null;
+        for (const r of groupRanges) { if (p >= r.start && p <= r.end) { inGroup = r; break; } }
+        if (inGroup) {
+            // 组名重复？
+            if (seenGroups.has(inGroup.label)) { redSet.add(p); }
+            else if (p === inGroup.end) {
+                // 只在组名末尾位置做重复判断（避免重复添加）
+                seenGroups.add(inGroup.label);
+            }
+            // 混输检查：如果有组名，同时又出现了生肖字（非组名内），那是混输
+            continue;
+        }
+        if (zodiacs.includes(ch)) {
+            // 混输：已有组名则整行红
+            if (hasGroup) { redSet.add(p); continue; }
+            if (seenZodiac.has(ch)) { redSet.add(p); }
+            else { seenZodiac.add(ch); }
+        } else if (ch === ' ' || ch === '.' || ch === ',') {
+            // 忽略
+        } else {
+            // 非法字符
+            redSet.add(p);
+        }
+    }
+    // 混输检测：如果有组名 + 出现生肖字（非尾部）→ 整行红
+    if (hasGroup) {
+        let hasZodiacChar = false;
+        for (let p = 0; p < tailStart; p++) {
+            const ch = line[p];
+            let inGroup = null;
+            for (const r of groupRanges) { if (p >= r.start && p <= r.end) { inGroup = r; break; } }
+            if (!inGroup && zodiacs.includes(ch)) { hasZodiacChar = true; break; }
+        }
+        if (hasZodiacChar) {
+            for (let p = 0; p < tailStart; p++) { redSet.add(p); }
+        }
+    }
+    // 组间互斥：行内有多个非红绿蓝肖的组 → 全部红
+    const nonRgbGroups = groupRanges.filter(r => !['红肖','绿肖','蓝肖'].includes(r.label));
+    if (nonRgbGroups.length > 1) {
+        nonRgbGroups.forEach(r => { for (let p = r.start; p <= r.end; p++) redSet.add(p); });
+    }
+    // 与外部互斥：行内有非红绿蓝肖的组，且外部已有其他非红绿蓝肖的组
+    if (nonRgbGroups.length === 1 && popupOtherGroups.length + histOtherGroups.length > 0) {
+        // 外部组不包含当前组
+        const cur = nonRgbGroups[0].label;
+        const others = [...popupOtherGroups, ...histOtherGroups].filter(g => g !== cur);
+        if (others.length > 0) {
+            for (let p = nonRgbGroups[0].start; p <= nonRgbGroups[0].end; p++) redSet.add(p);
+        }
+    }
+    return redSet;
 }
-function computeHeshuHighlight(lines) {
-    const results = lines.map(() => []);
-    const parsed = lines.map((line, li) => { const r = parseHeshuLine(line); return { li, ...r }; });
-    parsed.forEach(p => { if (p.type === 'invalid') { results[p.li].push({ start: 0, end: lines[p.li].length - 1 }); } });
-    const validParsed = parsed.filter(p => p.type === 'ok');
-    // 弹窗内互斥
-    for (let i = 0; i < validParsed.length; i++) {
-        for (let j = i+1; j < validParsed.length; j++) {
-            if (HESHU_MUTEX[validParsed[i].label] === validParsed[j].label) {
-                results[validParsed[i].li].push({ start: 0, end: lines[validParsed[i].li].length - 1 });
-                results[validParsed[j].li].push({ start: 0, end: lines[validParsed[j].li].length - 1 });
+function computeHeshuCharHighlight(line, popupOtherLabels, histLabels) {
+    const redSet = new Set();
+    if (!line) return redSet;
+    // 找尾部：最后一个有效合类词结尾位置
+    let lastEnd = -1;
+    const ranges = [];
+    let i = 0;
+    while (i < line.length) {
+        let matched = false;
+        for (const w of HESHU_VALID) {
+            if (line.startsWith(w, i)) { ranges.push({start: i, end: i + w.length - 1, label: w}); lastEnd = Math.max(lastEnd, i + w.length - 1); i += w.length; matched = true; break; }
+        }
+        if (!matched) { i++; }
+    }
+    const tailStart = lastEnd + 1;
+    const seen = new Set();
+    for (let p = 0; p < tailStart; p++) {
+        let inRange = null;
+        for (const r of ranges) { if (p >= r.start && p <= r.end) { inRange = r; break; } }
+        if (inRange) {
+            if (seen.has(inRange.label)) { redSet.add(p); }
+            else if (p === inRange.end) { seen.add(inRange.label); }
+            continue;
+        }
+        const ch = line[p];
+        if (ch === ' ' || ch === '.' || ch === ',') continue;
+        redSet.add(p);
+    }
+    // 行内多个互斥对
+    for (let a = 0; a < ranges.length; a++) {
+        for (let b = a+1; b < ranges.length; b++) {
+            if (HESHU_MUTEX[ranges[a].label] === ranges[b].label) {
+                for (let p = ranges[a].start; p <= ranges[a].end; p++) redSet.add(p);
+                for (let p = ranges[b].start; p <= ranges[b].end; p++) redSet.add(p);
             }
         }
     }
-    // 与历史互斥
-    const histLabels = [];
-    statsHistory.heshu.forEach(it => { if (it.isActive && it.groupLabel) histLabels.push(it.groupLabel); });
-    validParsed.forEach(p => {
-        for (const hl of histLabels) {
-            if (HESHU_MUTEX[p.label] === hl) { results[p.li].push({ start: 0, end: lines[p.li].length - 1 }); break; }
-        }
-    });
-    return results;
+    // 与外部互斥
+    for (const r of ranges) {
+        const outerAll = [...popupOtherLabels, ...histLabels];
+        for (const o of outerAll) { if (o !== r.label && HESHU_MUTEX[r.label] === o) { for (let p = r.start; p <= r.end; p++) redSet.add(p); break; } }
+    }
+    return redSet;
 }
-function applyHighlightsToHtml(lines, highlights) {
+function applyCharRedSet(line, redSet) {
+    if (redSet.size === 0) return escapeHtml(line);
     let html = '';
-    lines.forEach((line, li) => {
-        const ranges = highlights[li] || [];
-        if (ranges.length === 0) { html += escapeHtml(line); }
-        else {
-            const set = new Set();
-            ranges.forEach(r => { for (let i = r.start; i <= r.end; i++) set.add(i); });
-            for (let i = 0; i < line.length; i++) {
-                if (set.has(i)) { html += `<span class="invalid-char">${escapeHtml(line[i])}</span>`; }
-                else { html += escapeHtml(line[i]); }
-            }
-        }
-        if (li < lines.length - 1) html += '\n';
-    });
+    for (let i = 0; i < line.length; i++) {
+        if (redSet.has(i)) html += `<span class="invalid-char">${escapeHtml(line[i])}</span>`;
+        else html += escapeHtml(line[i]);
+    }
     return html;
 }
 function renderStatsInputHighlight(inputEl, highlightEl, type, conflictStart, conflictEnd) {
@@ -1087,11 +1184,29 @@ function renderStatsInputHighlight(inputEl, highlightEl, type, conflictStart, co
         const lines = txt.split('\n');
         let html = '';
         if (type === 'zodiac') {
-            const highlights = computeZodiacHighlight(lines, type);
-            html = applyHighlightsToHtml(lines, highlights);
+            // 计算弹窗内所有"非红绿蓝肖"组（跨行）和 历史激活的非红绿蓝肖组
+            const popupOtherGroups = [];
+            lines.forEach(l => {
+                const r = parseZodiacLine(l);
+                if (r.type === 'group' && !['红肖','绿肖','蓝肖'].includes(r.label)) popupOtherGroups.push(r.label);
+            });
+            const histGroups = [];
+            statsHistory.zodiac.forEach(it => { if (it.isActive && it.isGroupInput && it.groupLabel && !['红肖','绿肖','蓝肖'].includes(it.groupLabel)) { histGroups.push(it.groupLabel); } });
+            lines.forEach((line, lineIdx) => {
+                const redSet = computeZodiacCharHighlight(line, popupOtherGroups, histGroups);
+                html += applyCharRedSet(line, redSet);
+                if (lineIdx < lines.length - 1) html += '\n';
+            });
         } else if (type === 'heshu') {
-            const highlights = computeHeshuHighlight(lines);
-            html = applyHighlightsToHtml(lines, highlights);
+            const popupLabels = [];
+            lines.forEach(l => { const r = parseHeshuLine(l); if (r.type === 'ok') popupLabels.push(r.label); });
+            const histLabels = [];
+            statsHistory.heshu.forEach(it => { if (it.isActive && it.groupLabel) histLabels.push(it.groupLabel); });
+            lines.forEach((line, lineIdx) => {
+                const redSet = computeHeshuCharHighlight(line, popupLabels, histLabels);
+                html += applyCharRedSet(line, redSet);
+                if (lineIdx < lines.length - 1) html += '\n';
+            });
         } else if (type === 'wave') {
             lines.forEach((line, lineIdx) => {
                 const lastValid = findLastValidPosForStats(line, type);
@@ -1123,6 +1238,7 @@ function renderStatsInputHighlight(inputEl, highlightEl, type, conflictStart, co
                 if (lineIdx < lines.length - 1) html += '\n';
             });
         } else {
+            // 头/尾/段/门/五行
             lines.forEach((line, lineIdx) => {
                 const seen = new Set();
                 const lastValid = findLastValidPosForStats(line, type);
@@ -1167,8 +1283,114 @@ async function openStatsModal(type) {
     confirmBtn.textContent = '确定';
     wrapper.appendChild(highlightEl);
     wrapper.appendChild(statsInput);
-    statsInput.addEventListener('input', () => { renderStatsInputHighlight(statsInput, highlightEl, type); highlightEl.scrollTop = statsInput.scrollTop; highlightEl.scrollLeft = statsInput.scrollLeft; });
+    // 实时校验：输入、粘贴都触发
+    statsInput.addEventListener('input', () => {
+        renderStatsInputHighlight(statsInput, highlightEl, type);
+        highlightEl.scrollTop = statsInput.scrollTop;
+        highlightEl.scrollLeft = statsInput.scrollLeft;
+    });
+    statsInput.addEventListener('paste', () => {
+        setTimeout(() => {
+            renderStatsInputHighlight(statsInput, highlightEl, type);
+            highlightEl.scrollTop = statsInput.scrollTop;
+            highlightEl.scrollLeft = statsInput.scrollLeft;
+            // 粘贴后检测非法字符，弹 toast
+            const lines = statsInput.value.split('\n');
+            let hasInvalid = false, hasMutex = false;
+            if (type === 'zodiac') {
+                const popupOtherGroups = [];
+                lines.forEach(l => { const r = parseZodiacLine(l); if (r.type === 'group' && !['红肖','绿肖','蓝肖'].includes(r.label)) popupOtherGroups.push(r.label); });
+                const histGroups = [];
+                statsHistory.zodiac.forEach(it => { if (it.isActive && it.isGroupInput && it.groupLabel && !['红肖','绿肖','蓝肖'].includes(it.groupLabel)) histGroups.push(it.groupLabel); });
+                lines.forEach(l => {
+                    const r = parseZodiacLine(l);
+                    if (r.type === 'invalid') hasInvalid = true;
+                    const redSet = computeZodiacCharHighlight(l, popupOtherGroups, histGroups);
+                    if (redSet.size > 0) hasInvalid = true;
+                });
+            } else if (type === 'heshu') {
+                const popupLabels = [];
+                lines.forEach(l => { const r = parseHeshuLine(l); if (r.type === 'ok') popupLabels.push(r.label); });
+                const histLabels = [];
+                statsHistory.heshu.forEach(it => { if (it.isActive && it.groupLabel) histLabels.push(it.groupLabel); });
+                lines.forEach(l => {
+                    const r = parseHeshuLine(l);
+                    if (r.type === 'invalid') hasInvalid = true;
+                    const redSet = computeHeshuCharHighlight(l, popupLabels, histLabels);
+                    if (redSet.size > 0) hasInvalid = true;
+                });
+            } else {
+                lines.forEach(l => {
+                    const lastValid = findLastValidPosForStats(l, type);
+                    for (let i = 0; i < l.length; i++) {
+                        if (lastValid !== -1 && i > lastValid) continue;
+                        const ch = l[i];
+                        if (ch === ' ' || ch === '.' || ch === ',') continue;
+                        if (!statsValidators[type](ch)) { hasInvalid = true; break; }
+                    }
+                });
+            }
+            if (hasInvalid) { playSound('slip'); showToast("存在无效内容"); }
+        }, 0);
+    });
     statsInput.addEventListener('scroll', () => { highlightEl.scrollTop = statsInput.scrollTop; highlightEl.scrollLeft = statsInput.scrollLeft; });
+    // 手动输入实时拦截：针对肖/合
+    statsInput.addEventListener('beforeinput', (e) => {
+        if (type !== 'zodiac' && type !== 'heshu') return;
+        if (!e.data) return;
+        // 只处理非粘贴（粘贴走 paste 事件）
+        if (e.inputType === 'insertFromPaste') return;
+        const newChar = e.data;
+        // 获取当前光标所在行
+        const pos = statsInput.selectionStart;
+        const value = statsInput.value;
+        let lineStart = value.lastIndexOf('\n', pos - 1) + 1;
+        let lineEnd = value.indexOf('\n', pos);
+        if (lineEnd === -1) lineEnd = value.length;
+        const currentLine = value.substring(lineStart, lineEnd);
+        // 仅在肖/合类型做拦截
+        if (type === 'zodiac') {
+            // 已有非红绿蓝肖组 → 禁止输入生肖字或其他组名
+            const existingOtherGroups = [];
+            for (const g of zodiacGroupButtons) {
+                if (['红肖','绿肖','蓝肖'].includes(g.label)) continue;
+                if (currentLine.includes(g.label)) { existingOtherGroups.push(g.label); break; }
+            }
+            if (existingOtherGroups.length > 0) {
+                // 禁止输入生肖字
+                if (/[鼠牛虎兔龙蛇马羊猴鸡狗猪]/.test(newChar)) {
+                    e.preventDefault(); playSound('slip'); showToast("存在无效内容"); return;
+                }
+                // 禁止输入其他非红绿蓝肖组名首字（粗略判断：如果 newChar 是某个组名的首字）
+                for (const g of zodiacGroupButtons) {
+                    if (['红肖','绿肖','蓝肖'].includes(g.label)) continue;
+                    if (g.label.startsWith(newChar)) {
+                        e.preventDefault(); playSound('slip'); showToast("存在无效内容"); return;
+                    }
+                }
+            }
+            // 已有生肖字 → 禁止输入非红绿蓝肖组名首字
+            const existingZodiac = /[鼠牛虎兔龙蛇马羊猴鸡狗猪]/.test(currentLine);
+            if (existingZodiac) {
+                for (const g of zodiacGroupButtons) {
+                    if (['红肖','绿肖','蓝肖'].includes(g.label)) continue;
+                    if (g.label.startsWith(newChar)) {
+                        e.preventDefault(); playSound('slip'); showToast("存在无效内容"); return;
+                    }
+                }
+            }
+        } else if (type === 'heshu') {
+            // 已有合类词 → 禁止输入互斥词首字
+            for (const w of HESHU_VALID) {
+                if (currentLine.includes(w)) {
+                    const mx = HESHU_MUTEX[w];
+                    if (mx && mx.startsWith(newChar)) {
+                        e.preventDefault(); playSound('slip'); showToast("存在无效内容"); return;
+                    }
+                }
+            }
+        }
+    });
     const inputRow = document.createElement('div');
     inputRow.style.display = 'flex'; inputRow.style.alignItems = 'stretch'; inputRow.style.gap = '6px'; inputRow.style.width = '100%';
     inputRow.appendChild(wrapper); inputRow.appendChild(confirmBtn);
@@ -1264,9 +1486,33 @@ async function handleZodiacStatsSubmit(lines, statsInput, highlightEl) {
     await playSound('pop');
     parsed.forEach(p => {
         let newItem;
-        if (p.type === 'chars') { newItem = { id: Date.now() + Math.random(), type: 'zodiac', vals: p.vals, inactiveVals: [], labelPrefix: p.vals.length + '肖', source: '', isActive: true, isGroupInput: false, groupLabel: '' }; }
-        else if (p.type === 'group') { newItem = { id: Date.now() + Math.random(), type: 'zodiac', vals: p.zodiacs, inactiveVals: [], labelPrefix: p.label, source: '', isActive: true, isGroupInput: true, groupLabel: p.label }; }
-        else if (p.type === 'rgb') { newItem = { id: Date.now() + Math.random(), type: 'zodiac', vals: p.zodiacs, inactiveVals: [], labelPrefix: p.label, source: '', isActive: true, isGroupInput: true, groupLabel: p.label }; }
+        // 提取每行的尾部文字
+        const line = lines[p.li];
+        let tailText = '';
+        if (p.type === 'chars') {
+            let lastIdx = -1;
+            for (let i = line.length - 1; i >= 0; i--) { if (zodiacs.includes(line[i])) { lastIdx = i; break; } }
+            if (lastIdx >= 0 && lastIdx < line.length - 1) tailText = line.substring(lastIdx + 1).replace(/[ .,\t]/g, '');
+            newItem = { id: Date.now() + Math.random(), type: 'zodiac', vals: p.vals, inactiveVals: [], labelPrefix: tailText + p.vals.length + '肖', source: '', isActive: true, isGroupInput: false, groupLabel: '' };
+        } else if (p.type === 'group') {
+            // 找组名位置
+            const idx = line.indexOf(p.label);
+            if (idx >= 0 && idx + p.label.length < line.length) tailText = line.substring(idx + p.label.length).replace(/[ .,\t]/g, '');
+            newItem = { id: Date.now() + Math.random(), type: 'zodiac', vals: p.zodiacs, inactiveVals: [], labelPrefix: tailText + p.label, source: '', isActive: true, isGroupInput: true, groupLabel: p.label };
+        } else if (p.type === 'rgb') {
+            // 找最后一个组名结尾
+            let lastEnd = -1;
+            let ii = 0;
+            while (ii < line.length) {
+                let matched = false;
+                for (const g of zodiacGroupButtons) {
+                    if (line.startsWith(g.label, ii)) { lastEnd = ii + g.label.length - 1; ii += g.label.length; matched = true; break; }
+                }
+                if (!matched) ii++;
+            }
+            if (lastEnd >= 0 && lastEnd < line.length - 1) tailText = line.substring(lastEnd + 1).replace(/[ .,\t]/g, '');
+            newItem = { id: Date.now() + Math.random(), type: 'zodiac', vals: p.zodiacs, inactiveVals: [], labelPrefix: tailText + p.label, source: '', isActive: true, isGroupInput: true, groupLabel: p.label };
+        }
         statsHistory.zodiac.push(newItem);
         recordAction('stats_add', `添加统计`, [], true, 0, {statsType:'zodiac', statsIndex:statsHistory.zodiac.length-1, item:newItem});
         addLog("input", `添加${newItem.labelPrefix}`);
@@ -1317,11 +1563,15 @@ async function handleHeshuStatsSubmit(lines, statsInput, highlightEl) {
     }
     await playSound('pop');
     parsed.forEach(p => {
+        const line = lines[p.li];
+        const idx = line.indexOf(p.label);
+        let tailText = '';
+        if (idx >= 0 && idx + p.label.length < line.length) tailText = line.substring(idx + p.label.length).replace(/[ .,\t]/g, '');
         const nums = getGroupNumbers('heshu', p.label) || bigSmallGroups[p.label] || [];
-        const newItem = { id: Date.now() + Math.random(), type: 'heshu', vals: [p.label], inactiveVals: [], labelPrefix: p.label, source: '', isActive: true, isGroupInput: true, groupLabel: p.label, nums: nums };
+        const newItem = { id: Date.now() + Math.random(), type: 'heshu', vals: [p.label], inactiveVals: [], labelPrefix: tailText + p.label, source: '', isActive: true, isGroupInput: true, groupLabel: p.label, nums: nums };
         statsHistory.heshu.push(newItem);
         recordAction('stats_add', `添加统计`, [], true, 0, {statsType:'heshu', statsIndex:statsHistory.heshu.length-1, item:newItem});
-        addLog("input", `添加${p.label}`);
+        addLog("input", `添加${newItem.labelPrefix}`);
     });
     renderStatsModalHistory('heshu');
     updateStatsKillRow();
@@ -1419,7 +1669,9 @@ async function handleOneClickSelect() {
     }, false, true);
 }
 
-/* 15. 撤销/恢复 */
+/* ============================================================
+   15. 撤销/恢复
+   ============================================================ */
 function restoreTempSnapshot(prevData, restoredNums, act) {
     if (act && act.selectedState) { restoreSelectedFromSnapshot(act, selectedNumbers); applySnapshot(act, selectedNumbers, bettingNumbers, betResults); }
     else { restoredNums.forEach(n => { if (selectedNumbers.has(n)) selectedNumbers.delete(n); bettingNumbers.delete(n); }); prevData.forEach(i => { const n = i.num; if (i.isBetting && selectedNumbers.has(n)) bettingNumbers.add(n); }); }
