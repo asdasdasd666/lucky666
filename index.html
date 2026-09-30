@@ -335,7 +335,7 @@ button, .num-btn, .action-grid-btn, .sphere-btn-base, .filter-btn, .wave-btn, .z
 <div class="bet-box-title"><div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;"><span>待购号码</span><span class="bet-count-badge" id="bettingCountBadge">0 个</span><button id="clearBettingBtn" class="temp-action-btn orange" onclick="handleClearBetting()">清空</button></div></div>
 <div class="bet-action-area" id="betActionArea"><div class="bet-input-row"><div class="bet-nums-display" id="betNumsDisplay"></div><button id="betAmountBtn" class="bet-amount-btn grey" onclick="handleAmountButtonClick()">无号码</button></div></div>
 <div class="bet-result-container" id="betResultContainer"><div class="bet-result-header"><div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;"><span>买号结果</span><span class="bet-count-badge" id="betCountBadge">0 个</span><span class="bet-total-amount" id="betTotalAmount">共 0 元</span></div><div style="display:flex; gap:6px;"><button class="clear-result-btn" id="clearResultBtn" onclick="handleClearBetResults()">清空结果</button><button class="small-copy-btn" id="copyBetResultBtn" onclick="copyBetResults()">复制</button></div></div><div class="bet-result-box" id="betResultBox" oncontextmenu="return false;" ondragstart="return false;"><div class="bet-result-items" id="betResultItems"></div></div></div>
-<div style="font-size: 0.65rem; font-weight: 700; color: #4a5568; margin-bottom: 2px; display:flex; justify-content:space-between; align-items:center;"><button class="small-copy-btn" id="copyLogBtn" onclick="copyLog()" style="margin-left:0; width:auto; height:auto; padding:2px 10px;">操作记录</button><button class="small-copy-btn clear-log-btn" id="clearLogBtn" onclick="handleClearLog()" style="margin-left:4px; width:auto; height:auto; padding:2px 10px;">清空记录</button><span style="font-weight: 600; color: #718096;">V7.0</span></div>
+<div style="font-size: 0.65rem; font-weight: 700; color: #4a5568; margin-bottom: 2px; display:flex; justify-content:space-between; align-items:center;"><button class="small-copy-btn" id="copyLogBtn" onclick="copyLog()" style="margin-left:0; width:auto; height:auto; padding:2px 10px;">操作记录</button><button class="small-copy-btn clear-log-btn" id="clearLogBtn" onclick="handleClearLog()" style="margin-left:4px; width:auto; height:auto; padding:2px 10px;">清空记录</button><span style="font-weight: 600; color: #718096;">V7.1</span></div>
 <div class="log-container" id="logContainer"><div class="log-item" style="color:#718096; justify-content:center;">暂无记录</div></div>
 </div>
 <div class="toast" id="toast">操作成功</div>
@@ -435,14 +435,25 @@ const zodiacGroupButtons = [
     {label:'瘦肖', zodiacs:['狗','兔','蛇','马','羊','鸡']},
     {label:'有边', zodiacs:['龙','蛇','猴','鸡','狗','猪']},
     {label:'无边', zodiacs:['鼠','牛','虎','兔','马','羊']},
-    {label:'红肖', zodiacs:['鼠','兔','马','鸡']},
-    {label:'绿肖', zodiacs:['虎','蛇','猴','猪']},
-    {label:'蓝肖', zodiacs:['牛','龙','羊','狗']}
+    {label:'红肖', zodiacs:['马','兔','鼠','鸡']},
+    {label:'绿肖', zodiacs:['羊','龙','牛','狗']},
+    {label:'蓝肖', zodiacs:['蛇','虎','猪','猴']},
+    {label:'金肖', zodiacs:['猴','鸡']},
+    {label:'木肖', zodiacs:['虎','兔']},
+    {label:'水肖', zodiacs:['鼠','猪']},
+    {label:'火肖', zodiacs:['蛇','马']},
+    {label:'土肖', zodiacs:['牛','羊','龙','狗']}
 ];
-/* 肖组配对互斥映射：只有配对的组同时出现才互斥，红肖/绿肖/蓝肖及 rgb 组合不参与互斥 */
+/* 肖组配对互斥映射：只有配对的组同时出现才互斥，特殊肖组（红绿蓝肖+五行肖）不参与互斥 */
 const zodiacGroupMutexPairs = [['单肖','双肖'],['家禽','野兽'],['吉美','凶丑'],['阴肖','阳肖'],['单笔','双笔'],['天肖','地肖'],['白肖','黑肖'],['男肖','女肖'],['文肖','武肖'],['前肖','后肖'],['独肖','合肖'],['胆大','胆小'],['大肖','小肖'],['日肖','夜肖'],['左肖','右肖'],['朝肖','夕肖'],['有肖','无肖'],['肥肖','瘦肖'],['有边','无边']];
 const zodiacGroupMutexMap = {};
 zodiacGroupMutexPairs.forEach(([a,b]) => { zodiacGroupMutexMap[a] = b; zodiacGroupMutexMap[b] = a; });
+/* 特殊肖组集合：红绿蓝肖 + 五行肖，可任意共存，不参与配对互斥 */
+const zodiacSpecialGroups = new Set(['红肖','绿肖','蓝肖','金肖','木肖','水肖','火肖','土肖']);
+/* 颜色字符集合（红绿蓝）*/
+const zodiacColorChars = new Set(['红','绿','蓝']);
+/* 五行字符集合（金木水火土）*/
+const zodiacWuxingChars = new Set(['金','木','水','火','土']);
 const ZODIAC_MAP = { "鼠":0,"牛":1,"虎":2,"兔":3,"龙":4,"蛇":5,"马":6,"羊":7,"猴":8,"鸡":9,"狗":10,"猪":11 };
 const freqColorPalette = [ "linear-gradient(145deg, #4169E1, #3151B1)", "linear-gradient(145deg, #D2691E, #A25018)", "linear-gradient(145deg, #00CED1, #009EA1)", "linear-gradient(145deg, #808000, #606000)", "linear-gradient(145deg, #8A2BE2, #6A1BB2)", "linear-gradient(145deg, #008B8B, #006B6B)", "linear-gradient(145deg, #A52A2A, #851A1A)", "linear-gradient(145deg, #00BFFF, #009FCF)", "linear-gradient(145deg, #CD5C5C, #3D1C1C)", "linear-gradient(145deg, #4B0082, #3B0062)" ];
 const statsTypeNames = { head:'头', tail:'尾', segment:'段', door:'门', wave:'波', zodiac:'肖', heshu:'合', wuxing:'五行' };
@@ -1023,6 +1034,24 @@ function parseStatsInput(val, type, checkConflict) {
     if (validVals.length === 0) { return { valid: false, validVals: [], sourceText: '', invalidPos: -1, isDuplicate: false, invalidStart: -1, invalidEnd: -1 }; }
     return { valid: true, validVals, sourceText, invalidPos: -1, isDuplicate: false, invalidStart: -1, invalidEnd: -1 };
 }
+/* 规范化特殊肖组（红绿蓝/五行）的 label 顺序 */
+function normalizeSpecialGroupLabel(chars) {
+    let label = '';
+    ['红','绿','蓝'].forEach(c => { if (chars.includes(c)) label += c; });
+    ['金','木','水','火','土'].forEach(c => { if (chars.includes(c)) label += c; });
+    return label + '肖';
+}
+/* 判断一个字符是否属于颜色或五行字符 */
+function isSpecialGroupChar(ch) { return zodiacColorChars.has(ch) || zodiacWuxingChars.has(ch); }
+/* 从紧凑形式构造特殊肖组对象 */
+function buildSpecialGroupFromCompact(compactStr) {
+    const chars = compactStr.slice(0, -1).split('');
+    const uniq = [...new Set(chars)];
+    const label = normalizeSpecialGroupLabel(uniq);
+    const zs = new Set();
+    uniq.forEach(c => { const grp = zodiacGroupButtons.find(x => x.label === c + '肖'); if (grp) grp.zodiacs.forEach(z => zs.add(z)); });
+    return { type: 'rgb', label: label, zodiacs: [...zs] };
+}
 function parseZodiacLine(line) {
     const trimmed = line.replace(/[ .,\t]/g, '');
     if (!trimmed) return { type: 'empty' };
@@ -1031,35 +1060,24 @@ function parseZodiacLine(line) {
     if (allZodiac) { return { type: 'chars', vals: [...new Set(trimmed.split(''))] }; }
     const group = zodiacGroupButtons.find(g => g.label === trimmed);
     if (group) { return { type: 'group', label: trimmed, zodiacs: [...group.zodiacs] }; }
-    // 紧凑颜色肖形式：连续颜色字符 + 肖，如 红肖、红绿肖、红绿蓝肖、绿蓝肖 等
-    if (/^[红绿蓝]+肖$/.test(trimmed)) {
-        const colors = trimmed.slice(0, -1).split('');
-        const uniq = [...new Set(colors)];
-        let labelStr = '';
-        if (uniq.includes('红')) labelStr += '红';
-        if (uniq.includes('绿')) labelStr += '绿';
-        if (uniq.includes('蓝')) labelStr += '蓝';
-        labelStr += '肖';
-        const zs = new Set();
-        uniq.forEach(c => { const grp = zodiacGroupButtons.find(x => x.label === c + '肖'); if (grp) grp.zodiacs.forEach(z => zs.add(z)); });
-        return { type: 'rgb', label: labelStr, zodiacs: [...zs] };
+    // 紧凑形式：连续颜色/五行字符 + 肖，如 红肖、红绿肖、红绿蓝肖、金肖、金木肖、红金肖、红绿金木肖 等
+    if (/^[红绿蓝金木水火土]+肖$/.test(trimmed)) {
+        return buildSpecialGroupFromCompact(trimmed);
     }
-    // 分离形式：红肖绿肖 等
+    // 分离形式：红肖绿肖 / 金肖木肖 等
     let rest = trimmed; const found = [];
     while (rest.length > 0) {
-        if (rest.startsWith('红肖')) { found.push('红肖'); rest = rest.slice(2); }
-        else if (rest.startsWith('绿肖')) { found.push('绿肖'); rest = rest.slice(2); }
-        else if (rest.startsWith('蓝肖')) { found.push('蓝肖'); rest = rest.slice(2); }
-        else { return { type: 'invalid' }; }
+        let matched = false;
+        for (const c of ['红','绿','蓝','金','木','水','火','土']) {
+            if (rest.startsWith(c + '肖')) { found.push(c + '肖'); rest = rest.slice(2); matched = true; break; }
+        }
+        if (!matched) return { type: 'invalid' };
     }
-    const uniq = [...new Set(found)]; let labelStr = '';
-    if (uniq.includes('红肖')) labelStr += '红';
-    if (uniq.includes('绿肖')) labelStr += '绿';
-    if (uniq.includes('蓝肖')) labelStr += '蓝';
-    labelStr += '肖';
+    const uniqChars = [...new Set(found.map(f => f[0]))];
+    const label = normalizeSpecialGroupLabel(uniqChars);
     const zs = new Set();
     found.forEach(g => { const grp = zodiacGroupButtons.find(x => x.label === g); if (grp) grp.zodiacs.forEach(z => zs.add(z)); });
-    return { type: 'rgb', label: labelStr, zodiacs: [...zs] };
+    return { type: 'rgb', label: label, zodiacs: [...zs] };
 }
 function parseHeshuLine(line) {
     const trimmed = line.replace(/[ .,\t]/g, '');
@@ -1070,7 +1088,7 @@ function parseHeshuLine(line) {
 // 逐字符计算肖类的红字位置（实时）
 // popupGroups: 弹窗内所有行的组名（含 group 和 rgb 类型）
 // histGroups: 历史激活的组名（含 group 和 rgb 类型）
-// 互斥规则：只有配对组（zodiacGroupMutexMap）同时出现才互斥，红肖/绿肖/蓝肖及 rgb 组合不参与互斥
+// 互斥规则：只有配对组（zodiacGroupMutexMap）同时出现才互斥，特殊肖组（红绿蓝+五行）不参与互斥
 function computeZodiacCharHighlight(line, popupGroups, histGroups) {
     const redSet = new Set();
     if (!line) return redSet;
@@ -1079,12 +1097,13 @@ function computeZodiacCharHighlight(line, popupGroups, histGroups) {
     const groupRanges = [];
     let i = 0;
     while (i < line.length) {
-        // 优先匹配紧凑颜色肖：红肖、红绿肖、红绿蓝肖、绿蓝肖等
+        // 优先匹配紧凑特殊肖组：连续颜色/五行字符 + 肖
         const rest = line.substring(i);
-        const rgbMatch = rest.match(/^[红绿蓝]+肖/);
-        if (rgbMatch) {
-            const full = rgbMatch[0];
-            groupRanges.push({start: i, end: i + full.length - 1, label: full, kind: 'rgbcompact'});
+        const compactMatch = rest.match(/^[红绿蓝金木水火土]+肖/);
+        if (compactMatch) {
+            const full = compactMatch[0];
+            const label = normalizeSpecialGroupLabel([...new Set(full.slice(0, -1).split(''))]);
+            groupRanges.push({start: i, end: i + full.length - 1, label: label, kind: 'rgbcompact'});
             i += full.length;
             continue;
         }
@@ -1212,14 +1231,12 @@ function renderStatsInputHighlight(inputEl, highlightEl, type, conflictStart, co
         const lines = txt.split('\n');
         let html = '';
         if (type === 'zodiac') {
-            // 收集弹窗内所有行的组名（含 group 和 rgb 类型）
             const popupGroups = [];
             lines.forEach(l => {
                 const r = parseZodiacLine(l);
                 if (r.type === 'group') popupGroups.push(r.label);
                 else if (r.type === 'rgb') popupGroups.push(r.label);
             });
-            // 收集历史激活的所有组名（含 group 和 rgb 类型）
             const histGroups = [];
             statsHistory.zodiac.forEach(it => { if (it.isActive && it.isGroupInput && it.groupLabel) { histGroups.push(it.groupLabel); } });
             lines.forEach((line, lineIdx) => {
@@ -1377,14 +1394,25 @@ async function openStatsModal(type) {
         if (lineEnd === -1) lineEnd = value.length;
         const currentLine = value.substring(lineStart, lineEnd);
         if (type === 'zodiac') {
-            // 收集当前行已有的所有组名
             const existingGroups = [];
             for (const g of zodiacGroupButtons) {
                 if (currentLine.includes(g.label)) { existingGroups.push(g.label); }
             }
-            // 有任意非红绿蓝肖组 → 禁止输入生肖字（混输拦截）
-            const existingNonRgb = existingGroups.filter(g => !['红肖','绿肖','蓝肖'].includes(g));
-            if (existingNonRgb.length > 0) {
+            // 有特殊肖组或生肖字时，禁止混入普通配对组首字（简化处理）
+            const existingSpecial = existingGroups.some(g => zodiacSpecialGroups.has(g));
+            const hasZodiacChar = /[鼠牛虎兔龙蛇马羊猴鸡狗猪]/.test(currentLine);
+            // 有生肖字 → 禁止输入非特殊组首字（混输拦截，特殊组允许与生肖字混写保持原逻辑？——这里严格：有生肖字禁止任何组首字）
+            if (hasZodiacChar) {
+                for (const g of zodiacGroupButtons) {
+                    if (zodiacSpecialGroups.has(g.label)) continue;
+                    if (g.label.startsWith(newChar)) {
+                        e.preventDefault(); playSound('slip'); showToast("存在无效内容"); return;
+                    }
+                }
+            }
+            // 有任意非特殊组 → 禁止输入生肖字
+            const existingNonSpecial = existingGroups.filter(g => !zodiacSpecialGroups.has(g));
+            if (existingNonSpecial.length > 0) {
                 if (/[鼠牛虎兔龙蛇马羊猴鸡狗猪]/.test(newChar)) {
                     e.preventDefault(); playSound('slip'); showToast("存在无效内容"); return;
                 }
@@ -1395,16 +1423,6 @@ async function openStatsModal(type) {
             if (mutexTargets.size > 0) {
                 for (const g of zodiacGroupButtons) {
                     if (mutexTargets.has(g.label) && g.label.startsWith(newChar)) {
-                        e.preventDefault(); playSound('slip'); showToast("存在无效内容"); return;
-                    }
-                }
-            }
-            // 有生肖字 → 禁止输入非红绿蓝肖组首字（混输拦截）
-            const existingZodiac = /[鼠牛虎兔龙蛇马羊猴鸡狗猪]/.test(currentLine);
-            if (existingZodiac) {
-                for (const g of zodiacGroupButtons) {
-                    if (['红肖','绿肖','蓝肖'].includes(g.label)) continue;
-                    if (g.label.startsWith(newChar)) {
                         e.preventDefault(); playSound('slip'); showToast("存在无效内容"); return;
                     }
                 }
@@ -1501,19 +1519,15 @@ async function handleZodiacStatsSubmit(lines, statsInput, highlightEl) {
         return;
     }
     if (!parsed.length) return;
-    // 收集弹窗内所有组名（含 group 和 rgb）
     const popupGroups = parsed.filter(p => p.type === 'group' || p.type === 'rgb').map(p => p.label);
-    // 收集历史激活的所有组名（含 group 和 rgb）
     const histGroups = [];
     statsHistory.zodiac.forEach(it => { if (it.isActive && it.isGroupInput && it.groupLabel) { histGroups.push(it.groupLabel); } });
-    // 弹窗内配对互斥检查
     let hasMutex = false;
     for (let i = 0; i < popupGroups.length && !hasMutex; i++) {
         for (let j = i + 1; j < popupGroups.length; j++) {
             if (zodiacGroupMutexMap[popupGroups[i]] === popupGroups[j]) { hasMutex = true; break; }
         }
     }
-    // 与历史配对互斥检查
     if (!hasMutex) {
         for (const pg of popupGroups) {
             const mutex = zodiacGroupMutexMap[pg];
@@ -1545,10 +1559,10 @@ async function handleZodiacStatsSubmit(lines, statsInput, highlightEl) {
             let ii = 0;
             while (ii < line.length) {
                 const rest = line.substring(ii);
-                const rgbMatch = rest.match(/^[红绿蓝]+肖/);
-                if (rgbMatch) {
-                    lastEnd = ii + rgbMatch[0].length - 1;
-                    ii += rgbMatch[0].length;
+                const compactMatch = rest.match(/^[红绿蓝金木水火土]+肖/);
+                if (compactMatch) {
+                    lastEnd = ii + compactMatch[0].length - 1;
+                    ii += compactMatch[0].length;
                     continue;
                 }
                 let matched = false;
@@ -1680,8 +1694,10 @@ async function handleOneClickSelect() {
     const allParts = killContent.match(/【[^】]*】/g) || [];
     allParts.forEach(m => {
         const inner = m.slice(1, -1);
-        if (HESHU_VALID.includes(inner)) { (getGroupNumbers('heshu', inner) || bigSmallGroups[inner] || []).forEach(n => killedHeshuNums.add(n)); }
-        else { for (const label of HESHU_VALID) { if (inner.includes(label)) { (getGroupNumbers('heshu', label) || bigSmallGroups[label] || []).forEach(n => killedHeshuNums.add(n)); } } }
+        const nums1 = getGroupNumbers('heshu', inner);
+        if (nums1.length > 0) { nums1.forEach(n => killedHeshuNums.add(n)); }
+        else if (bigSmallGroups[inner]) { bigSmallGroups[inner].forEach(n => killedHeshuNums.add(n)); }
+        else { for (const label of HESHU_VALID) { if (inner.includes(label)) { const nums2 = getGroupNumbers('heshu', label); if (nums2.length > 0) { nums2.forEach(n => killedHeshuNums.add(n)); } else if (bigSmallGroups[label]) { bigSmallGroups[label].forEach(n => killedHeshuNums.add(n)); } } } }
     });
     const killedWaveNums = new Set();
     killedWaveVals.forEach(wv => { getGroupNumbers('waveval', wv).forEach(n => killedWaveNums.add(n)); });
@@ -2334,7 +2350,7 @@ function renderKillControls(){
     zgc.appendChild(zrow4);
     const zrow5=document.createElement('div'); zrow5.className='zodiac-row';
     const zph5=document.createElement('span'); zph5.className='row-label-hidden'; zph5.textContent='肖'; zrow5.appendChild(zph5);
-    zodiacGroupButtons.slice(38,41).forEach(g => { const b=document.createElement('button'); b.className='filter-btn'; b.textContent=g.label; b.setAttribute('data-zodiac-group', g.label); b.onclick=(e)=>handleZodiacGroupKill(g.label,e); zrow5.appendChild(b); });
+    zodiacGroupButtons.slice(38,46).forEach(g => { const b=document.createElement('button'); b.className='filter-btn'; b.textContent=g.label; b.setAttribute('data-zodiac-group', g.label); b.onclick=(e)=>handleZodiacGroupKill(g.label,e); zrow5.appendChild(b); });
     zgc.appendChild(zrow5);
     const doorRow=document.createElement('div'); doorRow.className='zodiac-row';
     const doorLbl=document.createElement('span'); doorLbl.className='row-label kill-label'; doorLbl.textContent='门'; doorRow.appendChild(doorLbl);
