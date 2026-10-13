@@ -327,15 +327,17 @@ button, .num-btn, .action-grid-btn, .sphere-btn-base, .filter-btn, .wave-btn, .z
 <div class="result-card">
 <div class="result-box-title"><div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;"><span>已选号码</span><span class="count-badge" id="countBadge">0 个</span><button id="selectAllBetBtn" class="batch-select-btn grey">全选</button><button id="tempStoreBtn" class="temp-action-btn grey" onclick="handleTempStore()">无号码</button></div><div style="display:flex; gap:6px;"><button class="small-copy-btn" id="copySelectedBtn" onclick="copySelectedNumbers()">复制</button></div></div>
 <div style="margin: 6px 0 4px 0; display: flex; align-items: center; gap: 6px; padding: 2px;"><span class="row-label kill-label" style="font-size: 1rem;">尾</span><div style="display: flex; gap: 3px; flex-shrink: 0;"><button class="tail-btn-large" id="tailBtn0" onclick="handleTailBetAction(0)">0</button><button class="tail-btn-large" id="tailBtn1" onclick="handleTailBetAction(1)">1</button><button class="tail-btn-large" id="tailBtn2" onclick="handleTailBetAction(2)">2</button><button class="tail-btn-large" id="tailBtn3" onclick="handleTailBetAction(3)">3</button><button class="tail-btn-large" id="tailBtn4" onclick="handleTailBetAction(4)">4</button><button class="tail-btn-large" id="tailBtn5" onclick="handleTailBetAction(5)">5</button><button class="tail-btn-large" id="tailBtn6" onclick="handleTailBetAction(6)">6</button><button class="tail-btn-large" id="tailBtn7" onclick="handleTailBetAction(7)">7</button><button class="tail-btn-large" id="tailBtn8" onclick="handleTailBetAction(8)">8</button><button class="tail-btn-large" id="tailBtn9" onclick="handleTailBetAction(9)">9</button></div></div>
-<div style="margin: 4px 0 4px 0; display: flex; align-items: center; gap: 6px; padding: 2px;"><span class="row-label kill-label" style="font-size: 1rem;">属</span><div style="display: flex; gap: 3px; flex-shrink: 0;"><button class="tail-btn-wide" id="attrBtnRed" onclick="handleWaveColorBetAction('red')">红波</button><button class="tail-btn-wide" id="attrBtnGreen" onclick="handleWaveColorBetAction('green')">绿波</button><button class="tail-btn-wide" id="attrBtnBlue" onclick="handleWaveColorBetAction('blue')">蓝波</button><button class="tail-btn-wide" id="attrBtnBigOdd" onclick="handleSizeParityBetAction('大单')">大单</button><button class="tail-btn-wide" id="attrBtnSmallOdd" onclick="handleSizeParityBetAction('小单')">小单</button><button class="tail-btn-wide" id="attrBtnBigEven" onclick="handleSizeParityBetAction('大双')">大双</button><button class="tail-btn-wide" id="attrBtnSmallEven" onclick="handleSizeParityBetAction('小双')">小双</button></div></div>
-<div style="margin: 4px 0 8px 0; display: flex; align-items: center; gap: 6px; padding: 2px;"><span class="row-label kill-label" style="font-size: 1rem;">头</span><div style="display: flex; gap: 3px; flex-shrink: 0;"><button class="tail-btn-large" id="headBtn0" onclick="handleHeadBetAction('0')">0</button><button class="tail-btn-large" id="headBtn1" onclick="handleHeadBetAction('1')">1</button><button class="tail-btn-large" id="headBtn2" onclick="handleHeadBetAction('2')">2</button><button class="tail-btn-large" id="headBtn3" onclick="handleHeadBetAction('3')">3</button><button class="tail-btn-large" id="headBtn4" onclick="handleHeadBetAction('4')">4</button><button class="tail-btn-large" id="headBtnGold" onclick="handleAttrBetAction('gold')">金</button><button class="tail-btn-large" id="headBtnWood" onclick="handleAttrBetAction('wood')">木</button><button class="tail-btn-large" id="headBtnWater" onclick="handleAttrBetAction('water')">水</button><button class="tail-btn-large" id="headBtnFire" onclick="handleAttrBetAction('fire')">火</button><button class="tail-btn-large" id="headBtnEarth" onclick="handleAttrBetAction('earth')">土</button></div></div>
+<div style="margin: 4px 0 4px 0; display: flex; align-items: center; gap: 6px; padding: 2px;"><span class="row-label kill-label" style="font-size: 1rem;">波</span><div style="display: flex; gap: 3px; flex-shrink: 0;"><button class="tail-btn-wide" id="attrBtnRedOdd" onclick="handleWaveParityBetAction('red','odd')">红单</button><button class="tail-btn-wide" id="attrBtnRedEven" onclick="handleWaveParityBetAction('red','even')">红双</button><button class="tail-btn-wide" id="attrBtnGreenOdd" onclick="handleWaveParityBetAction('green','odd')">绿单</button><button class="tail-btn-wide" id="attrBtnGreenEven" onclick="handleWaveParityBetAction('green','even')">绿双</button><button class="tail-btn-wide" id="attrBtnBlueOdd" onclick="handleWaveParityBetAction('blue','odd')">蓝单</button><button class="tail-btn-wide" id="attrBtnBlueEven" onclick="handleWaveParityBetAction('blue','even')">蓝双</button></div></div>
+<div style="margin: 4px 0 4px 0; display: flex; align-items: center; gap: 6px; padding: 2px;"><span class="row-label kill-label" style="font-size: 1rem;">数</span><div style="display: flex; gap: 3px; flex-shrink: 0;"><button class="tail-btn-wide" id="attrBtnBigOdd" onclick="handleSizeParityBetAction('大单')">大单</button><button class="tail-btn-wide" id="attrBtnSmallOdd" onclick="handleSizeParityBetAction('小单')">小单</button><button class="tail-btn-wide" id="attrBtnBigEven" onclick="handleSizeParityBetAction('大双')">大双</button><button class="tail-btn-wide" id="attrBtnSmallEven" onclick="handleSizeParityBetAction('小双')">小双</button><button class="tail-btn-wide" id="attrBtnHeshuSingle" onclick="handleHeshuBetAction('合单')">合单</button><button class="tail-btn-wide" id="attrBtnHeshuDouble" onclick="handleHeshuBetAction('合双')">合双</button></div></div>
+<div style="margin: 4px 0 4px 0; display: flex; align-items: center; gap: 6px; padding: 2px;"><span class="row-label kill-label" style="font-size: 1rem;">头</span><div style="display: flex; gap: 3px; flex-shrink: 0;"><button class="tail-btn-large" id="headBtn0" onclick="handleHeadBetAction('0')">0</button><button class="tail-btn-large" id="headBtn1" onclick="handleHeadBetAction('1')">1</button><button class="tail-btn-large" id="headBtn2" onclick="handleHeadBetAction('2')">2</button><button class="tail-btn-large" id="headBtn3" onclick="handleHeadBetAction('3')">3</button><button class="tail-btn-large" id="headBtn4" onclick="handleHeadBetAction('4')">4</button></div></div>
+<div style="margin: 4px 0 8px 0; display: flex; align-items: center; gap: 6px; padding: 2px;"><span class="row-label kill-label" style="font-size: 1rem;">行</span><div style="display: flex; gap: 3px; flex-shrink: 0;"><button class="tail-btn-large" id="headBtnGold" onclick="handleAttrBetAction('gold')">金</button><button class="tail-btn-large" id="headBtnWood" onclick="handleAttrBetAction('wood')">木</button><button class="tail-btn-large" id="headBtnWater" onclick="handleAttrBetAction('water')">水</button><button class="tail-btn-large" id="headBtnFire" onclick="handleAttrBetAction('fire')">火</button><button class="tail-btn-large" id="headBtnEarth" onclick="handleAttrBetAction('earth')">土</button></div></div>
 <div class="result-text" id="resultDisplay" oncontextmenu="return false;" ondragstart="return false;"></div>
 <div class="temp-storage-header-row"><div class="temp-storage-header"><span>暂存号码</span><span class="count-badge" id="tempCountBadge">0 个</span><button id="tempRestoreBtn" class="temp-action-btn grey" onclick="handleTempRestore()">无号码</button><button id="tempClearBtn" class="temp-action-btn orange" onclick="handleTempClear()" style="margin-left:auto;">清空暂存</button></div></div>
 <div id="tempStorageContent" class="temp-storage-content"></div>
 <div class="bet-box-title"><div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;"><span>待购号码</span><span class="bet-count-badge" id="bettingCountBadge">0 个</span><button id="clearBettingBtn" class="temp-action-btn orange" onclick="handleClearBetting()">清空</button></div></div>
 <div class="bet-action-area" id="betActionArea"><div class="bet-input-row"><div class="bet-nums-display" id="betNumsDisplay"></div><button id="betAmountBtn" class="bet-amount-btn grey" onclick="handleAmountButtonClick()">无号码</button></div></div>
 <div class="bet-result-container" id="betResultContainer"><div class="bet-result-header"><div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;"><span>买号结果</span><span class="bet-count-badge" id="betCountBadge">0 个</span><span class="bet-total-amount" id="betTotalAmount">共 0 元</span></div><div style="display:flex; gap:6px;"><button class="clear-result-btn" id="clearResultBtn" onclick="handleClearBetResults()">清空结果</button><button class="small-copy-btn" id="copyBetResultBtn" onclick="copyBetResults()">复制</button></div></div><div class="bet-result-box" id="betResultBox" oncontextmenu="return false;" ondragstart="return false;"><div class="bet-result-items" id="betResultItems"></div></div></div>
-<div style="font-size: 0.65rem; font-weight: 700; color: #4a5568; margin-bottom: 2px; display:flex; justify-content:space-between; align-items:center;"><button class="small-copy-btn" id="copyLogBtn" onclick="copyLog()" style="margin-left:0; width:auto; height:auto; padding:2px 10px;">操作记录</button><button class="small-copy-btn clear-log-btn" id="clearLogBtn" onclick="handleClearLog()" style="margin-left:4px; width:auto; height:auto; padding:2px 10px;">清空记录</button><span style="font-weight: 600; color: #718096;">V7.1</span></div>
+<div style="font-size: 0.65rem; font-weight: 700; color: #4a5568; margin-bottom: 2px; display:flex; justify-content:space-between; align-items:center;"><button class="small-copy-btn" id="copyLogBtn" onclick="copyLog()" style="margin-left:0; width:auto; height:auto; padding:2px 10px;">操作记录</button><button class="small-copy-btn clear-log-btn" id="clearLogBtn" onclick="handleClearLog()" style="margin-left:4px; width:auto; height:auto; padding:2px 10px;">清空记录</button><span style="font-weight: 600; color: #718096;">V7.2</span></div>
 <div class="log-container" id="logContainer"><div class="log-item" style="color:#718096; justify-content:center;">暂无记录</div></div>
 </div>
 <div class="toast" id="toast">操作成功</div>
@@ -1398,10 +1400,8 @@ async function openStatsModal(type) {
             for (const g of zodiacGroupButtons) {
                 if (currentLine.includes(g.label)) { existingGroups.push(g.label); }
             }
-            // 有特殊肖组或生肖字时，禁止混入普通配对组首字（简化处理）
-            const existingSpecial = existingGroups.some(g => zodiacSpecialGroups.has(g));
+            // 有生肖字时，禁止输入非特殊组首字（混输拦截）
             const hasZodiacChar = /[鼠牛虎兔龙蛇马羊猴鸡狗猪]/.test(currentLine);
-            // 有生肖字 → 禁止输入非特殊组首字（混输拦截，特殊组允许与生肖字混写保持原逻辑？——这里严格：有生肖字禁止任何组首字）
             if (hasZodiacChar) {
                 for (const g of zodiacGroupButtons) {
                     if (zodiacSpecialGroups.has(g.label)) continue;
@@ -2081,11 +2081,21 @@ async function handleTailBetAction(t){
     else { await playSound('pop'); const add=nums.filter(n=>!betResults.hasOwnProperty(n)&&!bettingNumbers.has(n)); if(!add.length){ return; } const snapshot = captureFullSnapshot(add); recordAction('batch_select',`尾${t}`,add,true,0,snapshot); add.forEach(n=>bettingNumbers.add(n)); addLog("select",`尾${t}待购 ${formatNumbersForDisplay(add)}`); }
     updateAllStates();
 }
+async function handleWaveParityBetAction(color, parity){
+    await playSound('click'); const val = `${color}-${parity}`;
+    const nums = getGroupNumbers('parity', val); if(!nums.length) return;
+    const filtered = Array.from(selectedNumbers).filter(n => nums.includes(n)); if(!filtered.length) return;
+    const all = filtered.every(n => betResults.hasOwnProperty(n) || bettingNumbers.has(n));
+    const lbl = getGroupLabel('parity', val);
+    if(all){ await playSound('shutter'); const rm = filtered.filter(n => bettingNumbers.has(n)); if(!rm.length){ return; } const snapshot = captureFullSnapshot(rm); recordAction('batch_kill',lbl,rm,false,0,snapshot); rm.forEach(n => bettingNumbers.delete(n)); addLog("select",`取消${lbl}待购 ${formatNumbersForDisplay(rm)}`); }
+    else { await playSound('pop'); const add = filtered.filter(n => !betResults.hasOwnProperty(n) && !bettingNumbers.has(n)); if(!add.length){ return; } const snapshot = captureFullSnapshot(add); recordAction('batch_select',lbl,add,true,0,snapshot); add.forEach(n => bettingNumbers.add(n)); addLog("select",`${lbl}待购 ${formatNumbersForDisplay(add)}`); }
+    updateAllStates();
+}
 async function handleAttrBetAction(wuxing){
     await playSound('click'); const wuxingNums = wuxingGroups[wuxing] || new Set(); const nums = Array.from(selectedNumbers).filter(n => wuxingNums.has(n)); if(!nums.length) return;
     const all = nums.every(n => betResults.hasOwnProperty(n) || bettingNumbers.has(n)); const lbl = wuxingChars[wuxing];
-    if(all){ await playSound('shutter'); const rm = nums.filter(n => bettingNumbers.has(n)); if(!rm.length){ return; } const snapshot = captureFullSnapshot(rm); recordAction('batch_kill',`属${lbl}`,rm,false,0,snapshot); rm.forEach(n => bettingNumbers.delete(n)); addLog("select",`取消属${lbl}待购 ${formatNumbersForDisplay(rm)}`); }
-    else { await playSound('pop'); const add = nums.filter(n => !betResults.hasOwnProperty(n) && !bettingNumbers.has(n)); if(!add.length){ return; } const snapshot = captureFullSnapshot(add); recordAction('batch_select',`属${lbl}`,add,true,0,snapshot); add.forEach(n => bettingNumbers.add(n)); addLog("select",`属${lbl}待购 ${formatNumbersForDisplay(add)}`); }
+    if(all){ await playSound('shutter'); const rm = nums.filter(n => bettingNumbers.has(n)); if(!rm.length){ return; } const snapshot = captureFullSnapshot(rm); recordAction('batch_kill',`行${lbl}`,rm,false,0,snapshot); rm.forEach(n => bettingNumbers.delete(n)); addLog("select",`取消行${lbl}待购 ${formatNumbersForDisplay(rm)}`); }
+    else { await playSound('pop'); const add = nums.filter(n => !betResults.hasOwnProperty(n) && !bettingNumbers.has(n)); if(!add.length){ return; } const snapshot = captureFullSnapshot(add); recordAction('batch_select',`行${lbl}`,add,true,0,snapshot); add.forEach(n => bettingNumbers.add(n)); addLog("select",`行${lbl}待购 ${formatNumbersForDisplay(add)}`); }
     updateAllStates();
 }
 async function handleSizeParityBetAction(sp){
@@ -2095,16 +2105,17 @@ async function handleSizeParityBetAction(sp){
     else { await playSound('pop'); const add = nums.filter(n => !betResults.hasOwnProperty(n) && !bettingNumbers.has(n)); if(!add.length){ return; } const snapshot = captureFullSnapshot(add); recordAction('batch_select',sp,add,true,0,snapshot); add.forEach(n => bettingNumbers.add(n)); addLog("select",`${sp}待购 ${formatNumbersForDisplay(add)}`); }
     updateAllStates();
 }
+async function handleHeshuBetAction(label){
+    await playSound('click'); const nums = getGroupNumbers('heshu', label); if(!nums.length) return;
+    const filtered = Array.from(selectedNumbers).filter(n => nums.includes(n)); if(!filtered.length) return;
+    const all = filtered.every(n => betResults.hasOwnProperty(n) || bettingNumbers.has(n));
+    if(all){ await playSound('shutter'); const rm = filtered.filter(n => bettingNumbers.has(n)); if(!rm.length){ return; } const snapshot = captureFullSnapshot(rm); recordAction('batch_kill',label,rm,false,0,snapshot); rm.forEach(n => bettingNumbers.delete(n)); addLog("select",`取消${label}待购 ${formatNumbersForDisplay(rm)}`); }
+    else { await playSound('pop'); const add = filtered.filter(n => !betResults.hasOwnProperty(n) && !bettingNumbers.has(n)); if(!add.length){ return; } const snapshot = captureFullSnapshot(add); recordAction('batch_select',label,add,true,0,snapshot); add.forEach(n => bettingNumbers.add(n)); addLog("select",`${label}待购 ${formatNumbersForDisplay(add)}`); }
+    updateAllStates();
+}
 async function handleHeadBetAction(h){
     await playSound('click'); const nums=Array.from(selectedNumbers).filter(n=>Math.floor(n/10)===parseInt(h)||(h==='0'&&n<10)); if(!nums.length) return;
     const all=nums.every(n=>betResults.hasOwnProperty(n)||bettingNumbers.has(n)); const lbl=`头${h}`;
-    if(all){ await playSound('shutter'); const rm=nums.filter(n=>bettingNumbers.has(n)); if(!rm.length){ return; } const snapshot = captureFullSnapshot(rm); recordAction('batch_kill',lbl,rm,false,0,snapshot); rm.forEach(n=>bettingNumbers.delete(n)); addLog("select",`取消${lbl}待购 ${formatNumbersForDisplay(rm)}`); }
-    else { await playSound('pop'); const add=nums.filter(n=>!betResults.hasOwnProperty(n)&&!bettingNumbers.has(n)); if(!add.length){ return; } const snapshot = captureFullSnapshot(add); recordAction('batch_select',lbl,add,true,0,snapshot); add.forEach(n=>bettingNumbers.add(n)); addLog("select",`${lbl}待购 ${formatNumbersForDisplay(add)}`); }
-    updateAllStates();
-}
-async function handleWaveColorBetAction(color){
-    await playSound('click'); const waveColorGroups = { red: redGroup, green: greenGroup, blue: blueGroup }; const nums=Array.from(selectedNumbers).filter(n=>waveColorGroups[color]?.has(n)); if(!nums.length) return;
-    const all=nums.every(n=>betResults.hasOwnProperty(n)||bettingNumbers.has(n)); const lblMap = { red: '红波', green: '绿波', blue: '蓝波' }; const lbl=lblMap[color];
     if(all){ await playSound('shutter'); const rm=nums.filter(n=>bettingNumbers.has(n)); if(!rm.length){ return; } const snapshot = captureFullSnapshot(rm); recordAction('batch_kill',lbl,rm,false,0,snapshot); rm.forEach(n=>bettingNumbers.delete(n)); addLog("select",`取消${lbl}待购 ${formatNumbersForDisplay(rm)}`); }
     else { await playSound('pop'); const add=nums.filter(n=>!betResults.hasOwnProperty(n)&&!bettingNumbers.has(n)); if(!add.length){ return; } const snapshot = captureFullSnapshot(add); recordAction('batch_select',lbl,add,true,0,snapshot); add.forEach(n=>bettingNumbers.add(n)); addLog("select",`${lbl}待购 ${formatNumbersForDisplay(add)}`); }
     updateAllStates();
@@ -2493,14 +2504,45 @@ function updateFilterButtons(){
 }
 function updateTailButtons(){ for(let t=0;t<=9;t++){ const b=document.getElementById(`tailBtn${t}`); if(!b) continue; const nums=Array.from(selectedNumbers).filter(n=>n%10===t); b.className='tail-btn-large'; b.classList.remove('is-depressed','tail-btn-empty'); if(!nums.length){ b.classList.add('tail-btn-empty'); continue; } b.style.opacity='1'; b.classList.toggle('is-depressed',nums.every(n=>betResults.hasOwnProperty(n)||bettingNumbers.has(n))); } }
 function updateAttrButtons(){
-    const waveColorMap = { red: 'attrBtnRed', green: 'attrBtnGreen', blue: 'attrBtnBlue' };
-    const waveColorGroups = { red: redGroup, green: greenGroup, blue: blueGroup };
-    for(const [color, btnId] of Object.entries(waveColorMap)){ const b=document.getElementById(btnId); if(!b) continue; const nums=Array.from(selectedNumbers).filter(n=>waveColorGroups[color]?.has(n)); b.className='tail-btn-wide'; b.classList.remove('is-depressed','tail-btn-empty'); if(!nums.length){ b.classList.add('tail-btn-empty'); continue; } b.style.opacity='1'; b.classList.toggle('is-depressed',nums.every(n=>betResults.hasOwnProperty(n)||bettingNumbers.has(n))); }
+    // 波排：红单、红双、绿单、绿双、蓝单、蓝双
+    const waveParityMap = {
+        'red-odd': 'attrBtnRedOdd', 'red-even': 'attrBtnRedEven',
+        'green-odd': 'attrBtnGreenOdd', 'green-even': 'attrBtnGreenEven',
+        'blue-odd': 'attrBtnBlueOdd', 'blue-even': 'attrBtnBlueEven'
+    };
+    for(const [val, btnId] of Object.entries(waveParityMap)){
+        const b = document.getElementById(btnId); if(!b) continue;
+        const nums = Array.from(selectedNumbers).filter(n => getGroupNumbers('parity', val).includes(n));
+        b.className='tail-btn-wide'; b.classList.remove('is-depressed','tail-btn-empty');
+        if(!nums.length){ b.classList.add('tail-btn-empty'); continue; }
+        b.style.opacity='1';
+        b.classList.toggle('is-depressed', nums.every(n => betResults.hasOwnProperty(n) || bettingNumbers.has(n)));
+    }
+    // 数排：大单、小单、大双、小双
     const spMap = { '大单': 'attrBtnBigOdd', '小单': 'attrBtnSmallOdd', '大双': 'attrBtnBigEven', '小双': 'attrBtnSmallEven' };
-    for(const [sp, btnId] of Object.entries(spMap)){ const b = document.getElementById(btnId); if(!b) continue; const nums = Array.from(selectedNumbers).filter(n => getGroupNumbers('size_parity', sp).includes(n)); b.className='tail-btn-wide'; b.classList.remove('is-depressed','tail-btn-empty'); if(!nums.length){ b.classList.add('tail-btn-empty'); continue; } b.style.opacity='1'; b.classList.toggle('is-depressed',nums.every(n=>betResults.hasOwnProperty(n)||bettingNumbers.has(n))); }
+    for(const [sp, btnId] of Object.entries(spMap)){
+        const b = document.getElementById(btnId); if(!b) continue;
+        const nums = Array.from(selectedNumbers).filter(n => getGroupNumbers('size_parity', sp).includes(n));
+        b.className='tail-btn-wide'; b.classList.remove('is-depressed','tail-btn-empty');
+        if(!nums.length){ b.classList.add('tail-btn-empty'); continue; }
+        b.style.opacity='1';
+        b.classList.toggle('is-depressed', nums.every(n => betResults.hasOwnProperty(n) || bettingNumbers.has(n)));
+    }
+    // 数排：合单、合双
+    const hsMap = { '合单': 'attrBtnHeshuSingle', '合双': 'attrBtnHeshuDouble' };
+    for(const [label, btnId] of Object.entries(hsMap)){
+        const b = document.getElementById(btnId); if(!b) continue;
+        const nums = Array.from(selectedNumbers).filter(n => getGroupNumbers('heshu', label).includes(n));
+        b.className='tail-btn-wide'; b.classList.remove('is-depressed','tail-btn-empty');
+        if(!nums.length){ b.classList.add('tail-btn-empty'); continue; }
+        b.style.opacity='1';
+        b.classList.toggle('is-depressed', nums.every(n => betResults.hasOwnProperty(n) || bettingNumbers.has(n)));
+    }
 }
 function updateHeadButtons(){
+    // 头排：0~4
     for(let h=0;h<=4;h++){ const b=document.getElementById(`headBtn${h}`); if(!b) continue; const nums=Array.from(selectedNumbers).filter(n=>Math.floor(n/10)===h||(h===0&&n<10)); b.className='tail-btn-large'; b.classList.remove('is-depressed','tail-btn-empty'); if(!nums.length){ b.classList.add('tail-btn-empty'); continue; } b.style.opacity='1'; b.classList.toggle('is-depressed',nums.every(n=>betResults.hasOwnProperty(n)||bettingNumbers.has(n))); }
+    // 行排：金木水火土
     const attrMap = { gold: 'headBtnGold', wood: 'headBtnWood', water: 'headBtnWater', fire: 'headBtnFire', earth: 'headBtnEarth' };
     for(const [wuxing, btnId] of Object.entries(attrMap)){ const b = document.getElementById(btnId); if(!b) continue; const nums = Array.from(selectedNumbers).filter(n => wuxingGroups[wuxing]?.has(n)); b.className='tail-btn-large'; b.classList.remove('is-depressed','tail-btn-empty'); if(!nums.length){ b.classList.add('tail-btn-empty'); continue; } b.style.opacity='1'; b.classList.toggle('is-depressed',nums.every(n=>betResults.hasOwnProperty(n)||bettingNumbers.has(n))); }
 }
