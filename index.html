@@ -337,7 +337,7 @@ button, .num-btn, .action-grid-btn, .sphere-btn-base, .filter-btn, .wave-btn, .z
 <div class="bet-box-title"><div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;"><span>待购号码</span><span class="bet-count-badge" id="bettingCountBadge">0 个</span><button id="clearBettingBtn" class="temp-action-btn orange" onclick="handleClearBetting()">清空</button></div></div>
 <div class="bet-action-area" id="betActionArea"><div class="bet-input-row"><div class="bet-nums-display" id="betNumsDisplay"></div><button id="betAmountBtn" class="bet-amount-btn grey" onclick="handleAmountButtonClick()">无号码</button></div></div>
 <div class="bet-result-container" id="betResultContainer"><div class="bet-result-header"><div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;"><span>买号结果</span><span class="bet-count-badge" id="betCountBadge">0 个</span><span class="bet-total-amount" id="betTotalAmount">共 0 元</span></div><div style="display:flex; gap:6px;"><button class="clear-result-btn" id="clearResultBtn" onclick="handleClearBetResults()">清空结果</button><button class="small-copy-btn" id="copyBetResultBtn" onclick="copyBetResults()">复制</button></div></div><div class="bet-result-box" id="betResultBox" oncontextmenu="return false;" ondragstart="return false;"><div class="bet-result-items" id="betResultItems"></div></div></div>
-<div style="font-size: 0.65rem; font-weight: 700; color: #4a5568; margin-bottom: 2px; display:flex; justify-content:space-between; align-items:center;"><button class="small-copy-btn" id="copyLogBtn" onclick="copyLog()" style="margin-left:0; width:auto; height:auto; padding:2px 10px;">操作记录</button><button class="small-copy-btn clear-log-btn" id="clearLogBtn" onclick="handleClearLog()" style="margin-left:4px; width:auto; height:auto; padding:2px 10px;">清空记录</button><span style="font-weight: 600; color: #718096;">V7.2</span></div>
+<div style="font-size: 0.65rem; font-weight: 700; color: #4a5568; margin-bottom: 2px; display:flex; justify-content:space-between; align-items:center;"><button class="small-copy-btn" id="copyLogBtn" onclick="copyLog()" style="margin-left:0; width:auto; height:auto; padding:2px 10px;">操作记录</button><button class="small-copy-btn clear-log-btn" id="clearLogBtn" onclick="handleClearLog()" style="margin-left:4px; width:auto; height:auto; padding:2px 10px;">清空记录</button><span style="font-weight: 600; color: #718096;">V7.3</span></div>
 <div class="log-container" id="logContainer"><div class="log-item" style="color:#718096; justify-content:center;">暂无记录</div></div>
 </div>
 <div class="toast" id="toast">操作成功</div>
@@ -461,13 +461,19 @@ const freqColorPalette = [ "linear-gradient(145deg, #4169E1, #3151B1)", "linear-
 const statsTypeNames = { head:'头', tail:'尾', segment:'段', door:'门', wave:'波', zodiac:'肖', heshu:'合', wuxing:'五行' };
 const statsUnitLabels = { head:'头', tail:'尾', segment:'段', door:'门', wave:'波', zodiac:'肖', heshu:'合', wuxing:'行' };
 const statsKillSuffix = { head:'头', tail:'尾', segment:'段', door:'门', wuxing:'', wave:'', zodiac:'', heshu:'' };
+/* 波/肖/合的合法字符集（用于实时标红） */
+const WAVE_VALID_CHARS = new Set(['红','绿','蓝','单','双','波']);
+const HESHU_VALID_CHARS = new Set(['合','单','双','大','小','数','尾']);
+const ZODIAC_VALID_CHARS = new Set('单双肖家禽野兽吉美凶丑阴阳笔天地白黑男女文武前后独合胆大小日夜左右朝夕有无肥瘦边红绿蓝金木水火土'.split(''));
 const statsValidators = {
     head: (ch) => ch >= '0' && ch <= '4',
     tail: (ch) => ch >= '0' && ch <= '9',
     segment: (ch) => ch >= '1' && ch <= '7',
     door: (ch) => ch >= '1' && ch <= '5',
     wuxing: (ch) => /^[金木水火土]$/.test(ch),
-    zodiac: (ch) => zodiacs.includes(ch)
+    zodiac: (ch) => ZODIAC_VALID_CHARS.has(ch),
+    wave: (ch) => WAVE_VALID_CHARS.has(ch),
+    heshu: (ch) => HESHU_VALID_CHARS.has(ch)
 };
 const HESHU_VALID = ['合单','合双','合大','合小','大数','小数','单数','双数','大尾','小尾'];
 
@@ -988,10 +994,6 @@ function updateStatsKillRow() {
 }
 function findLastValidPosForStats(line, type) {
     let lastValid = -1;
-    if (type === 'wave') {
-        for (let i = line.length - 1; i >= 0; i--) { const ch = line[i]; const twoCh = i > 0 ? line.substring(i-1, i+1) : ''; if (twoCh && waveWordSet.has(twoCh)) { lastValid = i; break; } if (waveSingleSet.has(ch)) { lastValid = i; break; } if (ch === '波') { lastValid = i; break; } }
-        return lastValid;
-    }
     for (let i = line.length - 1; i >= 0; i--) { const ch = line[i]; let isValid = false; isValid = statsValidators[type](ch); if (isValid) { lastValid = i; break; } }
     return lastValid;
 }
@@ -1062,11 +1064,9 @@ function parseZodiacLine(line) {
     if (allZodiac) { return { type: 'chars', vals: [...new Set(trimmed.split(''))] }; }
     const group = zodiacGroupButtons.find(g => g.label === trimmed);
     if (group) { return { type: 'group', label: trimmed, zodiacs: [...group.zodiacs] }; }
-    // 紧凑形式：连续颜色/五行字符 + 肖，如 红肖、红绿肖、红绿蓝肖、金肖、金木肖、红金肖、红绿金木肖 等
     if (/^[红绿蓝金木水火土]+肖$/.test(trimmed)) {
         return buildSpecialGroupFromCompact(trimmed);
     }
-    // 分离形式：红肖绿肖 / 金肖木肖 等
     let rest = trimmed; const found = [];
     while (rest.length > 0) {
         let matched = false;
@@ -1087,10 +1087,6 @@ function parseHeshuLine(line) {
     if (HESHU_VALID.includes(trimmed)) return { type: 'ok', label: trimmed };
     return { type: 'invalid' };
 }
-// 逐字符计算肖类的红字位置（实时）
-// popupGroups: 弹窗内所有行的组名（含 group 和 rgb 类型）
-// histGroups: 历史激活的组名（含 group 和 rgb 类型）
-// 互斥规则：只有配对组（zodiacGroupMutexMap）同时出现才互斥，特殊肖组（红绿蓝+五行）不参与互斥
 function computeZodiacCharHighlight(line, popupGroups, histGroups) {
     const redSet = new Set();
     if (!line) return redSet;
@@ -1099,7 +1095,6 @@ function computeZodiacCharHighlight(line, popupGroups, histGroups) {
     const groupRanges = [];
     let i = 0;
     while (i < line.length) {
-        // 优先匹配紧凑特殊肖组：连续颜色/五行字符 + 肖
         const rest = line.substring(i);
         const compactMatch = rest.match(/^[红绿蓝金木水火土]+肖/);
         if (compactMatch) {
@@ -1142,7 +1137,6 @@ function computeZodiacCharHighlight(line, popupGroups, histGroups) {
             redSet.add(p);
         }
     }
-    // 混输检测：如果有组名 + 出现生肖字（非尾部）→ 整行红
     if (hasGroup) {
         let hasZodiacChar = false;
         for (let p = 0; p < tailStart; p++) {
@@ -1155,7 +1149,6 @@ function computeZodiacCharHighlight(line, popupGroups, histGroups) {
             for (let p = 0; p < tailStart; p++) { redSet.add(p); }
         }
     }
-    // 行内配对互斥：两两检查，若为配对组 → 两组都标红
     for (let a = 0; a < groupRanges.length; a++) {
         for (let b = a + 1; b < groupRanges.length; b++) {
             if (zodiacGroupMutexMap[groupRanges[a].label] === groupRanges[b].label) {
@@ -1164,7 +1157,6 @@ function computeZodiacCharHighlight(line, popupGroups, histGroups) {
             }
         }
     }
-    // 与外部配对互斥：行内某组与弹窗其他行/历史里的配对组冲突 → 该组标红
     const outerAll = [...popupGroups, ...histGroups];
     for (const r of groupRanges) {
         const mutex = zodiacGroupMutexMap[r.label];
@@ -1232,76 +1224,26 @@ function renderStatsInputHighlight(inputEl, highlightEl, type, conflictStart, co
         const txt = inputEl.value;
         const lines = txt.split('\n');
         let html = '';
-        if (type === 'zodiac') {
-            const popupGroups = [];
-            lines.forEach(l => {
-                const r = parseZodiacLine(l);
-                if (r.type === 'group') popupGroups.push(r.label);
-                else if (r.type === 'rgb') popupGroups.push(r.label);
-            });
-            const histGroups = [];
-            statsHistory.zodiac.forEach(it => { if (it.isActive && it.isGroupInput && it.groupLabel) { histGroups.push(it.groupLabel); } });
-            lines.forEach((line, lineIdx) => {
-                const redSet = computeZodiacCharHighlight(line, popupGroups, histGroups);
-                html += applyCharRedSet(line, redSet);
-                if (lineIdx < lines.length - 1) html += '\n';
-            });
-        } else if (type === 'heshu') {
-            const popupLabels = [];
-            lines.forEach(l => { const r = parseHeshuLine(l); if (r.type === 'ok') popupLabels.push(r.label); });
-            const histLabels = [];
-            statsHistory.heshu.forEach(it => { if (it.isActive && it.groupLabel) histLabels.push(it.groupLabel); });
-            lines.forEach((line, lineIdx) => {
-                const redSet = computeHeshuCharHighlight(line, popupLabels, histLabels);
-                html += applyCharRedSet(line, redSet);
-                if (lineIdx < lines.length - 1) html += '\n';
-            });
-        } else if (type === 'wave') {
-            lines.forEach((line, lineIdx) => {
-                const lastValid = findLastValidPosForStats(line, type);
-                const seen = new Set();
-                const parsedTokens = [];
-                let i = 0;
-                while (i < line.length) {
-                    if (lastValid !== -1 && i > lastValid) { i++; continue; }
-                    const twoCh = i < line.length - 1 ? line.substring(i, i+2) : '';
-                    if (waveWordSet.has(twoCh)) { parsedTokens.push({token: twoCh, start: i, end: i+1}); i += 2; }
-                    else if (waveSingleSet.has(line[i])) { parsedTokens.push({token: line[i], start: i, end: i}); i += 1; }
-                    else { i += 1; }
+        // 统一逻辑（头/尾/段/门/五行/波/肖/合）：逐字符校验，最后一个合法字符之后为尾部（不标红）
+        lines.forEach((line, lineIdx) => {
+            const seen = new Set();
+            const lastValid = findLastValidPosForStats(line, type);
+            const hasAnyValid = lastValid !== -1;
+            for (let i = 0; i < line.length; i++) {
+                const ch = line[i];
+                if (hasAnyValid && i > lastValid) { html += escapeHtml(ch); continue; }
+                const isValid = statsValidators[type](ch);
+                if (isValid) {
+                    if (seen.has(ch)) { html += `<span class="invalid-char">${escapeHtml(ch)}</span>`; }
+                    else { seen.add(ch); html += escapeHtml(ch); }
+                } else if (ch === ' ' || ch === '.' || ch === ',') {
+                    html += escapeHtml(ch);
+                } else {
+                    html += `<span class="invalid-char">${escapeHtml(ch)}</span>`;
                 }
-                const markedInvalid = new Set();
-                for (let a = 0; a < parsedTokens.length; a++) {
-                    const tk = parsedTokens[a];
-                    if (seen.has(tk.token)) { for (let p = tk.start; p <= tk.end; p++) markedInvalid.add(p); continue; }
-                    let conflictIdx = -1;
-                    if (waveSingleSet.has(tk.token)) { const mutexList = waveMutexMap[tk.token] || []; for (let b = a+1; b < parsedTokens.length; b++) { if (mutexList.includes(parsedTokens[b].token)) { conflictIdx = b; break; } } }
-                    else if (waveWordSet.has(tk.token)) { const parent = waveReverseMutexMap[tk.token]; for (let b = a+1; b < parsedTokens.length; b++) { if (parsedTokens[b].token === parent) { conflictIdx = b; break; } } }
-                    if (conflictIdx >= 0) { const conflictTk = parsedTokens[conflictIdx]; for (let p = conflictTk.start; p <= conflictTk.end; p++) markedInvalid.add(p); seen.add(tk.token); } else { seen.add(tk.token); }
-                }
-                let result = '';
-                for (let q = 0; q < line.length; q++) {
-                    if (markedInvalid.has(q)) { result += `<span class="invalid-char">${escapeHtml(line[q])}</span>`; }
-                    else { result += escapeHtml(line[q]); }
-                }
-                html += result;
-                if (lineIdx < lines.length - 1) html += '\n';
-            });
-        } else {
-            lines.forEach((line, lineIdx) => {
-                const seen = new Set();
-                const lastValid = findLastValidPosForStats(line, type);
-                for (let i = 0; i < line.length; i++) {
-                    if (lastValid !== -1 && i > lastValid) { html += escapeHtml(line[i]); continue; }
-                    const ch = line[i];
-                    let isValid = false;
-                    isValid = statsValidators[type](ch);
-                    if (isValid) { if (seen.has(ch)) { html += `<span class="invalid-char">${escapeHtml(ch)}</span>`; } else { seen.add(ch); html += escapeHtml(ch); } }
-                    else if (ch === ' ' || ch === '.' || ch === ',') { html += escapeHtml(ch); }
-                    else { html += `<span class="invalid-char">${escapeHtml(ch)}</span>`; }
-                }
-                if (lineIdx < lines.length - 1) html += '\n';
-            });
-        }
+            }
+            if (lineIdx < lines.length - 1) html += '\n';
+        });
         highlightEl.innerHTML = html;
     });
 }
@@ -1400,7 +1342,6 @@ async function openStatsModal(type) {
             for (const g of zodiacGroupButtons) {
                 if (currentLine.includes(g.label)) { existingGroups.push(g.label); }
             }
-            // 有生肖字时，禁止输入非特殊组首字（混输拦截）
             const hasZodiacChar = /[鼠牛虎兔龙蛇马羊猴鸡狗猪]/.test(currentLine);
             if (hasZodiacChar) {
                 for (const g of zodiacGroupButtons) {
@@ -1410,14 +1351,12 @@ async function openStatsModal(type) {
                     }
                 }
             }
-            // 有任意非特殊组 → 禁止输入生肖字
             const existingNonSpecial = existingGroups.filter(g => !zodiacSpecialGroups.has(g));
             if (existingNonSpecial.length > 0) {
                 if (/[鼠牛虎兔龙蛇马羊猴鸡狗猪]/.test(newChar)) {
                     e.preventDefault(); playSound('slip'); showToast("存在无效内容"); return;
                 }
             }
-            // 有组名 → 只禁止输入其配对组的首字
             const mutexTargets = new Set();
             existingGroups.forEach(g => { const m = zodiacGroupMutexMap[g]; if (m) mutexTargets.add(m); });
             if (mutexTargets.size > 0) {
@@ -2504,7 +2443,6 @@ function updateFilterButtons(){
 }
 function updateTailButtons(){ for(let t=0;t<=9;t++){ const b=document.getElementById(`tailBtn${t}`); if(!b) continue; const nums=Array.from(selectedNumbers).filter(n=>n%10===t); b.className='tail-btn-large'; b.classList.remove('is-depressed','tail-btn-empty'); if(!nums.length){ b.classList.add('tail-btn-empty'); continue; } b.style.opacity='1'; b.classList.toggle('is-depressed',nums.every(n=>betResults.hasOwnProperty(n)||bettingNumbers.has(n))); } }
 function updateAttrButtons(){
-    // 波排：红单、红双、绿单、绿双、蓝单、蓝双
     const waveParityMap = {
         'red-odd': 'attrBtnRedOdd', 'red-even': 'attrBtnRedEven',
         'green-odd': 'attrBtnGreenOdd', 'green-even': 'attrBtnGreenEven',
@@ -2518,7 +2456,6 @@ function updateAttrButtons(){
         b.style.opacity='1';
         b.classList.toggle('is-depressed', nums.every(n => betResults.hasOwnProperty(n) || bettingNumbers.has(n)));
     }
-    // 数排：大单、小单、大双、小双
     const spMap = { '大单': 'attrBtnBigOdd', '小单': 'attrBtnSmallOdd', '大双': 'attrBtnBigEven', '小双': 'attrBtnSmallEven' };
     for(const [sp, btnId] of Object.entries(spMap)){
         const b = document.getElementById(btnId); if(!b) continue;
@@ -2528,7 +2465,6 @@ function updateAttrButtons(){
         b.style.opacity='1';
         b.classList.toggle('is-depressed', nums.every(n => betResults.hasOwnProperty(n) || bettingNumbers.has(n)));
     }
-    // 数排：合单、合双
     const hsMap = { '合单': 'attrBtnHeshuSingle', '合双': 'attrBtnHeshuDouble' };
     for(const [label, btnId] of Object.entries(hsMap)){
         const b = document.getElementById(btnId); if(!b) continue;
@@ -2540,9 +2476,7 @@ function updateAttrButtons(){
     }
 }
 function updateHeadButtons(){
-    // 头排：0~4
     for(let h=0;h<=4;h++){ const b=document.getElementById(`headBtn${h}`); if(!b) continue; const nums=Array.from(selectedNumbers).filter(n=>Math.floor(n/10)===h||(h===0&&n<10)); b.className='tail-btn-large'; b.classList.remove('is-depressed','tail-btn-empty'); if(!nums.length){ b.classList.add('tail-btn-empty'); continue; } b.style.opacity='1'; b.classList.toggle('is-depressed',nums.every(n=>betResults.hasOwnProperty(n)||bettingNumbers.has(n))); }
-    // 行排：金木水火土
     const attrMap = { gold: 'headBtnGold', wood: 'headBtnWood', water: 'headBtnWater', fire: 'headBtnFire', earth: 'headBtnEarth' };
     for(const [wuxing, btnId] of Object.entries(attrMap)){ const b = document.getElementById(btnId); if(!b) continue; const nums = Array.from(selectedNumbers).filter(n => wuxingGroups[wuxing]?.has(n)); b.className='tail-btn-large'; b.classList.remove('is-depressed','tail-btn-empty'); if(!nums.length){ b.classList.add('tail-btn-empty'); continue; } b.style.opacity='1'; b.classList.toggle('is-depressed',nums.every(n=>betResults.hasOwnProperty(n)||bettingNumbers.has(n))); }
 }
