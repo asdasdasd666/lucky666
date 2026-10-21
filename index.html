@@ -337,7 +337,7 @@ button, .num-btn, .action-grid-btn, .sphere-btn-base, .filter-btn, .wave-btn, .z
 <div class="bet-box-title"><div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;"><span>待购号码</span><span class="bet-count-badge" id="bettingCountBadge">0 个</span><button id="clearBettingBtn" class="temp-action-btn orange" onclick="handleClearBetting()">清空</button></div></div>
 <div class="bet-action-area" id="betActionArea"><div class="bet-input-row"><div class="bet-nums-display" id="betNumsDisplay"></div><button id="betAmountBtn" class="bet-amount-btn grey" onclick="handleAmountButtonClick()">无号码</button></div></div>
 <div class="bet-result-container" id="betResultContainer"><div class="bet-result-header"><div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;"><span>买号结果</span><span class="bet-count-badge" id="betCountBadge">0 个</span><span class="bet-total-amount" id="betTotalAmount">共 0 元</span></div><div style="display:flex; gap:6px;"><button class="clear-result-btn" id="clearResultBtn" onclick="handleClearBetResults()">清空结果</button><button class="small-copy-btn" id="copyBetResultBtn" onclick="copyBetResults()">复制</button></div></div><div class="bet-result-box" id="betResultBox" oncontextmenu="return false;" ondragstart="return false;"><div class="bet-result-items" id="betResultItems"></div></div></div>
-<div style="font-size: 0.65rem; font-weight: 700; color: #4a5568; margin-bottom: 2px; display:flex; justify-content:space-between; align-items:center;"><button class="small-copy-btn" id="copyLogBtn" onclick="copyLog()" style="margin-left:0; width:auto; height:auto; padding:2px 10px;">操作记录</button><button class="small-copy-btn clear-log-btn" id="clearLogBtn" onclick="handleClearLog()" style="margin-left:4px; width:auto; height:auto; padding:2px 10px;">清空记录</button><span style="font-weight: 600; color: #718096;">V7.5</span></div>
+<div style="font-size: 0.65rem; font-weight: 700; color: #4a5568; margin-bottom: 2px; display:flex; justify-content:space-between; align-items:center;"><button class="small-copy-btn" id="copyLogBtn" onclick="copyLog()" style="margin-left:0; width:auto; height:auto; padding:2px 10px;">操作记录</button><button class="small-copy-btn clear-log-btn" id="clearLogBtn" onclick="handleClearLog()" style="margin-left:4px; width:auto; height:auto; padding:2px 10px;">清空记录</button><span style="font-weight: 600; color: #718096;">V7.6</span></div>
 <div class="log-container" id="logContainer"><div class="log-item" style="color:#718096; justify-content:center;">暂无记录</div></div>
 </div>
 <div class="toast" id="toast">操作成功</div>
@@ -714,7 +714,6 @@ function recordAction(type, label, numbers, wasAdded, amount=0, extra={}) {
     const a = { type, label, numbers: [...numbers], wasAdded, amount, ...extra };
     undoStack.push(a);
     if (undoStack.length > 200) undoStack.shift();
-    // 自动捕获"操作后状态"快照（用于 redo）
     Promise.resolve().then(() => {
         try { a.nextState = captureWholeState(); } catch(e) {}
         save_data();
@@ -1244,17 +1243,70 @@ function renderStatsInputHighlight(inputEl, highlightEl, type, conflictStart, co
             const seen = new Set();
             const lastValid = findLastValidPosForStats(line, type);
             const hasAnyValid = lastValid !== -1;
-            for (let i = 0; i < line.length; i++) {
-                const ch = line[i];
-                if (hasAnyValid && i > lastValid) { html += escapeHtml(ch); continue; }
-                const isValid = statsValidators[type](ch);
-                if (isValid) {
-                    if (seen.has(ch)) { html += `<span class="invalid-char">${escapeHtml(ch)}</span>`; }
-                    else { seen.add(ch); html += escapeHtml(ch); }
-                } else if (ch === ' ' || ch === '.' || ch === ',') {
-                    html += escapeHtml(ch);
-                } else {
-                    html += `<span class="invalid-char">${escapeHtml(ch)}</span>`;
+            
+            // 针对波、合：智能组合判重
+            if (type === 'wave' || type === 'heshu') {
+                const parsedTokens = [];
+                let i = 0;
+                while (i < line.length) {
+                    if (hasAnyValid && i > lastValid) { i++; continue; }
+                    let matchedToken = null;
+                    if (type === 'wave') {
+                        const twoCh = i < line.length - 1 ? line.substring(i, i+2) : '';
+                        if (waveWordSet.has(twoCh)) matchedToken = { token: twoCh, start: i, end: i+1 };
+                        else if (waveSingleSet.has(line[i])) matchedToken = { token: line[i], start: i, end: i };
+                    } else {
+                        for (const w of HESHU_VALID) {
+                            if (line.startsWith(w, i)) { matchedToken = { token: w, start: i, end: i + w.length - 1 }; break; }
+                        }
+                    }
+                    if (matchedToken) { parsedTokens.push(matchedToken); i = matchedToken.end + 1; }
+                    else { i++; }
+                }
+                
+                const markedInvalid = new Set();
+                const seenTokens = new Set();
+                for (const tk of parsedTokens) {
+                    if (seenTokens.has(tk.token)) {
+                        for (let p = tk.start; p <= tk.end; p++) markedInvalid.add(p);
+                    } else {
+                        seenTokens.add(tk.token);
+                    }
+                }
+                
+                for (let i = 0; i < line.length; i++) {
+                    const ch = line[i];
+                    if (hasAnyValid && i > lastValid) { html += escapeHtml(ch); continue; }
+                    if (markedInvalid.has(i)) { html += `<span class="invalid-char">${escapeHtml(ch)}</span>`; continue; }
+                    
+                    let inToken = false;
+                    for (const tk of parsedTokens) { if (i >= tk.start && i <= tk.end) { inToken = true; break; } }
+                    if (inToken) { html += escapeHtml(ch); continue; }
+                    
+                    const isValid = statsValidators[type](ch);
+                    if (isValid) {
+                        if (seen.has(ch)) { html += `<span class="invalid-char">${escapeHtml(ch)}</span>`; }
+                        else { seen.add(ch); html += escapeHtml(ch); }
+                    } else if (ch === ' ' || ch === '.' || ch === ',') {
+                        html += escapeHtml(ch);
+                    } else {
+                        html += `<span class="invalid-char">${escapeHtml(ch)}</span>`;
+                    }
+                }
+            } else {
+                // 其他类型保持原单字判重
+                for (let i = 0; i < line.length; i++) {
+                    const ch = line[i];
+                    if (hasAnyValid && i > lastValid) { html += escapeHtml(ch); continue; }
+                    const isValid = statsValidators[type](ch);
+                    if (isValid) {
+                        if (seen.has(ch)) { html += `<span class="invalid-char">${escapeHtml(ch)}</span>`; }
+                        else { seen.add(ch); html += escapeHtml(ch); }
+                    } else if (ch === ' ' || ch === '.' || ch === ',') {
+                        html += escapeHtml(ch);
+                    } else {
+                        html += `<span class="invalid-char">${escapeHtml(ch)}</span>`;
+                    }
                 }
             }
             if (lineIdx < lines.length - 1) html += '\n';
