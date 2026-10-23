@@ -337,7 +337,7 @@ button, .num-btn, .action-grid-btn, .sphere-btn-base, .filter-btn, .wave-btn, .z
 <div class="bet-box-title"><div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;"><span>待购号码</span><span class="bet-count-badge" id="bettingCountBadge">0 个</span><button id="clearBettingBtn" class="temp-action-btn orange" onclick="handleClearBetting()">清空</button></div></div>
 <div class="bet-action-area" id="betActionArea"><div class="bet-input-row"><div class="bet-nums-display" id="betNumsDisplay"></div><button id="betAmountBtn" class="bet-amount-btn grey" onclick="handleAmountButtonClick()">无号码</button></div></div>
 <div class="bet-result-container" id="betResultContainer"><div class="bet-result-header"><div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;"><span>买号结果</span><span class="bet-count-badge" id="betCountBadge">0 个</span><span class="bet-total-amount" id="betTotalAmount">共 0 元</span></div><div style="display:flex; gap:6px;"><button class="clear-result-btn" id="clearResultBtn" onclick="handleClearBetResults()">清空结果</button><button class="small-copy-btn" id="copyBetResultBtn" onclick="copyBetResults()">复制</button></div></div><div class="bet-result-box" id="betResultBox" oncontextmenu="return false;" ondragstart="return false;"><div class="bet-result-items" id="betResultItems"></div></div></div>
-<div style="font-size: 0.65rem; font-weight: 700; color: #4a5568; margin-bottom: 2px; display:flex; justify-content:space-between; align-items:center;"><button class="small-copy-btn" id="copyLogBtn" onclick="copyLog()" style="margin-left:0; width:auto; height:auto; padding:2px 10px;">操作记录</button><button class="small-copy-btn clear-log-btn" id="clearLogBtn" onclick="handleClearLog()" style="margin-left:4px; width:auto; height:auto; padding:2px 10px;">清空记录</button><span style="font-weight: 600; color: #718096;">V7.6</span></div>
+<div style="font-size: 0.65rem; font-weight: 700; color: #4a5568; margin-bottom: 2px; display:flex; justify-content:space-between; align-items:center;"><button class="small-copy-btn" id="copyLogBtn" onclick="copyLog()" style="margin-left:0; width:auto; height:auto; padding:2px 10px;">操作记录</button><button class="small-copy-btn clear-log-btn" id="clearLogBtn" onclick="handleClearLog()" style="margin-left:4px; width:auto; height:auto; padding:2px 10px;">清空记录</button><span style="font-weight: 600; color: #718096;">V7.7</span></div>
 <div class="log-container" id="logContainer"><div class="log-item" style="color:#718096; justify-content:center;">暂无记录</div></div>
 </div>
 <div class="toast" id="toast">操作成功</div>
@@ -1238,14 +1238,76 @@ function renderStatsInputHighlight(inputEl, highlightEl, type, conflictStart, co
         const txt = inputEl.value;
         const lines = txt.split('\n');
         let html = '';
-        // 统一逻辑：逐字符校验，最后一个合法字符之后为尾部（不标红）
-        lines.forEach((line, lineIdx) => {
-            const seen = new Set();
-            const lastValid = findLastValidPosForStats(line, type);
-            const hasAnyValid = lastValid !== -1;
-            
-            // 针对波、合：智能组合判重
-            if (type === 'wave' || type === 'heshu') {
+        
+        if (type === 'zodiac') {
+            // 专属“肖”的独立逐字标红逻辑，绝不误伤前面的字
+            lines.forEach((line, lineIdx) => {
+                const lastValid = findLastValidPosForStats(line, type);
+                const seenZodiac = new Set();
+                const seenGroups = new Set();
+                let i = 0;
+                
+                while (i < line.length) {
+                    if (lastValid !== -1 && i > lastValid) { html += escapeHtml(line[i]); i++; continue; }
+                    const rest = line.substring(i);
+                    
+                    // 1. 优先匹配组名（包含紧凑颜色/五行肖）
+                    const compactMatch = rest.match(/^[红绿蓝金木水火土]+肖/);
+                    if (compactMatch) {
+                        const full = compactMatch[0];
+                        const label = normalizeSpecialGroupLabel([...new Set(full.slice(0, -1).split(''))]);
+                        if (seenGroups.has(label)) {
+                            for (let p = 0; p < full.length; p++) html += `<span class="invalid-char">${escapeHtml(full[p])}</span>`;
+                        } else {
+                            seenGroups.add(label);
+                            html += escapeHtml(full);
+                        }
+                        i += full.length;
+                        continue;
+                    }
+                    
+                    let matchedGroup = false;
+                    for (const g of zodiacGroupButtons) {
+                        if (line.startsWith(g.label, i)) {
+                            if (seenGroups.has(g.label)) {
+                                for (let p = 0; p < g.label.length; p++) html += `<span class="invalid-char">${escapeHtml(g.label[p])}</span>`;
+                            } else {
+                                seenGroups.add(g.label);
+                                html += escapeHtml(g.label);
+                            }
+                            i += g.label.length;
+                            matchedGroup = true;
+                            break;
+                        }
+                    }
+                    if (matchedGroup) continue;
+                    
+                    // 2. 处理生肖单字
+                    const ch = line[i];
+                    if (zodiacs.includes(ch)) {
+                        if (seenZodiac.has(ch)) {
+                            html += `<span class="invalid-char">${escapeHtml(ch)}</span>`;
+                        } else {
+                            seenZodiac.add(ch);
+                            html += escapeHtml(ch);
+                        }
+                        i++;
+                    } else if (ch === ' ' || ch === '.' || ch === ',') {
+                        html += escapeHtml(ch);
+                        i++;
+                    } else {
+                        html += `<span class="invalid-char">${escapeHtml(ch)}</span>`;
+                        i++;
+                    }
+                }
+                if (lineIdx < lines.length - 1) html += '\n';
+            });
+        } else if (type === 'wave' || type === 'heshu') {
+            lines.forEach((line, lineIdx) => {
+                const seen = new Set();
+                const lastValid = findLastValidPosForStats(line, type);
+                const hasAnyValid = lastValid !== -1;
+                
                 const parsedTokens = [];
                 let i = 0;
                 while (i < line.length) {
@@ -1293,24 +1355,25 @@ function renderStatsInputHighlight(inputEl, highlightEl, type, conflictStart, co
                         html += `<span class="invalid-char">${escapeHtml(ch)}</span>`;
                     }
                 }
-            } else {
-                // 其他类型保持原单字判重
+                if (lineIdx < lines.length - 1) html += '\n';
+            });
+        } else {
+            // 头 / 尾 / 段 / 门 / 五行
+            lines.forEach((line, lineIdx) => {
+                const seen = new Set();
+                const lastValid = findLastValidPosForStats(line, type);
                 for (let i = 0; i < line.length; i++) {
+                    if (lastValid !== -1 && i > lastValid) { html += escapeHtml(line[i]); continue; }
                     const ch = line[i];
-                    if (hasAnyValid && i > lastValid) { html += escapeHtml(ch); continue; }
-                    const isValid = statsValidators[type](ch);
-                    if (isValid) {
-                        if (seen.has(ch)) { html += `<span class="invalid-char">${escapeHtml(ch)}</span>`; }
-                        else { seen.add(ch); html += escapeHtml(ch); }
-                    } else if (ch === ' ' || ch === '.' || ch === ',') {
-                        html += escapeHtml(ch);
-                    } else {
-                        html += `<span class="invalid-char">${escapeHtml(ch)}</span>`;
-                    }
+                    let isValid = false;
+                    isValid = statsValidators[type](ch);
+                    if (isValid) { if (seen.has(ch)) { html += `<span class="invalid-char">${escapeHtml(ch)}</span>`; } else { seen.add(ch); html += escapeHtml(ch); } }
+                    else if (ch === ' ' || ch === '.' || ch === ',') { html += escapeHtml(ch); }
+                    else { html += `<span class="invalid-char">${escapeHtml(ch)}</span>`; }
                 }
-            }
-            if (lineIdx < lines.length - 1) html += '\n';
-        });
+                if (lineIdx < lines.length - 1) html += '\n';
+            });
+        }
         highlightEl.innerHTML = html;
     });
 }
@@ -1410,18 +1473,18 @@ async function openStatsModal(type) {
                 if (currentLine.includes(g.label)) { existingGroups.push(g.label); }
             }
             const hasZodiacChar = /[鼠牛虎兔龙蛇马羊猴鸡狗猪]/.test(currentLine);
+            const existingNonRgb = existingGroups.filter(g => !zodiacSpecialGroups.has(g));
+            if (existingNonRgb.length > 0) {
+                if (/[鼠牛虎兔龙蛇马羊猴鸡狗猪]/.test(newChar)) {
+                    e.preventDefault(); playSound('slip'); showToast("存在无效内容"); return;
+                }
+            }
             if (hasZodiacChar) {
                 for (const g of zodiacGroupButtons) {
                     if (zodiacSpecialGroups.has(g.label)) continue;
                     if (g.label.startsWith(newChar)) {
                         e.preventDefault(); playSound('slip'); showToast("存在无效内容"); return;
                     }
-                }
-            }
-            const existingNonSpecial = existingGroups.filter(g => !zodiacSpecialGroups.has(g));
-            if (existingNonSpecial.length > 0) {
-                if (/[鼠牛虎兔龙蛇马羊猴鸡狗猪]/.test(newChar)) {
-                    e.preventDefault(); playSound('slip'); showToast("存在无效内容"); return;
                 }
             }
             const mutexTargets = new Set();
@@ -1543,6 +1606,56 @@ async function handleZodiacStatsSubmit(lines, statsInput, highlightEl) {
     if (hasMutex) {
         await playSound('slip');
         showToast('存在互斥内容');
+        renderStatsInputHighlight(statsInput, highlightEl, 'zodiac');
+        return;
+    }
+    const dupLineIdx = (() => {
+        for (let li = 0; li < lines.length; li++) {
+            const line = lines[li];
+            const trimmed = line.replace(/[ .,\t]/g, '');
+            if (!trimmed) continue;
+            const seenZodiac = new Set();
+            let zdup = false;
+            let allZodiac = true;
+            for (const ch of trimmed) { if (!zodiacs.includes(ch)) { allZodiac = false; break; } }
+            if (allZodiac) {
+                for (const ch of trimmed) { if (seenZodiac.has(ch)) { zdup = true; break; } seenZodiac.add(ch); }
+                if (zdup) return li;
+            }
+            const seenGroupLabel = new Set();
+            let gi = 0;
+            let gdup = false;
+            while (gi < line.length) {
+                const rest = line.substring(gi);
+                const compactMatch = rest.match(/^[红绿蓝金木水火土]+肖/);
+                if (compactMatch) {
+                    const full = compactMatch[0];
+                    const label = normalizeSpecialGroupLabel([...new Set(full.slice(0, -1).split(''))]);
+                    if (seenGroupLabel.has(label)) { gdup = true; break; }
+                    seenGroupLabel.add(label);
+                    gi += full.length;
+                    continue;
+                }
+                let mg = false;
+                for (const g of zodiacGroupButtons) {
+                    if (line.startsWith(g.label, gi)) {
+                        if (seenGroupLabel.has(g.label)) { gdup = true; break; }
+                        seenGroupLabel.add(g.label);
+                        gi += g.label.length;
+                        mg = true;
+                        break;
+                    }
+                }
+                if (gdup) break;
+                if (!mg) gi++;
+            }
+            if (gdup) return li;
+        }
+        return -1;
+    })();
+    if (dupLineIdx >= 0) {
+        await playSound('slip');
+        showToast('存在重复内容');
         renderStatsInputHighlight(statsInput, highlightEl, 'zodiac');
         return;
     }
