@@ -337,7 +337,7 @@ button, .num-btn, .action-grid-btn, .sphere-btn-base, .filter-btn, .wave-btn, .z
 <div class="bet-box-title"><div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;"><span>待购号码</span><span class="bet-count-badge" id="bettingCountBadge">0 个</span><button id="clearBettingBtn" class="temp-action-btn orange" onclick="handleClearBetting()">清空</button></div></div>
 <div class="bet-action-area" id="betActionArea"><div class="bet-input-row"><div class="bet-nums-display" id="betNumsDisplay"></div><button id="betAmountBtn" class="bet-amount-btn grey" onclick="handleAmountButtonClick()">无号码</button></div></div>
 <div class="bet-result-container" id="betResultContainer"><div class="bet-result-header"><div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;"><span>买号结果</span><span class="bet-count-badge" id="betCountBadge">0 个</span><span class="bet-total-amount" id="betTotalAmount">共 0 元</span></div><div style="display:flex; gap:6px;"><button class="clear-result-btn" id="clearResultBtn" onclick="handleClearBetResults()">清空结果</button><button class="small-copy-btn" id="copyBetResultBtn" onclick="copyBetResults()">复制</button></div></div><div class="bet-result-box" id="betResultBox" oncontextmenu="return false;" ondragstart="return false;"><div class="bet-result-items" id="betResultItems"></div></div></div>
-<div style="font-size: 0.65rem; font-weight: 700; color: #4a5568; margin-bottom: 2px; display:flex; justify-content:space-between; align-items:center;"><button class="small-copy-btn" id="copyLogBtn" onclick="copyLog()" style="margin-left:0; width:auto; height:auto; padding:2px 10px;">操作记录</button><button class="small-copy-btn clear-log-btn" id="clearLogBtn" onclick="handleClearLog()" style="margin-left:4px; width:auto; height:auto; padding:2px 10px;">清空记录</button><span style="font-weight: 600; color: #718096;">V7.7</span></div>
+<div style="font-size: 0.65rem; font-weight: 700; color: #4a5568; margin-bottom: 2px; display:flex; justify-content:space-between; align-items:center;"><button class="small-copy-btn" id="copyLogBtn" onclick="copyLog()" style="margin-left:0; width:auto; height:auto; padding:2px 10px;">操作记录</button><button class="small-copy-btn clear-log-btn" id="clearLogBtn" onclick="handleClearLog()" style="margin-left:4px; width:auto; height:auto; padding:2px 10px;">清空记录</button><span style="font-weight: 600; color: #718096;">V7.8</span></div>
 <div class="log-container" id="logContainer"><div class="log-item" style="color:#718096; justify-content:center;">暂无记录</div></div>
 </div>
 <div class="toast" id="toast">操作成功</div>
@@ -963,11 +963,32 @@ function updateStatsKillRow() {
         if (type === 'heshu') {
             const arr = statsHistory.heshu;
             if (!arr || !arr.length) return;
-            const activeLabels = [];
-            arr.forEach(it => { if (!it.isActive) return; if (it.groupLabel) activeLabels.push(it.groupLabel); });
-            if (!activeLabels.length) return;
-            const killed = activeLabels.map(l => HESHU_MUTEX[l] || l);
-            parts.push('【' + killed.join('') + '】');
+            let activeLabels = [];
+            arr.forEach(it => { 
+                if (!it.isActive) return; 
+                if (it.groups) activeLabels.push(...it.groups); 
+                else if (it.groupLabel) activeLabels.push(it.groupLabel); 
+            });
+            
+            // 抵消逻辑
+            const finalKills = [];
+            const counts = {};
+            activeLabels.forEach(l => { counts[l] = (counts[l] || 0) + 1; });
+            const processed = new Set();
+            activeLabels.forEach(l => {
+                if (processed.has(l)) return;
+                const mutex = HESHU_MUTEX[l];
+                if (mutex && counts[mutex] > 0) {
+                    processed.add(l);
+                    processed.add(mutex);
+                } else {
+                    finalKills.push(mutex || l);
+                    processed.add(l);
+                }
+            });
+
+            if (!finalKills.length) return;
+            parts.push('【' + finalKills.join('') + '】');
             return;
         }
         const arr = statsHistory[type];
@@ -1076,29 +1097,89 @@ function parseZodiacLine(line) {
     let allZodiac = true;
     for (const ch of trimmed) { if (!zodiacs.includes(ch)) { allZodiac = false; break; } }
     if (allZodiac) { return { type: 'chars', vals: [...new Set(trimmed.split(''))] }; }
+    
     const group = zodiacGroupButtons.find(g => g.label === trimmed);
-    if (group) { return { type: 'group', label: trimmed, zodiacs: [...group.zodiacs] }; }
+    if (group) { return { type: 'group', label: trimmed, zodiacs: [...group.zodiacs], originalGroups: [trimmed] }; }
+    
     if (/^[红绿蓝金木水火土]+肖$/.test(trimmed)) {
-        return buildSpecialGroupFromCompact(trimmed);
+        const g = buildSpecialGroupFromCompact(trimmed);
+        g.originalGroups = [g.label];
+        return g;
     }
-    let rest = trimmed; const found = [];
+
+    let rest = trimmed; 
+    const foundGroups = [];
     while (rest.length > 0) {
         let matched = false;
-        for (const c of ['红','绿','蓝','金','木','水','火','土']) {
-            if (rest.startsWith(c + '肖')) { found.push(c + '肖'); rest = rest.slice(2); matched = true; break; }
+        const compactMatch = rest.match(/^[红绿蓝金木水火土]+肖/);
+        if (compactMatch) {
+            const full = compactMatch[0];
+            const label = normalizeSpecialGroupLabel([...new Set(full.slice(0, -1).split(''))]);
+            foundGroups.push({label, isCompact: true});
+            rest = rest.slice(full.length);
+            matched = true;
+            continue;
         }
-        if (!matched) return { type: 'invalid' };
+        
+        for (const g of zodiacGroupButtons) {
+            if (rest.startsWith(g.label)) {
+                foundGroups.push({label: g.label, isCompact: false});
+                rest = rest.slice(g.label.length);
+                matched = true;
+                break;
+            }
+        }
+        if (!matched) break; 
     }
-    const uniqChars = [...new Set(found.map(f => f[0]))];
-    const label = normalizeSpecialGroupLabel(uniqChars);
-    const zs = new Set();
-    found.forEach(g => { const grp = zodiacGroupButtons.find(x => x.label === g); if (grp) grp.zodiacs.forEach(z => zs.add(z)); });
-    return { type: 'rgb', label: label, zodiacs: [...zs] };
+    
+    if (foundGroups.length > 0) {
+        const hasZodiacInRest = [...rest].some(ch => zodiacs.includes(ch));
+        if (hasZodiacInRest) return { type: 'invalid' };
+        
+        const zs = new Set();
+        foundGroups.forEach(fg => {
+            if (fg.isCompact) {
+                const chars = fg.label.replace('肖', '').split('');
+                chars.forEach(c => { const grp = zodiacGroupButtons.find(x => x.label === c + '肖'); if (grp) grp.zodiacs.forEach(z => zs.add(z)); });
+            } else {
+                const grp = zodiacGroupButtons.find(x => x.label === fg.label);
+                if (grp) grp.zodiacs.forEach(z => zs.add(z));
+            }
+        });
+        
+        const tailText = rest.replace(/[ .,\t]/g, '');
+        const finalLabel = tailText + foundGroups.map(fg => fg.label).join('');
+        
+        return { type: 'group', label: finalLabel, zodiacs: [...zs], isMulti: true, originalGroups: foundGroups.map(fg => fg.label) };
+    }
+    
+    return { type: 'invalid' };
 }
 function parseHeshuLine(line) {
     const trimmed = line.replace(/[ .,\t]/g, '');
     if (!trimmed) return { type: 'empty' };
-    if (HESHU_VALID.includes(trimmed)) return { type: 'ok', label: trimmed };
+    let rest = trimmed;
+    const groups = [];
+    let matchedAny = false;
+
+    while (rest.length > 0) {
+        let matched = false;
+        for (const word of HESHU_VALID) {
+            if (rest.startsWith(word)) {
+                groups.push(word);
+                rest = rest.slice(word.length);
+                matched = true;
+                matchedAny = true;
+                break;
+            }
+        }
+        if (!matched) break;
+    }
+
+    if (matchedAny) {
+        const tailText = rest;
+        return { type: 'ok', groups, label: tailText + groups.join('') };
+    }
     return { type: 'invalid' };
 }
 function computeZodiacCharHighlight(line, popupGroups, histGroups) {
@@ -1245,6 +1326,8 @@ function renderStatsInputHighlight(inputEl, highlightEl, type, conflictStart, co
                 const lastValid = findLastValidPosForStats(line, type);
                 const seenZodiac = new Set();
                 const seenGroups = new Set();
+                const encounteredGroups = []; // 记录已出现的组
+                const encounteredChars = new Set(); // 记录已出现的单字
                 let i = 0;
                 
                 while (i < line.length) {
@@ -1256,10 +1339,16 @@ function renderStatsInputHighlight(inputEl, highlightEl, type, conflictStart, co
                     if (compactMatch) {
                         const full = compactMatch[0];
                         const label = normalizeSpecialGroupLabel([...new Set(full.slice(0, -1).split(''))]);
-                        if (seenGroups.has(label)) {
+                        let isInvalid = false;
+                        if (seenGroups.has(label)) isInvalid = true;
+                        const mutex = zodiacGroupMutexMap[label];
+                        if (mutex && encounteredGroups.includes(mutex)) isInvalid = true;
+                        
+                        if (isInvalid) {
                             for (let p = 0; p < full.length; p++) html += `<span class="invalid-char">${escapeHtml(full[p])}</span>`;
                         } else {
                             seenGroups.add(label);
+                            encounteredGroups.push(label);
                             html += escapeHtml(full);
                         }
                         i += full.length;
@@ -1269,10 +1358,17 @@ function renderStatsInputHighlight(inputEl, highlightEl, type, conflictStart, co
                     let matchedGroup = false;
                     for (const g of zodiacGroupButtons) {
                         if (line.startsWith(g.label, i)) {
-                            if (seenGroups.has(g.label)) {
+                            let isInvalid = false;
+                            if (seenGroups.has(g.label)) isInvalid = true;
+                            const mutex = zodiacGroupMutexMap[g.label];
+                            if (mutex && encounteredGroups.includes(mutex)) isInvalid = true;
+                            if (g.zodiacs.some(z => encounteredChars.has(z))) isInvalid = true;
+                            
+                            if (isInvalid) {
                                 for (let p = 0; p < g.label.length; p++) html += `<span class="invalid-char">${escapeHtml(g.label[p])}</span>`;
                             } else {
                                 seenGroups.add(g.label);
+                                encounteredGroups.push(g.label);
                                 html += escapeHtml(g.label);
                             }
                             i += g.label.length;
@@ -1285,10 +1381,20 @@ function renderStatsInputHighlight(inputEl, highlightEl, type, conflictStart, co
                     // 2. 处理生肖单字
                     const ch = line[i];
                     if (zodiacs.includes(ch)) {
-                        if (seenZodiac.has(ch)) {
+                        let isInvalid = false;
+                        if (seenZodiac.has(ch)) isInvalid = true;
+                        
+                        // 判断单字是否与已出现的组冲突
+                        for (const grpLabel of encounteredGroups) {
+                            const grp = zodiacGroupButtons.find(x => x.label === grpLabel);
+                            if (grp && grp.zodiacs.includes(ch)) { isInvalid = true; break; }
+                        }
+                        
+                        if (isInvalid) {
                             html += `<span class="invalid-char">${escapeHtml(ch)}</span>`;
                         } else {
                             seenZodiac.add(ch);
+                            encounteredChars.add(ch);
                             html += escapeHtml(ch);
                         }
                         i++;
@@ -1328,9 +1434,33 @@ function renderStatsInputHighlight(inputEl, highlightEl, type, conflictStart, co
                 
                 const markedInvalid = new Set();
                 const seenTokens = new Set();
-                for (const tk of parsedTokens) {
-                    if (seenTokens.has(tk.token)) {
-                        for (let p = tk.start; p <= tk.end; p++) markedInvalid.add(p);
+                for (let a = 0; a < parsedTokens.length; a++) {
+                    const tk = parsedTokens[a];
+                    if (seenTokens.has(tk.token)) { for (let p = tk.start; p <= tk.end; p++) markedInvalid.add(p); continue; }
+                    
+                    let conflictIdx = -1;
+                    if (type === 'wave') {
+                        if (waveSingleSet.has(tk.token)) {
+                            const mutexList = waveMutexMap[tk.token] || [];
+                            for (let b = a + 1; b < parsedTokens.length; b++) {
+                                if (mutexList.includes(parsedTokens[b].token)) { conflictIdx = b; break; }
+                            }
+                        } else if (waveWordSet.has(tk.token)) {
+                            const parent = waveReverseMutexMap[tk.token];
+                            for (let b = a + 1; b < parsedTokens.length; b++) {
+                                if (parsedTokens[b].token === parent) { conflictIdx = b; break; }
+                            }
+                        }
+                    } else if (type === 'heshu') {
+                        for (let b = a + 1; b < parsedTokens.length; b++) {
+                            if (HESHU_MUTEX[tk.token] === parsedTokens[b].token) { conflictIdx = b; break; }
+                        }
+                    }
+                    
+                    if (conflictIdx >= 0) {
+                        const conflictTk = parsedTokens[conflictIdx];
+                        for (let p = conflictTk.start; p <= conflictTk.end; p++) markedInvalid.add(p);
+                        seenTokens.add(tk.token);
                     } else {
                         seenTokens.add(tk.token);
                     }
@@ -1419,7 +1549,7 @@ async function openStatsModal(type) {
                 const popupGroups = [];
                 lines.forEach(l => {
                     const r = parseZodiacLine(l);
-                    if (r.type === 'group') popupGroups.push(r.label);
+                    if (r.type === 'group' && r.originalGroups) popupGroups.push(...r.originalGroups);
                     else if (r.type === 'rgb') popupGroups.push(r.label);
                 });
                 const histGroups = [];
@@ -1432,9 +1562,9 @@ async function openStatsModal(type) {
                 });
             } else if (type === 'heshu') {
                 const popupLabels = [];
-                lines.forEach(l => { const r = parseHeshuLine(l); if (r.type === 'ok') popupLabels.push(r.label); });
+                lines.forEach(l => { const r = parseHeshuLine(l); if (r.type === 'ok') popupLabels.push(...r.groups); });
                 const histLabels = [];
-                statsHistory.heshu.forEach(it => { if (it.isActive && it.groupLabel) histLabels.push(it.groupLabel); });
+                statsHistory.heshu.forEach(it => { if (it.isActive) { if (it.groups) histLabels.push(...it.groups); else if (it.groupLabel) histLabels.push(it.groupLabel); } });
                 lines.forEach(l => {
                     const r = parseHeshuLine(l);
                     if (r.type === 'invalid') hasInvalid = true;
@@ -1525,7 +1655,14 @@ async function openStatsModal(type) {
             if (!result.valid) {
                 await playSound('slip');
                 if (result.isDuplicate) { showToast("存在重复内容"); } else { showToast("存在无效内容"); }
-                if (result.invalidPos >= 0) { statsInput.focus(); statsInput.setSelectionRange(result.invalidPos + 1, result.invalidPos + 1); renderStatsInputHighlight(statsInput, highlightEl, type, result.invalidStart, result.invalidEnd); highlightEl.scrollTop = statsInput.scrollTop; highlightEl.scrollLeft = statsInput.scrollLeft; }
+                if (result.invalidPos >= 0) { 
+                    statsInput.focus(); 
+                    const pos = (result.invalidEnd !== undefined && result.invalidEnd >= 0) ? result.invalidEnd + 1 : result.invalidPos + 1;
+                    statsInput.setSelectionRange(pos, pos); 
+                    renderStatsInputHighlight(statsInput, highlightEl, type, result.invalidStart, result.invalidEnd); 
+                    highlightEl.scrollTop = statsInput.scrollTop; 
+                    highlightEl.scrollLeft = statsInput.scrollLeft; 
+                }
                 return;
             }
             items.push(result);
@@ -1585,22 +1722,27 @@ async function handleZodiacStatsSubmit(lines, statsInput, highlightEl) {
         await playSound('slip');
         showToast("存在无效内容");
         renderStatsInputHighlight(statsInput, highlightEl, 'zodiac');
+        
+        const firstErrLine = parseErrors[0].li;
+        let pos = 0;
+        for (let i = 0; i < firstErrLine; i++) pos += lines[i].length + 1;
+        pos += lines[firstErrLine].length;
+        statsInput.focus();
+        statsInput.setSelectionRange(pos, pos);
         return;
     }
     if (!parsed.length) return;
-    const popupGroups = parsed.filter(p => p.type === 'group' || p.type === 'rgb').map(p => p.label);
-    const histGroups = [];
-    statsHistory.zodiac.forEach(it => { if (it.isActive && it.isGroupInput && it.groupLabel) { histGroups.push(it.groupLabel); } });
+
+    const allInputGroups = [];
+    parsed.forEach(p => {
+        if (p.originalGroups) allInputGroups.push(...p.originalGroups);
+        else if (p.type === 'group') allInputGroups.push(p.label);
+    });
+
     let hasMutex = false;
-    for (let i = 0; i < popupGroups.length && !hasMutex; i++) {
-        for (let j = i + 1; j < popupGroups.length; j++) {
-            if (zodiacGroupMutexMap[popupGroups[i]] === popupGroups[j]) { hasMutex = true; break; }
-        }
-    }
-    if (!hasMutex) {
-        for (const pg of popupGroups) {
-            const mutex = zodiacGroupMutexMap[pg];
-            if (mutex && histGroups.includes(mutex)) { hasMutex = true; break; }
+    for (let i = 0; i < allInputGroups.length && !hasMutex; i++) {
+        for (let j = i + 1; j < allInputGroups.length; j++) {
+            if (zodiacGroupMutexMap[allInputGroups[i]] === allInputGroups[j]) { hasMutex = true; break; }
         }
     }
     if (hasMutex) {
@@ -1609,6 +1751,7 @@ async function handleZodiacStatsSubmit(lines, statsInput, highlightEl) {
         renderStatsInputHighlight(statsInput, highlightEl, 'zodiac');
         return;
     }
+
     const dupLineIdx = (() => {
         for (let li = 0; li < lines.length; li++) {
             const line = lines[li];
@@ -1710,18 +1853,29 @@ async function handleHeshuStatsSubmit(lines, statsInput, highlightEl) {
         const r = parseHeshuLine(line);
         if (r.type === 'empty') return;
         if (r.type === 'invalid') { parseErrors.push({ li }); return; }
-        parsed.push({ li, label: r.label });
+        parsed.push({ li, label: r.label, groups: r.groups });
     });
     if (parseErrors.length) {
         await playSound('slip');
         showToast("存在无效内容");
         renderStatsInputHighlight(statsInput, highlightEl, 'heshu');
+        
+        const firstErrLine = parseErrors[0].li;
+        let pos = 0;
+        for (let i = 0; i < firstErrLine; i++) pos += lines[i].length + 1;
+        pos += lines[firstErrLine].length;
+        statsInput.focus();
+        statsInput.setSelectionRange(pos, pos);
         return;
     }
     if (!parsed.length) return;
-    for (let i = 0; i < parsed.length; i++) {
-        for (let j = i+1; j < parsed.length; j++) {
-            if (HESHU_MUTEX[parsed[i].label] === parsed[j].label) {
+    
+    const allInputGroups = [];
+    parsed.forEach(p => { allInputGroups.push(...p.groups); });
+    
+    for (let i = 0; i < allInputGroups.length; i++) {
+        for (let j = i+1; j < allInputGroups.length; j++) {
+            if (HESHU_MUTEX[allInputGroups[i]] === allInputGroups[j]) {
                 await playSound('slip');
                 showToast('存在互斥内容');
                 renderStatsInputHighlight(statsInput, highlightEl, 'heshu');
@@ -1730,10 +1884,10 @@ async function handleHeshuStatsSubmit(lines, statsInput, highlightEl) {
         }
     }
     const histLabels = [];
-    statsHistory.heshu.forEach(it => { if (it.isActive && it.groupLabel) histLabels.push(it.groupLabel); });
-    for (const p of parsed) {
+    statsHistory.heshu.forEach(it => { if (it.isActive) { if (it.groups) histLabels.push(...it.groups); else if (it.groupLabel) histLabels.push(it.groupLabel); } });
+    for (const g of allInputGroups) {
         for (const hl of histLabels) {
-            if (HESHU_MUTEX[p.label] === hl) {
+            if (HESHU_MUTEX[g] === hl) {
                 await playSound('slip');
                 showToast('与历史 ' + hl + ' 互斥');
                 renderStatsInputHighlight(statsInput, highlightEl, 'heshu');
@@ -1744,11 +1898,13 @@ async function handleHeshuStatsSubmit(lines, statsInput, highlightEl) {
     await playSound('pop');
     parsed.forEach(p => {
         const line = lines[p.li];
-        const idx = line.indexOf(p.label);
-        let tailText = '';
-        if (idx >= 0 && idx + p.label.length < line.length) tailText = line.substring(idx + p.label.length).replace(/[ .,\t]/g, '');
-        const nums = getGroupNumbers('heshu', p.label) || bigSmallGroups[p.label] || [];
-        const newItem = { id: Date.now() + Math.random(), type: 'heshu', vals: [p.label], inactiveVals: [], labelPrefix: tailText + p.label, source: '', isActive: true, isGroupInput: true, groupLabel: p.label, nums: nums };
+        const nums = [];
+        p.groups.forEach(g => {
+            const gn = getGroupNumbers('heshu', g) || bigSmallGroups[g] || [];
+            gn.forEach(n => { if (!nums.includes(n)) nums.push(n); });
+        });
+        
+        const newItem = { id: Date.now() + Math.random(), type: 'heshu', vals: p.groups, inactiveVals: [], labelPrefix: p.label, source: '', isActive: true, isGroupInput: true, groupLabel: p.groups.join(''), groups: p.groups, nums: nums };
         statsHistory.heshu.push(newItem);
         recordAction('stats_add', `添加统计`, [], true, 0, {statsType:'heshu', statsIndex:statsHistory.heshu.length-1, item:newItem});
         addLog("input", `添加${newItem.labelPrefix}`);
