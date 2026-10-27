@@ -184,7 +184,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helve
 .result-num-sold { color: #ffffff !important; border: none !important; box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important; border-radius: 50% !important; }
 .text-red { color: var(--res-red) !important; } .text-blue { color: var(--res-blue) !important; } .text-green { color: var(--res-green) !important; }
 .bg-red-solid { background-color: var(--res-red) !important; } .bg-blue-solid { background-color: var(--res-blue) !important; } .bg-green-solid { background-color: var(--res-green) !important; }
-.res-prefix { color: #4a5568; }
 .bet-action-area { margin-bottom: 8px; display: flex; flex-direction: column; gap: 6px; padding-left: 0; }
 .bet-input-row { display: flex; gap: 6px; align-items: center; width: 100%; flex-wrap: nowrap; max-width: 100%; }
 .bet-nums-display { flex: 1; min-width: 0; background: rgba(248, 249, 250, 0.8); border: 1px solid #e2e8f0; border-radius: 6px; padding: 4px 8px; font-family: "Courier New", Courier, monospace; font-size: 0.9em; font-weight: 700; color: inherit; min-height: 28px; line-height: 1.4; box-sizing: border-box; display: flex; flex-wrap: wrap; align-items: center; word-wrap: break-word; word-break: break-word; overflow-wrap: break-word; white-space: normal; height: auto; max-width: 100%; overflow: hidden; }
@@ -279,7 +278,6 @@ button, .num-btn, .action-grid-btn, .sphere-btn-base, .filter-btn, .wave-btn, .z
 .stats-val-item.two-char { font-size: 0.55rem; letter-spacing: -1px; }
 .stats-val-item.flat { filter: grayscale(0.6) brightness(0.85); box-shadow: none; transform: scale(0.95); transition: all 0.2s ease; opacity: 0.5; border: 2px solid transparent; }
 .stats-val-item.highlighted { border: 2px solid #FFD700 !important; box-shadow: 0 0 8px #FFD700, 0 2px 4px rgba(0,0,0,0.2), inset 0 1px 2px rgba(255,255,255,0.3) !important; }
-.stats-unit-label { font-family: var(--font-art-mao); color: var(--label-select-color); text-shadow: var(--label-select-glow); font-size: 1.1rem; font-weight: bold; white-space: nowrap; flex-shrink: 0; height: 28px; line-height: 28px; display: flex; align-items: center; padding-top: 1px; }
 .stats-input-wrapper { position: relative; flex: 1; border: 1px solid var(--input-border); border-radius: 6px; background: var(--input-bg); min-height: 60px; box-sizing: border-box; overflow: hidden; }
 .stats-input-highlight { position: absolute; top: 0; left: 0; right: 0; bottom: 0; padding: 6px 8px; font-size: 0.8rem; font-family: "Courier New", monospace; font-weight: 600; line-height: 1.4; white-space: pre-wrap; word-break: break-all; overflow: hidden; pointer-events: none; color: #2d3748; }
 .stats-input-highlight .invalid-char { color: #FF0000; }
@@ -337,7 +335,7 @@ button, .num-btn, .action-grid-btn, .sphere-btn-base, .filter-btn, .wave-btn, .z
 <div class="bet-box-title"><div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;"><span>待购号码</span><span class="bet-count-badge" id="bettingCountBadge">0 个</span><button id="clearBettingBtn" class="temp-action-btn orange" onclick="handleClearBetting()">清空</button></div></div>
 <div class="bet-action-area" id="betActionArea"><div class="bet-input-row"><div class="bet-nums-display" id="betNumsDisplay"></div><button id="betAmountBtn" class="bet-amount-btn grey" onclick="handleAmountButtonClick()">无号码</button></div></div>
 <div class="bet-result-container" id="betResultContainer"><div class="bet-result-header"><div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;"><span>买号结果</span><span class="bet-count-badge" id="betCountBadge">0 个</span><span class="bet-total-amount" id="betTotalAmount">共 0 元</span></div><div style="display:flex; gap:6px;"><button class="clear-result-btn" id="clearResultBtn" onclick="handleClearBetResults()">清空结果</button><button class="small-copy-btn" id="copyBetResultBtn" onclick="copyBetResults()">复制</button></div></div><div class="bet-result-box" id="betResultBox" oncontextmenu="return false;" ondragstart="return false;"><div class="bet-result-items" id="betResultItems"></div></div></div>
-<div style="font-size: 0.65rem; font-weight: 700; color: #4a5568; margin-bottom: 2px; display:flex; justify-content:space-between; align-items:center;"><button class="small-copy-btn" id="copyLogBtn" onclick="copyLog()" style="margin-left:0; width:auto; height:auto; padding:2px 10px;">操作记录</button><button class="small-copy-btn clear-log-btn" id="clearLogBtn" onclick="handleClearLog()" style="margin-left:4px; width:auto; height:auto; padding:2px 10px;">清空记录</button><span style="font-weight: 600; color: #718096;">V7.8</span></div>
+<div style="font-size: 0.65rem; font-weight: 700; color: #4a5568; margin-bottom: 2px; display:flex; justify-content:space-between; align-items:center;"><button class="small-copy-btn" id="copyLogBtn" onclick="copyLog()" style="margin-left:0; width:auto; height:auto; padding:2px 10px;">操作记录</button><button class="small-copy-btn clear-log-btn" id="clearLogBtn" onclick="handleClearLog()" style="margin-left:4px; width:auto; height:auto; padding:2px 10px;">清空记录</button><span style="font-weight: 600; color: #718096;">V8.0</span></div>
 <div class="log-container" id="logContainer"><div class="log-item" style="color:#718096; justify-content:center;">暂无记录</div></div>
 </div>
 <div class="toast" id="toast">操作成功</div>
@@ -1035,7 +1033,7 @@ function findLastValidPosForStats(line, type) {
     for (let i = line.length - 1; i >= 0; i--) { const ch = line[i]; let isValid = false; isValid = statsValidators[type](ch); if (isValid) { lastValid = i; break; } }
     return lastValid;
 }
-function parseStatsInput(val, type, checkConflict) {
+function parseStatsInput(val, type) {
     const validVals = []; const seen = new Set(); let sourceText = ''; let firstInvalidPos = -1; let invalidStart = -1; let invalidEnd = -1;
     if (type === 'wave') {
         const lastValid = findLastValidPosForStats(val, type);
@@ -1082,7 +1080,6 @@ function normalizeSpecialGroupLabel(chars) {
     ['金','木','水','火','土'].forEach(c => { if (chars.includes(c)) label += c; });
     return label + '肖';
 }
-function isSpecialGroupChar(ch) { return zodiacColorChars.has(ch) || zodiacWuxingChars.has(ch); }
 function buildSpecialGroupFromCompact(compactStr) {
     const chars = compactStr.slice(0, -1).split('');
     const uniq = [...new Set(chars)];
@@ -1092,50 +1089,82 @@ function buildSpecialGroupFromCompact(compactStr) {
     return { type: 'rgb', label: label, zodiacs: [...zs] };
 }
 function parseZodiacLine(line) {
-    const trimmed = line.replace(/[ .,\t]/g, '');
-    if (!trimmed) return { type: 'empty' };
-    let allZodiac = true;
-    for (const ch of trimmed) { if (!zodiacs.includes(ch)) { allZodiac = false; break; } }
-    if (allZodiac) { return { type: 'chars', vals: [...new Set(trimmed.split(''))] }; }
-    
-    const group = zodiacGroupButtons.find(g => g.label === trimmed);
-    if (group) { return { type: 'group', label: trimmed, zodiacs: [...group.zodiacs], originalGroups: [trimmed] }; }
-    
-    if (/^[红绿蓝金木水火土]+肖$/.test(trimmed)) {
-        const g = buildSpecialGroupFromCompact(trimmed);
-        g.originalGroups = [g.label];
-        return g;
-    }
-
-    let rest = trimmed; 
+    let rest = line;
+    const foundChars = [];
     const foundGroups = [];
-    while (rest.length > 0) {
-        let matched = false;
-        const compactMatch = rest.match(/^[红绿蓝金木水火土]+肖/);
+    let matchedAny = false;
+
+    // 循环提取，忽略空格和标点
+    let i = 0;
+    while (i < line.length) {
+        const restStr = line.substring(i);
+        const compactMatch = restStr.match(/^[红绿蓝金木水火土]+肖/);
         if (compactMatch) {
             const full = compactMatch[0];
             const label = normalizeSpecialGroupLabel([...new Set(full.slice(0, -1).split(''))]);
-            foundGroups.push({label, isCompact: true});
-            rest = rest.slice(full.length);
-            matched = true;
+            foundGroups.push({label, isCompact: true, start: i});
+            i += full.length;
+            matchedAny = true;
             continue;
         }
-        
+
+        let matched = false;
         for (const g of zodiacGroupButtons) {
-            if (rest.startsWith(g.label)) {
-                foundGroups.push({label: g.label, isCompact: false});
-                rest = rest.slice(g.label.length);
+            if (restStr.startsWith(g.label)) {
+                foundGroups.push({label: g.label, isCompact: false, start: i});
+                i += g.label.length;
                 matched = true;
+                matchedAny = true;
                 break;
             }
         }
-        if (!matched) break; 
+        if (matched) continue;
+
+        const ch = line[i];
+        if (zodiacs.includes(ch)) {
+            if (!foundChars.includes(ch)) foundChars.push(ch);
+            i++;
+            matchedAny = true;
+            continue;
+        }
+        
+        if (ch === ' ' || ch === '.' || ch === ',') { i++; continue; }
+        break; // 遇到非法字符
     }
     
+    const tailStart = i;
+    const tailText = line.substring(tailStart).replace(/[ .,\t]/g, '');
+    
+    // 如果尾缀里还有生肖字，说明非法
+    for (let j = tailStart; j < line.length; j++) {
+        if (zodiacs.includes(line[j])) return { type: 'invalid', invalidPos: j };
+    }
+
+    if (!matchedAny) return { type: 'invalid', invalidPos: 0 };
+
+    // 检测当前行的重复和互斥
+    const seenGroupLabels = new Set();
+    for (const fg of foundGroups) {
+        if (seenGroupLabels.has(fg.label)) return { type: 'invalid', invalidPos: fg.start + fg.label.length };
+        for (const eg of seenGroupLabels) {
+            if (zodiacGroupMutexMap[eg] === fg.label) return { type: 'invalid', invalidPos: fg.start + fg.label.length };
+        }
+        seenGroupLabels.add(fg.label);
+    }
+    
+    const seenChars = new Set();
+    for (let j = 0; j < tailStart; j++) {
+        if (zodiacs.includes(line[j])) {
+            if (seenChars.has(line[j])) return { type: 'invalid', invalidPos: j + 1 };
+            seenChars.add(line[j]);
+        }
+    }
+
+    if (foundGroups.length > 0 && foundChars.length > 0) {
+        return { type: 'invalid', invalidPos: tailStart };
+    }
+
     if (foundGroups.length > 0) {
-        const hasZodiacInRest = [...rest].some(ch => zodiacs.includes(ch));
-        if (hasZodiacInRest) return { type: 'invalid' };
-        
         const zs = new Set();
         foundGroups.forEach(fg => {
             if (fg.isCompact) {
@@ -1146,41 +1175,62 @@ function parseZodiacLine(line) {
                 if (grp) grp.zodiacs.forEach(z => zs.add(z));
             }
         });
-        
-        const tailText = rest.replace(/[ .,\t]/g, '');
         const finalLabel = tailText + foundGroups.map(fg => fg.label).join('');
-        
-        return { type: 'group', label: finalLabel, zodiacs: [...zs], isMulti: true, originalGroups: foundGroups.map(fg => fg.label) };
+        return { type: 'group', label: finalLabel, zodiacs: [...zs], isMulti: true, originalGroups: foundGroups.map(fg => fg.label), tailText };
+    } else if (foundChars.length > 0) {
+        const finalLabel = tailText + foundChars.length + '肖';
+        return { type: 'chars', vals: foundChars, label: finalLabel, tailText };
     }
     
-    return { type: 'invalid' };
+    return { type: 'invalid', invalidPos: 0 };
 }
 function parseHeshuLine(line) {
-    const trimmed = line.replace(/[ .,\t]/g, '');
-    if (!trimmed) return { type: 'empty' };
-    let rest = trimmed;
+    let i = 0;
     const groups = [];
     let matchedAny = false;
 
-    while (rest.length > 0) {
+    while (i < line.length) {
+        const restStr = line.substring(i);
         let matched = false;
         for (const word of HESHU_VALID) {
-            if (rest.startsWith(word)) {
-                groups.push(word);
-                rest = rest.slice(word.length);
+            if (restStr.startsWith(word)) {
+                groups.push({label: word, start: i});
+                i += word.length;
                 matched = true;
                 matchedAny = true;
                 break;
             }
         }
-        if (!matched) break;
+        if (matched) continue;
+        
+        if (line[i] === ' ' || line[i] === '.' || line[i] === ',') { i++; continue; }
+        break;
     }
 
-    if (matchedAny) {
-        const tailText = rest;
-        return { type: 'ok', groups, label: tailText + groups.join('') };
+    if (!matchedAny) return { type: 'invalid', invalidPos: 0 };
+
+    const tailStart = i;
+    const tailText = line.substring(tailStart).replace(/[ .,\t]/g, '');
+    
+    // 检查尾缀里是否包含合数词
+    for (const word of HESHU_VALID) {
+        if (line.substring(tailStart).includes(word)) {
+            return { type: 'invalid', invalidPos: tailStart };
+        }
     }
-    return { type: 'invalid' };
+
+    // 检测互斥和重复
+    const seen = new Set();
+    for (const g of groups) {
+        if (seen.has(g.label)) return { type: 'invalid', invalidPos: g.start + g.label.length };
+        for (const eg of seen) {
+            if (HESHU_MUTEX[eg] === g.label) return { type: 'invalid', invalidPos: g.start + g.label.length };
+        }
+        seen.add(g.label);
+    }
+
+    const finalLabel = tailText + groups.map(g => g.label).join('');
+    return { type: 'ok', groups: groups.map(g => g.label), label: finalLabel };
 }
 function computeZodiacCharHighlight(line, popupGroups, histGroups) {
     const redSet = new Set();
@@ -1304,16 +1354,7 @@ function computeHeshuCharHighlight(line, popupOtherLabels, histLabels) {
     }
     return redSet;
 }
-function applyCharRedSet(line, redSet) {
-    if (redSet.size === 0) return escapeHtml(line);
-    let html = '';
-    for (let i = 0; i < line.length; i++) {
-        if (redSet.has(i)) html += `<span class="invalid-char">${escapeHtml(line[i])}</span>`;
-        else html += escapeHtml(line[i]);
-    }
-    return html;
-}
-function renderStatsInputHighlight(inputEl, highlightEl, type, conflictStart, conflictEnd) {
+function renderStatsInputHighlight(inputEl, highlightEl, type) {
     if (!inputEl || !highlightEl) return;
     requestAnimationFrame(() => {
         const txt = inputEl.value;
@@ -1321,20 +1362,52 @@ function renderStatsInputHighlight(inputEl, highlightEl, type, conflictStart, co
         let html = '';
         
         if (type === 'zodiac') {
-            // 专属“肖”的独立逐字标红逻辑，绝不误伤前面的字
+            // 专属“肖”的独立逐字标红逻辑
             lines.forEach((line, lineIdx) => {
-                const lastValid = findLastValidPosForStats(line, type);
                 const seenZodiac = new Set();
                 const seenGroups = new Set();
                 const encounteredGroups = []; // 记录已出现的组
                 const encounteredChars = new Set(); // 记录已出现的单字
                 let i = 0;
                 
+                // 先找尾缀起点 (tailStart)
+                let tailStart = line.length;
+                let j = 0;
+                while (j < line.length) {
+                    const rest = line.substring(j);
+                    const compactMatch = rest.match(/^[红绿蓝金木水火土]+肖/);
+                    if (compactMatch) { j += compactMatch[0].length; continue; }
+                    let matchedGroup = false;
+                    for (const g of zodiacGroupButtons) {
+                        if (line.startsWith(g.label, j)) { j += g.label.length; matchedGroup = true; break; }
+                    }
+                    if (matchedGroup) continue;
+                    if (zodiacs.includes(line[j])) { j++; continue; }
+                    if (line[j] === ' ' || line[j] === '.' || line[j] === ',') { j++; continue; }
+                    
+                    // 遇到非法字符，检查它后面是否还有合法字
+                    const restStr = line.substring(j);
+                    let hasValidAfter = false;
+                    for (let k = 0; k < restStr.length; k++) {
+                        if (zodiacs.includes(restStr[k])) { hasValidAfter = true; break; }
+                    }
+                    if (!hasValidAfter) {
+                        for (const g of zodiacGroupButtons) {
+                            if (restStr.includes(g.label)) { hasValidAfter = true; break; }
+                        }
+                    }
+                    
+                    if (!hasValidAfter) {
+                        tailStart = j; // 从这里开始全是尾缀
+                    }
+                    break;
+                }
+
                 while (i < line.length) {
-                    if (lastValid !== -1 && i > lastValid) { html += escapeHtml(line[i]); i++; continue; }
+                    if (i >= tailStart) { html += escapeHtml(line[i]); i++; continue; } // 尾缀不标红
+
                     const rest = line.substring(i);
                     
-                    // 1. 优先匹配组名（包含紧凑颜色/五行肖）
                     const compactMatch = rest.match(/^[红绿蓝金木水火土]+肖/);
                     if (compactMatch) {
                         const full = compactMatch[0];
@@ -1378,13 +1451,11 @@ function renderStatsInputHighlight(inputEl, highlightEl, type, conflictStart, co
                     }
                     if (matchedGroup) continue;
                     
-                    // 2. 处理生肖单字
                     const ch = line[i];
                     if (zodiacs.includes(ch)) {
                         let isInvalid = false;
                         if (seenZodiac.has(ch)) isInvalid = true;
                         
-                        // 判断单字是否与已出现的组冲突
                         for (const grpLabel of encounteredGroups) {
                             const grp = zodiacGroupButtons.find(x => x.label === grpLabel);
                             if (grp && grp.zodiacs.includes(ch)) { isInvalid = true; break; }
@@ -1715,7 +1786,10 @@ async function handleZodiacStatsSubmit(lines, statsInput, highlightEl) {
     lines.forEach((line, li) => {
         const r = parseZodiacLine(line);
         if (r.type === 'empty') return;
-        if (r.type === 'invalid') { parseErrors.push({ li }); return; }
+        if (r.type === 'invalid') { 
+            parseErrors.push({ li, pos: r.invalidPos !== undefined ? r.invalidPos : line.length }); 
+            return; 
+        }
         parsed.push({ li, ...r });
     });
     if (parseErrors.length) {
@@ -1723,118 +1797,27 @@ async function handleZodiacStatsSubmit(lines, statsInput, highlightEl) {
         showToast("存在无效内容");
         renderStatsInputHighlight(statsInput, highlightEl, 'zodiac');
         
-        const firstErrLine = parseErrors[0].li;
+        const firstErr = parseErrors[0];
         let pos = 0;
-        for (let i = 0; i < firstErrLine; i++) pos += lines[i].length + 1;
-        pos += lines[firstErrLine].length;
+        for (let i = 0; i < firstErr.li; i++) pos += lines[i].length + 1;
+        pos += firstErr.pos; 
+        pos = Math.min(pos, statsInput.value.length);
         statsInput.focus();
         statsInput.setSelectionRange(pos, pos);
         return;
     }
     if (!parsed.length) return;
 
-    const allInputGroups = [];
-    parsed.forEach(p => {
-        if (p.originalGroups) allInputGroups.push(...p.originalGroups);
-        else if (p.type === 'group') allInputGroups.push(p.label);
-    });
-
-    let hasMutex = false;
-    for (let i = 0; i < allInputGroups.length && !hasMutex; i++) {
-        for (let j = i + 1; j < allInputGroups.length; j++) {
-            if (zodiacGroupMutexMap[allInputGroups[i]] === allInputGroups[j]) { hasMutex = true; break; }
-        }
-    }
-    if (hasMutex) {
-        await playSound('slip');
-        showToast('存在互斥内容');
-        renderStatsInputHighlight(statsInput, highlightEl, 'zodiac');
-        return;
-    }
-
-    const dupLineIdx = (() => {
-        for (let li = 0; li < lines.length; li++) {
-            const line = lines[li];
-            const trimmed = line.replace(/[ .,\t]/g, '');
-            if (!trimmed) continue;
-            const seenZodiac = new Set();
-            let zdup = false;
-            let allZodiac = true;
-            for (const ch of trimmed) { if (!zodiacs.includes(ch)) { allZodiac = false; break; } }
-            if (allZodiac) {
-                for (const ch of trimmed) { if (seenZodiac.has(ch)) { zdup = true; break; } seenZodiac.add(ch); }
-                if (zdup) return li;
-            }
-            const seenGroupLabel = new Set();
-            let gi = 0;
-            let gdup = false;
-            while (gi < line.length) {
-                const rest = line.substring(gi);
-                const compactMatch = rest.match(/^[红绿蓝金木水火土]+肖/);
-                if (compactMatch) {
-                    const full = compactMatch[0];
-                    const label = normalizeSpecialGroupLabel([...new Set(full.slice(0, -1).split(''))]);
-                    if (seenGroupLabel.has(label)) { gdup = true; break; }
-                    seenGroupLabel.add(label);
-                    gi += full.length;
-                    continue;
-                }
-                let mg = false;
-                for (const g of zodiacGroupButtons) {
-                    if (line.startsWith(g.label, gi)) {
-                        if (seenGroupLabel.has(g.label)) { gdup = true; break; }
-                        seenGroupLabel.add(g.label);
-                        gi += g.label.length;
-                        mg = true;
-                        break;
-                    }
-                }
-                if (gdup) break;
-                if (!mg) gi++;
-            }
-            if (gdup) return li;
-        }
-        return -1;
-    })();
-    if (dupLineIdx >= 0) {
-        await playSound('slip');
-        showToast('存在重复内容');
-        renderStatsInputHighlight(statsInput, highlightEl, 'zodiac');
-        return;
-    }
     await playSound('pop');
     parsed.forEach(p => {
         let newItem;
         const line = lines[p.li];
-        let tailText = '';
+        let tailText = p.tailText || '';
+        
         if (p.type === 'chars') {
-            let lastIdx = -1;
-            for (let i = line.length - 1; i >= 0; i--) { if (zodiacs.includes(line[i])) { lastIdx = i; break; } }
-            if (lastIdx >= 0 && lastIdx < line.length - 1) tailText = line.substring(lastIdx + 1).replace(/[ .,\t]/g, '');
-            newItem = { id: Date.now() + Math.random(), type: 'zodiac', vals: p.vals, inactiveVals: [], labelPrefix: tailText + p.vals.length + '肖', source: '', isActive: true, isGroupInput: false, groupLabel: '' };
+            newItem = { id: Date.now() + Math.random(), type: 'zodiac', vals: p.vals, inactiveVals: [], labelPrefix: p.label, source: '', isActive: true, isGroupInput: false, groupLabel: '' };
         } else if (p.type === 'group') {
-            const idx = line.indexOf(p.label);
-            if (idx >= 0 && idx + p.label.length < line.length) tailText = line.substring(idx + p.label.length).replace(/[ .,\t]/g, '');
-            newItem = { id: Date.now() + Math.random(), type: 'zodiac', vals: p.zodiacs, inactiveVals: [], labelPrefix: tailText + p.label, source: '', isActive: true, isGroupInput: true, groupLabel: p.label };
-        } else if (p.type === 'rgb') {
-            let lastEnd = -1;
-            let ii = 0;
-            while (ii < line.length) {
-                const rest = line.substring(ii);
-                const compactMatch = rest.match(/^[红绿蓝金木水火土]+肖/);
-                if (compactMatch) {
-                    lastEnd = ii + compactMatch[0].length - 1;
-                    ii += compactMatch[0].length;
-                    continue;
-                }
-                let matched = false;
-                for (const g of zodiacGroupButtons) {
-                    if (line.startsWith(g.label, ii)) { lastEnd = ii + g.label.length - 1; ii += g.label.length; matched = true; break; }
-                }
-                if (!matched) ii++;
-            }
-            if (lastEnd >= 0 && lastEnd < line.length - 1) tailText = line.substring(lastEnd + 1).replace(/[ .,\t]/g, '');
-            newItem = { id: Date.now() + Math.random(), type: 'zodiac', vals: p.zodiacs, inactiveVals: [], labelPrefix: tailText + p.label, source: '', isActive: true, isGroupInput: true, groupLabel: p.label };
+            newItem = { id: Date.now() + Math.random(), type: 'zodiac', vals: p.zodiacs, inactiveVals: [], labelPrefix: p.label, source: '', isActive: true, isGroupInput: true, groupLabel: p.label };
         }
         statsHistory.zodiac.push(newItem);
         recordAction('stats_add', `添加统计`, [], true, 0, {statsType:'zodiac', statsIndex:statsHistory.zodiac.length-1, item:newItem});
@@ -1852,7 +1835,10 @@ async function handleHeshuStatsSubmit(lines, statsInput, highlightEl) {
     lines.forEach((line, li) => {
         const r = parseHeshuLine(line);
         if (r.type === 'empty') return;
-        if (r.type === 'invalid') { parseErrors.push({ li }); return; }
+        if (r.type === 'invalid') { 
+            parseErrors.push({ li, pos: r.invalidPos !== undefined ? r.invalidPos : line.length }); 
+            return; 
+        }
         parsed.push({ li, label: r.label, groups: r.groups });
     });
     if (parseErrors.length) {
@@ -1860,41 +1846,34 @@ async function handleHeshuStatsSubmit(lines, statsInput, highlightEl) {
         showToast("存在无效内容");
         renderStatsInputHighlight(statsInput, highlightEl, 'heshu');
         
-        const firstErrLine = parseErrors[0].li;
+        const firstErr = parseErrors[0];
         let pos = 0;
-        for (let i = 0; i < firstErrLine; i++) pos += lines[i].length + 1;
-        pos += lines[firstErrLine].length;
+        for (let i = 0; i < firstErr.li; i++) pos += lines[i].length + 1;
+        pos += firstErr.pos; 
+        pos = Math.min(pos, statsInput.value.length);
         statsInput.focus();
         statsInput.setSelectionRange(pos, pos);
         return;
     }
     if (!parsed.length) return;
     
-    const allInputGroups = [];
-    parsed.forEach(p => { allInputGroups.push(...p.groups); });
-    
-    for (let i = 0; i < allInputGroups.length; i++) {
-        for (let j = i+1; j < allInputGroups.length; j++) {
-            if (HESHU_MUTEX[allInputGroups[i]] === allInputGroups[j]) {
-                await playSound('slip');
-                showToast('存在互斥内容');
-                renderStatsInputHighlight(statsInput, highlightEl, 'heshu');
-                return;
-            }
-        }
-    }
     const histLabels = [];
     statsHistory.heshu.forEach(it => { if (it.isActive) { if (it.groups) histLabels.push(...it.groups); else if (it.groupLabel) histLabels.push(it.groupLabel); } });
-    for (const g of allInputGroups) {
-        for (const hl of histLabels) {
-            if (HESHU_MUTEX[g] === hl) {
-                await playSound('slip');
-                showToast('与历史 ' + hl + ' 互斥');
-                renderStatsInputHighlight(statsInput, highlightEl, 'heshu');
-                return;
+    
+    // 只保留与历史记录的互斥校验
+    for (const p of parsed) {
+        for (const g of p.groups) {
+            for (const hl of histLabels) {
+                if (HESHU_MUTEX[g] === hl) {
+                    await playSound('slip');
+                    showToast('与历史 ' + hl + ' 互斥');
+                    renderStatsInputHighlight(statsInput, highlightEl, 'heshu');
+                    return;
+                }
             }
         }
     }
+    
     await playSound('pop');
     parsed.forEach(p => {
         const line = lines[p.li];
